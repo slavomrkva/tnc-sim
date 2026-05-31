@@ -101,6 +101,30 @@ footer{background:var(--surface2);border-top:1px solid var(--border);padding:14p
 footer p{font-size:12px;color:var(--text3);}
 footer a{color:var(--accent3);text-decoration:none;}
 footer a:hover{text-decoration:underline;}
+.line-nums .ln{display:block;}
+.line-nums .ln.err{color:#ff5d5d;font-weight:500;}
+.line-nums .ln.warn{color:#e8a23a;}
+.problems{flex-shrink:0;border-top:1px solid var(--border);background:var(--surface2);font-family:var(--mono);font-size:11px;max-height:140px;display:flex;flex-direction:column;}
+.problems-head{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;color:var(--text2);user-select:none;}
+.problems-head .pc-ok{color:var(--accent2);}
+.problems-head .pc-err{color:#ff5d5d;}
+.problems-list{overflow-y:auto;}
+.problem{display:flex;gap:8px;padding:5px 12px;border-top:1px solid var(--border);cursor:pointer;color:var(--text2);align-items:baseline;}
+.problem:hover{background:var(--surface);}
+.problem .pl{color:var(--text3);min-width:40px;}
+.problem.err .pi{color:#ff5d5d;}
+.problem.warn .pi{color:#e8a23a;}
+.help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+.help-overlay.open{display:flex;}
+.help-modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;}
+.help-modal h2{font-size:16px;padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;color:var(--text);}
+.help-close{cursor:pointer;color:var(--text2);font-size:22px;line-height:1;background:none;border:none;}
+.help-body{padding:8px 20px 20px;}
+.help-cmd{border-bottom:1px solid var(--border);padding:12px 0;}
+.help-cmd:last-child{border-bottom:none;}
+.help-cmd code{font-family:var(--mono);font-size:12px;color:var(--accent3);background:var(--surface2);padding:2px 8px;border-radius:4px;}
+.help-cmd p{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.6;}
+.help-cmd .ex{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:4px;}
 @media(max-width:700px){
   .sim-main{flex-direction:column;}
   .editor-panel{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border);height:240px;flex-shrink:0;}
@@ -159,10 +183,17 @@ C X+75 Y+40 DR+ R25 F800
 L Z+60 FMAX
 END PGM DEMO MM</textarea>
       </div>
+      <div class="problems" id="problems" style="display:none;">
+        <div class="problems-head" onclick="toggleProblems()">
+          <span id="problemsCount" class="pc-ok">No problems</span>
+        </div>
+        <div class="problems-list" id="problemsList"></div>
+      </div>
       <div class="toolbar">
         <button class="btn btn-run" id="runBtn" onclick="onRun()">&#9654; Run</button>
         <button class="btn btn-step" onclick="onStep()">&#8594; Step</button>
         <button class="btn" onclick="onReset()">&#8635; Reset</button>
+        <button class="btn" onclick="openHelp()">? Help</button>
         <div class="speed-ctrl">
           <button class="speed-btn" onclick="changeSpeed(-1)">&#8722;</button>
           <span class="speed-val" id="speedVal">1.0&#215;</span>
@@ -227,6 +258,13 @@ END PGM DEMO MM</textarea>
   <p>Not affiliated with HEIDENHAIN GmbH</p>
 </footer>
 
+<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()">
+  <div class="help-modal">
+    <h2>TNC command reference <button class="help-close" onclick="closeHelp()">&times;</button></h2>
+    <div class="help-body" id="helpBody"></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
@@ -248,14 +286,142 @@ var canvas2d = document.getElementById('sim2d');
 var ctx2d = canvas2d.getContext('2d');
 
 // ---------- line numbers ----------
+var problemsData = [];
+var problemsOpen = true;
+
 function updateLineNums(){
   var lines = codeEl.value.split('\n');
-  var html = '';
-  for(var i=0;i<lines.length;i++){ html += (i+1) + (i<lines.length-1?'<br>':''); }
+  var marks = {};
+  for(var k=0;k<problemsData.length;k++){
+    var pr=problemsData[k];
+    if(marks[pr.line]!=='err') marks[pr.line]=pr.sev;
+  }
+  var html='';
+  for(var i=0;i<lines.length;i++){
+    var cls='ln'; if(marks[i]==='err')cls+=' err'; else if(marks[i]==='warn')cls+=' warn';
+    html += '<span class="'+cls+'">'+(i+1)+'</span>';
+  }
   lineNums.innerHTML = html;
   blockCountEl.textContent = lines.length + ' blocks';
 }
-codeEl.addEventListener('input', function(){ updateLineNums(); dirty = true; });
+
+var AXIS_TOKENS = /^([XYZABC][+-]?\d+\.?\d*|F\d+\.?\d*|FMAX|RL|RR|R0|M\d+|DR[+-]|R\d+\.?\d*)$/;
+
+function validateProgram(code){
+  var lines = code.split('\n');
+  var probs = [];
+  var hasBegin=false, hasEnd=false, hasBlk1=false, hasBlk2=false, lastCC=false;
+  for(var i=0;i<lines.length;i++){
+    var raw=lines[i].trim();
+    if(!raw || raw.charAt(0)===';') continue;
+    var u = raw.toUpperCase().split(';')[0].trim();
+    if(!u) continue;
+    var toks=u.split(/\s+/);
+    if(u.indexOf('BEGIN PGM')===0){
+      hasBegin=true;
+      if(!/^BEGIN PGM \S+ (MM|INCH)$/.test(u)) probs.push({line:i,sev:'err',msg:'Expected: BEGIN PGM <name> MM'});
+    } else if(u.indexOf('END PGM')===0){
+      hasEnd=true;
+      if(!/^END PGM \S+ (MM|INCH)$/.test(u)) probs.push({line:i,sev:'err',msg:'Expected: END PGM <name> MM'});
+    } else if(u.indexOf('BLK FORM 0.1')===0){
+      hasBlk1=true;
+      if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!/Z[+-]?\d/.test(u)) probs.push({line:i,sev:'warn',msg:'BLK FORM 0.1 should define X, Y and Z'});
+    } else if(u.indexOf('BLK FORM 0.2')===0){
+      hasBlk2=true;
+      if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!/Z[+-]?\d/.test(u)) probs.push({line:i,sev:'warn',msg:'BLK FORM 0.2 should define X, Y and Z'});
+    } else if(u.indexOf('BLK FORM')===0){
+      probs.push({line:i,sev:'err',msg:'BLK FORM must be 0.1 or 0.2'});
+    } else if(u.indexOf('TOOL CALL')===0){
+      if(!/^TOOL CALL \d+/.test(u)) probs.push({line:i,sev:'err',msg:'Expected: TOOL CALL <number> Z S<rpm>'});
+    } else if(u.indexOf('TOOL DEF')===0){
+      /* accepted, not simulated yet */
+    } else if(toks[0]==='CC'){
+      lastCC=true;
+      if(!/X[+-]?\d/.test(u)&&!/Y[+-]?\d/.test(u)) probs.push({line:i,sev:'err',msg:'CC needs X and/or Y (arc center)'});
+    } else if(toks[0]==='C'){
+      if(!lastCC) probs.push({line:i,sev:'warn',msg:'C arc without a preceding CC (arc center)'});
+      if(!/R\d/.test(u)) probs.push({line:i,sev:'warn',msg:'C arc usually needs a radius R'});
+      for(var t=1;t<toks.length;t++){ if(toks[t] && !AXIS_TOKENS.test(toks[t])) probs.push({line:i,sev:'err',msg:'Unknown token "'+toks[t]+'" in C block'}); }
+    } else if(toks[0]==='L'){
+      var hasAxis=/[XYZABC][+-]?\d/.test(u);
+      var hasF=/\bF/.test(u);
+      if(!hasAxis && !hasF) probs.push({line:i,sev:'err',msg:'L needs at least one coordinate (X, Y or Z)'});
+      for(var t2=1;t2<toks.length;t2++){ if(toks[t2] && !AXIS_TOKENS.test(toks[t2])) probs.push({line:i,sev:'err',msg:'Unknown token "'+toks[t2]+'" in L block'}); }
+    } else if(/^M\d+$/.test(toks[0])){
+      /* standalone M function, accepted */
+    } else {
+      probs.push({line:i,sev:'warn',msg:'Unknown or unsupported command "'+toks[0]+'"'});
+    }
+  }
+  if(!hasBegin) probs.push({line:0,sev:'warn',msg:'Missing BEGIN PGM line'});
+  if(!hasEnd) probs.push({line:Math.max(0,lines.length-1),sev:'warn',msg:'Missing END PGM line'});
+  if(!hasBlk1||!hasBlk2) probs.push({line:0,sev:'warn',msg:'Workpiece not fully defined (BLK FORM) — using default block'});
+  probs.sort(function(a,b){return a.line-b.line;});
+  return probs;
+}
+
+function hasErrors(){ for(var i=0;i<problemsData.length;i++){ if(problemsData[i].sev==='err') return true; } return false; }
+function errorCount(){ var c=0; for(var i=0;i<problemsData.length;i++){ if(problemsData[i].sev==='err')c++; } return c; }
+
+function renderProblems(){
+  var panel=document.getElementById('problems');
+  var list=document.getElementById('problemsList');
+  var countEl=document.getElementById('problemsCount');
+  if(problemsData.length===0){ panel.style.display='none'; updateLineNums(); return; }
+  var errs=errorCount(), warns=problemsData.length-errs;
+  panel.style.display='flex';
+  var label='';
+  if(errs) label+='<span class="pc-err">\u25CF '+errs+(errs>1?' errors':' error')+'</span>';
+  if(warns) label+=(errs?' \u00B7 ':'')+'<span style="color:#e8a23a">\u25CF '+warns+(warns>1?' warnings':' warning')+'</span>';
+  countEl.innerHTML=label;
+  var html='';
+  for(var j=0;j<problemsData.length;j++){
+    var p=problemsData[j];
+    html+='<div class="problem '+p.sev+'" onclick="gotoLine('+p.line+')"><span class="pl">L'+(p.line+1)+'</span><span class="pi">'+(p.sev==='err'?'\u2716':'\u26A0')+'</span><span>'+p.msg+'</span></div>';
+  }
+  list.style.display = problemsOpen?'block':'none';
+  list.innerHTML=html;
+  updateLineNums();
+}
+function toggleProblems(){ problemsOpen=!problemsOpen; document.getElementById('problemsList').style.display=problemsOpen?'block':'none'; }
+function gotoLine(n){
+  var lines=codeEl.value.split('\n');
+  var pos=0; for(var i=0;i<n && i<lines.length;i++){ pos+=lines[i].length+1; }
+  codeEl.focus();
+  codeEl.setSelectionRange(pos, pos+(lines[n]?lines[n].length:0));
+  var lh=parseFloat(getComputedStyle(codeEl).lineHeight)||20;
+  codeEl.scrollTop = Math.max(0, n*lh - codeEl.clientHeight/2);
+  lineNums.scrollTop = codeEl.scrollTop;
+}
+function runValidation(){ problemsData = validateProgram(codeEl.value); renderProblems(); }
+
+var HELP_CMDS = [
+  {c:'BEGIN PGM <name> MM', d:'Start of every program. MM means millimetre units (use INCH for inches).', e:'BEGIN PGM PART1 MM'},
+  {c:'END PGM <name> MM', d:'End of the program. The name should match the BEGIN line.', e:'END PGM PART1 MM'},
+  {c:'BLK FORM 0.1 Z X.. Y.. Z..', d:'Minimum corner of the raw stock. Here Z is the bottom of the block (the table side).', e:'BLK FORM 0.1 Z X+0 Y+0 Z+0'},
+  {c:'BLK FORM 0.2 X.. Y.. Z..', d:'Maximum corner of the raw stock. The Z value is the top surface height.', e:'BLK FORM 0.2 X+100 Y+80 Z+40'},
+  {c:'TOOL CALL <n> Z S<rpm>', d:'Selects tool number n with tool axis Z and spindle speed S in rpm.', e:'TOOL CALL 1 Z S3000'},
+  {c:'L  X.. Y.. Z..  F.. / FMAX', d:'Straight line move to the given point. F sets feed in mm/min; FMAX is rapid traverse. Axes you leave out keep their previous value.', e:'L X+50 Y+20 F800'},
+  {c:'CC X.. Y..', d:'Sets the circle centre for the next arc. It does not move the tool by itself.', e:'CC X+50 Y+40'},
+  {c:'C  X.. Y..  DR+ / DR-  R..  F..', d:'Arc move around the last CC centre to the end point. DR+ is counter-clockwise, DR- is clockwise, R is the radius.', e:'C X+75 Y+40 DR+ R25 F800'}
+];
+function openHelp(){
+  var b=document.getElementById('helpBody');
+  var h='<p style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6">Short reference for the commands TNC Sim currently understands. This is our own quick guide \u2014 not the official Heidenhain manual.</p>';
+  for(var i=0;i<HELP_CMDS.length;i++){ var x=HELP_CMDS[i]; h+='<div class="help-cmd"><code>'+x.c.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code><p>'+x.d+'</p><div class="ex">e.g.  '+x.e+'</div></div>'; }
+  b.innerHTML=h;
+  document.getElementById('helpOverlay').classList.add('open');
+}
+function closeHelp(){ document.getElementById('helpOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp(); });
+
+var validateTimer=null;
+codeEl.addEventListener('input', function(){
+  dirty=true;
+  updateLineNums();
+  if(validateTimer) clearTimeout(validateTimer);
+  validateTimer=setTimeout(runValidation, 350);
+});
 codeEl.addEventListener('scroll', function(){ lineNums.scrollTop = codeEl.scrollTop; });
 
 // ---------- speed ----------
@@ -653,12 +819,16 @@ function draw2dFull(withPath){
 function ensurePrepared(){ if(dirty || !prog){ prepare(); } }
 
 function onRun(){
+  runValidation();
+  if(hasErrors()){ updateStatus('Fix '+errorCount()+' error(s) before running', false); problemsOpen=true; renderProblems(); return; }
   ensurePrepared();
   if(mode==='done' || subIndex>=sub.length){ resetState(); }
   mode='running';
   updateStatus('Running…', true);
 }
 function onStep(){
+  runValidation();
+  if(hasErrors()){ updateStatus('Fix '+errorCount()+' error(s) before running', false); problemsOpen=true; renderProblems(); return; }
   ensurePrepared();
   if(mode==='done' || subIndex>=sub.length){ resetState(); }
   if(subIndex < sub.length){
@@ -694,6 +864,7 @@ function switchView(v){
 
 // ---------- boot ----------
 updateLineNums();
+runValidation();
 if(THREE_OK){
   init3D();
   prepare();
