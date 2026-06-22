@@ -710,7 +710,7 @@ END PGM PROGRAM MM</textarea>
 <footer>
   <p>TNC Sim &nbsp;·&nbsp; <a href="https://github.com/slavomrkva/tnc-sim">GitHub</a></p>
   <button onclick="openBugReport()" data-help="bug-report" style="font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;background:transparent;color:var(--text3);border:1px solid var(--border);cursor:pointer;white-space:nowrap;">🐛 Bug report</button>
-  <a href="https://www.buymeacoffee.com/slavomrkva" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;background:transparent;color:var(--text3);border:1px solid var(--border);text-decoration:none;white-space:nowrap;" title="Buy me a coffee">&#9749; Buy me a coffee</a>
+  <a href="https://buymeacoffee.com/slavozett" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;background:transparent;color:var(--text3);border:1px solid var(--border);text-decoration:none;white-space:nowrap;" title="Buy me a coffee">&#9749; Buy me a coffee</a>
 </footer>
 
 <div class="cycle-overlay" id="cycleOverlay" onclick="if(event.target===this)closeCyclePicker()">
@@ -736,6 +736,7 @@ END PGM PROGRAM MM</textarea>
           <button onclick="bugCaptureScreen()" style="font-family:var(--mono);font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text2);cursor:pointer;">📷 Capture 3D view</button>
           <button onclick="bugClearScreen()" id="bugClearBtn" style="display:none;font-family:var(--mono);font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text3);cursor:pointer;">✕ Clear</button>
         </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">Copied to your clipboard, not uploaded automatically — on the GitHub page that opens, click into the text box and press <b style="color:var(--text2);">Ctrl+V</b> to paste it in.</div>
         <canvas id="bugCanvas" style="display:none;margin-top:8px;max-width:100%;border:1px solid var(--border);border-radius:6px;"></canvas>
       </div>
       <div>
@@ -744,9 +745,16 @@ END PGM PROGRAM MM</textarea>
       </div>
         <pre id="bugDebug" style="font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text3);overflow-y:auto;max-height:120px;margin:0;white-space:pre-wrap;"></pre>
       </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
         <button onclick="closeBugReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text3);cursor:pointer;">Cancel</button>
-        <button onclick="bugSubmit()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--accent);border-radius:5px;background:var(--accent);color:#fff;cursor:pointer;">Open GitHub Issue</button>
+        <button onclick="bugSubmit()" style="font-family:var(--mono);padding:6px 16px;border:1px solid var(--accent);border-radius:5px;background:var(--accent);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.4;">
+          <span style="font-size:12px;">🔗 GitHub Issue</span>
+          <span style="font-size:9px;opacity:0.85;">needs GitHub account</span>
+        </button>
+        <button onclick="bugEmailReport()" style="font-family:var(--mono);padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.4;">
+          <span style="font-size:12px;">✉️ Email</span>
+          <span style="font-size:9px;color:var(--text3);">no account needed</span>
+        </button>
         <button onclick="bugCopyReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text2);cursor:pointer;">📋 Copy report</button>
       </div>
     </div>
@@ -1389,7 +1397,7 @@ var HELP_MAP = {
   'Q257':     {title:'Q257 — Depth per chip break', desc:'How deep the tap goes before retracting slightly to break chips. 0 = no chip breaking.', ex:'Q257=+5'},
   'Q256':     {title:'Q256 — Chip break retract', desc:'Distance to retract for chip breaking (stays inside the hole). Typically 0.2–0.5mm.', ex:'Q256=+0.2'},
   'measure':  {title:'◎ Measure', desc:'Click to enter measure mode. Click any point on the workpiece surface to record its X/Y/Z coordinates. Click two points to measure the distance between them. Click again to exit measure mode.', ex:''},
-  'bug-report':{title:'🐛 Bug report', desc:'Opens the bug report dialog. Describe what went wrong, optionally attach a screenshot of the 3D view and your program is included automatically. Submits a GitHub issue.', ex:''},
+  'bug-report':{title:'🐛 Bug report', desc:'Opens the bug report dialog. Describe what went wrong; your program is included automatically. If you capture a screenshot of the 3D view, it is copied to your clipboard so you can paste it (Ctrl+V) into the GitHub issue text box.', ex:''},
   'editor':   {title:'NC Program editor', desc:'Write your Heidenhain Klartext NC program here. Click any line to activate the inline field editor. Use the keypad buttons above to insert commands. Lines starting with ; are comments.', ex:'; This is a comment'},
   'export':   {title:'↓ Export', desc:'Downloads the current NC program as a .H file (Heidenhain format). You can load it into a real TNC control or keep it as a backup.', ex:''},
   'speed':    {title:'Simulation speed', desc:'Controls how fast the simulation plays. − slows down, + speeds up. Range from 0.1× (very slow, useful for step-by-step inspection) to 8× (fast preview). Speed does not affect accuracy.', ex:''},
@@ -1691,23 +1699,30 @@ function closeBugReport(){
   document.getElementById('bugOverlay').classList.remove('open');
 }
 
+var _bugScreenshotBlob = null;
 function bugCaptureScreen(){
   if(!renderer) return;
   // Force a render to make sure canvas is up to date
   renderer.render(scene, camera);
-  var src = renderer.domElement.toDataURL('image/png');
-  var c = document.getElementById('bugCanvas');
-  c.style.display = 'block';
-  document.getElementById('bugClearBtn').style.display = '';
-  var img = new Image();
-  img.onload = function(){
-    c.width = img.width; c.height = img.height;
-    c.getContext('2d').drawImage(img, 0, 0);
-  };
-  img.src = src;
+  renderer.domElement.toBlob(function(blob){
+    if(!blob) return;
+    _bugScreenshotBlob = blob;
+    var c = document.getElementById('bugCanvas');
+    c.style.display = 'block';
+    document.getElementById('bugClearBtn').style.display = '';
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function(){
+      c.width = img.width; c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }, 'image/png');
 }
 
 function bugClearScreen(){
+  _bugScreenshotBlob = null;
   document.getElementById('bugCanvas').style.display = 'none';
   document.getElementById('bugClearBtn').style.display = 'none';
 }
@@ -1727,31 +1742,121 @@ function bugSubmit(){
   var prog_txt = codeEl2 ? codeEl2.value : '';
   var title = encodeURIComponent('Bug: '+(desc.slice(0,60)||'issue'));
 
-  // Always include program — trim debug if total too long
-  var body = '## Description\n'+(desc||'(no description)')
-    +'\n\n## Program\n```\n'+prog_txt+'\n```'
-    +'\n\n## Debug info\n```\n'+debug+'\n```';
+  // GitHub's actual URL length limit is ~8192 chars for the WHOLE url
+  // ("Your request URL is too long" otherwise). Leave headroom for the
+  // base path + title + "&body=".
+  var URL_BUDGET = 7000;
 
-  var encoded = encodeURIComponent(body);
-  if(encoded.length > 14000){
-    // Trim program to fit
-    var trimmed = prog_txt.slice(0, 3000)+'...(trimmed)';
-    body = '## Description\n'+(desc||'(no description)')
-      +'\n\n## Program\n```\n'+trimmed+'\n```'
-      +'\n\n## Debug info\n```\n'+debug+'\n```';
-    encoded = encodeURIComponent(body);
+  function buildBody(progPart, debugPart){
+    return '## Description\n'+(desc||'(no description)')
+      +'\n\n## Program\n```\n'+progPart+'\n```'
+      +'\n\n## Debug info\n```\n'+debugPart+'\n```';
+  }
+
+  var encoded = encodeURIComponent(buildBody(prog_txt, debug));
+
+  if(encoded.length > URL_BUDGET){
+    // Binary-search the longest program slice whose ENCODED length still
+    // fits — encodeURIComponent expansion (newlines -> %0A etc.) isn't a
+    // fixed ratio, so test the real encoded length rather than guessing.
+    var lo=0, hi=prog_txt.length, fit=0;
+    while(lo<=hi){
+      var mid=(lo+hi)>>1;
+      var candidate = prog_txt.slice(0,mid)+(mid<prog_txt.length?'\n...(trimmed)':'');
+      if(encodeURIComponent(buildBody(candidate, debug)).length <= URL_BUDGET){ fit=mid; lo=mid+1; }
+      else hi=mid-1;
+    }
+    var trimmedProg = prog_txt.slice(0,fit)+(fit<prog_txt.length?'\n...(trimmed)':'');
+    encoded = encodeURIComponent(buildBody(trimmedProg, debug));
+
+    // Still too long (huge debug info or description) — shrink debug info too.
+    if(encoded.length > URL_BUDGET){
+      encoded = encodeURIComponent(buildBody(trimmedProg, debug.slice(0,500)+'...(trimmed)'));
+    }
   }
   window.open('https://github.com/slavomrkva/tnc-sim/issues/new?title='+title+'&body='+encoded, '_blank');
+
+  // A screenshot can't be embedded in the URL itself (it's not text) — copy
+  // it to the clipboard instead so the user can paste it into the issue body.
+  if(_bugScreenshotBlob && navigator.clipboard && window.ClipboardItem){
+    navigator.clipboard.write([new ClipboardItem({'image/png': _bugScreenshotBlob})]).then(function(){
+      setTimeout(function(){ alert('Screenshot copied to clipboard \u2014 paste it (Ctrl+V) into the GitHub issue text box that just opened.'); }, 300);
+    }).catch(function(){});
+  }
+}
+
+function bugEmailReport(){
+  // No GitHub account needed — opens the user's own mail app (works on
+  // mobile too, via the OS-level mailto: handler).
+  var desc = document.getElementById('bugDesc').value.trim();
+  var debug = document.getElementById('bugDebug').textContent;
+  var codeEl2 = document.getElementById('code');
+  var prog_txt = codeEl2 ? codeEl2.value : '';
+  var subject = encodeURIComponent('TNC Sim bug report'+(desc?': '+desc.slice(0,50):''));
+
+  // mailto: links have a much smaller practical limit than web URLs —
+  // older Outlook/Windows mail handlers cap total length around ~2000
+  // chars, so stay conservative across clients.
+  var MAIL_BUDGET = 1500;
+
+  function buildBody(progPart, debugPart){
+    return 'Description:\n'+(desc||'(no description)')
+      +'\n\nProgram:\n'+progPart
+      +'\n\nDebug info:\n'+debugPart;
+  }
+
+  var encoded = encodeURIComponent(buildBody(prog_txt, debug));
+  if(encoded.length > MAIL_BUDGET){
+    var lo=0, hi=prog_txt.length, fit=0;
+    while(lo<=hi){
+      var mid=(lo+hi)>>1;
+      var candidate = prog_txt.slice(0,mid)+(mid<prog_txt.length?'\n...(trimmed \u2014 full program copied to clipboard)':'');
+      if(encodeURIComponent(buildBody(candidate, debug)).length <= MAIL_BUDGET){ fit=mid; lo=mid+1; }
+      else hi=mid-1;
+    }
+    var trimmedProg = prog_txt.slice(0,fit)+(fit<prog_txt.length?'\n...(trimmed \u2014 full program copied to clipboard)':'');
+    encoded = encodeURIComponent(buildBody(trimmedProg, debug));
+    if(encoded.length > MAIL_BUDGET){
+      encoded = encodeURIComponent(buildBody(trimmedProg, debug.slice(0,300)+'...(trimmed)'));
+    }
+  }
+
+  window.location.href = 'mailto:slavo.zett@gmail.com?subject='+subject+'&body='+encoded;
+
+  // Many mail clients (Gmail/Outlook web, Apple Mail) accept a pasted
+  // image directly in the message body — copy the full report text and
+  // screenshot together so it's ready to paste if the mailto body got
+  // trimmed or the client doesn't show images from mailto.
+  var fullText = _bugBuildText();
+  if(_bugScreenshotBlob && navigator.clipboard && window.ClipboardItem){
+    var textBlob = new Blob([fullText], {type:'text/plain'});
+    navigator.clipboard.write([new ClipboardItem({'text/plain':textBlob, 'image/png':_bugScreenshotBlob})]).then(function(){
+      setTimeout(function(){ alert('Opening your email app\u2026\n\nFull report + screenshot also copied to your clipboard \u2014 paste (Ctrl+V) into the email if it looks cut off or to include the image.'); }, 300);
+    }).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(fullText).catch(function(){});
+  }
 }
 
 function bugCopyReport(){
   var text = _bugBuildText();
-  navigator.clipboard.writeText(text).then(function(){
-    var btn = event.target;
-    var orig = btn.textContent;
+  var btn = event.target;
+  var orig = btn.textContent;
+  function flashCopied(){
     btn.textContent = '✓ Copied';
     setTimeout(function(){ btn.textContent = orig; }, 1500);
-  }).catch(function(){
+  }
+  if(_bugScreenshotBlob && navigator.clipboard && window.ClipboardItem){
+    var textBlob = new Blob([text], {type:'text/plain'});
+    navigator.clipboard.write([new ClipboardItem({'text/plain':textBlob, 'image/png':_bugScreenshotBlob})]).then(function(){
+      flashCopied();
+    }).catch(function(){
+      // Some targets only accept one type at a time — fall back to text only.
+      navigator.clipboard.writeText(text).then(flashCopied).catch(function(){});
+    });
+    return;
+  }
+  navigator.clipboard.writeText(text).then(flashCopied).catch(function(){
     // fallback
     var ta = document.createElement('textarea');
     ta.value = text;
