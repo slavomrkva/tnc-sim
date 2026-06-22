@@ -117,6 +117,7 @@ textarea#code::selection{background:rgba(232,83,10,0.3);}
 .syn-lbl{color:#60A5FA;}
 .syn-qvar{color:#C084FC;}
 .syn-cycle{color:#C9A876;}
+@keyframes refine-spin{ to{ transform:rotate(360deg); } }
 html[data-theme="light"] .syn-comment{color:#16A34A;}
 html[data-theme="light"] .syn-tool{color:#EA580C;}
 html[data-theme="light"] .syn-lbl{color:#2563EB;}
@@ -685,6 +686,10 @@ END PGM PROGRAM MM</textarea>
         <div id="simInfoPanel" style="position:absolute;top:38px;left:10px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.9;display:none;pointer-events:none;"></div>
         <div id="toolLegend" style="position:absolute;bottom:36px;left:10px;font-family:var(--mono);font-size:10px;background:rgba(14,16,20,.75);border:1px solid var(--border);border-radius:6px;padding:8px 12px;display:none;pointer-events:none;backdrop-filter:blur(4px);max-width:200px;"></div>
         <button id="refineBtnCanvas" onclick="triggerRefine()" title="Compute high-precision mesh" style="display:none;position:absolute;top:10px;left:96px;font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid rgba(74,158,255,.4);border-radius:5px;background:rgba(14,16,20,.7);color:rgba(74,158,255,.8);cursor:pointer;backdrop-filter:blur(4px);">&#x25C6; Refine</button>
+        <div id="refineIndicator" style="display:none;position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;padding:6px 16px;border:1px solid rgba(74,158,255,.5);border-radius:20px;background:rgba(14,16,20,.85);color:rgba(74,158,255,.95);backdrop-filter:blur(4px);align-items:center;gap:8px;z-index:30;box-shadow:0 2px 12px rgba(0,0,0,.3);">
+          <span id="refineSpinner" style="display:inline-block;width:11px;height:11px;border:2px solid rgba(74,158,255,.3);border-top-color:rgba(74,158,255,1);border-radius:50%;animation:refine-spin 0.7s linear infinite;"></span>
+          <span id="refineIndicatorText">Refining mesh&hellip;</span>
+        </div>
         <div id="measureOverlay" style="position:absolute;top:10px;right:10px;background:rgba(14,16,20,.85);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);display:none;min-width:180px;"></div>
       </div>
       <div class="status-bar">
@@ -2839,17 +2844,28 @@ function _synHighlightLine(line, cycleState){
   if(/^;/.test(trimmed)){
     return '<span class="syn-comment">'+_synEscHtml(line)+'</span>';
   }
-  if(/^Q\d+\s*=/i.test(trimmed)){
-    return _synLineWithColor(line, 'syn-qvar');
+  var qAssign = trimmed.match(/^Q(\d+)\s*=/i);
+  if(qAssign){
+    var qcls0 = parseInt(qAssign[1],10) < 100 ? 'syn-qvar' : 'syn-cycle';
+    return _synLineWithColor(line, qcls0);
   }
 
   // General line: split off a trailing inline comment, then pick out Q-number
   // tokens within the remaining code (e.g. "L X+Q2 Y-10 Z+Q1 FMAX RL").
+  // Per Heidenhain convention, Q0-Q99 are free user variables (purple);
+  // Q100+ are reserved by the control or by cycles (brown) — using the same
+  // color for both was confusing the two completely different categories.
   var ci = line.indexOf(';');
   var codePart = ci>=0 ? line.slice(0,ci) : line;
   var commentPart = ci>=0 ? line.slice(ci) : '';
-  var marked = codePart.replace(/Q\d+/g, function(m){ return '\u0001'+m+'\u0002'; });
-  var out = _synEscHtml(marked).replace(/\u0001/g,'<span class="syn-qvar">').replace(/\u0002/g,'</span>');
+  var marked = codePart.replace(/Q(\d+)/g, function(m, numStr){
+    var tag = parseInt(numStr,10) < 100 ? 'A' : 'B';
+    return '\u0001'+tag+m+'\u0002';
+  });
+  var out = _synEscHtml(marked)
+    .replace(/\u0001A/g,'<span class="syn-qvar">')
+    .replace(/\u0001B/g,'<span class="syn-cycle">')
+    .replace(/\u0002/g,'</span>');
   if(commentPart) out += '<span class="syn-comment">'+_synEscHtml(commentPart)+'</span>';
   return out;
 }
@@ -5462,10 +5478,22 @@ var REFINE_WORKER_CODE = "'use strict';\nvar MC_EDGE_TABLE = new Int32Array([0x0
 
 var _refineWorker = null;
 
+function _showRefineIndicator(text){
+  var el = document.getElementById('refineIndicator');
+  var txt = document.getElementById('refineIndicatorText');
+  if(el) el.style.display='flex';
+  if(txt && text) txt.textContent = text;
+}
+function _hideRefineIndicator(){
+  var el = document.getElementById('refineIndicator');
+  if(el) el.style.display='none';
+}
+
 function triggerRefine(){
   if(!VX || !prog) return;
   var btn = document.getElementById('refineBtnCanvas');
   if(btn){ btn.disabled=true; btn.textContent='\u29d7 Refining\u2026'; }
+  _showRefineIndicator('Refining mesh\u2026');
   updateStatus('\u2699\ufe0f Initialising refine\u2026', false);
 
   var HI_LEVELS = [300, 400, 600];
@@ -5527,11 +5555,13 @@ function triggerRefine(){
       var msg = e.data;
       if(msg.type==='progress'){
         updateStatus('\u2699\ufe0f Refining\u2026 '+msg.pct+'%', false);
+        _showRefineIndicator('Refining mesh\u2026 '+msg.pct+'%');
       } else if(msg.type==='done'){
         _refineWorker=null;
         _applyRefinedMesh(Array.from(new Float32Array(msg.verts)), Array.from(new Float32Array(msg.norms)), Array.from(new Int32Array(msg.colors)));
         var btn2=document.getElementById('refineBtnCanvas');
         if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
+        _hideRefineIndicator();
         updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' blocks', false);
       }
     };
@@ -5554,7 +5584,7 @@ function _runRefineMainThread(d){
   updateStatus('\u2699\ufe0f Refining (main thread)\u2026', false);
   // Inject a fake self.postMessage so we can reuse worker code
   var _results = null;
-  var _fakeProgress = function(pct){ updateStatus('\u2699\ufe0f Refining\u2026 '+pct+'%', false); };
+  var _fakeProgress = function(pct){ updateStatus('\u2699\ufe0f Refining\u2026 '+pct+'%', false); _showRefineIndicator('Refining mesh\u2026 '+pct+'%'); };
   try {
     var _fakeself = {
       onmessage: null,
@@ -5575,11 +5605,13 @@ function _runRefineMainThread(d){
       _applyRefinedMesh(Array.from(new Float32Array(_results.verts)), Array.from(new Float32Array(_results.norms)), Array.from(new Int32Array(_results.colors)));
       var btn2=document.getElementById('refineBtnCanvas');
       if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
+      _hideRefineIndicator();
       updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' blocks', false);
     }
   } catch(err){
     console.error('Main thread refine failed:', err);
     updateStatus('Refine failed: '+err.message, false);
+    _hideRefineIndicator();
     var btn2=document.getElementById('refineBtnCanvas');
     if(btn2){ btn2.disabled=false; btn2.textContent='\u25C6 Refine'; }
   }
@@ -6331,6 +6363,7 @@ function advance(dt){
       var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=''; rb.disabled=false; rb.textContent='◆ Refine'; }
       updateSimInfoPanel();
       updateToolLegend();
+      triggerRefine();
     }
   }
   placeTool();
