@@ -37,10 +37,43 @@
   --accent:#e8530a; --accent2:#1da06a; --accent3:#4a9eff;
   --text:#e8eaf0; --text2:#8a90a0; --text3:#555c6e;
   --mono:'JetBrains Mono',monospace; --sans:'Syne',sans-serif; --radius:8px;
+  --editor-fs:12px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
+html[data-theme="light"]{
+  --bg:#eaedf2; --surface:#ffffff; --surface2:#dfe3ea; --border:#b7bdc9;
+  --accent:#d6490a; --accent2:#147a52; --accent3:#1f64c4;
+  --text:#12151c; --text2:#3d4452; --text3:#69707f;
+}
+/* Buttons that rely on a transparent/none background read as washed-out on a
+   light page (no fill, only a faint border) — give the common interactive
+   classes a visible fill in light mode. Colored action buttons (Run/Stop/...)
+   layer their own background on top via a second class, so this doesn't
+   wash those out. */
+html[data-theme="light"] .btn,
+html[data-theme="light"] .tool-act-btn,
+html[data-theme="light"] #themeToggle,
+html[data-theme="light"] #kpHelpBtn{
+  background:var(--surface2);
+}
+html[data-theme="light"] .btn:hover,
+html[data-theme="light"] .tool-act-btn:hover{
+  background:var(--border);
+}
+/* Floating buttons/panels over the 3D viewport (Measure, Path, Refine, tool
+   legend, measure readout) have a hardcoded dark translucent background
+   meant to float over a dark canvas — flip them to a light translucent fill
+   to match the now-white 3D background. */
+html[data-theme="light"] #pathToggle,
+html[data-theme="light"] #measureBtn,
+html[data-theme="light"] #refineBtnCanvas,
+html[data-theme="light"] #toolLegend,
+html[data-theme="light"] #measureOverlay{
+  background:rgba(255,255,255,0.88) !important;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;display:flex;flex-direction:column;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;display:flex;flex-direction:column;overscroll-behavior:none;-webkit-text-size-adjust:100%;}
 
 /* Help mode overlay + popup */
 /* help mode: popup only, no dimming */
@@ -55,23 +88,36 @@ header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(-
 .badge.blue{border-color:var(--accent3);color:var(--accent3);}
 .sim-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
 .sim-main{display:flex;flex:1;overflow:hidden;min-height:0;}
-.editor-panel{width:500px;min-width:260px;max-width:700px;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);position:relative;flex-shrink:0;}
+.editor-panel{width:580px;min-width:260px;max-width:700px;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);position:relative;flex-shrink:0;}
 .panel-resize{position:absolute;right:-4px;top:0;bottom:0;width:8px;cursor:col-resize;z-index:10;background:transparent;}
 .panel-resize:hover,.panel-resize.dragging{background:var(--accent3);opacity:0.5;}
 .panel-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text2);flex-shrink:0;}
 .panel-header span{display:flex;align-items:center;gap:6px;}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
 .editor-wrap{display:flex;flex:1;overflow:hidden;min-height:0;}
-.line-nums{font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--text3);background:var(--surface2);border-right:1px solid var(--border);min-width:52px;text-align:right;overflow-y:scroll;overflow-x:hidden;user-select:none;flex-shrink:0;scrollbar-width:none;}
+.line-nums{font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;color:var(--text3);background:var(--surface2);border-right:1px solid var(--border);min-width:52px;text-align:right;overflow-y:scroll;overflow-x:hidden;user-select:none;flex-shrink:0;scrollbar-width:none;}
 .line-nums::-webkit-scrollbar{display:none;}
-.line-nums .ln{display:flex;align-items:center;justify-content:flex-end;gap:2px;white-space:nowrap;padding-right:4px;}
+.line-nums .ln{height:calc(var(--editor-fs) * 1.8);line-height:calc(var(--editor-fs) * 1.8);display:flex;align-items:center;justify-content:flex-end;gap:2px;white-space:nowrap;padding-right:4px;}
 .ln-del{opacity:0;border:none;background:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 2px;line-height:1.8;flex-shrink:0;transition:opacity .15s;}
 .line-nums:hover .ln-del{opacity:0.5;}
 .ln-del:hover{opacity:1!important;color:#ff5d5d;}
 @media(pointer:coarse){.ln-del{opacity:0.4;}}
-textarea#code{flex:1;padding:10px 12px;font-family:var(--mono);font-size:12px;line-height:1.8;background:var(--surface);color:var(--text);border:none;outline:none;resize:none;tab-size:2;min-height:0;white-space:pre;overflow-x:auto;word-wrap:normal;overflow-wrap:normal;}
+.code-area-wrap{position:relative;flex:1;min-width:0;overflow:hidden;background:var(--surface);}
+#hlLayer{position:absolute;inset:0;margin:0;padding:10px 12px;font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;white-space:pre;overflow:hidden;pointer-events:none;tab-size:2;color:var(--text);z-index:1;}
+textarea#code{position:absolute;inset:0;width:100%;height:100%;z-index:2;padding:10px 12px;font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;background:transparent;color:transparent;caret-color:var(--text);border:none;outline:none;resize:none;tab-size:2;min-height:0;white-space:pre;overflow-x:auto;word-wrap:normal;overflow-wrap:normal;-webkit-text-size-adjust:none;text-size-adjust:none;}
 @media(pointer:fine){textarea#code{resize:both;min-height:80px;}}
 textarea#code::selection{background:rgba(232,83,10,0.3);}
+/* Syntax highlight colors — vivid-on-dark by default, overridden for light theme below */
+.syn-comment{color:#4ADE80;}
+.syn-tool{color:#FB923C;}
+.syn-lbl{color:#60A5FA;}
+.syn-qvar{color:#C084FC;}
+.syn-cycle{color:#C9A876;}
+html[data-theme="light"] .syn-comment{color:#16A34A;}
+html[data-theme="light"] .syn-tool{color:#EA580C;}
+html[data-theme="light"] .syn-lbl{color:#2563EB;}
+html[data-theme="light"] .syn-qvar{color:#9333EA;}
+html[data-theme="light"] .syn-cycle{color:#92400E;}
 .toolbar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface2);flex-shrink:0;flex-wrap:nowrap;align-items:center;overflow:hidden;}
 .btn{font-family:var(--mono);font-size:11px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;}
 .btn:hover{border-color:var(--text3);color:var(--text);}
@@ -145,6 +191,8 @@ canvas#sim2d{width:100%;height:100%;display:block;}
 .info-title p{font-size:14px;color:var(--text2);}
 .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:900px;margin:0 auto;}
 .disclaimer{max-width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);}
+.disclaimer-bar{padding:24px 24px 8px;background:var(--bg);border-top:1px solid var(--border);}
+.disclaimer-bar p{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.6;margin:0;}
 .disclaimer p{font-size:12px;color:var(--text2);line-height:1.65;margin:0;}
 .disclaimer b{color:var(--text);}
 .info-card h3{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
@@ -228,7 +276,8 @@ footer a:hover{text-decoration:underline;}
 .cycle-insert-btn{margin-top:14px;width:100%;padding:9px;background:var(--accent3);color:#fff;border:none;border-radius:6px;font-family:var(--mono);font-size:12px;cursor:pointer;font-weight:500;}
 .cycle-insert-btn:hover{background:#3a8ee0;}
 /* ---------- context panel (fixed height, never jumps) ---------- */
-.ctx-panel{height:72px;flex-shrink:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;justify-content:center;padding:4px 8px;gap:3px;overflow:visible;position:relative;z-index:50;}
+.ctx-panel{min-height:72px;flex-shrink:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;justify-content:center;padding:4px 8px;gap:3px;overflow:visible;position:relative;z-index:50;}
+.ctx-panel:has(#_idleUndo){min-height:0;}
 .help-popup{position:fixed;z-index:9500;max-width:300px;background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;box-shadow:0 4px 24px rgba(0,0,0,.5);font-family:var(--mono);pointer-events:none;}
 .help-popup-title{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:6px;}
 .help-popup-desc{font-size:11px;color:var(--text2);line-height:1.6;}
@@ -238,10 +287,15 @@ footer a:hover{text-decoration:underline;}
   .help-popup{bottom:12px;left:12px;right:12px;max-width:none;top:auto !important;}
 }
 @media(max-width:700px){
+  /* iOS Safari auto-zooms when a focused input has font-size < 16px. Force 16px on touch.
+     Editor (#code) is excluded — its size is controlled by the A-/A+ buttons. */
+  input[type="text"], input[type="number"], input[type="search"] {
+    font-size:16px !important;
+  }
 }
 /* row styles inside ctx-panel */
 .ctx-row1{display:flex;align-items:center;gap:4px;min-height:26px;}
-.ctx-row2{display:flex;align-items:center;gap:6px;min-height:30px;}
+.ctx-row2{display:flex;align-items:center;gap:6px;min-height:30px;flex-wrap:wrap;}
 .ctx-row1 .fbar-crumb-btn{font-family:var(--mono);font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text3);cursor:pointer;}
 .ctx-row1 .fbar-crumb-btn.active{background:var(--accent);color:#fff;border-color:transparent;}
 .ctx-row1 .fbar-crumb-btn:hover:not(.active){color:var(--text);border-color:var(--text3);}
@@ -264,9 +318,9 @@ footer a:hover{text-decoration:underline;}
 .kp-sec-title{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin:2px 0 4px;}
 .kp-grid{display:grid;gap:4px;grid-template-columns:repeat(auto-fit,minmax(46px,1fr));}
 .kp-row{display:flex;flex-wrap:wrap;gap:4px;}
-.kp-row .key{flex:0 0 46px;min-height:34px;}
+.kp-row .key{flex:0 0 40px;min-height:30px;}
 .key.pi .kl{font-size:15px;}
-.kp-grid.prog{grid-template-columns:repeat(auto-fit,minmax(72px,1fr));margin-top:4px;}
+.kp-grid.prog{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
 .key{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 3px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:var(--mono);transition:transform .08s,background .15s,color .15s;user-select:none;}
 .key:active{transform:translateY(1px);}
 .key svg{width:14px;height:14px;}
@@ -279,7 +333,7 @@ footer a:hover{text-decoration:underline;}
 .key.pi-key:hover{border-color:var(--accent);background:rgba(232,83,10,.08);}
 .key.on{background:#d9dde6;color:#15171c;border-color:transparent;}
 .key.on:hover{background:#e8ebf1;}
-.key.prog{min-height:30px;}
+.key.prog{min-height:24px;padding:4px 9px;}
 .key.pi{background:var(--accent);color:#fff;border-color:transparent;}
 .key.pi:hover{background:#f0631b;}
 
@@ -306,25 +360,36 @@ footer a:hover{text-decoration:underline;}
 .fbar-crumb-btn.active{background:var(--accent);color:#fff;border-color:transparent;}
 .fbar-crumb-btn:hover:not(.active){color:var(--text);border-color:var(--text3);}
 @media(max-width:700px){
-  .sim-container{overflow:visible;}
-  .sim-main{flex-direction:column;overflow:visible;}
-  .editor-panel{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border);height:auto;flex-shrink:0;}
-  .editor-wrap{height:280px;min-height:280px;max-height:50vh;}
-  .canvas-panel{height:420px;min-height:420px;}
+  /* Mobile = one long naturally-scrolling page. Override desktop's fixed-viewport layout. */
+  html{height:auto;overflow:visible;}
+  body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:visible;}
+  .sim-container{flex:none;display:block;overflow:visible;min-height:0;}
+  .sim-main{display:block;flex:none;overflow:visible;min-height:0;}
+  .editor-panel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:1px solid var(--border);display:block;}
+  .editor-wrap{display:flex;height:auto;min-height:200px;max-height:60vh;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+  .canvas-panel{display:block;}
+  .view-area{height:380px;min-height:380px;position:relative;overflow:hidden;}
+  #view3d, #view2d, #viewTools{position:absolute;inset:0;width:100%;height:100%;}
+  .disclaimer-bar{padding:16px 16px 8px;}
+  .disclaimer-bar p{text-align:center;font-size:10px;line-height:1.7;}
   .header-badges{display:none;}
   .logo-text{font-size:13px;}
   .toolbar{padding:8px 10px;gap:5px;flex-wrap:wrap;}
   .speed-ctrl{margin-left:0;}
   .btn{padding:8px 12px;font-size:11px;}
-  textarea#code{font-size:11px;}
-  .line-nums{font-size:11px;}
   .info-section{padding:20px 16px;}
   .kp-grid{grid-template-columns:repeat(auto-fit,minmax(62px,1fr));}
-  .kp-grid.prog{grid-template-columns:repeat(auto-fit,minmax(92px,1fr));}
   .ph-title{display:none;}
   .ph-blocks{display:none;}
 }
 </style>
+<script>
+  // Apply saved theme before the page paints, to avoid a flash of the wrong theme.
+  try{
+    var _savedTheme = localStorage.getItem('tncSimTheme');
+    if(_savedTheme==='light') document.documentElement.setAttribute('data-theme','light');
+  }catch(e){}
+</script>
 
 </head>
 
@@ -339,8 +404,11 @@ footer a:hover{text-decoration:underline;}
     </div>
   </div>
   <div class="header-badges">
+    <button id="themeToggle" onclick="toggleTheme()" title="Toggle dark / light mode" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">
+      <span id="themeIcon">&#9789;</span><span id="themeLabel">Dark</span>
+    </button>
     <span class="badge green">● live</span>
-    <span class="badge">v0.2 · 3D</span>
+    <span class="badge">v0.5 · 3D</span>
   </div>
 </header>
 
@@ -354,7 +422,7 @@ footer a:hover{text-decoration:underline;}
           <button id="kpHelpBtn" onclick="toggleKpHelp()" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;" title="Context help">? Help</button>
           <button onclick="exportProgram()" data-help="export" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;" title="Download program.H">&#8595; Export</button>
           <button onclick="importProgram()" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;" title="Load .H program file">&#8593; Import</button>
-          <input type="file" id="importFileInput" accept=".H,.h,.nc,.txt" style="display:none;" onchange="onImportFile(event)">
+          <input type="file" id="importFileInput" accept="text/plain,.h,.H,.nc,.txt,.tap,.cnc" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onImportFile(event)">
           <span id="blockCount" class="ph-blocks">0 blocks</span>
         </span>
       </div>
@@ -365,20 +433,33 @@ footer a:hover{text-decoration:underline;}
       <div class="editor-wrap" style="position:relative;">
         <div class="line-nums" id="lineNums" data-help="line-nums">1</div>
         <input id="mobileInput" type="text" inputmode="text" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:0;left:0;" autocomplete="off" autocorrect="off" autocapitalize="off">
-        <textarea id="code" spellcheck="false" autocorrect="off" autocapitalize="off" data-help="editor" style="position:relative;z-index:2;background:transparent;">BEGIN PGM PROGRAM MM
+        <div class="code-area-wrap">
+          <pre id="hlLayer" aria-hidden="true"></pre>
+          <textarea id="code" spellcheck="false" autocorrect="off" autocapitalize="off" data-help="editor">BEGIN PGM PROGRAM MM
+;==================================================
+; TNC SIM - DEMO PROGRAM
+; Blank: 100 x 100 x 20 mm
+; Contains: contour milling, drilling, reaming,
+;           edge chamfering and thread tapping
+;==================================================
 BLK FORM 0.1 Z X-50 Y-50 Z+0
 BLK FORM 0.2 X+50 Y+50 Z+20
+;
+;--------------------------------------------------
+; T1 - End mill D16 (contour roughing)
+; Mill outer contour down to 20mm depth
+;--------------------------------------------------
 TOOL CALL 1 Z S18000 F3500
 TOOL DEF 3
-M3
-M8
+M3 ; spindle clockwise
+M8 ; coolant on
 L X+0 Y+90 Z+50 FMAX R0
 L X+0 Y+90 Z+0 F2000
-L Y+100 RL
+L Y+100 RL ; activate left radius comp
 CC X+0 Y+75
 C X+0 Y+50 DR+
 L X+50
-RND R20
+RND R20 ; corner rounding
 L Y-50
 RND R20
 L X-50
@@ -389,10 +470,11 @@ L X+10
 CC X+10 Y+75
 C X+10 Y+100 DR+
 L Z+100 FMAX R0
+; Mill central circular pocket D20
 CYCL DEF 208 ;Circular Pocket Milling
   Q200=+2 ;Safety clearance [mm]
   Q201=-20 ;Depth [mm]
-  Q206 FAUTO ;Feed rate — plunge [mm/min]
+  Q206 FAUTO ;Feed rate - plunge [mm/min]
   Q334=+0 ;Infeed per pass [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
@@ -400,8 +482,13 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q342=+0 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
 L X+0 Y+0 FMAX M99
-M5
-M9
+M5 ; spindle stop
+M9 ; coolant off
+;
+;--------------------------------------------------
+; T3 - Center drill D8 (spot drill hole centers)
+; LBL 1 = right holes, LBL 2 = left holes
+;--------------------------------------------------
 TOOL CALL 3 Z S18000 F300
 TOOL DEF 4
 M3
@@ -409,24 +496,29 @@ M8
 CYCL DEF 200 ;Drilling
   Q200=+2 ;Safety clearance [mm]
   Q201=-1 ;Depth [mm]
-  Q206=+150 ;Feed rate — plunge [mm/min]
+  Q206=+150 ;Feed rate - plunge [mm/min]
   Q202=+1 ;Plunging depth [mm]
   Q210=+0 ;Dwell time at top [s]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
   Q211=+0 ;Dwell time at depth [s]
 LBL 1
-; 7H7 
+; hole positions for reaming 7H7
 L X+30 Y+30 FMAX R0 M99
 L X+30 Y-30 FMAX R0 M99
 LBL 0
 LBL 2
-; M8
+; hole positions for M8 thread
 L X-30 Y-30 FMAX R0 M99
 L X-30 Y+30 FMAX R0 M99
 LBL 0
 M5
 M9
+;
+;--------------------------------------------------
+; T4 - Drill D7 (drill before reaming and tapping)
+; depth 24mm through full blank + breakthrough
+;--------------------------------------------------
 TOOL CALL 4 Z S14000 F300
 TOOL DEF 5
 M3
@@ -434,16 +526,22 @@ M8
 CYCL DEF 200 ;Drilling
   Q200=+2 ;Safety clearance [mm]
   Q201=-24 ;Depth [mm]
-  Q206 FAUTO ;Feed rate — plunge [mm/min]
+  Q206 FAUTO ;Feed rate - plunge [mm/min]
   Q202=+11.5 ;Plunging depth [mm]
   Q210=+0 ;Dwell time at top [s]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
   Q211=+0 ;Dwell time at depth [s]
-CALL LBL 1
-CALL LBL 2
+CALL LBL 1 ; drill right holes
+CALL LBL 2 ; drill left holes
 M5
 M9
+;
+;--------------------------------------------------
+; T5 - Chamfer / countersink 90deg D8
+; DL-2 DR+2 = tip offset for 1x45deg chamfer
+; Chamfer all hole edges with cycle 208
+;--------------------------------------------------
 TOOL CALL 5 Z S18000 F1000 DL-2 DR+2
 TOOL DEF 6
 M3
@@ -465,10 +563,11 @@ L X+10
 CC X+10 Y+75
 C X+10 Y+100 DR+
 L Z+100 FMAX R0
+; Chamfer edge of central hole D20
 CYCL DEF 208 ;Circular Pocket Milling
   Q200=+2 ;Safety clearance [mm]
   Q201=-1 ;Depth [mm]
-  Q206 FAUTO ;Feed rate — plunge [mm/min]
+  Q206 FAUTO ;Feed rate - plunge [mm/min]
   Q334=+0 ;Infeed per pass [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
@@ -476,10 +575,11 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q342=+19.9999 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
 L X+0 Y+0 FMAX M99
+; Chamfer edges of D7 holes (reaming)
 CYCL DEF 208 ;Circular Pocket Milling
   Q200=+2 ;Safety clearance [mm]
   Q201=-1 ;Depth [mm]
-  Q206=+150 ;Feed rate — plunge [mm/min]
+  Q206=+150 ;Feed rate - plunge [mm/min]
   Q334=+0 ;Infeed per pass [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
@@ -487,10 +587,11 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q342=+6.999 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
 CALL LBL 1
+; Chamfer edges of D8 holes (thread)
 CYCL DEF 208 ;Circular Pocket Milling
   Q200=+2 ;Safety clearance [mm]
   Q201=-1 ;Depth [mm]
-  Q206=+150 ;Feed rate — plunge [mm/min]
+  Q206=+150 ;Feed rate - plunge [mm/min]
   Q334=+0 ;Infeed per pass [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
@@ -500,6 +601,11 @@ CYCL DEF 208 ;Circular Pocket Milling
 CALL LBL 2
 M5
 M9
+;
+;--------------------------------------------------
+; T6 - Reamer D7 H7 (precision ream holes)
+; right holes only (LBL 1)
+;--------------------------------------------------
 TOOL CALL 6 Z S12200 F300
 TOOL DEF 7
 M3
@@ -507,7 +613,7 @@ M8
 CYCL DEF 201 ;Reaming
   Q200=+2 ;Safety clearance [mm]
   Q201=-22 ;Depth [mm]
-  Q206 FAUTO ;Feed rate — reaming [mm/min]
+  Q206 FAUTO ;Feed rate - reaming [mm/min]
   Q211=+0 ;Dwell time at depth [s]
   Q208=+0 ;Retraction feed rate [mm/min]
   Q203=+20 ;Surface coordinate [mm]
@@ -515,22 +621,27 @@ CYCL DEF 201 ;Reaming
 CALL LBL 1
 M5
 M9
+;
+;--------------------------------------------------
+; T7 - Tap M8 (thread tapping with chip breaking)
+; Q257=11 step depth, Q256=0 full retract to surface
+; left holes only (LBL 2)
+;--------------------------------------------------
 TOOL CALL 7 Z S350
 M3
 M8
-CYCL DEF 209 ;Tapping with Chip Breaking
+CYCL DEF 209 Q257=+11 Q256=+0 ;Tapping with Chip Breaking
   Q200=+2 ;Safety clearance [mm]
   Q201=-22 ;Thread depth [mm]
   Q239=+1.25 ;Thread pitch [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
-  Q257=+11 ;Depth per chip break [mm]
-  Q256=+0.2 ;Chip break retract [mm]
   Q336=+0 ;Spindle angle [deg]
 CALL LBL 2
 M5
 M9
 END PGM PROGRAM MM</textarea>
+        </div>
       </div>
       <div class="problems" id="problems" style="display:none;">
         <div class="problems-head" onclick="toggleProblems()">
@@ -582,8 +693,8 @@ END PGM PROGRAM MM</textarea>
   </div>
 </div>
 
-<div style="padding:24px 16px 8px;background:var(--bg);border-top:1px solid var(--border);">
-  <p style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.6;margin:0;padding-left:24px;">TNC Sim is an open-source independent Heidenhain TNC simulator — early release, bugs are expected. Results may differ from a real TNC control — never use for actual machining without verification. Desktop first, mobile friendly. · Not affiliated with HEIDENHAIN GmbH.</p>
+<div class="disclaimer-bar">
+  <p>TNC Sim is an open-source independent Heidenhain TNC simulator — early release, bugs are expected. Results may differ from a real TNC control — never use for actual machining without verification. Desktop first, mobile friendly. · Not affiliated with HEIDENHAIN GmbH.</p>
 </div>
 
 <footer>
@@ -720,7 +831,7 @@ function openQPopup(lineIdx){
   var lines = codeEl.value.split('\n');
   var line = lines[lineIdx];
   if(!line) return;
-  var m = line.match(/^\s*(Q\d+)\s*(?:=\s*([+-]?[\d.]+|FAUTO|FMAX|AUTO)|\s+(FAUTO|FMAX))/i);
+  var m = line.match(/^\s*(Q\d+)\s*(?:=\s*([+-]?(?:Q\d+|[\d.]+)|FAUTO|FMAX|AUTO)|\s+(FAUTO|FMAX))/i);
   if(!m) return;
   // exit L field mode if active
   if(FM.active) exitFieldMode(true);
@@ -734,10 +845,12 @@ function openQPopup(lineIdx){
   // render into ctx-panel
   var panel = document.getElementById('ctxPanel');
   var fmaxBtn = isFauto ? '<button class="fbar-fmax" onclick="qPanelSetVal(\'FAUTO\')">FAUTO</button>' : '';
+  var qRefBtn = '<button class="fbar-fmax" onclick="qPanelInsertQ()" title="Insert Q parameter reference">Q</button>';
   panel.innerHTML = '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+(label||qkey)+'</span><button style="margin-left:auto;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 8px;" onclick="closeQPopup()">✕</button></div>'
     + '<div class="ctx-row2">'
-    + '<input id="qPanelInput" type="text" inputmode="decimal" autocomplete="off" value="'+qval+'"'
+    + '<input id="qPanelInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" value="'+qval+'"'
     + ' style="font-family:var(--mono);font-size:14px;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:5px;color:var(--text);padding:3px 10px;width:90px;outline:none;text-align:right;">'
+    + qRefBtn
     + fmaxBtn
     + '<button class="fbar-done" onclick="qPanelConfirm()">Done</button>'
     + '</div>';
@@ -763,14 +876,32 @@ function qPanelSetVal(v){
   qPanelConfirm();
 }
 
+function qPanelInsertQ(){
+  var inp = document.getElementById('qPanelInput');
+  if(!inp) return;
+  var v = inp.value.trim();
+  // Toggle: if already a Q reference, strip it back to empty; else replace value with sign+Q
+  if(/Q/i.test(v)){
+    inp.value = v.replace(/Q\d*/ig,'');
+  } else {
+    var sign = (v.charAt(0)==='+'||v.charAt(0)==='-') ? v.charAt(0) : '';
+    inp.value = sign + 'Q';
+  }
+  inp.focus();
+  // place cursor at end so the user types the Q number
+  var len = inp.value.length;
+  try{ inp.setSelectionRange(len, len); }catch(e){}
+}
+
 function qPanelConfirm(){
   if(_qPopupLine < 0){ closeQPopup(); return; }
   var inp = document.getElementById('qPanelInput');
   var newVal = inp.value.trim().toUpperCase();
-  if(!newVal){ inp.style.borderColor='#ff5d5d'; inp.focus(); return; }
+  if(!newVal || newVal==='Q' || newVal==='+Q' || newVal==='-Q'){ inp.style.borderColor='#ff5d5d'; inp.focus(); return; }
+  if(codeEl && (_undoStack.length===0 || _undoStack[_undoStack.length-1]!==codeEl.value)) _undoPush();
   var lines = codeEl.value.split('\n');
   var line = lines[_qPopupLine];
-  line = line.replace(/^(\s*Q\d+)\s*(?:=\s*[+-]?[\d.]+|\s+FAUTO|\s*=\s*FAUTO|\s*=\s*FMAX|\s*=\s*AUTO)/i, function(match, p1){
+  line = line.replace(/^(\s*Q\d+)\s*(?:=\s*[+-]?(?:Q\d+|[\d.]+)|\s+FAUTO|\s*=\s*FAUTO|\s*=\s*FMAX|\s*=\s*AUTO)/i, function(match, p1){
     var prefix = p1.trimEnd();
     if(newVal==='FMAX') return prefix + '=+9999';
     if(newVal==='FAUTO') return prefix + ' FAUTO';
@@ -809,7 +940,9 @@ var BLK_FIELDS_CYL = [
   {id:'cr',  lbl:'R',  prompt:'Radius of cylinder', key:'cr'},
 ];
 
-function openBlkFormPanel(){
+function openBlkFormPanel(lineText, editLineIdx){
+  // editLineIdx set => editing that existing BLK block in place; undefined => new insert at active line
+  BLK.editLine = (editLineIdx!==undefined && editLineIdx!==null) ? editLineIdx : null;
   // Read existing BLK FORM from code
   var code = codeEl.value;
   var m1 = code.match(/BLK FORM 0\.1[^\n]*X([+-]?\d+\.?\d*)[^\n]*Y([+-]?\d+\.?\d*)[^\n]*Z([+-]?\d+\.?\d*)/i);
@@ -828,7 +961,7 @@ var toolCallList = []; // [{toolNum, lineNum}, ...]
 function openGotoPanel(){
   ensurePrepared(); // Parse program fresh, update toolCallList
   if(toolCallList.length === 0){
-    alert('No TOOL CALL found in program');
+    _toast('No TOOL CALL found in program', true);
     return;
   }
   var panel = document.getElementById('ctxPanel');
@@ -898,7 +1031,7 @@ function blkCommitVal(){
   if(f){
     var el=document.getElementById('blkFbarVal');
     var v = (el&&el.tagName==='INPUT') ? el.value : BLK[f.key];
-    BLK[f.key] = parseFloat(String(v))||0;
+    BLK[f.key] = parseFloat(String(v).replace(',','.'))||0;
   }
 }
 function blkNextStep(){
@@ -941,7 +1074,7 @@ function blkKeyDown(e){
 function blkUpdateVal(v){
   var fields = BLK.shape==='BOX' ? BLK_FIELDS_BOX : BLK_FIELDS_CYL;
   var f = fields[BLK.step-1];
-  if(f) BLK[f.key] = parseFloat(v)||0;
+  if(f) BLK[f.key] = parseFloat(String(v).replace(',','.'))||0;
 }
 document.addEventListener('keydown', function(e){
   if(!BLK.active || BLK.step < 1) return;
@@ -971,9 +1104,9 @@ document.addEventListener('keydown', function(e){
     blkRefresh(); return;
   }
 
-  if(e.key.length===1 && /[0-9.]/.test(e.key)){
+  if(e.key.length===1 && /[0-9.,]/.test(e.key)){
     e.preventDefault();
-    var ch = e.key;
+    var ch = e.key===',' ? '.' : e.key;
     if(!BLK.typing){
       // first keypress — clear the default value, preserve sign if already negative
       var sign = String(BLK[f.key]).charAt(0)==='-' ? '-' : '';
@@ -988,6 +1121,7 @@ document.addEventListener('keydown', function(e){
 });
 
 function insertBlkForm(){
+  _undoPush();
   blkCommitVal();
   function fmt(v){ var n=parseFloat(v)||0; return (n>=0?'+':'')+n; }
   var line1, line2;
@@ -1000,19 +1134,46 @@ function insertBlkForm(){
     line2 = 'BLK FORM 0.2 X'+fmt(BLK.cr)+' Y'+fmt(BLK.cr)+' Z'+fmt(BLK.cz1);
   }
 
+  var editingLine = BLK.editLine;   // set when the wizard was opened by clicking an existing BLK FORM line
   closeCtxPanel();
 
   var val = codeEl.value;
-  var hasBlk1 = /^BLK FORM/im.test(val);
-  if(hasBlk1){
-    val = val.replace(/^BLK FORM 0\.1[^\n]*/im, line1);
-    val = val.replace(/^BLK FORM 0\.2[^\n]*/im, line2);
-    codeEl.value = val;
-  } else {
-    var beginEnd = val.indexOf('\n', val.indexOf('BEGIN PGM'));
-    if(beginEnd === -1) beginEnd = val.length;
-    codeEl.value = val.slice(0, beginEnd) + '\n' + line1 + '\n' + line2 + val.slice(beginEnd);
+  var lines = val.split('\n');
+
+  // CASE 1 — editing an existing BLK FORM block in place (opened from that line).
+  // Replace the 0.1/CYLINDER line and its following 0.2 line, keeping position.
+  if(editingLine !== undefined && editingLine !== null && editingLine >= 0 && editingLine < lines.length
+     && /^\s*BLK FORM (0\.1|CYLINDER)/i.test(lines[editingLine])){
+    lines[editingLine] = line1;
+    if(editingLine+1 < lines.length && /^\s*BLK FORM 0\.2/i.test(lines[editingLine+1])){
+      lines[editingLine+1] = line2;
+    } else {
+      lines.splice(editingLine+1, 0, line2);
+    }
+    codeEl.value = lines.join('\n');
+    var caretPos = lines.slice(0, editingLine+2).join('\n').length;
+    try{ codeEl.setSelectionRange(caretPos, caretPos); }catch(e){}
+    lastSel = {start:caretPos, end:caretPos};
+    dirty=true; updateLineNums(); runValidation(); return;
   }
+
+  // CASE 2 — insert a NEW BLK FORM after the currently active line (like insertKey).
+  // Allows placing it anywhere, and stacking two blocks in sequence.
+  var pos = (lastSel && lastSel.start!=null) ? lastSel.start : val.length;
+  var lineEnd = val.indexOf('\n', pos);
+  if(lineEnd === -1) lineEnd = val.length;
+  // If there's no BLK FORM yet and the active line is BEGIN PGM (or program start), drop it right after BEGIN.
+  var hasAnyBlk = /^\s*BLK FORM/im.test(val);
+  if(!hasAnyBlk){
+    var beginEnd = val.indexOf('\n', val.indexOf('BEGIN PGM'));
+    if(beginEnd !== -1) lineEnd = beginEnd;
+  }
+  var before = val.slice(0, lineEnd);
+  var ins = '\n' + line1 + '\n' + line2;
+  codeEl.value = before + ins + val.slice(lineEnd);
+  var caret = (before + ins).length;
+  try{ codeEl.setSelectionRange(caret, caret); }catch(e){}
+  lastSel = {start:caret, end:caret};
   dirty=true; updateLineNums(); runValidation();
 }
 
@@ -1050,14 +1211,21 @@ var QP_FNS = [
   {fn:'FRAC', label:'FRAC'},
 ];
 
+function _qpPanelOpen(){ return !!document.getElementById('qpFbarVal'); }
+function _qpFocusMobile(){
+  if(!isMobile()) return;
+  var mi=document.getElementById('mobileInput');
+  if(mi){ mi.value='​'; lastMobileVal='​'; setTimeout(function(){ mi.focus(); },30); }
+}
 function openQParamPanel(){
-  QP.num='1'; QP.op='='; QP.val=''; QP.fn=''; QP.step=0;
+  QP.num='1'; QP.op='='; QP.val=''; QP.fn=''; QP.step=0; QP._typing=false;
   renderQParamPanel();
 }
 
 function renderQParamPanel(){
   var panel = document.getElementById('ctxPanel');
   panel.style.height = '';
+  QP._typing = false; // fresh step: first typed char replaces the predefined value
 
   if(QP.step===0){
     // Step 0: Q number
@@ -1106,8 +1274,8 @@ function renderQParamPanel(){
       +'</div>';
   }
 
-  // keyboard focus
-  setTimeout(function(){ if(document.getElementById('qpFbarVal')) document.getElementById('qpFbarVal').focus && null; },10);
+  // keyboard focus — on mobile, focus the hidden input so the soft keyboard types into the panel
+  _qpFocusMobile();
 }
 
 function qpInsert(){
@@ -1216,6 +1384,30 @@ var HELP_MAP = {
   'export':   {title:'↓ Export', desc:'Downloads the current NC program as a .H file (Heidenhain format). You can load it into a real TNC control or keep it as a backup.', ex:''},
   'speed':    {title:'Simulation speed', desc:'Controls how fast the simulation plays. − slows down, + speeds up. Range from 0.1× (very slow, useful for step-by-step inspection) to 8× (fast preview). Speed does not affect accuracy.', ex:''},
   'line-nums':{title:'Line numbers', desc:'Shows the block number of each NC line. Orange = currently executing block. Red = error, yellow = warning. Hover to reveal the delete (✕) button for that line. Click a line number to jump to it.', ex:''},
+
+  // ── Tool Table columns ──
+  'tt-T':       {title:'T — Tool number', desc:'Tool number used in TOOL CALL. The currently active tool (selected by the last TOOL CALL in the program) is highlighted with ▶.', ex:'TOOL CALL 1 Z S3000 F800'},
+  'tt-NAME':    {title:'NAME — Tool name', desc:'A short identifying label for the tool, e.g. END_MILL_D10. Max 16 characters, no spaces. Purely descriptive — not used by the NC program itself.', ex:''},
+  'tt-L':       {title:'L — Tool length (mm)', desc:'Distance from the spindle gauge line to the tool tip. Used for Z-axis length compensation.', ex:''},
+  'tt-R':       {title:'R — Tool radius (mm)', desc:'Cutting radius = diameter / 2. This is the radius used for RL/RR radius compensation and for the basic cylindrical cutting shape.', ex:''},
+  'tt-R2':      {title:'R2 — Corner radius (mm)', desc:'Radius of the rounded cutting corner (toroidal / ball-nose cutter). 0 = flat end mill. R2 = R makes a full ball-nose cutter.', ex:''},
+  'tt-DL':      {title:'DL — Length oversize (mm)', desc:'Delta value added to the tool length L. Positive = tool cuts shallower, negative = tool cuts deeper. Used for wear / length compensation in TOOL CALL.', ex:'TOOL CALL 1 Z S3000 F800 DL-0.2'},
+  'tt-DR':      {title:'DR — Radius oversize (mm)', desc:'Delta value added to the tool radius R. Positive = oversize (cuts wider), negative = undersize (cuts narrower). Commonly used for finishing passes.', ex:'TOOL CALL 1 Z S3000 F800 DR+0.1'},
+  'tt-DR2':     {title:'DR2 — R2 oversize (mm)', desc:'Delta value added to the corner radius R2 — the same idea as DR, but for the rounded corner of a toroidal / ball-nose cutter.', ex:''},
+  'tt-CUT':     {title:'CUT — Number of teeth', desc:'Number of cutting edges (flutes) on the tool. Used for chip-load style calculations; it does not change the cut geometry in the simulator.', ex:''},
+  'tt-LCUTS':   {title:'LCUTS — Tooth length (mm)', desc:'Cutting edge length along the tool axis — how far up the flutes actually cut. Limits how deep this tool can plunge before the shank would rub. Used e.g. in pocket-roughing cycles. Shown auto-computed (greyed out) for ball-nose and conical tools.', ex:''},
+  'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Maximum plunge / ramp-in angle for cycles like CYCL DEF 208 (bore milling). A standard end mill is around 3°; a drill can use 90° (straight plunge).', ex:''},
+  'tt-TANGLE':  {title:'T-ANGLE — Tool point angle (°)', desc:'Full included angle of a pointed tool tip — e.g. a drill is 118°, a center drill 142°, a countersink 90°. 0 disables the conical tip (flat end mill / ball nose).', ex:''},
+  'tt-TL':      {title:'TL — Tool locked', desc:'When set, this tool is locked and cannot be selected by TOOL CALL — useful for marking a broken or unavailable tool.', ex:''},
+  'tt-RT':      {title:'RT — Replacement tool', desc:'Tool number of a twin / sister tool that should be swapped in automatically if this tool is locked or reaches its tool-life limit. 0 = no replacement.', ex:''},
+  'tt-TIME2':   {title:'TIME2 — Tool life limit (min)', desc:'Maximum allowed cutting time for this tool before it should be replaced. Compared against CUR.TIME, the time accumulated so far.', ex:''},
+  'tt-CURTIME': {title:'CUR.TIME — Accumulated cutting time', desc:'Total cutting time used by this tool so far, shown as a progress bar against TIME2 (the tool-life limit). Green = OK, yellow = near limit, red = limit reached.', ex:''},
+  'tt-DOC':     {title:'DOC — Documentation note', desc:'A free-text note about the tool (e.g. manufacturer, part number, special notes). Purely informational.', ex:''},
+  'undo':       {title:'↺ Undo', desc:'Reverts the last editing change. Snapshots are taken before destructive edits (typing a new line, deleting, pasting, entering field mode on a line). The number in parentheses is how many undo steps are available.', ex:''},
+  'redo':       {title:'↻ Redo', desc:'Re-applies a change that was just undone. Available only right after an Undo — any new edit clears the redo stack.', ex:''},
+  'editor-reset':{title:'↺ Reset', desc:'Discards all changes and restores the default starter program. Asks for confirmation first.', ex:''},
+  'editor-clear':{title:'✕ Clear', desc:'Erases the program body but keeps the BEGIN PGM / END PGM lines, so the validator stays happy. Asks for confirmation first.', ex:''},
+  'editor-zoom':{title:'A− / A+ — Editor text size', desc:'Shrinks or enlarges the font size of the code editor and line numbers. Purely a display preference — has no effect on the program itself.', ex:''},
 };
 
 
@@ -1281,11 +1473,19 @@ function hideHelpPopup(){
 
 // ── keypad click — intercept for help mode ────────────────────────
 
+var _mEditLine = -1;
+function openMPanelEdit(lineIdx){
+  _mEditLine = lineIdx;
+  openMPanel();
+}
 function openMPanel(){
   var panel = document.getElementById('ctxPanel');
   panel.style.height = '';
+  var pick = (_mEditLine >= 0)
+    ? 'closeCtxPanel();_replaceMOnLine(\'%M%\');'   // edit mode: replace M on the tapped line
+    : 'exitFieldMode(true);closeCtxPanel();insertKey(\'%M%\');'; // insert mode
   var btns = M_DEFS.map(function(d){
-    return '<button onclick="exitFieldMode(true);closeCtxPanel();insertKey(\''+d.m+'\');" style="font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--accent3);cursor:pointer;white-space:nowrap;" title="'+d.desc+'">'+d.m+'</button>';
+    return '<button onclick="'+pick.replace(/%M%/g,d.m)+'" style="font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--accent3);cursor:pointer;white-space:nowrap;" title="'+d.desc+'">'+d.m+'</button>';
   }).join('');
   panel.innerHTML =
     '<div class="ctx-row1">'
@@ -1297,12 +1497,31 @@ function openMPanel(){
     +btns
     +'<div style="display:flex;align-items:center;gap:4px;">'
     +'<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">M</span>'
-    +'<input id="mCustomInput" type="text" inputmode="numeric" placeholder="…" style="width:60px;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;outline:none;" onkeydown="if(event.key===\'Enter\'){var v=this.value.trim();if(v){closeCtxPanel();insertKey(\'M\'+v);}}">'
-    +'<button class="fbar-done" onclick="var v=document.getElementById(\'mCustomInput\').value.trim();if(v){closeCtxPanel();insertKey(\'M\'+v);}">Insert</button>'
+    +'<input id="mCustomInput" type="text" inputmode="numeric" placeholder="…" style="width:60px;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;outline:none;" onkeydown="if(event.key===\'Enter\'){var v=this.value.trim();if(v){closeCtxPanel();_mCommit(\'M\'+v);}}">'
+    +'<button class="fbar-done" onclick="var v=document.getElementById(\'mCustomInput\').value.trim();if(v){closeCtxPanel();_mCommit(\'M\'+v);}">'+(_mEditLine>=0?'OK':'Insert')+'</button>'
     +'</div>'
     +'</div>'
     +'<div id="mDescPanel" style="display:none;padding:4px 0 2px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.8;"></div>';
   setTimeout(function(){ var i=document.getElementById('mCustomInput'); if(i) i.focus(); }, 30);
+}
+
+// Commit an M from the custom input — replace in edit mode, insert otherwise.
+function _mCommit(code){
+  if(_mEditLine >= 0){ _replaceMOnLine(code); }
+  else { exitFieldMode(true); insertKey(code); }
+}
+// Replace the M command on the currently-edited line, preserving any trailing comment.
+function _replaceMOnLine(code){
+  if(_mEditLine < 0) return;
+  _undoPush();
+  var lines = codeEl.value.split('\n');
+  var orig = lines[_mEditLine] || '';
+  var ci = orig.indexOf(';');
+  var comment = ci>=0 ? ' '+orig.slice(ci) : '';
+  lines[_mEditLine] = code + comment;
+  codeEl.value = lines.join('\n');
+  _mEditLine = -1;
+  dirty=true; updateLineNums(); runValidation();
 }
 
 function toggleMDesc(){
@@ -1340,21 +1559,31 @@ function renderIdlePanel(){ var panel = document.getElementById('ctxPanel');
   var undoCount = _undoStack ? _undoStack.length : 0;
   var redoCount = _redoStack ? _redoStack.length : 0;
   panel.innerHTML =
-    '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Editor</span></div>'
-    +'<div class="ctx-row2">'
-    +'<button class="btn" id="_idleUndo" style="font-size:11px;"'+(undoCount===0?' disabled':'')+'>&#8630; Undo'+(undoCount>0?' ('+undoCount+')':'')+'</button>'
-    +'<button class="btn" id="_idleRedo" style="font-size:11px;"'+(redoCount===0?' disabled':'')+'>&#8631; Redo'+(redoCount>0?' ('+redoCount+')':'')+'</button>'
-    +'<button class="btn" id="_idleReset" style="font-size:11px;">&#8635; Reset</button>'
-    +'<button class="btn" id="_idleClear" style="font-size:11px;">&#x2715; Clear</button>'
+    '<div class="ctx-row2">'
+    +'<button class="btn" id="_idleUndo" data-help="undo" style="font-size:10px;padding:3px 8px;"'+(undoCount===0?' disabled':'')+'>&#8630; Undo'+(undoCount>0?' ('+undoCount+')':'')+'</button>'
+    +'<button class="btn" id="_idleRedo" data-help="redo" style="font-size:10px;padding:3px 8px;"'+(redoCount===0?' disabled':'')+'>&#8631; Redo'+(redoCount>0?' ('+redoCount+')':'')+'</button>'
+    +'<button class="btn" id="_idleReset" data-help="editor-reset" style="font-size:10px;padding:3px 8px;">&#8635; Reset</button>'
+    +'<button class="btn" id="_idleClear" data-help="editor-clear" style="font-size:10px;padding:3px 8px;">&#x2715; Clear</button>'
+    +'<button class="btn" id="_idleZoomOut" data-help="editor-zoom" title="Smaller text" onclick="editorFsBy(-1)" style="font-size:10px;padding:3px 7px;"'+(_editorFs<=_EDITOR_FS_MIN?' disabled':'')+'>A&#8722;</button>'
+    +'<button class="btn" id="_idleZoomIn" data-help="editor-zoom" title="Larger text" onclick="editorFsBy(1)" style="font-size:10px;padding:3px 7px;"'+(_editorFs>=_EDITOR_FS_MAX?' disabled':'')+'>A+</button>'
+    +'<span style="font-size:9px;font-family:var(--mono);color:var(--text3);align-self:center;">Demo:</span>'
+    +'<select id="_idleDemo" title="Load a demo program" style="font-size:10px;font-family:var(--mono);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:3px 4px;cursor:pointer;" onchange="loadDemo(this.value)">'
+    +'<option value="" disabled'+(_currentDemoIdx<0?' selected':'')+'>Load\u2026</option>'
+    + DEMO_PROGRAMS.map(function(d,i){ return '<option value="'+i+'"'+(i===_currentDemoIdx?' selected':'')+'>'+d.name+'</option>'; }).join('')
+    +'</select>'
     +'</div>';
   var bu=document.getElementById('_idleUndo');
   var br=document.getElementById('_idleRedo');
   var bs=document.getElementById('_idleReset');
   var bc=document.getElementById('_idleClear');
+  var bzo=document.getElementById('_idleZoomOut');
+  var bzi=document.getElementById('_idleZoomIn');
   if(bu) bu.addEventListener('click', function(e){ e.stopPropagation(); editorUndo(); });
   if(br) br.addEventListener('click', function(e){ e.stopPropagation(); editorRedo(); });
   if(bs) bs.addEventListener('click', function(e){ e.stopPropagation(); editorReset(); });
   if(bc) bc.addEventListener('click', function(e){ e.stopPropagation(); editorClear(); });
+  if(bzo) bzo.addEventListener('click', function(e){ e.stopPropagation(); editorFsBy(-1); });
+  if(bzi) bzi.addEventListener('click', function(e){ e.stopPropagation(); editorFsBy(1); });
 }
 function closeCtxPanel(){
   var panel = document.getElementById('ctxPanel');
@@ -1369,6 +1598,7 @@ function showCycleList(){ openCyclePicker(); }
 function showCycleParams(num){ selectCycle(num); }
 
 function selectCycle(num){
+  _undoPush();
   closeCyclePicker();
   var cyc=CYCLES.find(function(c){return c.num===num;});
   if(!cyc) return;
@@ -1410,7 +1640,7 @@ function openBugReport(){
   var overlay = document.getElementById('bugOverlay');
   // Collect debug info
   var info = [];
-  info.push('TNC Sim v0.2');
+  info.push('TNC Sim v0.5');
   info.push('UA: '+navigator.userAgent.slice(0,120));
   info.push('Platform: '+navigator.platform);
   info.push('Screen: '+window.screen.width+'×'+window.screen.height+' @ '+window.devicePixelRatio+'x');
@@ -1645,8 +1875,10 @@ function buildKeypad(){
     } else if(obj.cyclPicker){
       openCyclePicker();
     } else if(obj.mPicker){
+      _mEditLine = -1;
       openMPanel();
     } else if(obj.qParam){
+      if(typeof FM!=='undefined'&&FM.active) exitFieldMode(true); // Q inserts a NEW line — leave line editing first
       openQParamPanel();
     } else if(obj.blkForm){
       openBlkFormPanel();
@@ -1663,6 +1895,7 @@ function buildKeypad(){
   });
 }
 function toggleIncrementalToken(){
+  _undoPush();
   var val = codeEl.value;
   var selStart = lastSel.start;
   var selEnd   = lastSel.end;
@@ -1737,7 +1970,7 @@ function toggleIncrementalToken(){
 // ── Tool library ──────────────────────────────────────────────────
 var toolLibrary = [
   {T:1, NAME:'END_MILL_D10', L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'End mill D10'},
-  {T:2, NAME:'BORE_MILL_D10',L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'Bore mill D10'},
+  {T:2, NAME:'BALL_MILL_D8', L:70,  R:4,   R2:4, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:4,    ANGLE:0, T_ANGLE:0,   DOC:'Ball nose D8 (R4)'},
   {T:3, NAME:'CENTER_D6',    L:60,  R:3,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:1.033, ANGLE:0, T_ANGLE:142, DOC:'Center drill D6 142°'},
   {T:4, NAME:'DRILL_D6_8',   L:100, R:3.4, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:2.043, ANGLE:0, T_ANGLE:118, DOC:'Drill D6.8 118°'},
   {T:5, NAME:'CSINK_D8_90',  L:60,  R:0.001, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:4, ANGLE:0, T_ANGLE:90,  DOC:'Countersink D8 90° (tip ref)'},
@@ -1870,7 +2103,7 @@ function toolSave(oldNum){
   // LCUTS auto-calculated — no manual validation needed
   if(ANGLE<0||ANGLE>90)    toolErrs.push('ANGLE must be 0–90°');
   if(T_ANGLE!==0&&(T_ANGLE<10||T_ANGLE>170)) toolErrs.push('T-ANGLE must be 0 (flat) or 10–170°');
-  if(toolErrs.length){ alert('Cannot save:\n'+toolErrs.join('\n')); return; }
+  if(toolErrs.length){ _toast('Cannot save:\n'+toolErrs.join('\n'), true); return; }
 
   var entry = {T:T,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
 
@@ -1878,8 +2111,8 @@ function toolSave(oldNum){
     var idx = toolLibrary.findIndex(function(t){ return t.T===oldNum; });
     if(idx>=0) toolLibrary[idx] = entry;
   } else {
-    if(toolLibrary.find(function(t){ return t.T===T; })){ alert('T'+T+' already exists.'); return; }
-    if(toolLibrary.length>=30){ alert('Tool Table is full (max 30 tools).'); return; }
+    if(toolLibrary.find(function(t){ return t.T===T; })){ _toast('T'+T+' already exists.', true); return; }
+    if(toolLibrary.length>=30){ _toast('Tool Table is full (max 30 tools).', true); return; }
     toolLibrary.push(entry);
     toolLibrary.sort(function(a,b){ return a.T-b.T; });
   }
@@ -1926,15 +2159,11 @@ function toolDelete(num){
 
 function toolTableExport(){
   var data = JSON.stringify(toolLibrary, null, 2);
-  var blob = new Blob([data], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href=url; a.download='tools.tnt'; a.click();
-  URL.revokeObjectURL(url);
+  _downloadTextFile(data, 'tools.tnt');
 }
 function toolTableImport(){
   var inp=document.getElementById('toolImportInput');
-  if(inp) inp.click();
+  if(inp){ inp.value=''; inp.click(); }
 }
 function onToolImportFile(e){
   var file=e.target.files&&e.target.files[0]; if(!file) return;
@@ -1942,14 +2171,15 @@ function onToolImportFile(e){
   reader.onload=function(ev){
     try{
       var arr=JSON.parse(ev.target.result);
-      if(!Array.isArray(arr)) throw new Error('Expected array');
+      if(!Array.isArray(arr)) throw new Error('Expected a tool array');
       toolLibrary=arr.filter(function(t){ return t&&typeof t.T==='number'&&typeof t.R==='number'; });
       TOOL_R=(getToolByNum(TOOL_NUM)||{R:5}).R;
       renderToolsTab(); runValidation();
-    }catch(err){ alert('Import failed: '+err.message); }
+    }catch(err){ _toast('Import failed: '+err.message, true); }
+    e.target.value='';
   };
+  reader.onerror=function(){ _toast('Could not read file: '+(reader.error&&reader.error.message||'unknown error'), true); e.target.value=''; };
   reader.readAsText(file);
-  e.target.value='';
 }
 function toolAddNew(){
   var maxT=toolLibrary.reduce(function(m,t){return Math.max(m,t.T);},0);
@@ -1969,15 +2199,15 @@ function renderToolsTab(){
   var activeNum = m ? parseInt(m[1]) : 0;
 
   var html = '';
-  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one.</div>';
+  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one. Click <b style=\"color:var(--text2);\">? Help</b> above, then any column header, for an explanation.</div>';
   html += '<div>';
 
   // Left: table
   html += '<div style="overflow-x:auto;width:100%;">';
   html += '<table class="tools-table"><thead><tr>'
-    +'<th>T</th><th>NAME</th><th>L</th><th>R</th><th>R2</th>'
-    +'<th>DL</th><th>DR</th><th>DR2</th><th>CUT</th><th>LCUTS</th><th>ANGLE</th><th>T-ANGLE</th>'
-    +'<th>TL</th><th>RT</th><th>TIME2</th><th>CUR.TIME</th><th>DOC</th><th></th>'
+    +'<th data-help="tt-T">T</th><th data-help="tt-NAME">NAME</th><th data-help="tt-L">L</th><th data-help="tt-R">R</th><th data-help="tt-R2">R2</th>'
+    +'<th data-help="tt-DL">DL</th><th data-help="tt-DR">DR</th><th data-help="tt-DR2">DR2</th><th data-help="tt-CUT">CUT</th><th data-help="tt-LCUTS">LCUTS</th><th data-help="tt-ANGLE">ANGLE</th><th data-help="tt-TANGLE">T-ANGLE</th>'
+    +'<th data-help="tt-TL">TL</th><th data-help="tt-RT">RT</th><th data-help="tt-TIME2">TIME2</th><th data-help="tt-CURTIME">CUR.TIME</th><th data-help="tt-DOC">DOC</th><th></th>'
     +'</tr></thead><tbody>';
 
   toolLibrary.forEach(function(t){
@@ -2020,7 +2250,7 @@ function renderToolsTab(){
     +'<button class="tool-act-btn" style="font-size:10px;padding:4px 12px;" onclick="toolEdit(null)">+ Add tool</button>'
     +'<button class="tool-act-btn" style="font-size:10px;padding:4px 10px;" onclick="toolTableExport()" title="Export as .tnt JSON">&#8595; Export</button>'
     +'<button class="tool-act-btn" style="font-size:10px;padding:4px 10px;" onclick="toolTableImport()" title="Import .tnt JSON">&#8593; Import</button>'
-    +'<input type="file" id="toolImportInput" accept=".json,.tnt" style="display:none;" onchange="onToolImportFile(event)">'
+    +'<input type="file" id="toolImportInput" accept="application/json,text/plain,.json,.tnt,.txt" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onToolImportFile(event)">'
     +'</div>';
   html += '</div>';
 
@@ -2084,6 +2314,46 @@ function confirmToolDef(){
   var t = picker ? picker.value : (valEl ? valEl.textContent : '2');
   closeCtxPanel();
   insertKey('TOOL DEF '+t);
+}
+
+// Edit an existing TOOL DEF line in place (tapped in the editor)
+var _toolDefEditLine = -1;
+function openToolDefEdit(lineIdx){
+  _toolDefEditLine = lineIdx;
+  var lines = codeEl.value.split('\n');
+  var cur = (lines[lineIdx]||'').match(/TOOL DEF\s+(\d+)/i);
+  var curT = cur ? parseInt(cur[1]) : null;
+  var sorted = toolLibrary.filter(function(t){ return t && t.T; }).sort(function(a,b){ return a.T-b.T; });
+  var opts = sorted.map(function(t){
+    return '<option value="'+t.T+'"'+(t.T===curT?' selected':'')+'>T'+t.T+(t.NAME?' \u2014 '+t.NAME:'')+'</option>';
+  }).join('');
+  var panel = document.getElementById('ctxPanel');
+  panel.style.height='';
+  panel.innerHTML =
+    '<div class="ctx-row1">'
+    +'<span style="font-family:var(--mono);font-size:11px;color:var(--text2);">TOOL DEF</span>'
+    +'<button style="font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 6px;margin-left:auto;" onclick="closeCtxPanel()">\u2715</button>'
+    +'</div>'
+    +'<div class="ctx-row2">'
+    +'<span class="fbar-label" style="color:var(--text3);font-size:11px;">Pre-load tool:</span>'
+    +(opts ? '<select id="toolDefPicker" style="flex:1;font-family:var(--mono);font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;cursor:pointer;">'+opts+'</select>'
+           : '<input id="toolDefVal" type="text" inputmode="numeric" value="'+(curT||'')+'" style="width:60px;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 8px;outline:none;">')
+    +'<button class="fbar-done" onclick="confirmToolDefEdit()">OK</button>'
+    +'</div>';
+}
+function confirmToolDefEdit(){
+  if(_toolDefEditLine < 0){ closeCtxPanel(); return; }
+  var picker = document.getElementById('toolDefPicker');
+  var valEl  = document.getElementById('toolDefVal');
+  var t = picker ? picker.value : (valEl ? valEl.value.trim() : '');
+  if(!t){ closeCtxPanel(); return; }
+  _undoPush();
+  var lines = codeEl.value.split('\n');
+  lines[_toolDefEditLine] = (lines[_toolDefEditLine]||'').replace(/TOOL DEF\s+\d+/i, 'TOOL DEF '+t);
+  codeEl.value = lines.join('\n');
+  _toolDefEditLine = -1;
+  closeCtxPanel();
+  dirty=true; updateLineNums(); runValidation();
 }
 
 function insertKey(code){
@@ -2241,6 +2511,9 @@ function formatSignedNum(val){
   if(val === '' || val === '0') return '+0';
   // Normalize comma to dot
   val = val.replace(',', '.');
+  // Q parameter reference (Q5, +Q12, -Q3) — pass through with sign
+  var qm = val.match(/^([+-]?)(Q\d+)$/i);
+  if(qm) return (qm[1]==='-'?'-':'+') + qm[2].toUpperCase();
   // Extract sign and absolute value
   var sign = val.charAt(0) === '-' ? '-' : '+';
   var numStr = val.replace(/^[+-]/, '');
@@ -2303,9 +2576,49 @@ function expandLblLines(lines){
 /* ===MAIN_START=== */
 "use strict";
 
+// ---------- theme (dark/light) ----------
+function _applyThemeUI(theme){
+  var icon = document.getElementById('themeIcon');
+  var label = document.getElementById('themeLabel');
+  // Show the mode you'll SWITCH TO when clicked, not the current one —
+  // showing "Dark" while already in dark mode reads as "click to go dark"
+  // when it actually does the opposite.
+  if(icon) icon.innerHTML = theme==='light' ? '&#9789;' : '&#9728;';
+  if(label) label.textContent = theme==='light' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  var isLight = document.documentElement.getAttribute('data-theme')==='light';
+  var next = isLight ? 'dark' : 'light';
+  if(next==='light') document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+  try{ localStorage.setItem('tncSimTheme', next); }catch(e){}
+  _applyThemeUI(next);
+  if(typeof scene!=='undefined' && scene) scene.background = new THREE.Color(_scene3dBgColor());
+}
+_applyThemeUI(document.documentElement.getAttribute('data-theme')==='light' ? 'light' : 'dark');
+
 // ---------- DOM ----------
 var codeEl = document.getElementById('code');
 var DEFAULT_CODE = codeEl ? codeEl.value : '';
+
+// ---------- Demo program library ----------
+// The first entry ("General Basic") is the program shipped in the editor.
+// To add more demos later, push { name:'...', code:'...' } onto this array.
+var DEMO_PROGRAMS = [
+  { name: 'Complete Part', code: DEFAULT_CODE },
+  { name: 'Angle Mill', code: 'BEGIN PGM PROGRAM MM\n; Angle Mill - 30deg ramp, two passes\n; T1: end mill roughs a 22-step staircase approximating the ramp (X=Q2 0..21, Z=Q1),\n;     DL+0.2 leaves 0.2mm stock on the face for finishing.\n; T2: ball nose (R2=4) reuses the SAME staircase macro. DL-0.536 DR-2 shift the ball\n;     tip/center so it is exactly tangent to the ideal 30deg plane at each step\n;     (no gouge, no leftover stock) - see DL=-R2*(1-cos A), DR=-R2*(1-sin A).\n; Note: the milled surface still looks stepped/staircase in the 3D view because of\n;     the simulation resolution limit (voxel grid size), not the toolpath itself.\nBLK FORM 0.1 Z X+0.5 Y+0 Z+0\nBLK FORM 0.2 X+50 Y+50 Z+20\nCALL LBL 0\nTOOL CALL 1 Z S10000 F5000 DL+0.2   ; T1 end mill - roughing pass\nM8\nM3\nQ1=+10   ; Z start depth\nQ2=+0    ; X start position\nL X-10 Y-10 Z+40 FMAX R0\nLBL 1                                ; one ramp step: plunge, cut across Y, retract, return\nL X+Q2 Y-10 Z+Q1 FMAX RL\nL Y+60\nL Z+40 FMAX R0\nL Y-10 FMAX\nQ1 = Q1+0,5774   ; tan(30deg) Z step -> exact 30deg slope\nQ2 = Q2+1        ; 1mm X step\nLBL 0\nCALL LBL 1 REP 21                    ; 22 steps total (X=0..21)\nTOOL CALL 2 Z S2000 F5000 DL-0.536 DR-2   ; T2 ball nose - contact-point corrected finishing pass\nM3\nM8\nL X-10 Y-10 Z+40 FMAX R0\nQ1=+10\nQ2=+0\nCALL LBL 1 REP 21\nEND PGM PROGRAM MM' }
+];
+var _currentDemoIdx = -1;
+function loadDemo(idx){
+  idx = parseInt(idx);
+  if(isNaN(idx) || idx < 0 || idx >= DEMO_PROGRAMS.length) return;
+  var demo = DEMO_PROGRAMS[idx];
+  _undoPush();
+  codeEl.value = demo.code;
+  _currentDemoIdx = idx;
+  dirty=true; updateLineNums(); runValidation();
+  renderIdlePanel();
+}
 
 // push undo snapshot on typing (debounced — 1.5s after last keystroke)
 var _undoLastVal = null;
@@ -2332,14 +2645,19 @@ var _redoStack = [];
 var _undoMax = 50;
 function _undoPush(){
   if(!codeEl) return;
+  // dedupe — don't store the same state twice in a row
+  if(_undoStack.length && _undoStack[_undoStack.length-1]===codeEl.value) return;
   _undoStack.push(codeEl.value);
   if(_undoStack.length > _undoMax) _undoStack.shift();
   _redoStack = []; // new action clears redo
+  // refresh idle panel so the Undo button shows the current count immediately
+  if(document.getElementById('_idleUndo')) renderIdlePanel();
 }
 function editorUndo(){
   if(!codeEl || _undoStack.length===0) return;
   _redoStack.push(codeEl.value);
   codeEl.value = _undoStack.pop();
+  _undoLastVal = codeEl.value; // keep keystroke-snapshot baseline in sync
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
 }
@@ -2347,9 +2665,51 @@ function editorRedo(){
   if(!codeEl || _redoStack.length===0) return;
   _undoStack.push(codeEl.value);
   codeEl.value = _redoStack.pop();
+  _undoLastVal = codeEl.value;
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
 }
+function _toast(msg, isError){
+  // Mobile-safe notification — alert() can be silently blocked on file:// and in PWA mode.
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:9999999;'
+    + 'max-width:86%;padding:12px 18px;border-radius:8px;font-family:var(--mono),monospace;font-size:13px;'
+    + 'line-height:1.4;white-space:pre-wrap;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.4);'
+    + 'background:'+(isError?'#3a1414':'#14241a')+';color:'+(isError?'#ff8a8a':'#9fe0b0')+';'
+    + 'border:1px solid '+(isError?'#7a2020':'#2a5a3a')+';opacity:0;transition:opacity .2s;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.style.opacity = '1'; });
+  setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 250); }, isError?4200:2600);
+}
+
+// ---------- Editor text size (A-/A+ buttons) ----------
+var _editorFs = 12;          // px — base editor font size
+var _EDITOR_FS_MIN = 8, _EDITOR_FS_MAX = 28;
+function _applyEditorFs(){
+  // Set the CSS variable used by #code and .line-nums, plus inline fallback.
+  document.documentElement.style.setProperty('--editor-fs', _editorFs + 'px');
+  var ta = document.getElementById('code');
+  if(ta){
+    // setProperty with priority 'important' beats any stylesheet rule, and
+    // text-size-adjust stops mobile browsers auto-resizing textarea text.
+    ta.style.setProperty('font-size', _editorFs + 'px', 'important');
+    ta.style.setProperty('-webkit-text-size-adjust', 'none', 'important');
+    ta.style.setProperty('text-size-adjust', 'none', 'important');
+  }
+  var ln = document.getElementById('lineNums');
+  if(ln) ln.style.setProperty('font-size', _editorFs + 'px', 'important');
+  var bzo = document.getElementById('_idleZoomOut');
+  var bzi = document.getElementById('_idleZoomIn');
+  if(bzo) bzo.disabled = (_editorFs <= _EDITOR_FS_MIN);
+  if(bzi) bzi.disabled = (_editorFs >= _EDITOR_FS_MAX);
+}
+
+function editorFsBy(step){
+  _editorFs = Math.max(_EDITOR_FS_MIN, Math.min(_EDITOR_FS_MAX, _editorFs + step));
+  _applyEditorFs();
+}
+
 function _editorConfirm(msg, onYes){
   // custom confirm — avoids mobile file:// confirm() blocking
   var old = document.getElementById('_editorConfirmDlg');
@@ -2373,6 +2733,7 @@ function editorReset(){
   _editorConfirm('Reset to default program?', function(){
     _undoPush();
     codeEl.value = DEFAULT_CODE;
+    _currentDemoIdx = -1;
     dirty=true; updateLineNums(); runValidation();
     renderIdlePanel();
   });
@@ -2386,6 +2747,7 @@ function editorClear(){
   var begin = m ? m[1] : 'BEGIN PGM PROGRAM MM';
   var end   = m2 ? m2[1] : 'END PGM PROGRAM MM';
   codeEl.value = begin + '\n' + end;
+  _currentDemoIdx = -1;
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
 }
@@ -2429,10 +2791,80 @@ function updateLineNums(){
   }
   // sync scroll position
   lineNums.scrollTop = codeEl.scrollTop;
+  updateHighlightOverlay();
 }
 
+function _synEscHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _synLineWithColor(line, mainClass){
+  // Color the line with mainClass, but split off a trailing ;comment so it
+  // always stays the comment color instead of inheriting the command's color.
+  var ci = line.indexOf(';');
+  if(ci<0) return '<span class="'+mainClass+'">'+_synEscHtml(line)+'</span>';
+  var codePart = line.slice(0,ci);
+  var commentPart = line.slice(ci);
+  var out = codePart ? '<span class="'+mainClass+'">'+_synEscHtml(codePart)+'</span>' : '';
+  return out + '<span class="syn-comment">'+_synEscHtml(commentPart)+'</span>';
+}
+function _synHighlightLine(line, cycleState){
+  var trimmed = line.replace(/^\s+/, '');
+  if(trimmed===''){ cycleState.v=false; return ''; }
+
+  // Cycle block: CYCL DEF starts it, indented Qnnn=... lines continue it,
+  // CYCL CALL is always its own (and closes any open block); anything else closes it.
+  if(/^CYCL\s+DEF\b/i.test(trimmed)){
+    cycleState.v = true;
+    return _synLineWithColor(line, 'syn-cycle');
+  }
+  if(/^CYCL\s+CALL\b/i.test(trimmed)){
+    cycleState.v = false;
+    return _synLineWithColor(line, 'syn-cycle');
+  }
+  if(cycleState.v && /^Q\d+\s*=/i.test(trimmed)){
+    return _synLineWithColor(line, 'syn-cycle');
+  }
+  cycleState.v = false;
+
+  if(/^TOOL\s+CALL\b/i.test(trimmed)){
+    return _synLineWithColor(line, 'syn-tool');
+  }
+  if(/^LBL\s+\d+/i.test(trimmed) || /^CALL\s+LBL\b/i.test(trimmed)){
+    return _synLineWithColor(line, 'syn-lbl');
+  }
+  if(/^;/.test(trimmed)){
+    return '<span class="syn-comment">'+_synEscHtml(line)+'</span>';
+  }
+  if(/^Q\d+\s*=/i.test(trimmed)){
+    return _synLineWithColor(line, 'syn-qvar');
+  }
+
+  // General line: split off a trailing inline comment, then pick out Q-number
+  // tokens within the remaining code (e.g. "L X+Q2 Y-10 Z+Q1 FMAX RL").
+  var ci = line.indexOf(';');
+  var codePart = ci>=0 ? line.slice(0,ci) : line;
+  var commentPart = ci>=0 ? line.slice(ci) : '';
+  var marked = codePart.replace(/Q\d+/g, function(m){ return '\u0001'+m+'\u0002'; });
+  var out = _synEscHtml(marked).replace(/\u0001/g,'<span class="syn-qvar">').replace(/\u0002/g,'</span>');
+  if(commentPart) out += '<span class="syn-comment">'+_synEscHtml(commentPart)+'</span>';
+  return out;
+}
 function updateHighlightOverlay(){
-  // no-op — highlight overlay not used
+  var hl = document.getElementById('hlLayer');
+  if(!hl) return;
+  var lines = codeEl.value.split('\n');
+  var cycleState = {v:false};
+  var html = '';
+  for(var i=0;i<lines.length;i++){ html += _synHighlightLine(lines[i], cycleState) + '\n'; }
+  hl.innerHTML = html;
+  hl.scrollTop = codeEl.scrollTop;
+  hl.scrollLeft = codeEl.scrollLeft;
+}
+if(typeof ResizeObserver!=='undefined'){
+  new ResizeObserver(function(){
+    var hl=document.getElementById('hlLayer');
+    if(hl && codeEl){ hl.style.width=codeEl.offsetWidth+'px'; hl.style.height=codeEl.offsetHeight+'px'; }
+  }).observe(codeEl);
 }
 
 
@@ -2483,6 +2915,7 @@ function gotoLine(n){
 }
 
 function applyFix(idx){
+  _undoPush();
   if(!problemsData[idx] || !problemsData[idx].fix) return;
   var lines = codeEl.value.split('\n');
   var fixedLine = problemsData[idx].fix(lines);
@@ -2519,15 +2952,16 @@ function tokenFor(f){
   if(f.p==='REP'){ if(f.val===null || f.val==='') return ''; return 'REP '+f.val; }
   if(f.type==='mval'){ if(f.val===null || f.val==='') return ''; return 'M'+f.val; }
   if(f.type==='rc') return f.val; // 'RL','RR','R0' or '' (omit)
-  if(f.type==='coord'){ if(f.val===null || f.val==='') return ''; return (f.incr?'I':'')+f.p+signFmt(f.val); }
+  if(f.type==='coord'){ if(f.val===null || f.val==='') return ''; var _cv=(f.val==='+'||f.val==='-')?f.val+'0':f.val; return (f.incr?'I':'')+f.p+signFmt(_cv); }
   if(f.type==='num'){ if(f.val===null || f.val==='') return ''; return f.p+f.val; }
   if(/^Q\d+$/.test(f.p)) return f.p+'='+formatSignedNum(f.val);
   return f.p+f.val;
 }
 function sanitizeVal(v,type){
-  if(type==='coord') return v.replace(/[^0-9.+\-]/g,'');
-  if(type==='num') return v.replace(/[^0-9.]/g,'');
-  if(type==='feed') return v.toUpperCase().replace(/[^0-9.MAX]/g,'');
+  v = String(v).replace(/q/g,'Q'); // normalize q → Q
+  if(type==='coord'){ v = v.replace(/[^0-9.,+\-Q]/g,''); return v.replace(/,/g, '.'); }
+  if(type==='num'){ v = v.replace(/[^0-9.,Q+\-]/g,''); return v.replace(/,/g, '.'); }
+  if(type==='feed') return v.toUpperCase().replace(/[^0-9.MAXQ]/g,'');
   return v;
 }
 function lineParts(){
@@ -2660,6 +3094,11 @@ function renderFbar(){
     html+='<div class="fbar-dr">'+rcBtn('RL',f.val)+rcBtn('R0',f.val)+rcBtn('RR',f.val)+'<button class="'+rcSkipCls+'" onclick="setFieldVal(\'\')">—</button></div>';
   } else {
     html+='<span class="fbar-pfx">'+(f.lbl||f.p||'')+'</span><span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':f.val)+'</span>';
+    // Q parameter reference button (coord/num/feed fields)
+    if(f.type==='coord'||f.type==='num'||f.type==='feed'){
+      var qSel = /Q/i.test(String(f.val||''));
+      html+='<button class="fbar-fmax'+(qSel?' sel':'')+'" onclick="toggleQField()" title="Insert Q parameter reference">Q</button>';
+    }
     if(f.type==='feed'){
       html+='<button class="fbar-fmax" onclick="applySug(\'MAX\')">FMAX</button>';
       html+='<button class="fbar-fmax" onclick="applySug(\'AUTO\')">FAUTO</button>';
@@ -2692,6 +3131,24 @@ function refreshSelection(){
   if(el){ var fv=FM.fields[FM.idx]; el.textContent=fv.val===null?'—':fv.val; el.style.color=fv.val===null?'var(--text3)':''; }
 }
 function setFieldVal(v){ FM.fields[FM.idx].val=v; FM.typing=true; selectField(FM.idx); focusMobileInput(); }
+function toggleQField(){
+  var f=FM.fields[FM.idx];
+  var v=(f.val===null||f.val===undefined)?'':String(f.val);
+  if(/Q/i.test(v)){
+    // Strip Q reference — keep sign if any
+    var sign0=(v.charAt(0)==='+'||v.charAt(0)==='-')?v.charAt(0):'';
+    f.val=sign0;
+  } else {
+    // Replace numeric value with sign+Q; user then types the Q number
+    var sign=(v.charAt(0)==='+'||v.charAt(0)==='-')?v.charAt(0):'';
+    f.val=sign+'Q';
+  }
+  selectField(FM.idx);
+  // IMPORTANT: set typing AFTER selectField — selectField resets FM.typing to false,
+  // which would make the next typed digit wipe the 'Q' instead of appending to it.
+  FM.typing=true;
+  focusMobileInput();
+}
 function applySug(v){
   var f=FM.fields[FM.idx];
   if(f.type==='coord' && (v==='+'||v==='-')){
@@ -2737,6 +3194,8 @@ function switchFieldMode(label){
 function enterFieldMode(label){
   closeQPopup();
   var schema=BUILDERS[label]; if(!schema) return;
+  // Snapshot for undo — one snapshot per field-editing session
+  if(codeEl && (_undoStack.length===0 || _undoStack[_undoStack.length-1]!==codeEl.value)) _undoPush();
   var fields=[];
   schema.fields.forEach(function(sf){ if(sf.type==='mfunc'||sf.type==='_skip') return; fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:defVal(sf.type, sf.opt)}); });
   FM={active:true, cmd:(schema.cmd||label), builderKey:label, fields:fields, idx:0, lineStart:0, lineLen:0, ranges:[]};
@@ -2749,7 +3208,11 @@ function enterFieldMode(label){
   var lp=lineParts();
   FM.lineStart=before.length+1;
   FM.lineLen=lp.text.length;
-  codeEl.value = before + '\n' + lp.text + v.slice(lineEnd);
+  // After inserting a fresh TOOL CALL, auto-add M3 + M8 on the next two lines —
+  // spindle and coolant on is the standard next step and saves a manual insert.
+  // Only on insertion (here), never on editing an existing TOOL CALL line.
+  var _afterLines = (label==='TOOL CALL') ? '\nM3\nM8' : '';
+  codeEl.value = before + '\n' + lp.text + _afterLines + v.slice(lineEnd);
   // fbar always visible
   // position cursor in new line
   var newPos = FM.lineStart;
@@ -2772,6 +3235,7 @@ function getCaretLine(){
   else if(rawCmd==='CP') bk='CP';
   else if(rawCmd==='L'){ bk='L'; }
   else if(rawCmd==='TOOL' && toks[1]==='CALL'){ bk='TOOL CALL'; }
+  else if(rawCmd==='CALL' && toks[1]==='LBL'){ bk='LBL CALL'; }
   // Q lines: no field mode, edit directly
   if(!BUILDERS[bk]) return null;
   return {lineStart:ls, lineLen:lineNoComment.length, lineText:lineNoComment, cmd:rawCmd, builderKey:bk};
@@ -2783,14 +3247,25 @@ function parseExistingLine(lineText, bk){
     var tm=lineText.match(/TOOL CALL\s+(\d+)/i);
     var sm=lineText.match(/\bS(\d+)/i);
     var fm=lineText.match(/\bF(\d+)/i);
-    var tdl=lineText.match(/\bDL([+-]?[\d.]+)/i);
-    var tdr=lineText.match(/\bDR([+-]?[\d.]+)/i);
+    var tdl=lineText.match(/\bDL([+-]?[\d.,]+)/i);
+    var tdr=lineText.match(/\bDR([+-]?[\d.,]+)/i);
     return [
       {p:'', type:'tool', prompt:'Tool number', opt:false, val:tm?tm[1]:'1', incr:false, lbl:'T'},
       {p:'S', type:'num', prompt:'Spindle speed (rpm)', opt:false, val:sm?sm[1]:'3000', incr:false},
       {p:'F', type:'num', prompt:'Feed rate (mm/min)', opt:true, val:fm?fm[1]:null, incr:false},
       {p:'DL', type:'coord', prompt:'DL offset (mm)', opt:true, val:tdl?tdl[1]:null, incr:false},
       {p:'DR', type:'coord', prompt:'DR offset (mm)', opt:true, val:tdr?tdr[1]:null, incr:false},
+    ];
+  }
+  // Special case: CALL LBL has format "CALL LBL <n> [REP <count>]" — REP is a
+  // separate space-delimited token (not concatenated like F600/S3000), so the
+  // generic p+value matching below can't find it.
+  if(bk==='LBL CALL'){
+    var lm=lineText.match(/CALL LBL\s+(\d+)/i);
+    var rm=lineText.match(/\bREP\s+(\d+)/i);
+    return [
+      {p:'', type:'num', prompt:'Label number', opt:false, val:lm?lm[1]:'1', incr:false, lbl:null},
+      {p:'REP', type:'num', prompt:'Repeat count (omit = run once)', opt:true, val:rm?rm[1]:null, incr:false, lbl:null},
     ];
   }
   // For QPARAM: extract value from Q208+5.5 or Q208 +5.5
@@ -2805,7 +3280,8 @@ function parseExistingLine(lineText, bk){
       if(sf.type==='dr' && (t==='DR+'||t==='DR-')){ val=t.charAt(2); break; }
       else if(sf.type==='rc' && (t==='RL'||t==='RR'||t==='R0')){ val=t; break; }
       else if(sf.type==='feed' && t==='FMAX'){ val='MAX'; break; }
-      else if(sf.type==='feed' && p && t.charAt(0)==='F' && /^F\d/.test(t)){ val=t.slice(1); break; }
+      else if(sf.type==='feed' && t==='FAUTO'){ val='AUTO'; break; }
+      else if(sf.type==='feed' && p && t.charAt(0)==='F' && /^F(\d|\+?Q\d)/.test(t)){ val=t.slice(1); break; }
       else if(sf.type==='coord' && p && t.indexOf('I'+p)===0 && t.length>p.length+1){ val=t.slice(p.length+1); incr=true; break; }
       else if(sf.type==='coord' && p && t.indexOf(p)===0 && t.length>p.length){ val=t.slice(p.length); break; }
       else if(sf.type==='num' && p && t.indexOf(p)===0 && t.length>p.length){ val=t.slice(p.length); break; }
@@ -2817,6 +3293,13 @@ function parseExistingLine(lineText, bk){
   return fields;
 }
 function findClickedFieldIdx(lineText, bk, posInLine){
+  // CALL LBL: "CALL LBL <n> [REP <count>]" — anything at/after REP belongs to
+  // the REP field; otherwise it's the label number. (The generic digit-token
+  // rule below would wrongly grab the REP count as the label number field.)
+  if(bk==='LBL CALL'){
+    var repIdx=lineText.toUpperCase().indexOf('REP');
+    return (repIdx>=0 && posInLine>=repIdx) ? 1 : 0;
+  }
   var schema=BUILDERS[bk];
   var schemaFields=[];
   schema.fields.forEach(function(sf){ if(sf.type!=='mfunc') schemaFields.push(sf); });
@@ -2837,7 +3320,7 @@ function findClickedFieldIdx(lineText, bk, posInLine){
     var sf=schemaFields[fi], p=sf.p.toUpperCase();
     if(sf.type==='dr' && (t==='DR+'||t==='DR-')) return fi;
     if(sf.type==='rc' && (t==='RL'||t==='RR'||t==='R0')) return fi;
-    if(sf.type==='feed' && (t==='FMAX'||/^F\d/.test(t))) return fi;
+    if(sf.type==='feed' && (t==='FMAX'||t==='FAUTO'||/^F[\dQ+]/.test(t))) return fi;
     if(sf.type==='coord' && p && (t.indexOf(p)===0 || t.indexOf('I'+p)===0) && t.length>p.length) return fi;
     if(sf.type==='num' && p && t.indexOf(p)===0 && t.length>p.length) return fi;
     if(sf.type==='num' && p==='' && /^\d/.test(t)) return fi;
@@ -2846,9 +3329,12 @@ function findClickedFieldIdx(lineText, bk, posInLine){
 }
 function enterFieldModeOnLine(info){
   closeQPopup();
-  // BLK FORM lines: open BLK wizard instead of fbar
+  // Snapshot for undo — one snapshot per field-editing session
+  if(codeEl && (_undoStack.length===0 || _undoStack[_undoStack.length-1]!==codeEl.value)) _undoPush();
+  // BLK FORM lines: open BLK wizard instead of fbar (pass line index for in-place edit)
   if(/^BLK FORM/i.test(info.lineText.trim())){
-    openBlkFormPanel(info.lineText.trim());
+    var _blkLineIdx = codeEl.value.slice(0, info.lineStart).split('\n').length - 1;
+    openBlkFormPanel(info.lineText.trim(), _blkLineIdx);
     return;
   }
   var schema=BUILDERS[info.builderKey];
@@ -2904,7 +3390,8 @@ function _getHelpElAndKey(target){
   if(el) return {el:el, key:el.getAttribute('data-help')};
   // 2. keypad key with data-idx
   var _cp2=document.getElementById('ctxPanel');
-  if(_cp2 && _cp2.innerHTML.trim()!=='') return; // fbar/panel active — ignore keypad
+  var _idleShowing = !!document.getElementById('_idleUndo');
+  if(_cp2 && _cp2.innerHTML.trim()!=='' && !_idleShowing) return; // a real panel (field editor, Q popup, BLK wizard...) is active — ignore keypad
   var keyEl = target.closest ? target.closest('.key[data-idx]') : null;
   if(keyEl){
     var idx = parseInt(keyEl.getAttribute('data-idx'), 10);
@@ -3017,17 +3504,17 @@ document.addEventListener('keydown', function(e){
       if(ch==='+'||ch==='-') setFieldVal(ch);
       return;
     }
-    var patterns={coord:/[0-9.+\-QqAaBbCc]/,num:/[0-9.Qq]/,feed:/[0-9.QqFfAaXxUuTtOoMm]/,mfunc:/[0-9]/,mval:/[0-9]/};
+    var patterns={coord:/[0-9.,+\-QqAaBbCc]/,num:/[0-9.,Qq]/,feed:/[0-9.QqFfAaXxUuTtOoMm]/,mfunc:/[0-9]/,mval:/[0-9]/};
     if(patterns[f.type] && !patterns[f.type].test(ch)) return;
     if(f.type==='feed' && /[mMaAxXfFuUtToO]/.test(ch)) ch=ch.toUpperCase();
     // + a - na coord poli len zmenia znamienko, nezahadzujú číslo
     if(f.type==='coord' && (ch==='+'||ch==='-')){
-      var num = f.val===null ? '0' : String(f.val).replace(/^[+\-]/,'');
+      var num = f.val===null ? '' : String(f.val).replace(/^[+\-]/,'');
       f.val = ch + num;
       FM.typing = true;
       refreshSelection(); return;
     }
-    if(!FM.typing || f.val==='0'){ f.val=''; FM.typing=true; }
+    if(!FM.typing){ f.val=''; FM.typing=true; }
     f.val+=ch;
     f.val=sanitizeVal(f.val,f.type);
     refreshSelection(); return;
@@ -3045,12 +3532,41 @@ if(mobileInput){
   }
 
   mobileInput.addEventListener('blur', function(){
-    if(FM.active && isMobile()){
+    if((FM.active || _qpPanelOpen()) && isMobile()){
       setTimeout(function(){ mobileInput.focus(); }, 30);
     }
   });
 
   mobileInput.addEventListener('input', function(){
+    // ── QP (Q parameter) panel routing — takes priority when open ──
+    if(_qpPanelOpen()){
+      var qTarget = QP.step===0 ? 'num' : (QP.step===2 ? 'val' : null);
+      var nv=mobileInput.value;
+      if(qTarget){
+        if(nv.length < lastMobileVal.length){
+          // backspace
+          QP[qTarget] = String(QP[qTarget]).slice(0,-1);
+          if(QP[qTarget]==='') QP[qTarget] = (qTarget==='num'?'':'');
+          var el0=document.getElementById('qpFbarVal'); if(el0) el0.textContent=QP[qTarget]||(qTarget==='num'?'1':'0');
+          resetMobileInput(); return;
+        }
+        var qDiff=nv.replace(MI_SENTINEL,'');
+        resetMobileInput();
+        if(!qDiff) return;
+        var qAllowed = qTarget==='num' ? /[0-9]/ : /[0-9Qq.+\-*\/()]/;
+        for(var qi=0;qi<qDiff.length;qi++){
+          var qch=qDiff[qi];
+          if(qch===MI_SENTINEL || !qAllowed.test(qch)) continue;
+          // first typed char replaces the predefined value
+          if(!QP._typing){ QP[qTarget]=''; QP._typing=true; }
+          QP[qTarget]=String(QP[qTarget])+(qch==='q'?'Q':qch);
+        }
+        var el1=document.getElementById('qpFbarVal'); if(el1) el1.textContent=QP[qTarget]||(qTarget==='num'?'1':'0');
+      } else {
+        resetMobileInput();
+      }
+      return;
+    }
     if(!FM.active) return;
     var f=FM.fields[FM.idx];
     var newVal=mobileInput.value;
@@ -3076,15 +3592,15 @@ if(mobileInput){
       if(ch===MI_SENTINEL) continue;
       if(f.type==='dr'){ if(ch==='+'||ch==='-') setFieldVal(ch); continue; }
       if(f.type==='tool') continue; // handled by select element
-      var patterns={coord:/[0-9.+\-QqAaBbCc]/,num:/[0-9.Qq]/,feed:/[0-9.QqFfAaXxUuTtOoMm]/,mfunc:/[0-9]/,mval:/[0-9]/};
+      var patterns={coord:/[0-9.,+\-QqAaBbCc]/,num:/[0-9.,Qq]/,feed:/[0-9.QqFfAaXxUuTtOoMm]/,mfunc:/[0-9]/,mval:/[0-9]/};
       if(patterns[f.type] && !patterns[f.type].test(ch)) continue;
       if(f.type==='coord' && (ch==='+'||ch==='-')){
-        var num2=f.val===null?'0':String(f.val).replace(/^[+\-]/,'');
+        var num2=f.val===null?'':String(f.val).replace(/^[+\-]/,'');
         f.val=ch+num2; FM.typing=true; refreshSelection(); continue;
       }
-      if(!FM.typing || f.val==='0' || f.type==='qval'){ f.val=''; FM.typing=true; }
+      if(!FM.typing || f.type==='qval'){ f.val=''; FM.typing=true; }
       f.val+=ch;
-      if(f.type==='qval') f.val=f.val.replace(/[^0-9.AUTOauto]/g,'');
+      if(f.type==='qval') f.val=f.val.replace(/q/g,'Q').replace(/[^0-9.+\-QAUTOauto]/g,'');
       else f.val=sanitizeVal(f.val,f.type);
       refreshSelection();
     }
@@ -3095,18 +3611,95 @@ codeEl.addEventListener('click', function(){
   closeQPopup();
   if(FM.active) exitFieldMode(true);
   if(codeEl.selectionStart !== codeEl.selectionEnd) return;
-  // check if Q line
   var pos=codeEl.selectionStart, val=codeEl.value;
   var ls=val.lastIndexOf('\n',pos-1)+1;
-  var lineText=val.slice(ls, val.indexOf('\n',pos)>-1?val.indexOf('\n',pos):val.length);
+  var lineEnd = val.indexOf('\n',pos); if(lineEnd<0) lineEnd=val.length;
+  var lineText=val.slice(ls, lineEnd);
+
+  // Position of the tap within the line + inline comment index (used by several branches)
+  var posInLine = pos - ls;
+  var ci = lineText.indexOf(';');
+  var trimmedEnd = lineText.replace(/\s+$/,'').length;
+
+  // Q line (cycle parameter)
   if(/^\s*Q\d+/i.test(lineText)){
-    var lineIdx = val.slice(0,ls).split('\n').length - 1 + (ls>0?1:0);
-    lineIdx = val.slice(0,pos).split('\n').length - 1;
+    // Tap on the comment part (at/after ';') → edit text directly in the textarea.
+    if(ci >= 0 && posInLine >= ci){
+      codeEl.readOnly = false;
+      try{ codeEl.focus({preventScroll:true}); }catch(e){ codeEl.focus(); }
+      saveLastSel();
+      return;
+    }
+    // Tap PAST the value (no comment) → blinking caret at end, so Enter inserts
+    // a new line below — same behavior every other line type already gets.
+    if(ci < 0 && posInLine >= trimmedEnd){
+      try{ codeEl.setSelectionRange(lineEnd, lineEnd); }catch(e){}
+      saveLastSel();
+      return;
+    }
+    // Tap ON the Q parameter or its value → Q popup, unchanged.
+    var lineIdx = val.slice(0,pos).split('\n').length - 1;
     openQPopup(lineIdx);
     return;
   }
-  var info=getCaretLine();
-  if(info) enterFieldModeOnLine(info);
+
+  // Other line metrics
+  var lineIdxNow = val.slice(0,pos).split('\n').length - 1;
+  var lt = lineText.trim().toUpperCase();
+
+  // Comment line (starts with ;) → edit directly in the textarea.
+  // Give the textarea native focus so the on-screen keyboard appears and the
+  // caret stays exactly where tapped; no panel, no field editor.
+  if(/^\s*;/.test(lineText)){
+    codeEl.readOnly = false;
+    try{ codeEl.focus({preventScroll:true}); }catch(e){ codeEl.focus(); }
+    saveLastSel();
+    return;
+  }
+  // Empty line → keep caret so Enter adds another line.
+  if(lineText.trim()===''){
+    codeEl.readOnly = false;
+    try{ codeEl.focus({preventScroll:true}); }catch(e){ codeEl.focus(); }
+    saveLastSel();
+    return;
+  }
+
+  // Inline comment: if the line has a ';' and the tap landed AT or AFTER it,
+  // edit the comment text directly in the textarea (don't open the command editor).
+  if(ci >= 0 && posInLine >= ci){
+    codeEl.readOnly = false;
+    try{ codeEl.focus({preventScroll:true}); }catch(e){ codeEl.focus(); }
+    saveLastSel();
+    return;
+  }
+
+  // Tap PAST the text → blinking caret at end for Enter (works for every line type).
+  if(posInLine >= trimmedEnd){
+    try{ codeEl.setSelectionRange(lineEnd, lineEnd); }catch(e){}
+    saveLastSel();
+    return;
+  }
+
+  // Tap ON the token → open the right editor for this line type.
+  // BLK FORM → blank-size wizard
+  if(/^BLK FORM/.test(lt)){
+    openBlkFormPanel(lineText.trim(), lineIdxNow);
+    return;
+  }
+  // M function line (M, M3, M8, M0 …) → M picker (edit in place)
+  if(/^M\d*(\s|$|\/)/.test(lt) || lt==='M'){
+    if(typeof openMPanelEdit==='function'){ openMPanelEdit(lineIdxNow); return; }
+  }
+  // TOOL DEF → open the tool picker to change the tool number
+  if(/^TOOL DEF/.test(lt)){
+    if(typeof openToolDefEdit==='function'){ openToolDefEdit(lineIdxNow); return; }
+  }
+  // Command with a builder → field editor
+  var info = getCaretLine();
+  if(info){ enterFieldModeOnLine(info); return; }
+
+  // Anything else (inline comment after a command, unknown token) → caret where tapped.
+  saveLastSel();
 });
 
 // ---------- speed ----------
@@ -3228,6 +3821,7 @@ function validateProgram(code){
   var hasBegin=false, hasEnd=false, hasBlk1=false, hasBlk2=false;
   var beginName='', endName='';
   var blkMin1={x:null,y:null,z:null};
+  var _cylPending=false, _cylZ0_val=0; // cylinder blank size check state
   var lastCC=false, ccLine=-1;
   var valRcState='';
   var valRcLine=-1;
@@ -3238,6 +3832,7 @@ function validateProgram(code){
   var valToolNum=0;
   var valZ=null;
   var valSurfZ=null;
+  var valLastX=null, valLastY=null; // tracks XY position for the zero-displacement RL/RR check below
   var valSpindleOn=false;
   var valToolCallPendingSpindle=false;
   var qVarsVal={};
@@ -3270,6 +3865,9 @@ function validateProgram(code){
     var u = raw.toUpperCase().split(';')[0].trim();
     if(!u) continue;
 
+    // Strip FN 0–4 prefix (FN 0 assign, FN 1 add, FN 2 sub, FN 3 mult, FN 4 div)
+    if(/^FN\s*[0-4]\s*:/i.test(u)) u = u.replace(/^FN\s*[0-4]\s*:/i,'').trim();
+
     // Q100-199 read-only check
     var _qValAssign = u.match(/^(Q\d+)\s*=\s*(.+)/);
     if(_qValAssign && !valInCycle){
@@ -3280,6 +3878,12 @@ function validateProgram(code){
       continue;
     }
     if(Object.keys(qVarsVal).length > 0) u = resolveQLine(u, qVarsVal);
+
+    // Undefined Q parameter in a movement line — coordinate would be silently ignored
+    if(/^(L|C|CC|RND|CR|CT|LP|CP)\b/.test(u) && /[XYZIJKRP][+-]?Q\d+/.test(u)){
+      var _undefQ = u.match(/[XYZIJKRP][+-]?(Q\d+)/);
+      probs.push({line:srcI,sev:'err',msg:_undefQ[1]+' has no value assigned \u2014 coordinate will be ignored'});
+    }
 
     var toks=u.split(/\s+/);
 
@@ -3326,21 +3930,33 @@ function validateProgram(code){
     } else if(u.indexOf('BLK FORM 0.2')===0){
       hasBlk2=true;
       var _bzm=u.match(/Z([+-]?\d+\.?\d*)/); if(_bzm) valSurfZ=parseFloat(_bzm[1]);
-      if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!/Z[+-]?\d/.test(u))
+      if(_cylPending){
+        // This 0.2 line is the cylinder's radius (X) and top Z — check diameter & height, not box sides.
+        var _crl=u.match(/X([+-]?\d+\.?\d*)/), _cz1l=u.match(/Z([+-]?\d+\.?\d*)/);
+        if(_crl){ var _dia=Math.abs(parseFloat(_crl[1]))*2; if(_dia>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder diameter ('+_dia.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
+        if(_cz1l){ var _ch=Math.abs(parseFloat(_cz1l[1])-_cylZ0_val); if(_ch>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder height ('+_ch.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
+        _cylPending=false;
+      }
+      else if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!/Z[+-]?\d/.test(u))
         probs.push({line:srcI,sev:'warn',msg:'BLK FORM 0.2 should define X, Y and Z'});
       else {
         var _bx=u.match(/X([+-]?\d+\.?\d*)/),_by=u.match(/Y([+-]?\d+\.?\d*)/),_bz=u.match(/Z([+-]?\d+\.?\d*)/);
-        if(_bx&&parseFloat(_bx[1])>2000) probs.push({line:srcI,sev:'err',msg:'BLK FORM X exceeds 2000 mm'});
-        if(_by&&parseFloat(_by[1])>2000) probs.push({line:srcI,sev:'err',msg:'BLK FORM Y exceeds 2000 mm'});
-        if(_bz&&parseFloat(_bz[1])>2000) probs.push({line:srcI,sev:'err',msg:'BLK FORM Z exceeds 2000 mm'});
-        if(_bx&&_by&&_bz){var vol=parseFloat(_bx[1])*parseFloat(_by[1])*parseFloat(_bz[1]);if(vol>500*500*500) probs.push({line:srcI,sev:'warn',msg:'BLK FORM volume very large \u2014 simulation may be slow'});}
+        // Side length = max corner (0.2) - min corner (0.1). Limit each side to 500 mm.
+        var MAX_SIDE = 500;
+        if(_bx&&blkMin1.x!==null){ var _sx=Math.abs(parseFloat(_bx[1])-blkMin1.x); if(_sx>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X side ('+_sx.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
+        if(_by&&blkMin1.y!==null){ var _sy=Math.abs(parseFloat(_by[1])-blkMin1.y); if(_sy>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y side ('+_sy.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
+        if(_bz&&blkMin1.z!==null){ var _sz=Math.abs(parseFloat(_bz[1])-blkMin1.z); if(_sz>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z side ('+_sz.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
         if(blkMin1.x!==null&&_bx&&parseFloat(_bx[1])<=blkMin1.x) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X max ('+_bx[1]+') must be > X min ('+blkMin1.x+')'});
         if(blkMin1.y!==null&&_by&&parseFloat(_by[1])<=blkMin1.y) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y max ('+_by[1]+') must be > Y min ('+blkMin1.y+')'});
         if(blkMin1.z!==null&&_bz&&parseFloat(_bz[1])<=blkMin1.z) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z max ('+_bz[1]+') must be > Z min ('+blkMin1.z+')'});
       }
 
+    } else if(u.indexOf('BLK FORM CYLINDER')===0){
+      // Cylinder header: 0.1-style line holds center + Z0. Radius/height checked on the next 0.2 line.
+      var _czl=u.match(/Z([+-]?\d+\.?\d*)/); _cylZ0_val = _czl?parseFloat(_czl[1]):0; _cylPending=true;
+
     } else if(u.indexOf('BLK FORM')===0){
-      // CYLINDER or other — OK, no check needed
+      // other BLK FORM variants — no size check needed
 
     // ── TOOL CALL ──
     } else if(u.indexOf('TOOL CALL')===0){
@@ -3439,8 +4055,22 @@ function validateProgram(code){
       } else if(/\bR0\b/.test(u)){
         valRcState=''; valRcLine=-1;
       }
-      if(!isNaN(parseFloat((u.match(/\bF(\d+\.?\d*)/)||[])[1]))) {
-        var _fv=parseFloat((u.match(/\bF(\d+\.?\d*)/)||[0,0])[1]);
+      // Zero-XY-displacement check while comp is active — a pure Z (plunge) move
+      // under RL/RR has no lateral edge to offset against. This used to freeze
+      // the simulator (infinite loop in applyRadiusComp/offsetRun); that's now
+      // fixed defensively, but it's still not valid Heidenhain practice, so flag it.
+      var _isIX4=/(?:^|\s)IX/.test(u), _isIY4=/(?:^|\s)IY/.test(u);
+      var _xm4=u.match(/(?:^|\s)I?X([+-]?\d+\.?\d*)/), _ym4=u.match(/(?:^|\s)I?Y([+-]?\d+\.?\d*)/);
+      var _oldVX4=valLastX, _oldVY4=valLastY;
+      var _newVX4 = _xm4 ? (_isIX4 && valLastX!==null ? valLastX+parseFloat(_xm4[1]) : parseFloat(_xm4[1])) : valLastX;
+      var _newVY4 = _ym4 ? (_isIY4 && valLastY!==null ? valLastY+parseFloat(_ym4[1]) : parseFloat(_ym4[1])) : valLastY;
+      if((valRcState==='RL'||valRcState==='RR') && _oldVX4!==null && _oldVY4!==null && _newVX4!==null && _newVY4!==null){
+        if(Math.abs(_newVX4-_oldVX4)<1e-6 && Math.abs(_newVY4-_oldVY4)<1e-6)
+          probs.push({line:srcI,sev:'err',msg:'Radius compensation ('+valRcState+') active but this move has no XY displacement (pure Z move) \u2014 comp needs lateral motion to offset against'});
+      }
+      valLastX=_newVX4; valLastY=_newVY4;
+      if(!isNaN(parseFloat((u.match(/\bF\+?(\d+\.?\d*)/)||[])[1]))) {
+        var _fv=parseFloat((u.match(/\bF\+?(\d+\.?\d*)/)||[0,0])[1]);
         if(_fv>100000) probs.push({line:srcI,sev:'warn',msg:'Feed rate F'+_fv+' exceeds 100000 mm/min'});
       }
       var _coords=(u.matchAll?Array.from(u.matchAll(/[XYZ]([+-]?\d+\.?\d*)/g)):(function(){var r=[],m,re=/[XYZ]([+-]?\d+\.?\d*)/g;while((m=re.exec(u)))r.push(m);return r;})());
@@ -3692,10 +4322,10 @@ function parseProgram(code){
       var N_arc = 32; // segments per revolution
       var oldFeed = feed;
 
-      // mR = tool center radius at bore wall
-      // Use effective radius R+DR for cycle geometry.
-      // This correctly positions the tool for chamfering (cone flank lands on bore edge).
-      // For pass-count we use R+DR too — with Q342 nearly = Q335, this gives 1-2 passes.
+      // mR = tool center radius at bore wall.
+      // Real TNC doesn't know the tool shape — the cycle ALWAYS uses R+DR for the path.
+      // For countersinks (tip-reference R≈0), the operator programs DR/DL in TOOL CALL
+      // (e.g. DR+2 DL-2 for a 90° cone) so the cycle math works out — same as real machine.
       var _ct208 = getToolByNum(toolNum);
       var _cycleR = _ct208 ? (_ct208.R + (_ct208._drOverride !== undefined ? _ct208._drOverride : (_ct208.DR||0))) : TOOL_R;
       _cycleR = Math.max(0.001, _cycleR);
@@ -3703,15 +4333,23 @@ function parseProgram(code){
       // sR = tool center radius at pre-drilled edge (0 if solid)
       var sR = preDia > 0 ? Math.max(0, preDia/2 - _cycleR) : 0;
 
-      // Build list of radial rings from inside out, step = _cycleR
+      // Build list of radial rings from inside out, step = _cycleR (R+DR — same as real TNC).
+      // NOTE: with a tiny tool radius this generates MANY rings and the simulation
+      // runs correspondingly long — same as the real machine would.
       var radii = [];
       if(sR <= 0){
         // solid — handle separately below
       } else {
         var rStart = Math.max(sR, _cycleR);
-        for(var r = rStart; r < mR - 0.001; r += _cycleR){
-          radii.push(r);
-          if(radii.length > 200) break; // safety cap
+        var _ringCount = Math.ceil((mR - rStart) / _cycleR);
+        if(_ringCount > 5000){
+          // Absurd config (e.g. R=0.001 with no DR): cap to keep the browser alive,
+          // but warn — real machine would run for hours or refuse.
+          if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_cycleR.toFixed(3)+'mm needs '+_ringCount+' passes for D'+boreDia+' (pre-drilled D'+preDia+') — capped at 5000. Real machine would run extremely long. Check R/DR.'});
+          _ringCount = 5000;
+        }
+        for(var ri0 = 0; ri0 < _ringCount; ri0++){
+          radii.push(rStart + ri0 * _cycleR);
         }
         radii.push(mR);
       }
@@ -3737,9 +4375,15 @@ function parseProgram(code){
         // Build ring list: start from 2*_cycleR (center ramp covers 0.._cycleR)
         var solidRings = [];
         solidRings.push(0); // r=0: center expanding ramp
-        for(var r3 = 2*_cycleR; r3 <= mR + 0.001; r3 += _cycleR){
-          solidRings.push(Math.min(r3, mR));
-          if(Math.min(r3,mR) >= mR) break;
+        var _solidCount = Math.ceil(mR / _cycleR);
+        if(_solidCount > 5000){
+          if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_cycleR.toFixed(3)+'mm needs '+_solidCount+' passes for solid D'+boreDia+' — capped at 5000. Real machine would run extremely long. Check R/DR.'});
+          _solidCount = 5000;
+        }
+        for(var ri0b = 2; ri0b <= _solidCount; ri0b++){
+          var _r3 = Math.min(ri0b * _cycleR, mR);
+          solidRings.push(_r3);
+          if(_r3 >= mR) break;
         }
         // Ensure mR is always the last ring
         if(solidRings.length===0 || solidRings[solidRings.length-1] < mR - 0.001) solidRings.push(mR);
@@ -3885,17 +4529,19 @@ function parseProgram(code){
        * Q239 = thread pitch (+ right-hand, − left-hand)
        * Q203 = Z coordinate of workpiece surface (abs)
        * Q204 = 2nd safety clearance (incr above Q203)
-       * Q257 = infeed depth per chip-break cycle (incr, 0 = single pass)
-       * Q256 = retract distance for chip breaking (incr, small — e.g. 0.2mm, does NOT exit hole)
+       * Q257 = infeed depth per chip-break cycle (incr, 0 = single pass, no chip breaking)
+       * Q256 = retract factor for chip breaking: TNC retracts by Q256 × Q239 (pitch).
+       *        Q256 = 0 → full retract out of the hole to set-up clearance (Q200)
        * Q336 = spindle orientation angle (0 for simulation)
        *
-       * Cycle run:
-       * 1. Rapid to safeZ
-       * 2. Feed = |Q239| × S (pitch × RPM) down Q257 deep
-       * 3. Retract Q256 up (chip break — stays in hole, no full retract)
-       * 4. Repeat until full depth
-       * 5. Full retract to safeZ (spindle reverses on real machine)
-       * 6. Rapid to safe2Z
+       * Cycle run (per Heidenhain manual):
+       * 1. Rapid to safeZ (set-up clearance)
+       * 2. Tap down by Q257 at synchronized feed (pitch × RPM)
+       * 3. Chip break: retract by Q256×pitch (stays in hole), or fully to safeZ if Q256=0.
+       *    ALL motions inside the thread are at synchronized feed (spindle reverses) — never FMAX.
+       * 4. Repeat until Q201 depth
+       * 5. Retract out of hole to safeZ at synchronized feed
+       * 6. FMAX to 2nd set-up clearance (Q204)
        *
        * Feed calculation: F = pitch × RPM — if spindleS=0 use lastDefinedFeed as fallback
        * Workpiece: cylindrical hole at tool radius (thread profile not modeled in voxel sim)
@@ -3910,7 +4556,10 @@ function parseProgram(code){
       // Feed = pitch × RPM; fallback to lastDefinedFeed if RPM unknown
       var tapFeed = pitch > 0 && spindleS > 0 ? pitch * spindleS : lastDefinedFeed;
       var chipDepth = cy.Q257 > 0 ? cy.Q257 : Math.abs(depth); // depth per chip-break step
-      var chipRetract = cy.Q256 > 0 ? cy.Q256 : 0.2;           // small retract for chip breaking
+      // Q256=0: full retract to safeZ; Q256>0: retract by pitch*Q256
+      var chipFullRetract = (cy.Q256 === 0);
+      var chipRetract = chipFullRetract ? 0 : Math.abs(pitch * cy.Q256);
+      if(!chipFullRetract && chipRetract < 0.001) chipRetract = 0.2; // fallback
       var cx2 = pos.x, cy2a = pos.y;
       var oldFeed = feed;
 
@@ -3931,19 +4580,24 @@ function parseProgram(code){
         tapped = nextTap;
 
         if(tapped < totalDepth - 1e-6){
-          // Chip break — small retract, stays in hole (safeRetract=true, no collision check)
-          var breakZ = Math.max(targetZ + chipRetract, targetZ + chipRetract);
-          pushSeg({x:cx2, y:cy2a, z:breakZ}, true, srcLine, rc, true);
-          // Back down to just above last tapped depth
-          pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, true, srcLine, rc, true);
+          if(chipFullRetract){
+            // Q256=0: full retract to safeZ (synchronized feed — spindle reverses, tool follows thread)
+            pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true);
+            // Re-tap down to just above last depth (synchronized feed — tool follows existing thread)
+            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true);
+          } else {
+            // Q256>0: retract by pitch*Q256, stays in hole (synchronized feed)
+            var breakZ = targetZ + chipRetract;
+            pushSeg({x:cx2, y:cy2a, z:breakZ}, false, srcLine, rc, true);
+            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true);
+          }
         }
       }
 
-      // 3. Full retract to safeZ (spindle reverses on real machine — same feed rate in sim)
-      feed = tapFeed;
-      pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true);
+      // 3. Full retract to safeZ — synchronized feed (spindle reverses, tool follows thread out)
+      pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true);
 
-      // 4. Rapid to 2nd safety clearance
+      // 4. Rapid to 2nd safety clearance (tool is out of the hole — FMAX allowed)
       pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
 
       feed = oldFeed;
@@ -4004,25 +4658,28 @@ function parseProgram(code){
     var line = raw.toUpperCase().replace(/;.*$/,'').trim();
     if(!line || line.charAt(0)===';') continue;
 
+    // Strip FN 0–4 prefix BEFORE Q resolution so the assignment LHS (Q1 = …) is protected.
+    // FN 0: assign, FN 1: add, FN 2: subtract, FN 3: multiply, FN 4: divide —
+    // Heidenhain writes the operator in the expression itself, so stripping the prefix suffices.
+    if(/^FN\s*[0-4]\s*:/i.test(line)) line = line.replace(/^FN\s*[0-4]\s*:/i,'').trim();
+
     // Resolve Q parameters in line before parsing
     if(Object.keys(qVars).length > 0) line = resolveQLine(line, qVars);
 
-    var fm = line.match(/\bF(\d+\.?\d*)/);
+    var fm = line.match(/\bF\+?(\d+\.?\d*)/);
     if(fm) feed = parseFloat(fm[1]);
 
     if(line.indexOf('BLK FORM')===0){ continue; }
 
     // Q parameter assignment: Q1 = +50 / Q2 = Q1 + 10 / Q3 = SIN(Q1) etc.
-    // FN 0: Q<n> = +<val> syntax (alternative Q assignment)
-    if(/^FN\s*0\s*:/i.test(line)) line = line.replace(/^FN\s*0\s*:/i,'').trim();
+    // (undefined-Q and reserved-range warnings are emitted by the validator, not here)
     var _qAssign = line.match(/^\s*(Q\d+)\s*=\s*(.+)/);
     if(_qAssign){
-            var _qNum2=parseInt(_qAssign[1].slice(1)); if(_qNum2>=100&&_qNum2<=199) probs.push({line:srcI,sev:'warn',msg:_qAssign[1]+' is in the reserved range Q100-Q199 (measurement results — read-only)'});
-var _qNum = parseInt(_qAssign[1].slice(1));
+      var _qNum = parseInt(_qAssign[1].slice(1));
       var _qExpr = _qAssign[2].trim().replace(/;.*$/,'').trim();
       if(activeCycle){
-        // Inside cycle def — update cycle parameter
-        var _qVal = /FAUTO/i.test(_qExpr)?'FAUTO':(/FMAX/i.test(_qExpr)?9999:parseFloat(_qExpr.replace(',','.')));
+        // Inside cycle def — update cycle parameter (evalQExpr supports expressions like Q10+5)
+        var _qVal = /FAUTO/i.test(_qExpr)?'FAUTO':(/FMAX/i.test(_qExpr)?9999:evalQExpr(_qExpr, qVars));
         activeCycle['Q'+_qNum] = _qVal;
         // Basic sanity: Q200 must be >0, Q201 must be <=0
         if(_qNum===200 && typeof _qVal==='number' && _qVal<=0) console.warn('Q200 safety clearance should be positive, got '+_qVal);
@@ -4039,24 +4696,28 @@ var _qNum = parseInt(_qAssign[1].slice(1));
       }
     }
     else if(line.indexOf('CYCL DEF 200')===0){
-      var qm={}; var qr=line.match(/Q(\d+)\s*[+-]?(\d+\.?\d*)/g);
-      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
+      flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
+      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       activeCycle={type:200, Q200:+(qm[200]||2), Q201:+(qm[201]||-20), Q206:+(qm[206]||150), Q202:+(qm[202]||5), Q210:+(qm[210]||0), Q203:+(qm[203]||0), Q204:+(qm[204]||50), Q211:+(qm[211]||0)};
     }
     else if(line.indexOf('CYCL DEF 201')===0){
-      var qm={}; var qr=line.match(/Q(\d+)\s*[+-]?(\d+\.?\d*)/g);
-      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
+      flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
+      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       activeCycle={type:201, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q206:+(qm[206]||80), Q211:+(qm[211]||0), Q208:+(qm[208]||0), Q203:+(qm[203]||0), Q204:+(qm[204]||50)};
     }
     else if(line.indexOf('CYCL DEF 209')===0){
-      var qm={}; var qr=line.match(/Q(\d+)\s*[+-]?(\d+\.?\d*)/g);
-      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
+      flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
+      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       activeCycle={type:209, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q239:+(qm[239]||1.25), Q203:+(qm[203]||0), Q204:+(qm[204]||50), Q257:+(qm[257]||5), Q256:+(qm[256]||0.2), Q336:+(qm[336]||0)};
     }
     else if(line.indexOf('CYCL DEF 208')===0){
+      flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
       // parse Q params
-      var qm={}; var qr=line.match(/Q(\d+)\s*[+-]?(\d+\.?\d*)/g);
-      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
+      var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
+      if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       activeCycle={type:208, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q206:+(qm[206]||150), Q203:+(qm[203]||0), Q204:+(qm[204]||50), Q334:+(qm[334]||0), Q335:+(qm[335]||10), Q342:+(qm[342]||0), Q351:+(qm[351]||1)};
     }
     else if(line.indexOf('CYCL CALL')===0){
@@ -4079,12 +4740,13 @@ var _qNum = parseInt(_qAssign[1].slice(1));
       var tf=line.match(/\bF(\d+)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; }
       var ts=line.match(/\bS(\d+)/); if(ts) spindleS=parseInt(ts[1]);
       // DL/DR overrides from TOOL CALL line (override tool table values)
-      var tdl=line.match(/\bDL([+-]?\d+\.?\d*)/); 
-      var tdr=line.match(/\bDR([+-]?\d+\.?\d*)/);
+      // Accept both '.' and ',' as decimal separator (e.g. DL0.2 or DL0,2)
+      var tdl=line.match(/\bDL([+-]?\d+[.,]?\d*)/);
+      var tdr=line.match(/\bDR([+-]?\d+[.,]?\d*)/);
       var tObj=getToolByNum(toolNum);
       if(tObj){
-        if(tdl) tObj._dlOverride=parseFloat(tdl[1]); else delete tObj._dlOverride;
-        if(tdr) tObj._drOverride=parseFloat(tdr[1]); else delete tObj._drOverride;
+        if(tdl) tObj._dlOverride=parseFloat(tdl[1].replace(',', '.')); else delete tObj._dlOverride;
+        if(tdr) tObj._drOverride=parseFloat(tdr[1].replace(',', '.')); else delete tObj._drOverride;
         TOOL_R = tObj.R + (tdr ? parseFloat(tdr[1]) : (tObj.DR||0));
       }
     }
@@ -4131,7 +4793,7 @@ var _qNum = parseInt(_qAssign[1].slice(1));
       // LP PR+30 PA+45 F500 — linear polar move
       blockIndex++;
       var pr=line.match(/PR([+-]?\d+\.?\d*)/), pa=line.match(/PA([+-]?\d+\.?\d*)/);
-      var fm=line.match(/\bF(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
+      var fm=line.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
       if(pr && pa && ccx!==null && ccy!==null){
         var rad=parseFloat(pr[1]), ang=parseFloat(pa[1])*Math.PI/180;
         var tx=ccx+rad*Math.cos(ang), ty=ccy+rad*Math.sin(ang);
@@ -4147,7 +4809,7 @@ var _qNum = parseInt(_qAssign[1].slice(1));
       flushPending();
       blockIndex++;
       var pa2=line.match(/PA([+-]?\d+\.?\d*)/);
-      var fm2=line.match(/\bF(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
+      var fm2=line.match(/\bF\+?(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
       var dr2=line.indexOf('DR-')>=0 ? -1 : 1;
       if(line.indexOf('RL')>=0) rcState='RL'; else if(line.indexOf('RR')>=0) rcState='RR'; else if(line.indexOf('R0')>=0) rcState='R0';
       if(pa2 && ccx!==null && ccy!==null){
@@ -4321,7 +4983,7 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
   verts.push({x:sub[a].from.x, y:sub[a].from.y, z:sub[a].from.z});
   for(var k=a;k<=b;k++) verts.push({x:sub[k].to.x, y:sub[k].to.y, z:sub[k].to.z});
   var nv=verts.length;
-  if(nv<2) return;
+  if(nv<2) return (b-a+1); // nothing to offset — skip the run unchanged, don't stall the caller
 
   // Compute unit direction & left-normal of each edge between verts
   var edges=[];
@@ -4335,23 +4997,31 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
 
   // Offset each vertex; build new point list (may insert corner arcs)
   var out=[]; // {x,y,z}
+  var outSeg=[]; // parallel array: which ORIGINAL sub[] index each out[] point's metadata (rapid/feed/...) should come from
   // find first/last valid edge
   var firstE=-1, lastE=-1;
   for(var e2=0;e2<edges.length;e2++){ if(edges[e2]){ if(firstE<0) firstE=e2; lastE=e2; } }
-  if(firstE<0) return;
+  if(firstE<0) return (b-a+1); // degenerate run (e.g. pure Z plunge under RL/RR, no XY motion) — skip, don't stall
 
   for(var v=0; v<nv; v++){
     // incoming edge = edges[v-1], outgoing edge = edges[v]
     var ein=null, eout=null;
     for(var pe=v-1; pe>=0; pe--){ if(edges[pe]){ ein=edges[pe]; break; } }
     for(var ne=v;   ne<edges.length; ne++){ if(edges[ne]){ eout=edges[ne]; break; } }
+    // Which original sub[] segment "owns" this vertex's metadata (rapid, feed, ...):
+    // prefer the outgoing edge (the move heading away from this point), else the
+    // incoming edge (end vertex). This is what fixes material not being removed
+    // when the move that *activates* RL/RR is a rapid (FMAX) plunge — only that
+    // one segment should stay rapid; the cutting moves later in the same run must
+    // keep their own feed/rapid metadata, not inherit the plunge's.
+    var _segTag = eout ? (a+ne) : (ein ? (a+pe) : a);
 
     if(!ein && eout){
       // start vertex: offset by outgoing normal
-      out.push({x:verts[v].x+eout.nx*TR, y:verts[v].y+eout.ny*TR, z:verts[v].z});
+      out.push({x:verts[v].x+eout.nx*TR, y:verts[v].y+eout.ny*TR, z:verts[v].z}); outSeg.push(_segTag);
     } else if(ein && !eout){
       // end vertex: offset by incoming normal
-      out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z});
+      out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z}); outSeg.push(_segTag);
     } else if(ein && eout){
       // interior vertex: mitre between the two offset normals
       var bx=ein.nx+eout.nx, by=ein.ny+eout.ny;
@@ -4361,14 +5031,14 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
       var isConvex = (sgn>0) ? (cross < -1e-9) : (cross > 1e-9); // outer corner for this comp side
       if(bl<1e-6){
         // ~180° reversal: just offset by incoming normal
-        out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z});
+        out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z}); outSeg.push(_segTag);
       } else {
         var mx=bx/bl, my=by/bl;
         var cosHalf = mx*ein.nx + my*ein.ny; // = cos(half turn angle)
         if(cosHalf > 0.9990){
           // Near-tangent junction (arc/straight tangency): use incoming normal exactly
           // Avoids bisector approximation error at RND arc entry/exit points
-          out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z});
+          out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z}); outSeg.push(_segTag);
         } else if(isConvex && cosHalf < 0.9239){
           // Convex outer corner > 45°: insert rounding arc of radius TR centered at V
           var pA={x:verts[v].x+ein.nx*TR,  y:verts[v].y+ein.ny*TR};
@@ -4381,16 +5051,16 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
           var steps=Math.max(4, Math.ceil(Math.abs(sweep)/(Math.PI/18)));
           for(var s=0;s<=steps;s++){
             var aa=aA+sweep*(s/steps);
-            out.push({x:verts[v].x+TR*Math.cos(aa), y:verts[v].y+TR*Math.sin(aa), z:verts[v].z});
+            out.push({x:verts[v].x+TR*Math.cos(aa), y:verts[v].y+TR*Math.sin(aa), z:verts[v].z}); outSeg.push(_segTag);
           }
         } else {
           // Concave or shallow corner: mitre — cap at TR*3 to avoid huge spikes at tight angles
           var off=Math.min(TR/Math.max(0.25,cosHalf), TR*3);
-          out.push({x:verts[v].x+mx*off, y:verts[v].y+my*off, z:verts[v].z});
+          out.push({x:verts[v].x+mx*off, y:verts[v].y+my*off, z:verts[v].z}); outSeg.push(_segTag);
         }
       }
     } else {
-      out.push({x:verts[v].x, y:verts[v].y, z:verts[v].z});
+      out.push({x:verts[v].x, y:verts[v].y, z:verts[v].z}); outSeg.push(_segTag);
     }
   }
 
@@ -4401,19 +5071,24 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
   // next segment's 'from' → last offset point (avoids jump/gouge at R0 transition)
   if(prevSeg && out.length>0){ prevSeg.to = {x:out[0].x, y:out[0].y, z:out[0].z}; var pdx=prevSeg.to.x-prevSeg.from.x,pdy=prevSeg.to.y-prevSeg.from.y,pdz=prevSeg.to.z-prevSeg.from.z; prevSeg.len=Math.sqrt(pdx*pdx+pdy*pdy+pdz*pdz); }
   if(nextSeg && out.length>0){ var lp=out[out.length-1]; nextSeg.from = {x:lp.x, y:lp.y, z:lp.z}; var ndx=nextSeg.to.x-nextSeg.from.x,ndy=nextSeg.to.y-nextSeg.from.y,ndz=nextSeg.to.z-nextSeg.from.z; nextSeg.len=Math.sqrt(ndx*ndx+ndy*ndy+ndz*ndz); }
-  return rebuildRunSegments(sub, a, b, out);
+  return rebuildRunSegments(sub, a, b, out, outSeg);
 }
 
-function rebuildRunSegments(sub, a, b, out){
+function rebuildRunSegments(sub, a, b, out, outSeg){
   // Replace sub[a..b] with new segments connecting consecutive 'out' points,
-  // preserving per-segment metadata (feed, rc, toolNum...) from the run.
-  var meta = sub[a];
+  // preserving per-segment metadata (feed, rapid, rc, toolNum...). Each new
+  // segment pulls its metadata from the ORIGINAL sub[] segment it actually
+  // came from (outSeg[p]), not blindly from sub[a] — otherwise a rapid
+  // (FMAX) move that merely *activates* RL/RR would make every later
+  // cutting move in the same run inherit rapid=true and silently stop
+  // removing material.
   var newSegs=[];
   for(var p=0;p<out.length-1;p++){
     var f=out[p], t=out[p+1];
     var dx=t.x-f.x, dy=t.y-f.y, dz=t.z-f.z;
     var len=Math.sqrt(dx*dx+dy*dy+dz*dz);
     if(len<1e-9) continue;
+    var meta = sub[outSeg[p]] || sub[a];
     newSegs.push({
       from:{x:f.x,y:f.y,z:f.z}, to:{x:t.x,y:t.y,z:t.z},
       rapid:meta.rapid, feed:meta.feed, spindleS:meta.spindleS, spindleOn:meta.spindleOn,
@@ -4484,16 +5159,22 @@ function bufRefresh(buf, partialA, partialB){
 }
 function bufClear(buf){ buf.count=0; buf.geo.setDrawRange(0,0); buf.geo.attributes.position.needsUpdate=true; }
 
+function _scene3dBgColor(){
+  return document.documentElement.getAttribute('data-theme')==='light' ? 0xffffff : 0x0d0f14;
+}
 function init3D(){
   if(!THREE_OK) return;
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0d0f14);
+  scene.background = new THREE.Color(_scene3dBgColor());
 
   camera = new THREE.PerspectiveCamera(45, 1, 0.1, 5000);
   camera.up.set(0,0,1);
 
   renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  // Prevent the browser from hijacking orbit/pinch gestures as page scroll/zoom on mobile.
+  renderer.domElement.style.touchAction = 'none';
+  renderer.domElement.style.webkitTapHighlightColor = 'transparent';
   view3dEl.appendChild(renderer.domElement);
 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -4537,7 +5218,26 @@ function vxInit(prog){
   if(VX && VX.mesh){ scene.remove(VX.mesh); VX.mesh.geometry.dispose(); }
   var min=prog.blkMin, max=prog.blkMax;
   var w=max.x-min.x, d=max.y-min.y, h=max.z-min.z;
-  var nx=VX_RES, ny=VX_RES, nz=Math.max(4,Math.round(VX_RES*h/Math.max(w,d)));
+  // Isotropic cells: cell size derived from the longest axis / VX_RES, so dx~=dy~=dz.
+  var maxDim = Math.max(w, d, h);
+  var cell = maxDim / (VX_RES - 1);
+  // Large blanks must not lose detail: cap the cell size so resolution stays usable.
+  // The cap scales with quality (low/med/high) but never lets a cell exceed it.
+  var CELL_CAP = [1.0, 0.6, 0.4][VX_QUALITY!==undefined?VX_QUALITY:0] || 1.0; // mm
+  if(cell > CELL_CAP) cell = CELL_CAP;
+  var nx=Math.max(4, Math.round(w/cell)+1);
+  var ny=Math.max(4, Math.round(d/cell)+1);
+  var nz=Math.max(4, Math.round(h/cell)+1);
+  // Memory guard: clamp total voxel count so the browser can't be killed by a huge blank.
+  // If over budget, grow the cell uniformly (keeps cells cubic — just coarser).
+  var VOXEL_BUDGET = 24000000; // ~24 MB grid + ~24 MB cut = ~48 MB, safe in-browser
+  if(nx*ny*nz > VOXEL_BUDGET){
+    var scale = Math.cbrt((nx*ny*nz) / VOXEL_BUDGET);
+    cell = cell * scale;
+    nx=Math.max(4, Math.round(w/cell)+1);
+    ny=Math.max(4, Math.round(d/cell)+1);
+    nz=Math.max(4, Math.round(h/cell)+1);
+  }
   var dx=w/(nx-1), dy=d/(ny-1), dz=h/(nz-1);
   // grid: 1=material, 0=empty  (Uint8Array for memory efficiency)
   var grid=new Uint8Array(nx*ny*nz);
@@ -4582,7 +5282,7 @@ function vxReset(){
 function vxCut(tx,ty,tz,toolR,toolShape){
   // toolShape: null=cylinder, {type:'ball',r2:R2} or {type:'cone',angle:deg,surfZ:z}
   if(!VX) return;
-  if(tz>=VX.maxZ) return;
+  if(tz>VX.maxZ) return;
   var maxR = toolR;
   // For cone tools, max radius can be larger than toolR at top
   if(toolShape && toolShape.type==='cone'){
@@ -4602,15 +5302,18 @@ function vxCut(tx,ty,tz,toolR,toolShape){
   var changed=false;
   for(var iz=izMin;iz<=izMax;iz++){
     var pz=VX.oz+iz*VX.dz;
-    if(pz<tz) continue;
+    if(pz < tz - VX.dz*0.5) continue;
     // compute effective radius at this Z level
     var effR = toolR;
     var dz2 = pz - tz; // how far above tool tip
     if(toolShape && toolShape.type==='ball'){
-      // Full ball nose (R2 == R): sphere zone up to R2, then cylinder
-      var _r2 = toolShape.r2;
-      if(dz2 < _r2){
-        effR = Math.sqrt(Math.max(0, _r2*_r2 - (_r2-dz2)*(_r2-dz2)));
+      // Ball nose: _r2 is effective cutting radius (R2+DR), but sphere HEIGHT from tip = original R2
+      var _r2 = toolShape.r2;           // effective cutting radius (R2+DR)
+      var _r2h = toolShape.r2orig || _r2; // original R2 for sphere height
+      if(dz2 < _r2h){
+        // effR scales with effective radius but follows sphere geometry based on original R2
+        var _frac = dz2 / _r2h; // 0 at tip, 1 at equator
+        effR = _r2 * Math.sqrt(Math.max(0, 1 - (1-_frac)*(1-_frac)));
       }
       // above sphere: effR = toolR (cylinder body)
     } else if(toolShape && toolShape.type==='torus'){
@@ -4751,7 +5454,7 @@ function vxBuildMesh(){
 // ---------- high-res precise mesh (chunked main-thread) ----------
 var _refineChunks = null;
 
-var REFINE_WORKER_CODE = "'use strict';\nvar MC_EDGE_TABLE = new Int32Array([0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90, 0x230, 0x339, 0x33, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30, 0x3a0, 0x2a9, 0x1a3, 0xaa, 0x7a6, 0x6af, 0x5a5, 0x4ac, 0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0, 0x460, 0x569, 0x663, 0x76a, 0x66, 0x16f, 0x265, 0x36c, 0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60, 0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff, 0x3f5, 0x2fc, 0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0, 0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55, 0x15c, 0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950, 0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc, 0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0, 0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc, 0xcc, 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0, 0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c, 0x15c, 0x55, 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650, 0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc, 0x2fc, 0x3f5, 0xff, 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0, 0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c, 0x36c, 0x265, 0x16f, 0x66, 0x76a, 0x663, 0x569, 0x460, 0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac, 0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa, 0x1a3, 0x2a9, 0x3a0, 0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c, 0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33, 0x339, 0x230, 0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c, 0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99, 0x190, 0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0]);\nvar MC_TRI_TABLE = new Int32Array([- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 9, 8, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 0, 2, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 8, 3, 2, 10, 8, 10, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 8, 11, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 2, 1, 9, 11, 9, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 1, 11, 10, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 10, 1, 0, 8, 10, 8, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 9, 0, 3, 11, 9, 11, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 7, 3, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 1, 9, 4, 7, 1, 7, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 4, 7, 3, 0, 4, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 9, 0, 2, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 8, 4, 7, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 4, 7, 11, 2, 4, 2, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 8, 4, 7, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, - 1, - 1, - 1, - 1, 3, 10, 1, 3, 11, 10, 7, 8, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, - 1, - 1, - 1, - 1, 4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 4, 7, 11, 4, 11, 9, 9, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 1, 5, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 5, 4, 8, 3, 5, 3, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 10, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 2, 10, 5, 4, 2, 4, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, - 1, - 1, - 1, - 1, 9, 5, 4, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 0, 8, 11, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 0, 1, 5, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, - 1, - 1, - 1, - 1, 10, 3, 11, 10, 1, 3, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, - 1, - 1, - 1, - 1, 5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 5, 4, 8, 5, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 5, 7, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 3, 0, 9, 5, 3, 5, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 8, 0, 1, 7, 1, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 9, 5, 7, 10, 1, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, - 1, - 1, - 1, - 1, 8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, - 1, - 1, - 1, - 1, 2, 10, 5, 2, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 9, 5, 7, 8, 9, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, - 1, - 1, - 1, - 1, 11, 2, 1, 11, 1, 7, 7, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, - 1, - 1, - 1, - 1, 5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, - 1, 11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, - 1, 11, 10, 5, 7, 11, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 1, 9, 8, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 2, 6, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 1, 2, 6, 3, 0, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 6, 5, 9, 0, 6, 0, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 0, 8, 11, 2, 0, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, - 1, - 1, - 1, - 1, 6, 3, 11, 6, 5, 3, 5, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, - 1, - 1, - 1, - 1, 6, 5, 9, 6, 9, 11, 11, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 4, 7, 3, 6, 5, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 5, 10, 6, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 6, 1, 2, 6, 5, 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, - 1, - 1, - 1, - 1, 8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, - 1, - 1, - 1, - 1, 7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, - 1, 3, 11, 2, 7, 8, 4, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, 9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, - 1, 8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, - 1, 0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, - 1, 6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, - 1, - 1, - 1, - 1, 10, 4, 9, 6, 4, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 10, 6, 4, 9, 10, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 0, 1, 10, 6, 0, 6, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 1, 4, 9, 1, 2, 4, 2, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, - 1, - 1, - 1, - 1, 0, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 2, 8, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 4, 9, 10, 6, 4, 11, 2, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, - 1, - 1, - 1, - 1, 3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, - 1, 9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, - 1, - 1, - 1, - 1, 8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, - 1, 3, 11, 6, 3, 6, 0, 0, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 4, 8, 11, 6, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 10, 6, 7, 8, 10, 8, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, - 1, - 1, - 1, - 1, 10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, - 1, - 1, - 1, - 1, 10, 6, 7, 10, 7, 1, 1, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, - 1, 7, 8, 0, 7, 0, 6, 6, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 3, 2, 6, 7, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, - 1, 1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, - 1, 11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, - 1, - 1, - 1, - 1, 8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, - 1, 0, 9, 1, 11, 6, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, - 1, - 1, - 1, - 1, 7, 11, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 9, 8, 3, 1, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 8, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 9, 0, 2, 10, 9, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, - 1, - 1, - 1, - 1, 7, 2, 3, 6, 2, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 0, 8, 7, 6, 0, 6, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 7, 6, 2, 3, 7, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, - 1, - 1, - 1, - 1, 10, 7, 6, 10, 1, 7, 1, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, - 1, - 1, - 1, - 1, 0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, - 1, - 1, - 1, - 1, 7, 6, 10, 7, 10, 8, 8, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 8, 4, 11, 8, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 3, 0, 6, 0, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 6, 11, 8, 4, 6, 9, 0, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, - 1, - 1, - 1, - 1, 6, 8, 4, 6, 11, 8, 2, 10, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, - 1, - 1, - 1, - 1, 4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, - 1, - 1, - 1, - 1, 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, - 1, 8, 2, 3, 8, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, - 1, - 1, - 1, - 1, 1, 9, 4, 1, 4, 2, 2, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, - 1, - 1, - 1, - 1, 10, 1, 0, 10, 0, 6, 6, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, - 1, 10, 9, 4, 6, 10, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 5, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 1, 5, 4, 0, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, - 1, - 1, - 1, - 1, 9, 5, 4, 10, 1, 2, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, - 1, - 1, - 1, - 1, 7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, - 1, - 1, - 1, - 1, 3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, - 1, 7, 2, 3, 7, 6, 2, 5, 4, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, - 1, - 1, - 1, - 1, 3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, - 1, - 1, - 1, - 1, 6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, - 1, 9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, - 1, - 1, - 1, - 1, 1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, - 1, 4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, - 1, 7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, - 1, - 1, - 1, - 1, 6, 9, 5, 6, 11, 9, 11, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, - 1, - 1, - 1, - 1, 0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, - 1, - 1, - 1, - 1, 6, 11, 3, 6, 3, 5, 5, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, - 1, - 1, - 1, - 1, 0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, - 1, 11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, - 1, 6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, - 1, - 1, - 1, - 1, 5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, - 1, - 1, - 1, - 1, 9, 5, 6, 9, 6, 0, 0, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, - 1, 1, 5, 6, 2, 1, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, - 1, 10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, - 1, - 1, - 1, - 1, 0, 3, 8, 5, 6, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 5, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 7, 5, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 11, 7, 5, 8, 3, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 11, 7, 5, 10, 11, 1, 9, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, - 1, - 1, - 1, - 1, 11, 1, 2, 11, 7, 1, 7, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, - 1, - 1, - 1, - 1, 9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, - 1, - 1, - 1, - 1, 7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, - 1, 2, 5, 10, 2, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, - 1, - 1, - 1, - 1, 9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, - 1, 1, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 7, 0, 7, 1, 1, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 3, 9, 3, 5, 5, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 7, 5, 9, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 8, 4, 5, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, - 1, - 1, - 1, - 1, 10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, - 1, 2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, - 1, - 1, - 1, - 1, 0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, - 1, 0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, - 1, 9, 4, 5, 2, 11, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, - 1, - 1, - 1, - 1, 5, 10, 2, 5, 2, 4, 4, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, - 1, 5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 3, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 5, 1, 0, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, - 1, - 1, - 1, - 1, 9, 4, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 11, 7, 4, 9, 11, 9, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, - 1, - 1, - 1, - 1, 1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, - 1, - 1, - 1, - 1, 3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, - 1, 4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, - 1, - 1, - 1, - 1, 9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, - 1, 11, 7, 4, 11, 4, 2, 2, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, - 1, - 1, - 1, - 1, 2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, - 1, - 1, - 1, - 1, 9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, - 1, 3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, - 1, 1, 10, 2, 8, 7, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 7, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, - 1, - 1, - 1, - 1, 4, 0, 3, 7, 4, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 8, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 11, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 10, 0, 10, 8, 8, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 1, 10, 11, 3, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 11, 1, 11, 9, 9, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, - 1, - 1, - 1, - 1, 0, 2, 11, 8, 0, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 2, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 10, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 2, 0, 9, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, - 1, - 1, - 1, - 1, 1, 10, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 8, 9, 1, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 9, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 3, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1]);\n\nself.onmessage = function(e){\n  var d = e.data;\n  var type = d.type;\n\n  if(type === 'refine'){\n    var min = d.min, max = d.max;\n    var nx = d.nx, ny = d.ny, nz = d.nz;\n    var dx = d.dx, dy = d.dy, dz = d.dz;\n    var subArr = d.subArr;    // array of segment objects\n    var vxCut  = new Uint8Array(d.vxCut);   // low-res cut grid\n    var vxNx = d.vxNx, vxNy = d.vxNy, vxNz = d.vxNz;\n    var vxOx = d.vxOx, vxOy = d.vxOy, vxOz = d.vxOz;\n    var vxDx = d.vxDx, vxDy = d.vxDy, vxDz = d.vxDz;\n    var blkCyl = d.blkCyl || null;\n    var tools  = d.tools;  // {T: {R, R2, T_ANGLE, LCUTS}} map\n\n    // \u2500\u2500 Phase 1: init grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var grid    = new Uint8Array(nx*ny*nz);\n    var cutGrid = new Uint8Array(nx*ny*nz);\n\n    // Pre-populate cutGrid from low-res\n    for(var piz=0;piz<nz;piz++) for(var piy=0;piy<ny;piy++) for(var pix=0;pix<nx;pix++){\n      var wx=min.x+pix*dx, wy=min.y+piy*dy, wz=min.z+piz*dz;\n      var vi=Math.round((wx-vxOx)/vxDx), vj=Math.round((wy-vxOy)/vxDy), vk=Math.round((wz-vxOz)/vxDz);\n      if(vi>=0&&vi<vxNx&&vj>=0&&vj<vxNy&&vk>=0&&vk<vxNz){\n        var cv=vxCut[vk*vxNy*vxNx+vj*vxNx+vi];\n        if(cv) cutGrid[piz*ny*nx+piy*nx+pix]=cv;\n      }\n    }\n\n    // Init solid/air grid\n    for(var iz=0;iz<nz;iz++) for(var iy=0;iy<ny;iy++) for(var ix=0;ix<nx;ix++){\n      var border=(ix===0||ix===nx-1||iy===0||iy===ny-1||iz===0||iz===nz-1);\n      var inShape=true;\n      if(!border && blkCyl){\n        var rwx=min.x+ix*dx, rwy=min.y+iy*dy;\n        var rddx=rwx-blkCyl.cx, rddy=rwy-blkCyl.cy;\n        inShape=(rddx*rddx+rddy*rddy)<=(blkCyl.r-dx)*(blkCyl.r-dx);\n      }\n      grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;\n    }\n    self.postMessage({type:'progress', pct:10});\n\n    // \u2500\u2500 Phase 2: apply cuts \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var nSub = subArr.length;\n    for(var si=0;si<nSub;si++){\n      var sm = subArr[si];\n      if(sm.rapid) continue;\n      var tnum = sm.toolNum||1;\n      var _ct = tools[tnum] || null;\n      var _dlOv = _ct ? (_ct.DL||0) : 0;\n      var _drOv = _ct ? (_ct.DR||0) : 0;\n      var toolR = _ct ? (_ct.R + _drOv) : 5;\n      var r2base = toolR*toolR;\n      var _isBall  = _ct && _ct.R2>0 && _ct.R2>=_ct.R;\n      var _isTorus = _ct && _ct.R2>0 && _ct.R2<_ct.R;\n      var _isCone  = _ct && _ct.T_ANGLE>0 && !(_ct.R2>0);\n      var _ballR2  = (_isBall||_isTorus) ? _ct.R2 : 0;\n      var _tCore   = _isTorus ? (toolR-_ct.R2) : 0;\n      var _coneHR  = _isCone  ? (_ct.T_ANGLE/2)*Math.PI/180 : 0;\n      var _lcuts   = _ct ? (_ct.LCUTS||99999) : 99999;\n\n      // scan range\n      var scanR = toolR;\n      if(_isCone){ var _coneMaxS=(_lcuts||9999)*Math.tan(_coneHR); scanR=Math.max(toolR,_coneMaxS); }\n      var segLen = sm.len || 0;\n      var steps = Math.max(2, Math.ceil(segLen/Math.min(dx,dy)*1.5));\n\n      for(var st=0;st<=steps;st++){\n        var t=st/steps;\n        var tx=sm.from.x+(sm.to.x-sm.from.x)*t;\n        var ty=sm.from.y+(sm.to.y-sm.from.y)*t;\n        var tz=sm.from.z+(sm.to.z-sm.from.z)*t + _dlOv;\n        if(tz>=max.z) continue;\n\n        var ixMin=Math.max(0,Math.floor((tx-scanR-min.x)/dx)-1);\n        var ixMax=Math.min(nx-1,Math.ceil((tx+scanR-min.x)/dx)+1);\n        var iyMin=Math.max(0,Math.floor((ty-scanR-min.y)/dy)-1);\n        var iyMax=Math.min(ny-1,Math.ceil((ty+scanR-min.y)/dy)+1);\n        var izMin=Math.max(0,Math.floor((tz-min.z)/dz)-1);\n\n        for(var vz=izMin;vz<nz;vz++){\n          var pz=min.z+vz*dz; if(pz<tz) continue;\n          var _dzRef=pz-tz;\n          var effR2=r2base;\n          if(_isBall && _dzRef<_ballR2){\n            var _eR=Math.sqrt(Math.max(0,_ballR2*_ballR2-(_ballR2-_dzRef)*(_ballR2-_dzRef)));\n            effR2=_eR*_eR;\n          } else if(_isTorus && _dzRef<_ballR2){\n            var _eRt=_tCore+Math.sqrt(Math.max(0,_ballR2*_ballR2-(_ballR2-_dzRef)*(_ballR2-_dzRef)));\n            effR2=_eRt*_eRt;\n          } else if(_isCone){\n            var _coneMaxW=(_lcuts||9999)*Math.tan(_coneHR);\n            var _eR2=Math.min(_coneMaxW,_dzRef*Math.tan(_coneHR));\n            effR2=_eR2*_eR2;\n          }\n          var colorVal=(_dzRef<=_lcuts)?(tnum||1):255;\n          for(var vy=iyMin;vy<=iyMax;vy++){\n            var py=min.y+vy*dy;\n            for(var vx2=ixMin;vx2<=ixMax;vx2++){\n              var px=min.x+vx2*dx;\n              var ddx=px-tx,ddy=py-ty;\n              if(ddx*ddx+ddy*ddy<=effR2){\n                var gi2=vz*ny*nx+vy*nx+vx2;\n                if(grid[gi2]){ grid[gi2]=0; cutGrid[gi2]=colorVal; }\n              }\n            }\n          }\n        }\n      }\n      if(si%50===0) self.postMessage({type:'progress', pct:10+Math.round(si/nSub*40)});\n    }\n    self.postMessage({type:'progress', pct:50});\n\n    // \u2500\u2500 Phase 3: Marching Cubes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var vertsOut=[], normsOut=[], triColorsOut=[];\n\n    function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){\n      if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}\n      var t=(iso-v1)/(v2-v1);\n      out[0]=p1x+t*(p2x-p1x);out[1]=p1y+t*(p2y-p1y);out[2]=p1z+t*(p2z-p1z);\n    }\n\n    var iso=0.5;\n    var ep=[];\n    for(var ei=0;ei<12;ei++) ep.push([0,0,0]);\n    var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];\n\n    for(var miz=0;miz<nz-1;miz++){\n      for(var miy=0;miy<ny-1;miy++){\n        for(var mix=0;mix<nx-1;mix++){\n          var x0=min.x+mix*dx,y0=min.y+miy*dy,z0=min.z+miz*dz;\n          var x1=x0+dx,y1=y0+dy,z1=z0+dz;\n          var g=function(a,b,c){ return grid[c*ny*nx+b*nx+a]||0; };\n          var cv=[g(mix,miy,miz),g(mix+1,miy,miz),g(mix+1,miy+1,miz),g(mix,miy+1,miz),\n                  g(mix,miy,miz+1),g(mix+1,miy,miz+1),g(mix+1,miy+1,miz+1),g(mix,miy+1,miz+1)];\n          var ci=0;\n          if(cv[0]>iso)ci|=1;if(cv[1]>iso)ci|=2;if(cv[2]>iso)ci|=4;if(cv[3]>iso)ci|=8;\n          if(cv[4]>iso)ci|=16;if(cv[5]>iso)ci|=32;if(cv[6]>iso)ci|=64;if(cv[7]>iso)ci|=128;\n          if(ci===0||ci===255) continue;\n          var et=MC_EDGE_TABLE[ci];\n          var cx2=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],\n                   [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];\n          for(var e=0;e<12;e++){\n            if(et&(1<<e)){\n              var ea=edges[e][0],eb=edges[e][1];\n              vInterp(iso,cx2[ea][0],cx2[ea][1],cx2[ea][2],cv[ea],\n                          cx2[eb][0],cx2[eb][1],cx2[eb][2],cv[eb],ep[e]);\n            }\n          }\n          var triBase=ci*16;\n          for(var ti=0;ti<15;ti+=3){\n            if(MC_TRI_TABLE[triBase+ti]<0) break;\n            var pa=ep[MC_TRI_TABLE[triBase+ti]];\n            var pb=ep[MC_TRI_TABLE[triBase+ti+1]];\n            var pc=ep[MC_TRI_TABLE[triBase+ti+2]];\n            // normal\n            var ax=pb[0]-pa[0],ay=pb[1]-pa[1],az=pb[2]-pa[2];\n            var bx=pc[0]-pa[0],by=pc[1]-pa[1],bz=pc[2]-pa[2];\n            var nnx=ay*bz-az*by,nny=az*bx-ax*bz,nnz=ax*by-ay*bx;\n            var nl=Math.sqrt(nnx*nnx+nny*nny+nnz*nnz)||1;\n            nnx/=nl;nny/=nl;nnz/=nl;\n            vertsOut.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);\n            normsOut.push(nnx,nny,nnz,nnx,nny,nnz,nnx,nny,nnz);\n            // color from cutGrid corners\n            var triTool=0;\n            var corners8=[mix,miy,miz, mix+1,miy,miz, mix+1,miy+1,miz, mix,miy+1,miz,\n                           mix,miy,miz+1, mix+1,miy,miz+1, mix+1,miy+1,miz+1, mix,miy+1,miz+1];\n            for(var ci8=0;ci8<24&&!triTool;ci8+=3){\n              var gv8=corners8[ci8+2]*ny*nx+corners8[ci8+1]*nx+corners8[ci8];\n              if(cutGrid[gv8]) triTool=cutGrid[gv8];\n            }\n            if(!triTool){\n              for(var dz3=-1;dz3<=2&&!triTool;dz3++){\n                for(var ci9=0;ci9<24&&!triTool;ci9+=3){\n                  var gz9=(corners8[ci9+2]+dz3)*ny*nx+corners8[ci9+1]*nx+corners8[ci9];\n                  if(gz9>=0&&gz9<cutGrid.length&&cutGrid[gz9]) triTool=cutGrid[gz9];\n                }\n              }\n            }\n            triColorsOut.push(triTool);\n          }\n        }\n      }\n      if(miz%50===0) self.postMessage({type:'progress', pct:50+Math.round(miz/(nz-1)*50)});\n    }\n\n    // Transfer as Float32Array / Int32Array for zero-copy\n    var vertsF  = new Float32Array(vertsOut);\n    var normsF  = new Float32Array(normsOut);\n    var colorsI = new Int32Array(triColorsOut);\n\n    self.postMessage({\n      type: 'done',\n      verts:  vertsF.buffer,\n      norms:  normsF.buffer,\n      colors: colorsI.buffer\n    }, [vertsF.buffer, normsF.buffer, colorsI.buffer]);\n  }\n};";
+var REFINE_WORKER_CODE = "'use strict';\nvar MC_EDGE_TABLE = new Int32Array([0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90, 0x230, 0x339, 0x33, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30, 0x3a0, 0x2a9, 0x1a3, 0xaa, 0x7a6, 0x6af, 0x5a5, 0x4ac, 0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0, 0x460, 0x569, 0x663, 0x76a, 0x66, 0x16f, 0x265, 0x36c, 0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60, 0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff, 0x3f5, 0x2fc, 0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0, 0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55, 0x15c, 0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950, 0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc, 0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0, 0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc, 0xcc, 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0, 0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c, 0x15c, 0x55, 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650, 0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc, 0x2fc, 0x3f5, 0xff, 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0, 0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c, 0x36c, 0x265, 0x16f, 0x66, 0x76a, 0x663, 0x569, 0x460, 0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac, 0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa, 0x1a3, 0x2a9, 0x3a0, 0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c, 0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33, 0x339, 0x230, 0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c, 0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99, 0x190, 0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0]);\nvar MC_TRI_TABLE = new Int32Array([- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 9, 8, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 0, 2, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 8, 3, 2, 10, 8, 10, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 8, 11, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 2, 1, 9, 11, 9, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 1, 11, 10, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 10, 1, 0, 8, 10, 8, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 9, 0, 3, 11, 9, 11, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 7, 3, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 1, 9, 4, 7, 1, 7, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 4, 7, 3, 0, 4, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 9, 0, 2, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 8, 4, 7, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 4, 7, 11, 2, 4, 2, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 8, 4, 7, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, - 1, - 1, - 1, - 1, 3, 10, 1, 3, 11, 10, 7, 8, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, - 1, - 1, - 1, - 1, 4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 4, 7, 11, 4, 11, 9, 9, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 1, 5, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 5, 4, 8, 3, 5, 3, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 10, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 2, 10, 5, 4, 2, 4, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, - 1, - 1, - 1, - 1, 9, 5, 4, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 0, 8, 11, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 0, 1, 5, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, - 1, - 1, - 1, - 1, 10, 3, 11, 10, 1, 3, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, - 1, - 1, - 1, - 1, 5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 5, 4, 8, 5, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 5, 7, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 3, 0, 9, 5, 3, 5, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 8, 0, 1, 7, 1, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 9, 5, 7, 10, 1, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, - 1, - 1, - 1, - 1, 8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, - 1, - 1, - 1, - 1, 2, 10, 5, 2, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 9, 5, 7, 8, 9, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, - 1, - 1, - 1, - 1, 11, 2, 1, 11, 1, 7, 7, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, - 1, - 1, - 1, - 1, 5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, - 1, 11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, - 1, 11, 10, 5, 7, 11, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 1, 9, 8, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 2, 6, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 1, 2, 6, 3, 0, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 6, 5, 9, 0, 6, 0, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 0, 8, 11, 2, 0, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, - 1, - 1, - 1, - 1, 6, 3, 11, 6, 5, 3, 5, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, - 1, - 1, - 1, - 1, 6, 5, 9, 6, 9, 11, 11, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 4, 7, 3, 6, 5, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 5, 10, 6, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 6, 1, 2, 6, 5, 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, - 1, - 1, - 1, - 1, 8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, - 1, - 1, - 1, - 1, 7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, - 1, 3, 11, 2, 7, 8, 4, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, 9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, - 1, 8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, - 1, 0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, - 1, 6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, - 1, - 1, - 1, - 1, 10, 4, 9, 6, 4, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 10, 6, 4, 9, 10, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 0, 1, 10, 6, 0, 6, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 1, 4, 9, 1, 2, 4, 2, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, - 1, - 1, - 1, - 1, 0, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 2, 8, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 4, 9, 10, 6, 4, 11, 2, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, - 1, - 1, - 1, - 1, 3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, - 1, 9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, - 1, - 1, - 1, - 1, 8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, - 1, 3, 11, 6, 3, 6, 0, 0, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 4, 8, 11, 6, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 10, 6, 7, 8, 10, 8, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, - 1, - 1, - 1, - 1, 10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, - 1, - 1, - 1, - 1, 10, 6, 7, 10, 7, 1, 1, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, - 1, 7, 8, 0, 7, 0, 6, 6, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 3, 2, 6, 7, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, - 1, 1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, - 1, 11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, - 1, - 1, - 1, - 1, 8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, - 1, 0, 9, 1, 11, 6, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, - 1, - 1, - 1, - 1, 7, 11, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 9, 8, 3, 1, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 8, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 9, 0, 2, 10, 9, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, - 1, - 1, - 1, - 1, 7, 2, 3, 6, 2, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 0, 8, 7, 6, 0, 6, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 7, 6, 2, 3, 7, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, - 1, - 1, - 1, - 1, 10, 7, 6, 10, 1, 7, 1, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, - 1, - 1, - 1, - 1, 0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, - 1, - 1, - 1, - 1, 7, 6, 10, 7, 10, 8, 8, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 8, 4, 11, 8, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 3, 0, 6, 0, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 6, 11, 8, 4, 6, 9, 0, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, - 1, - 1, - 1, - 1, 6, 8, 4, 6, 11, 8, 2, 10, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, - 1, - 1, - 1, - 1, 4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, - 1, - 1, - 1, - 1, 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, - 1, 8, 2, 3, 8, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, - 1, - 1, - 1, - 1, 1, 9, 4, 1, 4, 2, 2, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, - 1, - 1, - 1, - 1, 10, 1, 0, 10, 0, 6, 6, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, - 1, 10, 9, 4, 6, 10, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 5, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 1, 5, 4, 0, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, - 1, - 1, - 1, - 1, 9, 5, 4, 10, 1, 2, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, - 1, - 1, - 1, - 1, 7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, - 1, - 1, - 1, - 1, 3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, - 1, 7, 2, 3, 7, 6, 2, 5, 4, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, - 1, - 1, - 1, - 1, 3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, - 1, - 1, - 1, - 1, 6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, - 1, 9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, - 1, - 1, - 1, - 1, 1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, - 1, 4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, - 1, 7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, - 1, - 1, - 1, - 1, 6, 9, 5, 6, 11, 9, 11, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, - 1, - 1, - 1, - 1, 0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, - 1, - 1, - 1, - 1, 6, 11, 3, 6, 3, 5, 5, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, - 1, - 1, - 1, - 1, 0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, - 1, 11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, - 1, 6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, - 1, - 1, - 1, - 1, 5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, - 1, - 1, - 1, - 1, 9, 5, 6, 9, 6, 0, 0, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, - 1, 1, 5, 6, 2, 1, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, - 1, 10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, - 1, - 1, - 1, - 1, 0, 3, 8, 5, 6, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 5, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 7, 5, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 11, 7, 5, 8, 3, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 11, 7, 5, 10, 11, 1, 9, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, - 1, - 1, - 1, - 1, 11, 1, 2, 11, 7, 1, 7, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, - 1, - 1, - 1, - 1, 9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, - 1, - 1, - 1, - 1, 7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, - 1, 2, 5, 10, 2, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, - 1, - 1, - 1, - 1, 9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, - 1, 1, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 7, 0, 7, 1, 1, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 3, 9, 3, 5, 5, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 7, 5, 9, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 8, 4, 5, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, - 1, - 1, - 1, - 1, 10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, - 1, 2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, - 1, - 1, - 1, - 1, 0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, - 1, 0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, - 1, 9, 4, 5, 2, 11, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, - 1, - 1, - 1, - 1, 5, 10, 2, 5, 2, 4, 4, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, - 1, 5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 3, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 5, 1, 0, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, - 1, - 1, - 1, - 1, 9, 4, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 11, 7, 4, 9, 11, 9, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, - 1, - 1, - 1, - 1, 1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, - 1, - 1, - 1, - 1, 3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, - 1, 4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, - 1, - 1, - 1, - 1, 9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, - 1, 11, 7, 4, 11, 4, 2, 2, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, - 1, - 1, - 1, - 1, 2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, - 1, - 1, - 1, - 1, 9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, - 1, 3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, - 1, 1, 10, 2, 8, 7, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 7, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, - 1, - 1, - 1, - 1, 4, 0, 3, 7, 4, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 8, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 11, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 10, 0, 10, 8, 8, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 1, 10, 11, 3, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 11, 1, 11, 9, 9, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, - 1, - 1, - 1, - 1, 0, 2, 11, 8, 0, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 2, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 10, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 2, 0, 9, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, - 1, - 1, - 1, - 1, 1, 10, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 8, 9, 1, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 9, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 3, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1]);\n\nself.onmessage = function(e){\n  var d = e.data;\n  var type = d.type;\n\n  if(type === 'refine'){\n    var min = d.min, max = d.max;\n    var nx = d.nx, ny = d.ny, nz = d.nz;\n    var dx = d.dx, dy = d.dy, dz = d.dz;\n    var subArr = d.subArr;    // array of segment objects\n    var vxCut  = new Uint8Array(d.vxCut);   // low-res cut grid\n    var vxNx = d.vxNx, vxNy = d.vxNy, vxNz = d.vxNz;\n    var vxOx = d.vxOx, vxOy = d.vxOy, vxOz = d.vxOz;\n    var vxDx = d.vxDx, vxDy = d.vxDy, vxDz = d.vxDz;\n    var blkCyl = d.blkCyl || null;\n    var tools  = d.tools;  // {T: {R, R2, T_ANGLE, LCUTS}} map\n\n    // \u2500\u2500 Phase 1: init grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var grid    = new Uint8Array(nx*ny*nz);\n    var cutGrid = new Uint8Array(nx*ny*nz);\n\n    // Pre-populate cutGrid from low-res\n    for(var piz=0;piz<nz;piz++) for(var piy=0;piy<ny;piy++) for(var pix=0;pix<nx;pix++){\n      var wx=min.x+pix*dx, wy=min.y+piy*dy, wz=min.z+piz*dz;\n      var vi=Math.round((wx-vxOx)/vxDx), vj=Math.round((wy-vxOy)/vxDy), vk=Math.round((wz-vxOz)/vxDz);\n      if(vi>=0&&vi<vxNx&&vj>=0&&vj<vxNy&&vk>=0&&vk<vxNz){\n        var cv=vxCut[vk*vxNy*vxNx+vj*vxNx+vi];\n        if(cv) cutGrid[piz*ny*nx+piy*nx+pix]=cv;\n      }\n    }\n\n    // Init solid/air grid\n    for(var iz=0;iz<nz;iz++) for(var iy=0;iy<ny;iy++) for(var ix=0;ix<nx;ix++){\n      var border=(ix===0||ix===nx-1||iy===0||iy===ny-1||iz===0||iz===nz-1);\n      var inShape=true;\n      if(!border && blkCyl){\n        var rwx=min.x+ix*dx, rwy=min.y+iy*dy;\n        var rddx=rwx-blkCyl.cx, rddy=rwy-blkCyl.cy;\n        inShape=(rddx*rddx+rddy*rddy)<=(blkCyl.r-dx)*(blkCyl.r-dx);\n      }\n      grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;\n    }\n    self.postMessage({type:'progress', pct:10});\n\n    // \u2500\u2500 Phase 2: apply cuts \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var nSub = subArr.length;\n    for(var si=0;si<nSub;si++){\n      var sm = subArr[si];\n      if(sm.rapid) continue;\n      var tnum = sm.toolNum||1;\n      var _ct = tools[tnum] || null;\n      var _dlOv = _ct ? (_ct.DL||0) : 0;\n      var _drOv = _ct ? (_ct.DR||0) : 0;\n      var toolR = _ct ? (_ct.R + _drOv) : 5;\n      var r2base = toolR*toolR;\n      var _isBall  = _ct && _ct.R2>0 && _ct.R2>=_ct.R;\n      var _isTorus = _ct && _ct.R2>0 && _ct.R2<_ct.R;\n      var _isCone  = _ct && _ct.T_ANGLE>0 && !(_ct.R2>0);\n      var _ballR2  = (_isBall||_isTorus) ? _ct.R2 : 0;\n      var _ballR2eff = (_isBall||_isTorus) ? (_ct.R2+_drOv) : 0;\n      var _tCore   = _isTorus ? (toolR-_ct.R2) : 0;\n      var _coneHR  = _isCone  ? (_ct.T_ANGLE/2)*Math.PI/180 : 0;\n      var _lcuts   = _ct ? (_ct.LCUTS||99999) : 99999;\n\n      // scan range\n      var scanR = toolR;\n      if(_isCone){ var _coneMaxS=(_lcuts||9999)*Math.tan(_coneHR); scanR=Math.max(toolR,_coneMaxS); }\n      var segLen = sm.len || 0;\n      var steps = Math.max(2, Math.ceil(segLen/Math.min(dx,dy)*1.5));\n\n      for(var st=0;st<=steps;st++){\n        var t=st/steps;\n        var tx=sm.from.x+(sm.to.x-sm.from.x)*t;\n        var ty=sm.from.y+(sm.to.y-sm.from.y)*t;\n        var tz=sm.from.z+(sm.to.z-sm.from.z)*t + _dlOv;\n        if(tz>max.z) continue;\n\n        var ixMin=Math.max(0,Math.floor((tx-scanR-min.x)/dx)-1);\n        var ixMax=Math.min(nx-1,Math.ceil((tx+scanR-min.x)/dx)+1);\n        var iyMin=Math.max(0,Math.floor((ty-scanR-min.y)/dy)-1);\n        var iyMax=Math.min(ny-1,Math.ceil((ty+scanR-min.y)/dy)+1);\n        var izMin=Math.max(0,Math.floor((tz-min.z)/dz)-1);\n\n        for(var vz=izMin;vz<nz;vz++){\n          var pz=min.z+vz*dz; if(pz<tz-dz*0.5) continue;\n          var _dzRef=pz-tz;\n          var effR2=r2base;\n          if(_isBall && _dzRef<_ballR2){\n            var _frac=_dzRef/_ballR2;\n            var _eR=_ballR2eff*Math.sqrt(Math.max(0,1-(1-_frac)*(1-_frac)));\n            effR2=_eR*_eR;\n          } else if(_isTorus && _dzRef<_ballR2){\n            var _eRt=_tCore+Math.sqrt(Math.max(0,_ballR2*_ballR2-(_ballR2-_dzRef)*(_ballR2-_dzRef)));\n            effR2=_eRt*_eRt;\n          } else if(_isCone){\n            var _coneMaxW=(_lcuts||9999)*Math.tan(_coneHR);\n            var _eR2=Math.min(_coneMaxW,_dzRef*Math.tan(_coneHR));\n            effR2=_eR2*_eR2;\n          }\n          var colorVal=(_dzRef<=_lcuts)?(tnum||1):255;\n          for(var vy=iyMin;vy<=iyMax;vy++){\n            var py=min.y+vy*dy;\n            for(var vx2=ixMin;vx2<=ixMax;vx2++){\n              var px=min.x+vx2*dx;\n              var ddx=px-tx,ddy=py-ty;\n              if(ddx*ddx+ddy*ddy<=effR2){\n                var gi2=vz*ny*nx+vy*nx+vx2;\n                if(grid[gi2]){ grid[gi2]=0; cutGrid[gi2]=colorVal; }\n              }\n            }\n          }\n        }\n      }\n      if(si%50===0) self.postMessage({type:'progress', pct:10+Math.round(si/nSub*40)});\n    }\n    self.postMessage({type:'progress', pct:50});\n\n    // \u2500\u2500 Phase 3: Marching Cubes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var vertsOut=[], normsOut=[], triColorsOut=[];\n\n    function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){\n      if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}\n      var t=(iso-v1)/(v2-v1);\n      out[0]=p1x+t*(p2x-p1x);out[1]=p1y+t*(p2y-p1y);out[2]=p1z+t*(p2z-p1z);\n    }\n\n    var iso=0.5;\n    var ep=[];\n    for(var ei=0;ei<12;ei++) ep.push([0,0,0]);\n    var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];\n\n    for(var miz=0;miz<nz-1;miz++){\n      for(var miy=0;miy<ny-1;miy++){\n        for(var mix=0;mix<nx-1;mix++){\n          var x0=min.x+mix*dx,y0=min.y+miy*dy,z0=min.z+miz*dz;\n          var x1=x0+dx,y1=y0+dy,z1=z0+dz;\n          var g=function(a,b,c){ return grid[c*ny*nx+b*nx+a]||0; };\n          var cv=[g(mix,miy,miz),g(mix+1,miy,miz),g(mix+1,miy+1,miz),g(mix,miy+1,miz),\n                  g(mix,miy,miz+1),g(mix+1,miy,miz+1),g(mix+1,miy+1,miz+1),g(mix,miy+1,miz+1)];\n          var ci=0;\n          if(cv[0]>iso)ci|=1;if(cv[1]>iso)ci|=2;if(cv[2]>iso)ci|=4;if(cv[3]>iso)ci|=8;\n          if(cv[4]>iso)ci|=16;if(cv[5]>iso)ci|=32;if(cv[6]>iso)ci|=64;if(cv[7]>iso)ci|=128;\n          if(ci===0||ci===255) continue;\n          var et=MC_EDGE_TABLE[ci];\n          var cx2=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],\n                   [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];\n          for(var e=0;e<12;e++){\n            if(et&(1<<e)){\n              var ea=edges[e][0],eb=edges[e][1];\n              vInterp(iso,cx2[ea][0],cx2[ea][1],cx2[ea][2],cv[ea],\n                          cx2[eb][0],cx2[eb][1],cx2[eb][2],cv[eb],ep[e]);\n            }\n          }\n          var triBase=ci*16;\n          for(var ti=0;ti<15;ti+=3){\n            if(MC_TRI_TABLE[triBase+ti]<0) break;\n            var pa=ep[MC_TRI_TABLE[triBase+ti]];\n            var pb=ep[MC_TRI_TABLE[triBase+ti+1]];\n            var pc=ep[MC_TRI_TABLE[triBase+ti+2]];\n            // normal\n            var ax=pb[0]-pa[0],ay=pb[1]-pa[1],az=pb[2]-pa[2];\n            var bx=pc[0]-pa[0],by=pc[1]-pa[1],bz=pc[2]-pa[2];\n            var nnx=ay*bz-az*by,nny=az*bx-ax*bz,nnz=ax*by-ay*bx;\n            var nl=Math.sqrt(nnx*nnx+nny*nny+nnz*nnz)||1;\n            nnx/=nl;nny/=nl;nnz/=nl;\n            vertsOut.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);\n            normsOut.push(nnx,nny,nnz,nnx,nny,nnz,nnx,nny,nnz);\n            // color from cutGrid corners\n            var triTool=0;\n            var corners8=[mix,miy,miz, mix+1,miy,miz, mix+1,miy+1,miz, mix,miy+1,miz,\n                           mix,miy,miz+1, mix+1,miy,miz+1, mix+1,miy+1,miz+1, mix,miy+1,miz+1];\n            for(var ci8=0;ci8<24&&!triTool;ci8+=3){\n              var gv8=corners8[ci8+2]*ny*nx+corners8[ci8+1]*nx+corners8[ci8];\n              if(cutGrid[gv8]) triTool=cutGrid[gv8];\n            }\n            if(!triTool){\n              for(var dz3=-1;dz3<=2&&!triTool;dz3++){\n                for(var ci9=0;ci9<24&&!triTool;ci9+=3){\n                  var gz9=(corners8[ci9+2]+dz3)*ny*nx+corners8[ci9+1]*nx+corners8[ci9];\n                  if(gz9>=0&&gz9<cutGrid.length&&cutGrid[gz9]) triTool=cutGrid[gz9];\n                }\n              }\n            }\n            triColorsOut.push(triTool);\n          }\n        }\n      }\n      if(miz%50===0) self.postMessage({type:'progress', pct:50+Math.round(miz/(nz-1)*50)});\n    }\n\n    // Transfer as Float32Array / Int32Array for zero-copy\n    var vertsF  = new Float32Array(vertsOut);\n    var normsF  = new Float32Array(normsOut);\n    var colorsI = new Int32Array(triColorsOut);\n\n    self.postMessage({\n      type: 'done',\n      verts:  vertsF.buffer,\n      norms:  normsF.buffer,\n      colors: colorsI.buffer\n    }, [vertsF.buffer, normsF.buffer, colorsI.buffer]);\n  }\n};";
 
 var _refineWorker = null;
 
@@ -4765,7 +5468,22 @@ function triggerRefine(){
   var HI = HI_LEVELS[VX_QUALITY];
   var min = prog.blkMin, max = prog.blkMax;
   var w = max.x-min.x, d = max.y-min.y, h = max.z-min.z;
-  var nx = HI, ny = HI, nz = Math.max(4, Math.round(HI*h/Math.max(w,d)));
+  // Isotropic cells, capped so large blanks keep detail (same logic as vxInit).
+  var hiCell = Math.max(w, d, h) / (HI - 1);
+  var HI_CELL_CAP = [0.5, 0.35, 0.25][VX_QUALITY!==undefined?VX_QUALITY:0] || 0.5; // finer than live sim
+  if(hiCell > HI_CELL_CAP) hiCell = HI_CELL_CAP;
+  var nx = Math.max(4, Math.round(w/hiCell)+1);
+  var ny = Math.max(4, Math.round(d/hiCell)+1);
+  var nz = Math.max(4, Math.round(h/hiCell)+1);
+  // Memory guard — refine runs in a worker but still allocates two grids; cap total.
+  var HI_VOXEL_BUDGET = 64000000; // worker thread, larger budget than live sim
+  if(nx*ny*nz > HI_VOXEL_BUDGET){
+    var hiScale = Math.cbrt((nx*ny*nz) / HI_VOXEL_BUDGET);
+    hiCell = hiCell * hiScale;
+    nx = Math.max(4, Math.round(w/hiCell)+1);
+    ny = Math.max(4, Math.round(d/hiCell)+1);
+    nz = Math.max(4, Math.round(h/hiCell)+1);
+  }
   var dx = w/(nx-1), dy = d/(ny-1), dz = h/(nz-1);
 
   // Build tools map
@@ -5375,7 +6093,7 @@ function buildToolMesh(){
   toolGroup.add(new THREE.Mesh(shankGeo, shaftMat));
 
   // ── Cutting flute area ───────────────────────────────────────
-  if(R2 > 0 && R2 <= Rcomp){
+  if(R2 > 0 && R2 <= R){
     // Ball nose / bull-nose: hemisphere at bottom + cylinder body above
     var sphereR = R2; // radius of the ball at tip
     // Hemisphere (bottom half of sphere)
@@ -5541,9 +6259,9 @@ function commitSeg(sm){
       var _shape = null;
       var _lcuts = _ct ? (_ct.LCUTS||(_ct.R*999)) : TOOL_R*999;
       if(_ct && _ct.R2 > 0 && _ct.R2 < _ct.R){
-        _shape = {type:'torus', r2:_ct.R2, lcuts:_lcuts};
+        _shape = {type:'torus', r2:Math.max(0.01, _ct.R2 + _dr), lcuts:_lcuts};
       } else if(_ct && _ct.R2 > 0 && _ct.R2 >= _ct.R){
-        _shape = {type:'ball', r2:_ct.R2, lcuts:_lcuts};
+        _shape = {type:'ball', r2:Math.max(0.01, _ct.R2 + _dr), r2orig:_ct.R2, lcuts:_lcuts};
       } else if(_ct && _ct.T_ANGLE > 0){
         _shape = {type:'cone', angle:_ct.T_ANGLE, lcuts:_lcuts};
       } else {
@@ -5816,37 +6534,90 @@ function deleteLineN(n){
 }
 function importProgram(){
   var inp = document.getElementById('importFileInput');
-  if(inp) inp.click();
+  if(inp){ inp.value=''; inp.click(); }
 }
 function onImportFile(e){
   var file = e.target.files && e.target.files[0];
-  if(!file) return;
+  if(!file){ return; }
   var reader = new FileReader();
   reader.onload = function(ev){
-    _undoPush();
-    codeEl.value = ev.target.result;
-    dirty = true; updateLineNums(); runValidation();
-    renderIdlePanel();
+    try{
+      _undoPush();
+      codeEl.value = ev.target.result;
+      dirty = true; updateLineNums(); runValidation();
+      renderIdlePanel();
+    }catch(err){ _toast('Import failed: '+err.message, true); }
+    e.target.value = ''; // reset AFTER load so the same file can be picked again
   };
+  reader.onerror = function(){ _toast('Could not read file: '+(reader.error&&reader.error.message||'unknown error'), true); e.target.value=''; };
   reader.readAsText(file);
-  // reset so same file can be loaded again
-  e.target.value = '';
+}
+
+function _downloadTextFile(text, filename){
+  var blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  // Detect whether the <a download> mechanism actually works (iOS Safari does not).
+  var a = document.createElement('a');
+  var supportsDownload = ('download' in a);
+  if(supportsDownload){
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);   // must be in DOM for some mobile browsers
+    a.click();
+    // delay revoke + removal so the download actually starts on mobile
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1500);
+    return;
+  }
+  // Fallback (iOS Safari / no download support): open the file content for manual save/share.
+  try{
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var w = window.open(ev.target.result, '_blank');
+      if(!w) _showExportFallback(text, filename);
+    };
+    reader.readAsDataURL(blob);
+  }catch(err){
+    _showExportFallback(text, filename);
+  }
+}
+
+function _showExportFallback(text, filename){
+  // Last-resort: show a textarea the user can select-all & copy, plus Web Share if available.
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.85);display:flex;flex-direction:column;padding:16px;gap:10px;';
+  ov.innerHTML =
+    '<div style="color:#fff;font-family:var(--mono),monospace;font-size:13px;">'+filename+' — select all and copy, or use Share</div>'
+    + '<textarea readonly style="flex:1;width:100%;font-family:monospace;font-size:12px;background:#111;color:#eee;border:1px solid #444;border-radius:6px;padding:8px;"></textarea>'
+    + '<div style="display:flex;gap:8px;">'
+    + '<button id="_expShare" style="flex:1;padding:10px;border:0;border-radius:6px;background:#4a9eff;color:#fff;font-size:14px;">Share</button>'
+    + '<button id="_expClose" style="flex:1;padding:10px;border:0;border-radius:6px;background:#555;color:#fff;font-size:14px;">Close</button>'
+    + '</div>';
+  document.body.appendChild(ov);
+  var ta = ov.querySelector('textarea'); ta.value = text; ta.focus(); ta.select();
+  ov.querySelector('#_expClose').onclick = function(){ document.body.removeChild(ov); };
+  var shareBtn = ov.querySelector('#_expShare');
+  if(navigator.share){
+    shareBtn.onclick = function(){
+      navigator.share({title:filename, text:text}).catch(function(){});
+    };
+  } else {
+    shareBtn.style.display = 'none';
+  }
 }
 
 function exportProgram(){
   var code = codeEl.value;
   var name = 'program.H';
-  // try to extract program name from BEGIN PGM line
   var m = code.match(/^BEGIN PGM (\S+)/im);
   if(m) name = m[1] + '.H';
-  var blob = new Blob([code], {type:'text/plain'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  _downloadTextFile(code, name);
 }
 function deleteCurrentLine(){
+  _undoPush();
   var val=codeEl.value;
   var pos=lastSel.start;
   var lineStart=val.lastIndexOf('\n',pos-1)+1;
@@ -5890,8 +6661,10 @@ function onGoto(lineNum){
   lineNum = parseInt(lineNum);
   if(isNaN(lineNum) || lineNum < 1) return;
   ensurePrepared();
-  resetState();
-  vxReset();
+  // Do NOT reset voxels — keep simulation visible
+  // Only reset animation state
+  subIndex = 0; subProgress = 0; mode='idle';
+  activeSrcLine=-1; highlightActiveLine(-1);
   
   // Find toolCallList entry with this lineNum
   var toolCall = null;
@@ -5904,11 +6677,10 @@ function onGoto(lineNum){
   
   if(toolCall && toolCall.subIdx !== undefined){
     subIndex = toolCall.subIdx;
-    // Set mode to running and let animation loop execute steps
     mode = 'running';
     updateStatus('Running from TOOL '+toolCall.toolNum+' (line '+lineNum+')', true);
   } else {
-    alert('TOOL CALL at line '+lineNum+' not found');
+    _toast('TOOL CALL at line '+lineNum+' not found', true);
   }
 }
 function updateStatus(msg, running){
