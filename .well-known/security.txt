@@ -1,0 +1,3 @@
+Contact: https://github.com/slavomrkva/tnc-sim/issues
+Preferred-Languages: en, sk
+Canonical: https://tncsim.org/.well-known/security.txt
