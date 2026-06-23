@@ -423,7 +423,7 @@ footer a:hover{text-decoration:underline;}
     <div class="editor-panel">
       <div class="panel-resize" id="panelResize"></div>
       <div class="panel-header">
-        <span class="ph-title"><span class="dot"></span> program.H</span>
+        <span class="ph-title"><span class="dot"></span> <span id="progTitleName">program.H</span></span>
         <span style="display:flex;align-items:center;gap:8px;">
           <button id="kpHelpBtn" onclick="toggleKpHelp()" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;" title="Context help">? Help</button>
           <button onclick="exportProgram()" data-help="export" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;" title="Download program.H">&#8595; Export</button>
@@ -2140,7 +2140,13 @@ function toolSave(oldNum){
   var DR     = pFloat(document.getElementById('tf_DR').value)||0;
   var DR2    = pFloat(document.getElementById('tf_DR2').value)||0;
   var CUT    = pInt(document.getElementById('tf_CUT').value)||2;
-  var LCUTS  = pFloat(document.getElementById('tf_LCUTS').value)||0;
+  var ANGLE   = pFloat(document.getElementById('tf_ANGLE').value)||3;
+  var T_ANGLE = pFloat(document.getElementById('tf_T_ANGLE').value)||0;
+  // LCUTS is a real <input> only for flat-ish tools — renderToolForm shows a
+  // read-only computed <span> instead (no tf_LCUTS element) for cone and
+  // full-ball-nose tools, since those auto-calculate it below anyway.
+  var _lcutsEl = document.getElementById('tf_LCUTS');
+  var LCUTS  = _lcutsEl ? (pFloat(_lcutsEl.value)||0) : 0;
   // Auto-calculate LCUTS based on tool type
   if(T_ANGLE > 0){
     // Chamfer/drill: LCUTS = height of cone = R / tan(halfAngle)
@@ -2150,8 +2156,6 @@ function toolSave(oldNum){
     // Full ball nose: LCUTS = R2
     LCUTS = R2;
   }
-  var ANGLE   = pFloat(document.getElementById('tf_ANGLE').value)||3;
-  var T_ANGLE = pFloat(document.getElementById('tf_T_ANGLE').value)||0;
   var TL     = document.getElementById('tf_TL').checked;
   var RT     = pInt(document.getElementById('tf_RT').value)||0;
   var TIME2    = pFloat(document.getElementById('tf_TIME2').value)||0;
@@ -2702,6 +2706,87 @@ if(codeEl){
   // also snapshot on paste/cut
   codeEl.addEventListener('paste',  function(){ _undoPush(); _undoLastVal=codeEl.value; renderIdlePanel(); });
   codeEl.addEventListener('cut',    function(){ _undoPush(); _undoLastVal=codeEl.value; renderIdlePanel(); });
+
+  // Fully lock cycle blocks: the CYCL DEF anchor line AND its Q-param
+  // continuation lines are all protected from any DELETE-type input
+  // (Backspace, Delete, Cut, word/line deletion) — no exceptions. There are
+  // exactly two ways to remove a cycle: the ✕ button in the gutter, or
+  // selecting one or more WHOLE lines that touch the cycle and pressing
+  // Backspace/Delete — both remove the ENTIRE block (anchor + all its
+  // continuation lines) as a unit. Typing/overwriting a value (select
+  // digits + type new ones, or just type at the caret) stays allowed within
+  // a single line, since that's how individual parameters get edited — but
+  // it's blocked if it would insert a newline (Enter), since splitting a
+  // locked line in two would corrupt the cycle's fixed line count. No
+  // toast/popup — a blocked keystroke just silently does nothing.
+  codeEl.addEventListener('beforeinput', function(e){
+    var type = e.inputType || '';
+    var isDeletion = type.indexOf('delete') === 0;
+    var isInsertion = type.indexOf('insert') === 0;
+    if(!isDeletion && !isInsertion) return;
+
+    var val = codeEl.value;
+    var s = codeEl.selectionStart, en = codeEl.selectionEnd;
+    var lines = val.split('\n');
+    var blockNums = computeBlockNumbers(lines);
+    function lineIdxAt(pos){ return val.slice(0, pos).split('\n').length - 1; }
+    function lineStartOffset(idx){ var p=0; for(var i=0;i<idx;i++) p+=lines[i].length+1; return p; }
+    function isCycleAnchor(idx){ return /^CYCL\s+DEF\b/i.test(lines[idx].replace(/^\s+/,'')); }
+    function isLockedLine(idx){ return blockNums[idx] === null || isCycleAnchor(idx); }
+
+    // ---- Path 1: a whole-line (or whole multi-line) selection touching a
+    // cycle, with Backspace/Delete/Cut pressed -> delete the ENTIRE block. ----
+    if(isDeletion && s !== en){
+      var selStart = lineIdxAt(s), selEnd = lineIdxAt(en - 1);
+      var selStartOff = lineStartOffset(selStart);
+      var selEndContentOff = lineStartOffset(selEnd) + lines[selEnd].length;
+      var hasNL = selEnd < lines.length - 1;
+      var isWholeLineSel = (s === selStartOff) && (en === selEndContentOff || (hasNL && en === selEndContentOff + 1));
+      if(isWholeLineSel){
+        var touchesCycle = false;
+        for(var lj=selStart; lj<=selEnd; lj++){ if(isLockedLine(lj)){ touchesCycle = true; break; } }
+        if(touchesCycle){
+          e.preventDefault();
+          var from = selStart, to = selEnd;
+          while(from > 0 && blockNums[from] === null) from--;
+          while(to + 1 < lines.length && blockNums[to+1] === null) to++;
+          _undoPush();
+          lines.splice(from, to - from + 1);
+          codeEl.value = lines.join('\n');
+          var newPos = lines.slice(0, from).join('\n').length;
+          if(from > 0) newPos++;
+          try{ codeEl.setSelectionRange(newPos, newPos); }catch(err){}
+          lastSel = {start:newPos, end:newPos};
+          dirty = true; updateLineNums(); runValidation();
+          return;
+        }
+      }
+    }
+
+    // ---- Path 2: anything else touching a locked line -> fully blocked
+    // (deletions) or confined to safe in-line edits (insertions). ----
+    var idxStart = lineIdxAt(s), idxEnd = lineIdxAt(en);
+    if(isDeletion && s === en){
+      if(type === 'deleteContentBackward'){ if(s===0) return; idxStart = lineIdxAt(s-1); }
+      else if(type === 'deleteContentForward'){ if(en===val.length) return; idxEnd = lineIdxAt(en+1); }
+    }
+
+    var touchesLocked = false;
+    for(var li=idxStart; li<=idxEnd; li++){
+      if(isLockedLine(li)){ touchesLocked = true; break; }
+    }
+    if(!touchesLocked) return;
+
+    if(isDeletion){ e.preventDefault(); return; }
+
+    var inserted = (typeof e.data === 'string' && e.data) ? e.data
+      : (e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '');
+    var introducesNewline = inserted.indexOf('\n') >= 0
+      || type === 'insertLineBreak' || type === 'insertParagraph';
+    if(idxStart !== idxEnd || introducesNewline){
+      e.preventDefault();
+    }
+  });
 }
 
 // ---- editor undo/redo stack ----
@@ -2832,9 +2917,54 @@ var ctx2d = canvas2d.getContext('2d');
 var problemsData = [];
 var problemsOpen = true;
 
+// Computes real Heidenhain block numbers for a program's lines.
+// Rules (matching the control): numbering starts at 0 (BEGIN PGM = block 0),
+// and a line is a continuation of the PREVIOUS block (no number of its own)
+// when EITHER (a) the previous line ends with '~' — the Klartext line-
+// continuation marker used by real exported .H files — OR (b) it's a Q-param
+// line (Q123=...) immediately following a CYCL DEF, since our own "Insert
+// cycle" panel (selectCycle()) builds those without a literal '~'. A lone
+// trailing empty line (textarea artifact of a final newline) is unnumbered.
+function computeBlockNumbers(lines){
+  var nums = [];
+  var blockNum = -1;
+  var prevEndsWithTilde = false;
+  var inCycleQRun = false;
+  // Matches "Q123=..." AND the no-'=' feed keyword form "Q206 FAUTO"/"Q206 FMAX"
+  // (see Q_FAUTO_PARAMS / openQPopup) — both are valid Klartext cycle params.
+  var qLineRe = /^Q\d+\s*(?:=|\s+(?:FAUTO|FMAX))/i;
+  for(var i=0;i<lines.length;i++){
+    if(i===lines.length-1 && lines[i]===''){ nums.push(null); continue; }
+    var trimmed = lines[i].replace(/^\s+/, '');
+    var isQLine = qLineRe.test(trimmed);
+    var isContinuation = prevEndsWithTilde || (inCycleQRun && isQLine);
+    if(!isContinuation){ blockNum++; nums.push(blockNum); }
+    else nums.push(null);
+    prevEndsWithTilde = /~\s*$/.test(lines[i]);
+    if(/^CYCL\s+DEF\b/i.test(trimmed)) inCycleQRun = true;
+    else if(!(inCycleQRun && isQLine)) inCycleQRun = false;
+  }
+  return nums;
+}
+// Left-justifies a block number per the control's listing format: minimum
+// 2-character field, then always exactly one separating space (so "0" -> "0  ",
+// "12" -> "12 ", "164" -> "164 ").
+function formatBlockNum(n){
+  var s = String(n);
+  while(s.length < 2) s += ' ';
+  return s + ' ';
+}
+
+// Derives the displayed/exported file name from BEGIN PGM <name>, falling
+// back to 'program.H' if the program has no (valid) BEGIN PGM line yet.
+function _progFileName(code){
+  var m = code.match(/^\s*\d*\s*BEGIN PGM (\S+)/im);
+  return m ? m[1] + '.H' : 'program.H';
+}
 
 function updateLineNums(){
   var lines = codeEl.value.split('\n');
+  var blockNums = computeBlockNumbers(lines);
   var marks = {};
   for(var k=0;k<problemsData.length;k++){
     var pr=problemsData[k];
@@ -2845,10 +2975,13 @@ function updateLineNums(){
   var html='';
   for(var i=0;i<lines.length;i++){
     var cls='ln'; if(marks[i]==='err')cls+=' err'; else if(marks[i]==='warn')cls+=' warn'; else if(marks[i]==='fixed')cls+=' fixed';
-    html += '<div class="'+cls+'"><button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>'+(i+1)+'</div>';
+    var numLabel = blockNums[i]===null ? '' : blockNums[i];
+    html += '<div class="'+cls+'"><button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>'+numLabel+'</div>';
   }
   lineNums.innerHTML = '<div style="padding:10px 0 200px;">' + html + '</div>';
   blockCountEl.textContent = lines.length + ' blocks';
+  var _progTitleEl = document.getElementById('progTitleName');
+  if(_progTitleEl) _progTitleEl.textContent = _progFileName(codeEl.value);
   // restore highlights
   if(_selectedLine >= 0){
     var _divs = lineNums.querySelectorAll('.ln');
@@ -3535,6 +3668,14 @@ codeEl.addEventListener('input', function(){
   if(validateTimer) clearTimeout(validateTimer);
   validateTimer=setTimeout(runValidation, 350);
   syncScrollToLineNums();
+  // Editing the program invalidates the current 3D sim/cut — same as editing
+  // a tool (see toolSave). Without this, the canvas keeps showing the OLD
+  // result and it looks like the edit (e.g. a changed Q value) had no effect,
+  // when really the sim just hasn't been re-run yet.
+  if(mode==='done' || mode==='stepping' || mode==='idle'){
+    var _stale = document.getElementById('staleSimWarning');
+    if(_stale) _stale.style.display='';
+  }
 });
 codeEl.addEventListener('scroll', function(){
   syncScrollToLineNums();
@@ -3889,6 +4030,11 @@ function checkRadiusVsTool(r, lineIdx, lines){
 }
 
 function validateProgram(code){
+  // Real Heidenhain .H files (as exported by the control) prefix every block
+  // with its block number, e.g. "12 TOOL CALL 5 Z S2000". Strip it so all the
+  // startsWith-style keyword checks below (BEGIN PGM, LBL, CYCL DEF, ...) work
+  // the same whether the program was typed fresh or imported from a machine.
+  code = code.replace(/^[ \t]*\d+[ \t]+/gm, '');
   var lines = code.split('\n');
   var probs = [];
   if(lines.length > 2000)
@@ -4223,6 +4369,8 @@ function validateProgram(code){
 function parseProgram(code){
   // Normalize: replace commas with dots in decimal numbers (0,5 → 0.5)
   code = code.replace(/(\d),(\d)/g, '$1.$2');
+  // Strip leading block numbers from real exported .H files (see validateProgram).
+  code = code.replace(/^[ \t]*\d+[ \t]+/gm, '');
   
   toolCallList = []; // reset TOOL CALL list for GOTO dropdown
   var lines = code.split('\n');
@@ -4240,6 +4388,13 @@ function parseProgram(code){
   var qVars = {};         // Q parameter values {1:50, 2:30, ...}
   var pendingDefTool = 0; // tool number from TOOL DEF
   var activeCycle = null; // current radius compensation: '', 'RL', 'RR', 'R0'
+  // True only while still inside a CYCL DEF's own multi-line Q-parameter
+  // continuation block (the Q200=.../Q201=... lines right after CYCL DEF).
+  // Without this, activeCycle (which is never reset to null after the cycle
+  // is defined) would keep redirecting EVERY later "Qnn = ..." assignment
+  // anywhere in the rest of the program into the stale cycle object instead
+  // of qVars — silently breaking any Q-parameter reused after a cycle.
+  var inCycleParamBlock = false;
   // start above the (default) stock; adjusted after we know blkMax
   var pos = {x:0,y:0,z:0};
   var sub = [];
@@ -4742,6 +4897,19 @@ function parseProgram(code){
     // Resolve Q parameters in line before parsing
     if(Object.keys(qVars).length > 0) line = resolveQLine(line, qVars);
 
+    // Track whether THIS line is still part of the CURRENT CYCL DEF's own
+    // Q-parameter continuation block (matches the same rule used by
+    // computeBlockNumbers for the editor's gutter numbering): a Q-param
+    // line counts as "in the block" only while it directly follows the
+    // CYCL DEF line or another such Q-param line. _wasInCycleParamBlock is
+    // the state BEFORE this line — that's what decides where THIS line's
+    // own Q-assignment goes; inCycleParamBlock is then updated for the
+    // NEXT line.
+    var _wasInCycleParamBlock = inCycleParamBlock;
+    var _isQParamLine = /^Q\d+\s*(?:=|\s+(?:FAUTO|FMAX))/i.test(line);
+    if(/^CYCL\s+DEF\s+(200|201|208|209)\b/.test(line)) inCycleParamBlock = true;
+    else if(!(inCycleParamBlock && _isQParamLine)) inCycleParamBlock = false;
+
     var fm = line.match(/\bF\+?(\d+\.?\d*)/);
     if(fm) feed = parseFloat(fm[1]);
 
@@ -4753,7 +4921,7 @@ function parseProgram(code){
     if(_qAssign){
       var _qNum = parseInt(_qAssign[1].slice(1));
       var _qExpr = _qAssign[2].trim().replace(/;.*$/,'').trim();
-      if(activeCycle){
+      if(activeCycle && _wasInCycleParamBlock){
         // Inside cycle def — update cycle parameter (evalQExpr supports expressions like Q10+5)
         var _qVal = /FAUTO/i.test(_qExpr)?'FAUTO':(/FMAX/i.test(_qExpr)?9999:evalQExpr(_qExpr, qVars));
         activeCycle['Q'+_qNum] = _qVal;
@@ -4766,7 +4934,7 @@ function parseProgram(code){
       continue;
     }
     else if(/^\s*Q\d+/.test(line)){
-      if(activeCycle){
+      if(activeCycle && _wasInCycleParamBlock){
         var qpm=line.match(/Q(\d+)\s*=?\s*([+-]?[\d.]+|FAUTO|FMAX)/i);
         if(qpm) activeCycle['Q'+qpm[1]]=(/FAUTO/i.test(qpm[2])?'FAUTO':(/FMAX/i.test(qpm[2])?9999:pFloat(qpm[2])));
       }
@@ -5040,12 +5208,12 @@ function applyRadiusComp(sub){
 
 function offsetRun(sub, a, b, side, prevSeg, nextSeg){
   // Build vertex list from the run: V0=seg[a].from, V1=seg[a].to=seg[a+1].from, ...
-  // Determine offset radius: for CONE (chamfer) tools, offset = cone radius at the
-  // surface so the cone flank lands exactly on the contour edge (chamfer width =
-  // plunge depth below surface). For all other tools, offset = tool radius (R+DR).
   // Offset = the tool's reference-point radius R + DR (per-run tool, not global).
   // This positions the tool tip/reference; the physical tool shape (cone/ball/flat)
   // in vxCut then removes exactly what it intersects — matching real-world cutting.
+  // Cone/countersink tools are set up with R≈0.001 (tip reference) in the tool
+  // table, so DR alone carries the compensation amount — same convention TOOL CALL
+  // uses for CYCL DEF 200/208 (see _cycleR there).
   var _runTool = getToolByNum(sub[a].toolNum);
   var TR;
   if(_runTool){
@@ -6636,7 +6804,15 @@ function onImportFile(e){
   reader.onload = function(ev){
     try{
       _undoPush();
-      codeEl.value = ev.target.result;
+      // Real Heidenhain .H exports prefix every block with its block number
+      // (e.g. "12 TOOL CALL 5 ..."). Our gutter regenerates that numbering
+      // itself (computeBlockNumbers) and the validator/3D engine expect
+      // commands to start the line, so strip the embedded numbers on import.
+      // Continuation lines of a multi-line block (no leading number in the
+      // source either) are left untouched.
+      codeEl.value = String(ev.target.result).split('\n')
+        .map(function(l){ return l.replace(/^[ \t]*\d+[ \t]+/, ''); })
+        .join('\n');
       dirty = true; updateLineNums(); runValidation();
       renderIdlePanel();
     }catch(err){ _toast('Import failed: '+err.message, true); }
@@ -6704,10 +6880,15 @@ function _showExportFallback(text, filename){
 
 function exportProgram(){
   var code = codeEl.value;
-  var name = 'program.H';
-  var m = code.match(/^BEGIN PGM (\S+)/im);
-  if(m) name = m[1] + '.H';
-  _downloadTextFile(code, name);
+  var name = _progFileName(code);
+  // Write block numbers back into the text on export, the way the control
+  // does — continuation lines (computeBlockNumbers -> null) stay unnumbered.
+  var lines = code.split('\n');
+  var blockNums = computeBlockNumbers(lines);
+  var numbered = lines.map(function(line, i){
+    return blockNums[i]===null ? line : formatBlockNum(blockNums[i]) + line;
+  }).join('\n');
+  _downloadTextFile(numbered, name);
 }
 function deleteCurrentLine(){
   _undoPush();
