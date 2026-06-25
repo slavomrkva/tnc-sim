@@ -133,6 +133,7 @@ html[data-theme="light"] .syn-cycle{color:#7a5520;}
 .btn:active{transform:scale(.97);}
 .btn-run,.btn-step,.btn-stop{height:30px;padding:0 10px;justify-content:center;font-size:12px;border-radius:6px;gap:5px;}
 .btn-reset{width:30px;height:30px;padding:0;justify-content:center;font-size:12px;border-radius:6px;}
+.btn-reset svg{width:18px;height:18px;}
 @media(max-width:380px){.btn-label{display:none;}.btn-run,.btn-step,.btn-stop{width:30px;padding:0;}}
 @media(pointer:coarse) and (max-width:380px){.btn-run,.btn-step,.btn-stop{width:44px;padding:0;}}
 .btn-run{border-color:rgba(29,160,106,.5);color:rgba(29,160,106,.8);}
@@ -407,6 +408,7 @@ footer a:hover{text-decoration:underline;}
 @media(pointer:coarse){
   .btn-run,.btn-step,.btn-stop{height:44px;padding:0 14px;}
   .btn-reset{width:44px;height:44px;}
+  .btn-reset svg{width:22px;height:22px;}
   .btn{min-height:44px;padding:8px 14px;}
   .speed-btn{padding:10px 14px;}
   .tab{padding:12px 18px;}
@@ -1617,17 +1619,18 @@ var HELP_MAP = {
 
   // ── Tool Table columns ──
   'tt-T':       {title:'T — Tool number', desc:'Tool number used in TOOL CALL. The currently active tool (selected by the last TOOL CALL in the program) is highlighted with ▶.', ex:'TOOL CALL 1 Z S3000 F800'},
+  'tt-TYPE':    {title:'TYPE — Tool type', desc:'Mill (flat end mill or ball nose, cuts with R/R2), Drill (twist drill or reamer, fixed radius = R), or Countersink (chamfer/deburring, any angle, R\u22480.001 tip-reference — diameter set by DR in TOOL CALL). Decides which fields matter and how the simulator cuts.', ex:''},
   'tt-NAME':    {title:'NAME — Tool name', desc:'A short identifying label for the tool, e.g. END_MILL_D10. Max 16 characters, no spaces. Purely descriptive — not used by the NC program itself.', ex:''},
   'tt-L':       {title:'L — Tool length (mm)', desc:'Distance from the spindle gauge line to the tool tip. Used for Z-axis length compensation.', ex:''},
-  'tt-R':       {title:'R — Tool radius (mm)', desc:'Cutting radius = diameter / 2. Used for RL/RR radius compensation and the basic cylindrical cutting shape. CHAMFER / COUNTERSINK tools: set R near 0 (e.g. 0.001) — the tool tip is the reference point and the DR value in TOOL CALL carries the working offset, exactly like on a real control.', ex:''},
+  'tt-R':       {title:'R — Tool radius (mm)', desc:'MILL: cutting radius = diameter / 2, used for RL/RR compensation. DRILL/REAMER: the real, fixed cutting radius — the largest radius outside the tip; DR/RR/RL are not applied. COUNTERSINK: usually \u22480.001 (sharp tip); a real R gives a flat/truncated tip of that radius — the cone still widens above it to the LCUTS/T-ANGLE max diameter. Does not change with DR (DR is path-offset only).', ex:''},
   'tt-R2':      {title:'R2 — Corner radius (mm)', desc:'Radius of the rounded cutting corner (toroidal / ball-nose cutter). 0 = flat end mill. R2 = R makes a full ball-nose cutter.', ex:''},
   'tt-DL':      {title:'DL — Length oversize (mm)', desc:'Delta value added to the tool length L. Positive = tool cuts shallower, negative = tool cuts deeper. Used for wear / length compensation in TOOL CALL.', ex:'TOOL CALL 1 Z S3000 F800 DL-0.2'},
-  'tt-DR':      {title:'DR — Radius oversize (mm)', desc:'Delta value added to the tool radius R. Positive = oversize (cuts wider), negative = undersize (cuts narrower). Commonly used for finishing passes. For a chamfer tool (R\u22480) this is the value that positions the cutting edge against the contour.', ex:'TOOL CALL 1 Z S3000 F800 DR+0.1'},
+  'tt-DR':      {title:'DR — Radius oversize (mm)', desc:'MILL: delta added to R — positive = oversize (cuts wider), negative = undersize (cuts narrower); commonly used for finishing passes. DRILL/REAMER: not applied — has no meaning on a real machine, ignored by the simulator. COUNTERSINK: does NOT reshape the cone — it only offsets the path (RL/RR, CYCL DEF 208), exactly like a real control. Pair with DL = -DR/tan(T-ANGLE/2) so the cone\u2019s own edge meets that offset path.', ex:'TOOL CALL 1 Z S3000 F800 DR+0.1'},
   'tt-DR2':     {title:'DR2 — R2 oversize (mm)', desc:'Delta value added to the corner radius R2 — the same idea as DR, but for the rounded corner of a toroidal / ball-nose cutter.', ex:''},
   'tt-CUT':     {title:'CUT — Number of teeth', desc:'Number of cutting edges (flutes) on the tool. Used for chip-load style calculations; it does not change the cut geometry in the simulator.', ex:''},
-  'tt-LCUTS':   {title:'LCUTS — Tooth length (mm)', desc:'Cutting-edge length along the tool axis — how far up the flutes actually cut. CHAMFER / COUNTERSINK tools (T-ANGLE > 0): LCUTS is the cone height and SETS the tool size — the cone\u2019s widest diameter = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2). E.g. a 90\u00b0 tool with LCUTS 10 reaches \u230020 mm. A full ball-nose auto-uses R2.', ex:''},
+  'tt-LCUTS':   {title:'LCUTS — Tooth length (mm)', desc:'MILL: cutting-edge length along the tool axis — how far up the flutes cut (full ball-nose auto-uses R2). DRILL/REAMER: the real cutting/flute height — purely informational, no link to R or T-ANGLE (rule of thumb: ~6\u00d7 diameter for a standard drill). COUNTERSINK: required, together with T-ANGLE — sets the tool\u2019s max diameter for simulation: \u00d8 = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2), measured from the imaginary sharp apex (independent of R).', ex:''},
   'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Maximum plunge / ramp-in angle for cycles like CYCL DEF 208 (bore milling). A standard end mill is around 3°; a drill can use 90° (straight plunge).', ex:''},
-  'tt-TANGLE':  {title:'T-ANGLE — Tool point angle (°)', desc:'Full included angle of a pointed tool tip — drill 118°, center drill 142°, countersink/chamfer 90°. 0 disables the conical tip (flat end mill / ball nose). For chamfer & countersink tools set this to the real tool angle and use LCUTS to set the diameter; keep R near 0.', ex:''},
+  'tt-TANGLE':  {title:'T-ANGLE — Tool point angle (°)', desc:'Full included angle of a pointed tool tip — drill 118° (default for new DRILL tools), center drill 142°, countersink/chamfer — any angle (required, together with LCUTS). 0 disables the conical tip (flat end mill / ball nose). DRILL: point widens up to the real R, then a constant-R shank. COUNTERSINK: widens from R (usually \u22480.001) up to the LCUTS-derived max diameter.', ex:''},
   'tt-TL':      {title:'TL — Tool locked', desc:'When set, this tool is locked and cannot be selected by TOOL CALL — useful for marking a broken or unavailable tool.', ex:''},
   'tt-RT':      {title:'RT — Replacement tool', desc:'Tool number of a twin / sister tool that should be swapped in automatically if this tool is locked or reaches its tool-life limit. 0 = no replacement.', ex:''},
   'tt-TIME2':   {title:'TIME2 — Tool life limit (min)', desc:'Maximum allowed cutting time for this tool before it should be replaced. Compared against CUR.TIME, the time accumulated so far.', ex:''},
@@ -2294,17 +2297,29 @@ function toggleIncrementalToken(){
 
 // ── Tool library ──────────────────────────────────────────────────
 var toolLibrary = [
-  {T:1, NAME:'END_MILL_D10', L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'End mill D10'},
-  {T:2, NAME:'BALL_MILL_D8', L:70,  R:4,   R2:4, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:4,    ANGLE:0, T_ANGLE:0,   DOC:'Ball nose D8 (R4)'},
-  {T:3, NAME:'CENTER_D6',    L:60,  R:3,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:1.033, ANGLE:0, T_ANGLE:142, DOC:'Center drill D6 142°'},
-  {T:4, NAME:'DRILL_D6_8',   L:100, R:3.4, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:2.043, ANGLE:0, T_ANGLE:118, DOC:'Drill D6.8 118°'},
-  {T:5, NAME:'CSINK_D8_90',  L:60,  R:0.001, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:4, ANGLE:0, T_ANGLE:90,  DOC:'Countersink D8 90° (tip ref)'},
-  {T:6, NAME:'REAMER_7H7',   L:100, R:3.5, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:6, LCUTS:25,   ANGLE:0, T_ANGLE:0,   DOC:'Reamer 7H7 D7'},
-  {T:7, NAME:'TAP_M8',       L:80,  R:4,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:18,   ANGLE:0, T_ANGLE:0,   DOC:'Tap M8x1.25'},
+  {T:1, TYPE:'MILL',        NAME:'END_MILL_D10', L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'End mill D10'},
+  {T:2, TYPE:'MILL',        NAME:'BALL_MILL_D8', L:70,  R:4,   R2:4, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:4,    ANGLE:0, T_ANGLE:0,   DOC:'Ball nose D8 (R4)'},
+  {T:3, TYPE:'DRILL',       NAME:'CENTER_D6',    L:60,  R:3,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:8,    ANGLE:0, T_ANGLE:142, DOC:'Center drill D6 142°'},
+  {T:4, TYPE:'DRILL',       NAME:'DRILL_D6_8',   L:100, R:3.4, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:40.8, ANGLE:0, T_ANGLE:118, DOC:'Drill D6.8 118°'},
+  {T:5, TYPE:'COUNTERSINK', NAME:'CSINK_D8_90',  L:60,  R:0.001, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:4, ANGLE:0, T_ANGLE:90,  DOC:'Countersink D8 90° (tip ref)'},
+  {T:6, TYPE:'DRILL',       NAME:'REAMER_7H7',   L:100, R:3.5, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:6, LCUTS:25,   ANGLE:0, T_ANGLE:0,   DOC:'Reamer 7H7 D7'},
+  {T:7, TYPE:'DRILL',       NAME:'TAP_M8',       L:80,  R:4,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:18,   ANGLE:0, T_ANGLE:0,   DOC:'Tap M8x1.25'},
 ];
 var TOOL_R = 5;
 var TOOL_NUM = 1;
 var editingTool = null;
+var TOOL_TYPES = ['MILL','DRILL','COUNTERSINK'];
+var TOOL_TYPE_LABEL = {MILL:'Mill', DRILL:'Drill', COUNTERSINK:'Countersink'};
+var TOOL_TYPE_COLOR = {MILL:'#3b82f6', DRILL:'#1da06a', COUNTERSINK:'#e8a23a'};
+
+// Backward-compat: derive TYPE for tools that don't have one yet (older saves / imported .tnt files)
+function inferToolType(t){
+  if(t && TOOL_TYPES.indexOf(t.TYPE)>=0) return t.TYPE;
+  var r = (t&&t.R)||0, ta = (t&&t.T_ANGLE)||0;
+  if(ta>0 && r<0.01) return 'COUNTERSINK';
+  if(ta>0) return 'DRILL';
+  return 'MILL';
+}
 
 function getToolByNum(n){ return toolLibrary.find(function(t){ return t.T===n; })||null; }
 
@@ -2318,10 +2333,15 @@ function field(id, label, val, type, title, min2, minV, maxV){
     +'</label>';
 }
 
-function renderToolForm(num){
+function renderToolForm(num, overrides){
   var t = (num !== null) ? getToolByNum(num) : null;
   var isNew = !t || !t.T;
   var nextT = isNew ? (toolLibrary.length ? Math.max.apply(null,toolLibrary.map(function(x){return x.T;}))+1 : 1) : t.T;
+  var ov = overrides || {};
+  var curType = ov.hasOwnProperty('TYPE') ? ov.TYPE : (isNew ? 'MILL' : inferToolType(t));
+
+  // fv: override value (from a just-changed dropdown re-render) wins, else existing tool value, else default-for-new
+  function fv(id, def){ return ov.hasOwnProperty(id) ? ov[id] : (isNew ? def : t[id]); }
 
   function field(id, label, val, type, desc, step, min, max){
     var attrs = '';
@@ -2335,53 +2355,103 @@ function renderToolForm(num){
       +'</div>';
   }
 
+  var typeField = '<div class="tool-field">'
+    +'<label>TYPE — Tool type</label>'
+    +'<select id="tf_TYPE" onchange="toolTypeChanged()" style="font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 7px;">'
+    + TOOL_TYPES.map(function(ty){ return '<option value="'+ty+'"'+(ty===curType?' selected':'')+'>'+TOOL_TYPE_LABEL[ty]+'</option>'; }).join('')
+    +'</select>'
+    +'</div>';
+
+  var rDesc = {
+    MILL:        'Cutting radius = diameter / 2. Used for RL/RR compensation',
+    DRILL:       'Real, fixed cutting radius (diameter / 2) — the largest radius outside the tip. Does not change with DR.',
+    COUNTERSINK: 'Usually \u22480.001 (sharp tip). A real value (e.g. 2 mm) gives a flat/truncated tip of that radius — the cone still widens above it to the LCUTS/T-ANGLE diameter. Does not change with DR.'
+  }[curType];
+  var drDesc = {
+    MILL:        'Delta value added to R. Positive = oversize, negative = undersize',
+    DRILL:       'Not applied for a drill/reamer — has no meaning on a real machine, ignored by the simulator.',
+    COUNTERSINK: 'Does NOT change the cone\u2019s physical shape — it only offsets the path (RL/RR, CYCL DEF 208), exactly like a real control. Pair with DL = -DR/tan(T-ANGLE/2) so the cone\u2019s own edge meets that offset path.'
+  }[curType];
+
   return '<div class="tool-form">'
     +'<h3>'+(isNew?'New Tool':'T'+t.T+' — '+t.NAME)+'</h3>'
     +field('T',     'T — Tool number',       isNew?nextT:t.T,    'number', 'Tool number used in TOOL CALL', '1', 1, 999)
-    +field('NAME',  'NAME — Tool name',      isNew?'':t.NAME,    'text',   'Max 16 chars, no spaces. E.g. END_MILL_D10')
-    +field('L',     'L — Tool length (mm)',  isNew?75:t.L,       'number', 'Distance from spindle gauge to tool tip', '0.001', 0.001, 300)
-    +field('R',     'R — Tool radius (mm)',  isNew?5:t.R,        'number', 'Cutting radius = diameter / 2. Used for RL/RR compensation', '0.001', 0.001, 100)
-    +field('R2',    'R2 — Corner radius (mm)',isNew?0:t.R2,      'number', 'Radius of rounded cutting corner (toroidal cutter). 0 = flat end mill, R2=R = ball nose', '0.001')
-    +field('DL',    'DL — Length oversize',  isNew?0:t.DL,       'number', 'Delta value added to L. Used for wear compensation', '0.001')
-    +field('DR',    'DR — Radius oversize',  isNew?0:t.DR,       'number', 'Delta value added to R. Positive = oversize, negative = undersize', '0.001')
-    +field('DR2',   'DR2 — R2 oversize',     isNew?0:t.DR2,      'number', 'Delta value added to R2', '0.001')
-    +field('CUT',   'CUT — Number of teeth', isNew?4:t.CUT,      'number', 'Number of cutting edges (used for chip load calculation)', '1', 1, 20)
+    +typeField
+    +field('NAME',  'NAME — Tool name',      fv('NAME',''),    'text',   'Max 16 chars, no spaces. E.g. END_MILL_D10')
+    +field('L',     'L — Tool length (mm)',  fv('L',75),       'number', 'Distance from spindle gauge to tool tip', '0.001', 0.001, 300)
+    +field('R',     'R — Tool radius (mm)',  fv('R',5),        'number', rDesc, '0.001', 0.001, 100)
+    +field('R2',    'R2 — Corner radius (mm)',fv('R2',0),      'number', 'Radius of rounded cutting corner (toroidal cutter). 0 = flat end mill, R2=R = ball nose', '0.001')
+    +field('DL',    'DL — Length oversize',  fv('DL',0),       'number', 'Delta value added to L. Used for wear compensation', '0.001')
+    +field('DR',    'DR — Radius oversize',  fv('DR',0),       'number', drDesc, '0.001')
+    +field('DR2',   'DR2 — R2 oversize',     fv('DR2',0),      'number', 'Delta value added to R2', '0.001')
+    +field('CUT',   'CUT — Number of teeth', fv('CUT',4),      'number', 'Number of cutting edges (used for chip load calculation)', '1', 1, 20)
     +(function(){
-      var _ta = isNew?0:(t.T_ANGLE||0);
-      var _r  = isNew?5:(t.R||5);
-      var _r2 = isNew?0:(t.R2||0);
-      if(_ta > 0){
-        // Cone (chamfer/countersink/drill): like a real control, R is ~0 (tip
-        // reference) and LCUTS = cutting-edge height. The cone's widest
-        // diameter is derived from LCUTS and T-ANGLE: Ø = 2·LCUTS·tan(angle/2).
-        // So LCUTS stays editable — it's how you set the tool's real size.
+      var _ta = pFloat(fv('T_ANGLE', curType==='DRILL'?118:0))||0;
+      var _r  = pFloat(fv('R',5))||5;
+      var _r2 = pFloat(fv('R2',0))||0;
+      var _lcDef = fv('LCUTS', isNew?(curType==='DRILL'?(_r*2*6):25):undefined);
+      if(curType==='COUNTERSINK' && _ta > 0){
+        // Chamfer/countersink: LCUTS + T-ANGLE are MANDATORY — together they set the
+        // tool's physical max diameter for simulation: Ø = 2·LCUTS·tan(angle/2),
+        // independent of R. R itself is usually ≈0 (sharp tip); a real R gives a
+        // flat/truncated tip of diameter 2·R, and the cone still widens above it
+        // to reach the same max Ø.
         var _h2 = (_ta/2)*Math.PI/180;
-        var _lcVal = isNew?5:(t.LCUTS||5);
+        var _lcVal = (_lcDef!==undefined && _lcDef!==null && _lcDef!=='') ? pFloat(_lcDef) : (isNew?5:(t.LCUTS||5));
         var _dia = (2*_lcVal*Math.tan(_h2));
-        return field('LCUTS', 'LCUTS — Tooth length (cone height)', _lcVal, 'number',
-          'Cutting-edge height of the cone. With R\u22480 (tip reference) and T-ANGLE set, the cone\u2019s widest diameter = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2). For this tool: \u2300'+(_dia.toFixed(2))+' mm at full depth. Set R near 0 (e.g. 0.001) so DR in TOOL CALL carries the offset.', '0.1');
+        var _rNow = pFloat(fv('R',0.001))||0.001;
+        var _tipNote = (_rNow>0.01) ? (' Tip is flat/truncated, \u2300'+(2*_rNow).toFixed(2)+' mm, then widens to the max \u2300 above.') : '';
+        return field('LCUTS', 'LCUTS — Tooth length (cone height) — required', _lcVal, 'number',
+          'Required. Cutting-edge height of the cone, measured from the imaginary sharp apex. Max diameter = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2). For this tool: \u2300'+(_dia.toFixed(2))+' mm at full depth.'+_tipNote, '0.1');
+      } else if(curType==='DRILL'){
+        // Drill/reamer: R is authoritative (real radius) — LCUTS is just the real
+        // cutting/flute height (e.g. ~6× diameter for a standard jobber drill).
+        // No formula link to R/T-ANGLE, no validation needed.
+        var _lcVal3 = (_lcDef!==undefined && _lcDef!==null && _lcDef!=='') ? _lcDef : (isNew?(_r*2*6):t.LCUTS);
+        return field('LCUTS', 'LCUTS — Cutting/flute height (mm)', _lcVal3, 'number',
+          'Real cutting-edge (flute) length along the tool axis — how deep this drill/reamer can cut. Typical rule of thumb: ~6\u00d7 diameter for a standard drill (e.g. \u00d88 mm \u2192 ~48 mm). Purely informational — no link to R or T-ANGLE.', '0.1');
       } else if(_r2>0 && _r2>=_r){
         // ball nose: show R2, read-only
         return '<div class="tool-field"><label>LCUTS — Tooth length</label><span style="font-family:var(--mono);font-size:12px;color:var(--text2);">'+_r2+' mm <span style="color:var(--text3);font-size:10px;">(auto: ball radius)</span></span></div>';
       } else {
-        return field('LCUTS', 'LCUTS — Tooth length', isNew?25:t.LCUTS, 'number', 'Cutting edge length along tool axis. Used in Cycle 22 (pocket roughing)', '0.1');
+        var _lcVal2 = (_lcDef!==undefined && _lcDef!==null && _lcDef!=='') ? _lcDef : (isNew?25:t.LCUTS);
+        return field('LCUTS', 'LCUTS — Tooth length', _lcVal2, 'number', 'Cutting edge length along tool axis. Used in Cycle 22 (pocket roughing)', '0.1');
       }
     })()
-    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    isNew?3:(t.ANGLE||3),     'number', 'Max plunge angle for ramp-in (Cycle 22/208). End mill ~3°, drill = 90°', '0.1', 0, 90)
-    +field('T_ANGLE', 'T-ANGLE — Tool point angle (°)', isNew?0:(t.T_ANGLE||0), 'number', 'Full included angle of tool tip. Drill = 118°, center drill = 142°, countersink 90°, flat end mill = 0 (disabled)', '0.1', 0, 170)
+    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    fv('ANGLE',3)||3,     'number', 'Max plunge angle for ramp-in (Cycle 22/208). End mill ~3°, drill = 90°', '0.1', 0, 90)
+    +field('T_ANGLE', 'T-ANGLE — Tool point angle (°)', fv('T_ANGLE', curType==='DRILL'?118:0), 'number', 'Full included angle of tool tip. Drill = 118°, center drill = 142°, countersink — any angle. 0 disables the conical tip (flat end mill / ball nose).', '0.1', 0, 170)
     +'<div class="tool-field"><label>TL — Tool locked</label>'
-      +'<input id="tf_TL" type="checkbox" '+((!isNew&&t.TL)?'checked':'')+' style="width:auto;margin-top:4px;">'
+      +'<input id="tf_TL" type="checkbox" '+((ov.hasOwnProperty('TL')?ov.TL:(!isNew&&t.TL))?'checked':'')+' style="width:auto;margin-top:4px;">'
       +'<span class="field-desc">Lock tool to prevent use (e.g. after breakage)</span>'
     +'</div>'
-    +field('RT',    'RT — Replacement tool', isNew?0:t.RT,       'number', 'Tool number of twin/replacement tool. 0 = none')
-    +field('TIME2',    'TIME2 — Max tool life at TOOL CALL (min)', isNew?100:(t.TIME2||0), 'number', 'When CUR.TIME reaches TIME2, tool is locked at next TOOL CALL. 0 = no limit')
-    +field('CUR_TIME', 'CUR.TIME — Current tool age (min)',        isNew?0:(t.CUR_TIME||0),   'number', 'Accumulated cutting time. Reset after tool change.', '0.1')
-    +field('DOC',   'DOC — Comment',         isNew?'':t.DOC,     'text',   'Free text comment, shown in table')
+    +field('RT',    'RT — Replacement tool', fv('RT',0),       'number', 'Tool number of twin/replacement tool. 0 = none')
+    +field('TIME2',    'TIME2 — Max tool life at TOOL CALL (min)', fv('TIME2',100)||0, 'number', 'When CUR.TIME reaches TIME2, tool is locked at next TOOL CALL. 0 = no limit')
+    +field('CUR_TIME', 'CUR.TIME — Current tool age (min)',        fv('CUR_TIME',0)||0,   'number', 'Accumulated cutting time. Reset after tool change.', '0.1')
+    +field('DOC',   'DOC — Comment',         fv('DOC',''),     'text',   'Free text comment, shown in table')
     +'<div class="tool-form-btns">'
       +'<button class="tool-btn-save" onclick="toolSave('+(isNew?'null':num)+')">'+(isNew?'Add Tool':'Save Changes')+'</button>'
       +'<button class="tool-btn-cancel" onclick="toolCancelEdit()">Cancel</button>'
     +'</div>'
     +'</div>';
+}
+
+// Re-render the form when TYPE is changed, preserving whatever the user already typed
+function toolTypeChanged(){
+  var wrap = document.getElementById('toolFormWrap');
+  if(!wrap) return;
+  var ids = ['NAME','L','R','R2','DL','DR','DR2','CUT','LCUTS','ANGLE','T_ANGLE','RT','TIME2','CUR_TIME','DOC'];
+  var ov = {};
+  ids.forEach(function(id){
+    var elx = document.getElementById('tf_'+id);
+    if(elx) ov[id] = elx.value;
+  });
+  var tlEl = document.getElementById('tf_TL');
+  if(tlEl) ov.TL = tlEl.checked;
+  var tyEl = document.getElementById('tf_TYPE');
+  if(tyEl) ov.TYPE = tyEl.value;
+  // Friendly default: switching to DRILL with no point angle set yet -> suggest 118°
+  if(ov.TYPE==='DRILL' && (!ov.T_ANGLE || pFloat(ov.T_ANGLE)===0)) ov.T_ANGLE = '118';
+  wrap.innerHTML = renderToolForm(editingTool, ov);
 }
 
 function toolErrsCheck(){
@@ -2397,6 +2467,8 @@ function toolErrsCheck(){
 
 function toolSave(oldNum){
   var T      = pInt(document.getElementById('tf_T').value)||1;
+  var _tyEl  = document.getElementById('tf_TYPE');
+  var TYPE   = (_tyEl && TOOL_TYPES.indexOf(_tyEl.value)>=0) ? _tyEl.value : 'MILL';
   var NAME   = document.getElementById('tf_NAME').value.trim().replace(/\s+/g,'_').toUpperCase()||'TOOL_'+T;
   var L      = pFloat(document.getElementById('tf_L').value)||0;
   var R      = pFloat(document.getElementById('tf_R').value)||0;
@@ -2431,12 +2503,17 @@ function toolSave(oldNum){
   if(R2<0||R2>R)           toolErrs.push('R2 must be 0–R ('+R+' mm)');
   if(L<=0||L>300)          toolErrs.push('L must be 0.001–300 mm');
   if(CUT<1||CUT>20)        toolErrs.push('CUT must be 1–20');
-  // LCUTS auto-calculated — no manual validation needed
+  // LCUTS auto-calculated — no manual validation needed (except COUNTERSINK, below)
   if(ANGLE<0||ANGLE>90)    toolErrs.push('ANGLE must be 0–90°');
   if(T_ANGLE!==0&&(T_ANGLE<10||T_ANGLE>170)) toolErrs.push('T-ANGLE must be 0 (flat) or 10–170°');
+  if(TYPE==='COUNTERSINK'){
+    // Mandatory: these two together define the tool's physical max diameter for simulation
+    if(!(T_ANGLE>0)) toolErrs.push('COUNTERSINK requires T-ANGLE > 0');
+    if(!(LCUTS>0))   toolErrs.push('COUNTERSINK requires LCUTS > 0 (sets the max diameter together with T-ANGLE)');
+  }
   if(toolErrs.length){ _toast('Cannot save:\n'+toolErrs.join('\n'), true); return; }
 
-  var entry = {T:T,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
+  var entry = {T:T,TYPE:TYPE,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
 
   if(oldNum !== null){
     var idx = toolLibrary.findIndex(function(t){ return t.T===oldNum; });
@@ -2449,7 +2526,7 @@ function toolSave(oldNum){
   }
 
   // sync TOOL_R and rebuild mesh if this is the active tool
-  if(T===TOOL_NUM){ TOOL_R = R + (DR||0); if(typeof buildToolMesh==='function') buildToolMesh(); runValidation(); }
+  if(T===TOOL_NUM){ TOOL_R = R + (TYPE==='MILL'?(DR||0):0); if(typeof buildToolMesh==='function') buildToolMesh(); runValidation(); }
 
   // Tool change invalidates parsed RC offsets — must re-parse
   // Auto-reset so next Run re-parses with new tool geometry
@@ -2503,7 +2580,8 @@ function onToolImportFile(e){
     try{
       var arr=JSON.parse(ev.target.result);
       if(!Array.isArray(arr)) throw new Error('Expected a tool array');
-      toolLibrary=arr.filter(function(t){ return t&&typeof t.T==='number'&&typeof t.R==='number'; });
+      toolLibrary=arr.filter(function(t){ return t&&typeof t.T==='number'&&typeof t.R==='number'; })
+        .map(function(t){ t.TYPE = inferToolType(t); return t; });
       TOOL_R=(getToolByNum(TOOL_NUM)||{R:5}).R;
       renderToolsTab(); runValidation();
     }catch(err){ _toast('Import failed: '+err.message, true); }
@@ -2530,24 +2608,34 @@ function renderToolsTab(){
   var activeNum = m ? parseInt(m[1]) : 0;
 
   var html = '';
-  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one. Click <b style=\"color:var(--text2);\">? Help</b> above, then any column header, for an explanation.<br><span style="color:var(--text3);">Chamfer / countersink tools: set <b style=\"color:var(--text2);\">R\u22480.001</b> (tip reference), <b style=\"color:var(--text2);\">T-ANGLE</b> = real tool angle, and <b style=\"color:var(--text2);\">LCUTS</b> = cone height — the widest \u00d8 = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2). The working offset comes from <b style=\"color:var(--text2);\">DR</b> in TOOL CALL.</span></div>';
+  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one. Click <b style=\"color:var(--text2);\">? Help</b> above, then any column header, for an explanation.</div>';
   html += '<div>';
 
   // Left: table
   html += '<div style="overflow-x:auto;width:100%;">';
   html += '<table class="tools-table"><thead><tr>'
-    +'<th data-help="tt-T">T</th><th data-help="tt-NAME">NAME</th><th data-help="tt-L">L</th><th data-help="tt-R">R</th><th data-help="tt-R2">R2</th>'
+    +'<th data-help="tt-T">T</th><th data-help="tt-TYPE">TYPE</th><th data-help="tt-NAME">NAME</th><th data-help="tt-L">L</th><th data-help="tt-R">R</th><th data-help="tt-R2">R2</th>'
     +'<th data-help="tt-DL">DL</th><th data-help="tt-DR">DR</th><th data-help="tt-DR2">DR2</th><th data-help="tt-CUT">CUT</th><th data-help="tt-LCUTS">LCUTS</th><th data-help="tt-ANGLE">ANGLE</th><th data-help="tt-TANGLE">T-ANGLE</th>'
     +'<th data-help="tt-TL">TL</th><th data-help="tt-RT">RT</th><th data-help="tt-TIME2">TIME2</th><th data-help="tt-CURTIME">CUR.TIME</th><th data-help="tt-DOC">DOC</th><th></th>'
     +'</tr></thead><tbody>';
 
-  toolLibrary.forEach(function(t){
-    if(!t || !t.T) return;
+  var TOOLS_COLSPAN = 19;
+  var groupDesc = {
+    MILL:        'MILL — end mills & ball nose (R/R2 define the cutting shape)',
+    DRILL:       'DRILL — twist drills & reamers (R is the real, fixed cutting radius)',
+    COUNTERSINK: 'COUNTERSINK — chamfer / deburring tools (T-ANGLE + LCUTS required \u2192 max \u00d8; R\u22480.001 unless a flat tip is needed)'
+  };
+  TOOL_TYPES.forEach(function(grp){
+    var rows = toolLibrary.filter(function(t){ return t && t.T && inferToolType(t)===grp; });
+    if(!rows.length) return;
+    html += '<tr class="tool-group-row"><td colspan="'+TOOLS_COLSPAN+'" style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.3px;color:'+TOOL_TYPE_COLOR[grp]+';background:var(--bg2,rgba(128,128,128,.08));padding:5px 8px;border-top:1px solid var(--border);">'+groupDesc[grp]+'</td></tr>';
+    rows.forEach(function(t){
     var active = t.T === activeNum;
     html += '<tr class="'+(active?'active-tool':'')+'">';
     var _tc2 = TOOL_CUT_COLORS[(t.T-1)%TOOL_CUT_COLORS.length];
     var _hex2 = '#'+[_tc2[0],_tc2[1],_tc2[2]].map(function(v){ return ('0'+Math.round(v*255).toString(16)).slice(-2); }).join('');
     html += '<td class="tool-num"><span class="tool-swatch" style="background:'+_hex2+'"></span>'+(active?'▶ ':'')+t.T+'</td>';
+    html += '<td><span style="display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:9px;color:#fff;background:'+TOOL_TYPE_COLOR[grp]+';">'+TOOL_TYPE_LABEL[grp]+'</span></td>';
     html += '<td>'+t.NAME+'</td>';
     html += '<td>'+t.L+'</td>';
     html += '<td>'+t.R+'</td>';
@@ -2575,6 +2663,7 @@ function renderToolsTab(){
       +'<button class="tool-act-btn del" onclick="toolDeleteConfirm('+t.T+', this)">Del</button>'
       +'</td>';
     html += '</tr>';
+    });
   });
   html += '</tbody></table>';
   html += '<br><div style="display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap;">'
@@ -5305,7 +5394,9 @@ function parseProgram(code){
       if(tObj){
         if(tdl) tObj._dlOverride=parseFloat(tdl[1].replace(',', '.')); else delete tObj._dlOverride;
         if(tdr) tObj._drOverride=parseFloat(tdr[1].replace(',', '.')); else delete tObj._drOverride;
-        TOOL_R = tObj.R + (tdr ? parseFloat(tdr[1]) : (tObj.DR||0));
+        var _tObjType = inferToolType(tObj);
+        var _drForR = (_tObjType==='MILL') ? (tdr ? parseFloat(tdr[1].replace(',', '.')) : (tObj.DR||0)) : 0;
+        TOOL_R = tObj.R + _drForR;
       }
     }
     else if(/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); spindleOn=true; coolantOn=true; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
@@ -5523,11 +5614,16 @@ function applyRadiusComp(sub){
 function offsetRun(sub, a, b, side, prevSeg, nextSeg){
   // Build vertex list from the run: V0=seg[a].from, V1=seg[a].to=seg[a+1].from, ...
   // Offset = the tool's reference-point radius R + DR (per-run tool, not global).
-  // This positions the tool tip/reference; the physical tool shape (cone/ball/flat)
-  // in vxCut then removes exactly what it intersects — matching real-world cutting.
+  // This positions the tool CENTER; the physical tool shape (cone/ball/flat) in
+  // vxCut then removes exactly what it intersects from THAT position — matching
+  // real-world cutting. For DRILL/COUNTERSINK, vxCut's cone shape uses R alone
+  // (never +DR) — DR's entire effect is this path offset, never double-applied
+  // to the cone's own radius.
   // Cone/countersink tools are set up with R≈0.001 (tip reference) in the tool
   // table, so DR alone carries the compensation amount — same convention TOOL CALL
-  // uses for CYCL DEF 200/208 (see _cycleR there).
+  // uses for CYCL DEF 200/208 (see _cycleR there). DL is then chosen by the
+  // operator (DL = -DR/tan(T-ANGLE/2)) so the cone's own sharp edge lands exactly
+  // on that offset path.
   var _runTool = getToolByNum(sub[a].toolNum);
   var TR;
   if(_runTool){
@@ -5838,17 +5934,24 @@ function vxReset(){
   if(blockEdges) blockEdges.visible=true;
 }
 function vxCut(tx,ty,tz,toolR,toolShape){
-  // toolShape: null=cylinder, {type:'ball',r2:R2} or {type:'cone',angle:deg,surfZ:z}
+  // toolShape: null=cylinder, {type:'ball',r2:R2} or {type:'cone',angle:deg,mode:'drill'|'countersink',lcuts:..}
   if(!VX) return;
   if(tz>VX.maxZ) return;
   var maxR = toolR;
   // For cone tools, max radius can be larger than toolR at top
   if(toolShape && toolShape.type==='cone'){
-    // Pointed tip: radius grows upward, so scan wider (cap at cone physical max via lcuts)
-    var _hr = (toolShape.angle/2)*Math.PI/180;
-    var _maxDepth = VX.maxZ - tz;
-    var _coneMaxScan = (toolShape.lcuts || 9999) * Math.tan(_hr);
-    maxR = Math.max(toolR, Math.min(_coneMaxScan, _maxDepth * Math.tan(_hr)));
+    if(toolShape.mode==='drill'){
+      // Drill/reamer: physical max radius IS toolR (the real, fixed drill radius) — no wider scan needed
+      maxR = toolR;
+    } else {
+      // Countersink/chamfer: toolR (R+DR) is the tool's own tip radius (≈0 for a
+      // sharp point, or real for a flat/truncated tip) — the cone widens from
+      // there, so the physical max radius is whichever is larger: toolR itself,
+      // or the LCUTS/angle-derived design diameter.
+      var _hr = (toolShape.angle/2)*Math.PI/180;
+      var _coneMaxScan = (toolShape.lcuts || 9999) * Math.tan(_hr);
+      maxR = Math.max(toolR, _coneMaxScan);
+    }
   }
   var ixMin=Math.max(0,Math.floor((tx-maxR-VX.ox)/VX.dx)-1);
   var ixMax=Math.min(VX.nx-1,Math.ceil((tx+maxR-VX.ox)/VX.dx)+1);
@@ -5885,12 +5988,21 @@ function vxCut(tx,ty,tz,toolR,toolShape){
       }
       // above corner zone: effR = toolR (full flat cylinder)
     } else if(toolShape && toolShape.type==='cone'){
-      // Cone: tip at tz (effR=0), widens upward by half-angle.
-      // toolR here is just the tip reference offset (R+DR) — it does NOT cap the cone.
-      // Physical max radius is limited by cutting-edge height (lcuts).
+      // Cone: tip at tz. Drill widens from 0; countersink widens from its own toolR.
       var _hr2 = (toolShape.angle/2)*Math.PI/180;
-      var _coneMax = (toolShape.lcuts || 9999) * Math.tan(_hr2);
-      effR = Math.min(_coneMax, dz2 * Math.tan(_hr2));
+      if(toolShape.mode==='drill'){
+        // Drill/reamer/center drill: point widens up to the tool's real radius
+        // (toolR = R, DR not applied), then the shank cuts at constant R.
+        effR = Math.min(toolR, dz2 * Math.tan(_hr2));
+      } else {
+        // Countersink/chamfer: toolR (R+DR) is the tool's OWN tip radius — ≈0 for
+        // a sharp point, or a real value (e.g. 2mm) for a flat/truncated tip
+        // (then the tip is a flat disc of that diameter, not a point). The cone
+        // widens from toolR upward; physical max diameter still comes from the
+        // cutting-edge height (lcuts) + angle, independent of R.
+        var _coneCap = (toolShape.lcuts || 9999) * Math.tan(_hr2);
+        effR = Math.min(_coneCap, toolR + dz2 * Math.tan(_hr2));
+      }
     }
     var r2=effR*effR;
     for(var iy=iyMin;iy<=iyMax;iy++){
@@ -6012,7 +6124,7 @@ function vxBuildMesh(){
 // ---------- high-res precise mesh (chunked main-thread) ----------
 var _refineChunks = null;
 
-var REFINE_WORKER_CODE = "'use strict';\nvar MC_EDGE_TABLE = new Int32Array([0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90, 0x230, 0x339, 0x33, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30, 0x3a0, 0x2a9, 0x1a3, 0xaa, 0x7a6, 0x6af, 0x5a5, 0x4ac, 0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0, 0x460, 0x569, 0x663, 0x76a, 0x66, 0x16f, 0x265, 0x36c, 0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60, 0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff, 0x3f5, 0x2fc, 0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0, 0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55, 0x15c, 0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950, 0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc, 0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0, 0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc, 0xcc, 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0, 0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c, 0x15c, 0x55, 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650, 0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc, 0x2fc, 0x3f5, 0xff, 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0, 0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c, 0x36c, 0x265, 0x16f, 0x66, 0x76a, 0x663, 0x569, 0x460, 0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac, 0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa, 0x1a3, 0x2a9, 0x3a0, 0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c, 0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33, 0x339, 0x230, 0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c, 0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99, 0x190, 0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0]);\nvar MC_TRI_TABLE = new Int32Array([- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 9, 8, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 0, 2, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 8, 3, 2, 10, 8, 10, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 8, 11, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 2, 1, 9, 11, 9, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 1, 11, 10, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 10, 1, 0, 8, 10, 8, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 9, 0, 3, 11, 9, 11, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 7, 3, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 1, 9, 4, 7, 1, 7, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 4, 7, 3, 0, 4, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 9, 0, 2, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 8, 4, 7, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 4, 7, 11, 2, 4, 2, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 8, 4, 7, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, - 1, - 1, - 1, - 1, 3, 10, 1, 3, 11, 10, 7, 8, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, - 1, - 1, - 1, - 1, 4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 4, 7, 11, 4, 11, 9, 9, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 1, 5, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 5, 4, 8, 3, 5, 3, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 10, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 2, 10, 5, 4, 2, 4, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, - 1, - 1, - 1, - 1, 9, 5, 4, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 0, 8, 11, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 0, 1, 5, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, - 1, - 1, - 1, - 1, 10, 3, 11, 10, 1, 3, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, - 1, - 1, - 1, - 1, 5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 5, 4, 8, 5, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 5, 7, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 3, 0, 9, 5, 3, 5, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 8, 0, 1, 7, 1, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 9, 5, 7, 10, 1, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, - 1, - 1, - 1, - 1, 8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, - 1, - 1, - 1, - 1, 2, 10, 5, 2, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 9, 5, 7, 8, 9, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, - 1, - 1, - 1, - 1, 11, 2, 1, 11, 1, 7, 7, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, - 1, - 1, - 1, - 1, 5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, - 1, 11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, - 1, 11, 10, 5, 7, 11, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 1, 9, 8, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 2, 6, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 1, 2, 6, 3, 0, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 6, 5, 9, 0, 6, 0, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 0, 8, 11, 2, 0, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, - 1, - 1, - 1, - 1, 6, 3, 11, 6, 5, 3, 5, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, - 1, - 1, - 1, - 1, 6, 5, 9, 6, 9, 11, 11, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 4, 7, 3, 6, 5, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 5, 10, 6, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 6, 1, 2, 6, 5, 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, - 1, - 1, - 1, - 1, 8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, - 1, - 1, - 1, - 1, 7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, - 1, 3, 11, 2, 7, 8, 4, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, 9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, - 1, 8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, - 1, 0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, - 1, 6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, - 1, - 1, - 1, - 1, 10, 4, 9, 6, 4, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 10, 6, 4, 9, 10, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 0, 1, 10, 6, 0, 6, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 1, 4, 9, 1, 2, 4, 2, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, - 1, - 1, - 1, - 1, 0, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 2, 8, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 4, 9, 10, 6, 4, 11, 2, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, - 1, - 1, - 1, - 1, 3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, - 1, 9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, - 1, - 1, - 1, - 1, 8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, - 1, 3, 11, 6, 3, 6, 0, 0, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 4, 8, 11, 6, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 10, 6, 7, 8, 10, 8, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, - 1, - 1, - 1, - 1, 10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, - 1, - 1, - 1, - 1, 10, 6, 7, 10, 7, 1, 1, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, - 1, 7, 8, 0, 7, 0, 6, 6, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 3, 2, 6, 7, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, - 1, 1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, - 1, 11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, - 1, - 1, - 1, - 1, 8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, - 1, 0, 9, 1, 11, 6, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, - 1, - 1, - 1, - 1, 7, 11, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 9, 8, 3, 1, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 8, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 9, 0, 2, 10, 9, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, - 1, - 1, - 1, - 1, 7, 2, 3, 6, 2, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 0, 8, 7, 6, 0, 6, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 7, 6, 2, 3, 7, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, - 1, - 1, - 1, - 1, 10, 7, 6, 10, 1, 7, 1, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, - 1, - 1, - 1, - 1, 0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, - 1, - 1, - 1, - 1, 7, 6, 10, 7, 10, 8, 8, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 8, 4, 11, 8, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 3, 0, 6, 0, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 6, 11, 8, 4, 6, 9, 0, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, - 1, - 1, - 1, - 1, 6, 8, 4, 6, 11, 8, 2, 10, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, - 1, - 1, - 1, - 1, 4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, - 1, - 1, - 1, - 1, 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, - 1, 8, 2, 3, 8, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, - 1, - 1, - 1, - 1, 1, 9, 4, 1, 4, 2, 2, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, - 1, - 1, - 1, - 1, 10, 1, 0, 10, 0, 6, 6, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, - 1, 10, 9, 4, 6, 10, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 5, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 1, 5, 4, 0, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, - 1, - 1, - 1, - 1, 9, 5, 4, 10, 1, 2, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, - 1, - 1, - 1, - 1, 7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, - 1, - 1, - 1, - 1, 3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, - 1, 7, 2, 3, 7, 6, 2, 5, 4, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, - 1, - 1, - 1, - 1, 3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, - 1, - 1, - 1, - 1, 6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, - 1, 9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, - 1, - 1, - 1, - 1, 1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, - 1, 4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, - 1, 7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, - 1, - 1, - 1, - 1, 6, 9, 5, 6, 11, 9, 11, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, - 1, - 1, - 1, - 1, 0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, - 1, - 1, - 1, - 1, 6, 11, 3, 6, 3, 5, 5, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, - 1, - 1, - 1, - 1, 0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, - 1, 11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, - 1, 6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, - 1, - 1, - 1, - 1, 5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, - 1, - 1, - 1, - 1, 9, 5, 6, 9, 6, 0, 0, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, - 1, 1, 5, 6, 2, 1, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, - 1, 10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, - 1, - 1, - 1, - 1, 0, 3, 8, 5, 6, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 5, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 7, 5, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 11, 7, 5, 8, 3, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 11, 7, 5, 10, 11, 1, 9, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, - 1, - 1, - 1, - 1, 11, 1, 2, 11, 7, 1, 7, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, - 1, - 1, - 1, - 1, 9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, - 1, - 1, - 1, - 1, 7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, - 1, 2, 5, 10, 2, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, - 1, - 1, - 1, - 1, 9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, - 1, 1, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 7, 0, 7, 1, 1, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 3, 9, 3, 5, 5, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 7, 5, 9, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 8, 4, 5, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, - 1, - 1, - 1, - 1, 10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, - 1, 2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, - 1, - 1, - 1, - 1, 0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, - 1, 0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, - 1, 9, 4, 5, 2, 11, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, - 1, - 1, - 1, - 1, 5, 10, 2, 5, 2, 4, 4, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, - 1, 5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 3, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 5, 1, 0, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, - 1, - 1, - 1, - 1, 9, 4, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 11, 7, 4, 9, 11, 9, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, - 1, - 1, - 1, - 1, 1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, - 1, - 1, - 1, - 1, 3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, - 1, 4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, - 1, - 1, - 1, - 1, 9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, - 1, 11, 7, 4, 11, 4, 2, 2, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, - 1, - 1, - 1, - 1, 2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, - 1, - 1, - 1, - 1, 9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, - 1, 3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, - 1, 1, 10, 2, 8, 7, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 7, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, - 1, - 1, - 1, - 1, 4, 0, 3, 7, 4, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 8, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 11, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 10, 0, 10, 8, 8, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 1, 10, 11, 3, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 11, 1, 11, 9, 9, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, - 1, - 1, - 1, - 1, 0, 2, 11, 8, 0, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 2, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 10, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 2, 0, 9, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, - 1, - 1, - 1, - 1, 1, 10, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 8, 9, 1, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 9, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 3, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1]);\n\nself.onmessage = function(e){\n  var d = e.data;\n  var type = d.type;\n\n  if(type === 'refine'){\n    var min = d.min, max = d.max;\n    var nx = d.nx, ny = d.ny, nz = d.nz;\n    var dx = d.dx, dy = d.dy, dz = d.dz;\n    var subArr = d.subArr;    // array of segment objects\n    var vxCut  = new Uint8Array(d.vxCut);   // low-res cut grid\n    var vxNx = d.vxNx, vxNy = d.vxNy, vxNz = d.vxNz;\n    var vxOx = d.vxOx, vxOy = d.vxOy, vxOz = d.vxOz;\n    var vxDx = d.vxDx, vxDy = d.vxDy, vxDz = d.vxDz;\n    var blkCyl = d.blkCyl || null;\n    var tools  = d.tools;  // {T: {R, R2, T_ANGLE, LCUTS}} map\n\n    // \u2500\u2500 Phase 1: init grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var grid    = new Uint8Array(nx*ny*nz);\n    var cutGrid = new Uint8Array(nx*ny*nz);\n\n    // Pre-populate cutGrid from low-res\n    for(var piz=0;piz<nz;piz++) for(var piy=0;piy<ny;piy++) for(var pix=0;pix<nx;pix++){\n      var wx=min.x+pix*dx, wy=min.y+piy*dy, wz=min.z+piz*dz;\n      var vi=Math.round((wx-vxOx)/vxDx), vj=Math.round((wy-vxOy)/vxDy), vk=Math.round((wz-vxOz)/vxDz);\n      if(vi>=0&&vi<vxNx&&vj>=0&&vj<vxNy&&vk>=0&&vk<vxNz){\n        var cv=vxCut[vk*vxNy*vxNx+vj*vxNx+vi];\n        if(cv) cutGrid[piz*ny*nx+piy*nx+pix]=cv;\n      }\n    }\n\n    // Init solid/air grid\n    for(var iz=0;iz<nz;iz++) for(var iy=0;iy<ny;iy++) for(var ix=0;ix<nx;ix++){\n      var border=(ix===0||ix===nx-1||iy===0||iy===ny-1||iz===0||iz===nz-1);\n      var inShape=true;\n      if(!border && blkCyl){\n        var rwx=min.x+ix*dx, rwy=min.y+iy*dy;\n        var rddx=rwx-blkCyl.cx, rddy=rwy-blkCyl.cy;\n        inShape=(rddx*rddx+rddy*rddy)<=(blkCyl.r-dx)*(blkCyl.r-dx);\n      }\n      grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;\n    }\n    self.postMessage({type:'progress', pct:10});\n\n    // \u2500\u2500 Phase 2: apply cuts \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var nSub = subArr.length;\n    for(var si=0;si<nSub;si++){\n      var sm = subArr[si];\n      if(sm.rapid) continue;\n      var tnum = sm.toolNum||1;\n      var _ct = tools[tnum] || null;\n      var _dlOv = _ct ? (_ct.DL||0) : 0;\n      var _drOv = _ct ? (_ct.DR||0) : 0;\n      var toolR = _ct ? (_ct.R + _drOv) : 5;\n      var r2base = toolR*toolR;\n      var _isBall  = _ct && _ct.R2>0 && _ct.R2>=_ct.R;\n      var _isTorus = _ct && _ct.R2>0 && _ct.R2<_ct.R;\n      var _isCone  = _ct && _ct.T_ANGLE>0 && !(_ct.R2>0);\n      var _ballR2  = (_isBall||_isTorus) ? _ct.R2 : 0;\n      var _ballR2eff = (_isBall||_isTorus) ? (_ct.R2+_drOv) : 0;\n      var _tCore   = _isTorus ? (toolR-_ct.R2) : 0;\n      var _coneHR  = _isCone  ? (_ct.T_ANGLE/2)*Math.PI/180 : 0;\n      var _lcuts   = _ct ? (_ct.LCUTS||99999) : 99999;\n\n      // scan range\n      var scanR = toolR;\n      if(_isCone){ var _coneMaxS=(_lcuts||9999)*Math.tan(_coneHR); scanR=Math.max(toolR,_coneMaxS); }\n      var segLen = sm.len || 0;\n      var steps = Math.max(2, Math.ceil(segLen/Math.min(dx,dy)*1.5));\n\n      for(var st=0;st<=steps;st++){\n        var t=st/steps;\n        var tx=sm.from.x+(sm.to.x-sm.from.x)*t;\n        var ty=sm.from.y+(sm.to.y-sm.from.y)*t;\n        var tz=sm.from.z+(sm.to.z-sm.from.z)*t + _dlOv;\n        if(tz>max.z) continue;\n\n        var ixMin=Math.max(0,Math.floor((tx-scanR-min.x)/dx)-1);\n        var ixMax=Math.min(nx-1,Math.ceil((tx+scanR-min.x)/dx)+1);\n        var iyMin=Math.max(0,Math.floor((ty-scanR-min.y)/dy)-1);\n        var iyMax=Math.min(ny-1,Math.ceil((ty+scanR-min.y)/dy)+1);\n        var izMin=Math.max(0,Math.floor((tz-min.z)/dz)-1);\n\n        for(var vz=izMin;vz<nz;vz++){\n          var pz=min.z+vz*dz; if(pz<tz-dz*0.5) continue;\n          var _dzRef=pz-tz;\n          var effR2=r2base;\n          if(_isBall && _dzRef<_ballR2){\n            var _frac=_dzRef/_ballR2;\n            var _eR=_ballR2eff*Math.sqrt(Math.max(0,1-(1-_frac)*(1-_frac)));\n            effR2=_eR*_eR;\n          } else if(_isTorus && _dzRef<_ballR2){\n            var _eRt=_tCore+Math.sqrt(Math.max(0,_ballR2*_ballR2-(_ballR2-_dzRef)*(_ballR2-_dzRef)));\n            effR2=_eRt*_eRt;\n          } else if(_isCone){\n            var _coneMaxW=(_lcuts||9999)*Math.tan(_coneHR);\n            var _eR2=Math.min(_coneMaxW,_dzRef*Math.tan(_coneHR));\n            effR2=_eR2*_eR2;\n          }\n          var colorVal=(_dzRef<=_lcuts)?(tnum||1):255;\n          for(var vy=iyMin;vy<=iyMax;vy++){\n            var py=min.y+vy*dy;\n            for(var vx2=ixMin;vx2<=ixMax;vx2++){\n              var px=min.x+vx2*dx;\n              var ddx=px-tx,ddy=py-ty;\n              if(ddx*ddx+ddy*ddy<=effR2){\n                var gi2=vz*ny*nx+vy*nx+vx2;\n                if(grid[gi2]){ grid[gi2]=0; cutGrid[gi2]=colorVal; }\n              }\n            }\n          }\n        }\n      }\n      if(si%50===0) self.postMessage({type:'progress', pct:10+Math.round(si/nSub*40)});\n    }\n    self.postMessage({type:'progress', pct:50});\n\n    // \u2500\u2500 Phase 3: Marching Cubes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var vertsOut=[], normsOut=[], triColorsOut=[];\n\n    function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){\n      if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}\n      var t=(iso-v1)/(v2-v1);\n      out[0]=p1x+t*(p2x-p1x);out[1]=p1y+t*(p2y-p1y);out[2]=p1z+t*(p2z-p1z);\n    }\n\n    var iso=0.5;\n    var ep=[];\n    for(var ei=0;ei<12;ei++) ep.push([0,0,0]);\n    var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];\n\n    for(var miz=0;miz<nz-1;miz++){\n      for(var miy=0;miy<ny-1;miy++){\n        for(var mix=0;mix<nx-1;mix++){\n          var x0=min.x+mix*dx,y0=min.y+miy*dy,z0=min.z+miz*dz;\n          var x1=x0+dx,y1=y0+dy,z1=z0+dz;\n          var g=function(a,b,c){ return grid[c*ny*nx+b*nx+a]||0; };\n          var cv=[g(mix,miy,miz),g(mix+1,miy,miz),g(mix+1,miy+1,miz),g(mix,miy+1,miz),\n                  g(mix,miy,miz+1),g(mix+1,miy,miz+1),g(mix+1,miy+1,miz+1),g(mix,miy+1,miz+1)];\n          var ci=0;\n          if(cv[0]>iso)ci|=1;if(cv[1]>iso)ci|=2;if(cv[2]>iso)ci|=4;if(cv[3]>iso)ci|=8;\n          if(cv[4]>iso)ci|=16;if(cv[5]>iso)ci|=32;if(cv[6]>iso)ci|=64;if(cv[7]>iso)ci|=128;\n          if(ci===0||ci===255) continue;\n          var et=MC_EDGE_TABLE[ci];\n          var cx2=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],\n                   [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];\n          for(var e=0;e<12;e++){\n            if(et&(1<<e)){\n              var ea=edges[e][0],eb=edges[e][1];\n              vInterp(iso,cx2[ea][0],cx2[ea][1],cx2[ea][2],cv[ea],\n                          cx2[eb][0],cx2[eb][1],cx2[eb][2],cv[eb],ep[e]);\n            }\n          }\n          var triBase=ci*16;\n          for(var ti=0;ti<15;ti+=3){\n            if(MC_TRI_TABLE[triBase+ti]<0) break;\n            var pa=ep[MC_TRI_TABLE[triBase+ti]];\n            var pb=ep[MC_TRI_TABLE[triBase+ti+1]];\n            var pc=ep[MC_TRI_TABLE[triBase+ti+2]];\n            // normal\n            var ax=pb[0]-pa[0],ay=pb[1]-pa[1],az=pb[2]-pa[2];\n            var bx=pc[0]-pa[0],by=pc[1]-pa[1],bz=pc[2]-pa[2];\n            var nnx=ay*bz-az*by,nny=az*bx-ax*bz,nnz=ax*by-ay*bx;\n            var nl=Math.sqrt(nnx*nnx+nny*nny+nnz*nnz)||1;\n            nnx/=nl;nny/=nl;nnz/=nl;\n            vertsOut.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);\n            normsOut.push(nnx,nny,nnz,nnx,nny,nnz,nnx,nny,nnz);\n            // color from cutGrid corners\n            var triTool=0;\n            var corners8=[mix,miy,miz, mix+1,miy,miz, mix+1,miy+1,miz, mix,miy+1,miz,\n                           mix,miy,miz+1, mix+1,miy,miz+1, mix+1,miy+1,miz+1, mix,miy+1,miz+1];\n            for(var ci8=0;ci8<24&&!triTool;ci8+=3){\n              var gv8=corners8[ci8+2]*ny*nx+corners8[ci8+1]*nx+corners8[ci8];\n              if(cutGrid[gv8]) triTool=cutGrid[gv8];\n            }\n            if(!triTool){\n              for(var dz3=-1;dz3<=2&&!triTool;dz3++){\n                for(var ci9=0;ci9<24&&!triTool;ci9+=3){\n                  var gz9=(corners8[ci9+2]+dz3)*ny*nx+corners8[ci9+1]*nx+corners8[ci9];\n                  if(gz9>=0&&gz9<cutGrid.length&&cutGrid[gz9]) triTool=cutGrid[gz9];\n                }\n              }\n            }\n            triColorsOut.push(triTool);\n          }\n        }\n      }\n      if(miz%50===0) self.postMessage({type:'progress', pct:50+Math.round(miz/(nz-1)*50)});\n    }\n\n    // Transfer as Float32Array / Int32Array for zero-copy\n    var vertsF  = new Float32Array(vertsOut);\n    var normsF  = new Float32Array(normsOut);\n    var colorsI = new Int32Array(triColorsOut);\n\n    self.postMessage({\n      type: 'done',\n      verts:  vertsF.buffer,\n      norms:  normsF.buffer,\n      colors: colorsI.buffer\n    }, [vertsF.buffer, normsF.buffer, colorsI.buffer]);\n  }\n};";
+var REFINE_WORKER_CODE = "'use strict';\nvar MC_EDGE_TABLE = new Int32Array([0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90, 0x230, 0x339, 0x33, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30, 0x3a0, 0x2a9, 0x1a3, 0xaa, 0x7a6, 0x6af, 0x5a5, 0x4ac, 0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0, 0x460, 0x569, 0x663, 0x76a, 0x66, 0x16f, 0x265, 0x36c, 0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60, 0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0xff, 0x3f5, 0x2fc, 0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0, 0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x55, 0x15c, 0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950, 0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0xcc, 0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0, 0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc, 0xcc, 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0, 0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c, 0x15c, 0x55, 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650, 0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc, 0x2fc, 0x3f5, 0xff, 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0, 0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c, 0x36c, 0x265, 0x16f, 0x66, 0x76a, 0x663, 0x569, 0x460, 0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac, 0x4ac, 0x5a5, 0x6af, 0x7a6, 0xaa, 0x1a3, 0x2a9, 0x3a0, 0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c, 0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x33, 0x339, 0x230, 0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c, 0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99, 0x190, 0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0]);\nvar MC_TRI_TABLE = new Int32Array([- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 9, 8, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 0, 2, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 8, 3, 2, 10, 8, 10, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 8, 11, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 2, 1, 9, 11, 9, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 1, 11, 10, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 10, 1, 0, 8, 10, 8, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 9, 0, 3, 11, 9, 11, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 7, 3, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 1, 9, 4, 7, 1, 7, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 4, 7, 3, 0, 4, 1, 2, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 2, 10, 9, 0, 2, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 8, 4, 7, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 4, 7, 11, 2, 4, 2, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 8, 4, 7, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, - 1, - 1, - 1, - 1, 3, 10, 1, 3, 11, 10, 7, 8, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, - 1, - 1, - 1, - 1, 4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 4, 7, 11, 4, 11, 9, 9, 11, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 1, 5, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 5, 4, 8, 3, 5, 3, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 10, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 2, 10, 5, 4, 2, 4, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, - 1, - 1, - 1, - 1, 9, 5, 4, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 11, 2, 0, 8, 11, 4, 9, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 5, 4, 0, 1, 5, 2, 3, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, - 1, - 1, - 1, - 1, 10, 3, 11, 10, 1, 3, 9, 5, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, - 1, - 1, - 1, - 1, 5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, - 1, - 1, - 1, - 1, 5, 4, 8, 5, 8, 10, 10, 8, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 5, 7, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 3, 0, 9, 5, 3, 5, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 8, 0, 1, 7, 1, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 7, 8, 9, 5, 7, 10, 1, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, - 1, - 1, - 1, - 1, 8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, - 1, - 1, - 1, - 1, 2, 10, 5, 2, 5, 3, 3, 5, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 9, 5, 7, 8, 9, 3, 11, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, - 1, - 1, - 1, - 1, 11, 2, 1, 11, 1, 7, 7, 1, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, - 1, - 1, - 1, - 1, 5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, - 1, 11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, - 1, 11, 10, 5, 7, 11, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 8, 3, 1, 9, 8, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 2, 6, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 5, 1, 2, 6, 3, 0, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 6, 5, 9, 0, 6, 0, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 0, 8, 11, 2, 0, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, - 1, - 1, - 1, - 1, 6, 3, 11, 6, 5, 3, 5, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, - 1, - 1, - 1, - 1, 6, 5, 9, 6, 9, 11, 11, 9, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 3, 0, 4, 7, 3, 6, 5, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 5, 10, 6, 8, 4, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, - 1, - 1, - 1, - 1, 6, 1, 2, 6, 5, 1, 4, 7, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, - 1, - 1, - 1, - 1, 8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, - 1, - 1, - 1, - 1, 7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, - 1, 3, 11, 2, 7, 8, 4, 10, 6, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, - 1, - 1, - 1, - 1, 0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, - 1, - 1, - 1, - 1, 9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, - 1, 8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, - 1, - 1, - 1, - 1, 5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, - 1, 0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, - 1, 6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, - 1, - 1, - 1, - 1, 10, 4, 9, 6, 4, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 10, 6, 4, 9, 10, 0, 8, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 0, 1, 10, 6, 0, 6, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 1, 4, 9, 1, 2, 4, 2, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, - 1, - 1, - 1, - 1, 0, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 3, 2, 8, 2, 4, 4, 2, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 4, 9, 10, 6, 4, 11, 2, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, - 1, - 1, - 1, - 1, 3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, - 1, - 1, - 1, - 1, 6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, - 1, 9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, - 1, - 1, - 1, - 1, 8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, - 1, 3, 11, 6, 3, 6, 0, 0, 6, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 4, 8, 11, 6, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 10, 6, 7, 8, 10, 8, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, - 1, - 1, - 1, - 1, 10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, - 1, - 1, - 1, - 1, 10, 6, 7, 10, 7, 1, 1, 7, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, - 1, 7, 8, 0, 7, 0, 6, 6, 0, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 3, 2, 6, 7, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, - 1, - 1, - 1, - 1, 2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, - 1, 1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, - 1, 11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, - 1, - 1, - 1, - 1, 8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, - 1, 0, 9, 1, 11, 6, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, - 1, - 1, - 1, - 1, 7, 11, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 8, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 9, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 9, 8, 3, 1, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 1, 2, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 8, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 9, 0, 2, 10, 9, 6, 11, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, - 1, - 1, - 1, - 1, 7, 2, 3, 6, 2, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 7, 0, 8, 7, 6, 0, 6, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 7, 6, 2, 3, 7, 0, 1, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, - 1, - 1, - 1, - 1, 10, 7, 6, 10, 1, 7, 1, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, - 1, - 1, - 1, - 1, 0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, - 1, - 1, - 1, - 1, 7, 6, 10, 7, 10, 8, 8, 10, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 8, 4, 11, 8, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 3, 0, 6, 0, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 6, 11, 8, 4, 6, 9, 0, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, - 1, - 1, - 1, - 1, 6, 8, 4, 6, 11, 8, 2, 10, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, - 1, - 1, - 1, - 1, 4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, - 1, - 1, - 1, - 1, 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, - 1, 8, 2, 3, 8, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 2, 4, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, - 1, - 1, - 1, - 1, 1, 9, 4, 1, 4, 2, 2, 4, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, - 1, - 1, - 1, - 1, 10, 1, 0, 10, 0, 6, 6, 0, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, - 1, 10, 9, 4, 6, 10, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 5, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 5, 11, 7, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 1, 5, 4, 0, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, - 1, - 1, - 1, - 1, 9, 5, 4, 10, 1, 2, 7, 6, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, - 1, - 1, - 1, - 1, 7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, - 1, - 1, - 1, - 1, 3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, - 1, 7, 2, 3, 7, 6, 2, 5, 4, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, - 1, - 1, - 1, - 1, 3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, - 1, - 1, - 1, - 1, 6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, - 1, 9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, - 1, - 1, - 1, - 1, 1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, - 1, 4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, - 1, 7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, - 1, - 1, - 1, - 1, 6, 9, 5, 6, 11, 9, 11, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, - 1, - 1, - 1, - 1, 0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, - 1, - 1, - 1, - 1, 6, 11, 3, 6, 3, 5, 5, 3, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, - 1, - 1, - 1, - 1, 0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, - 1, 11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, - 1, 6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, - 1, - 1, - 1, - 1, 5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, - 1, - 1, - 1, - 1, 9, 5, 6, 9, 6, 0, 0, 6, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, - 1, 1, 5, 6, 2, 1, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, - 1, 10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, - 1, - 1, - 1, - 1, 0, 3, 8, 5, 6, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 5, 6, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 7, 5, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 5, 10, 11, 7, 5, 8, 3, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 11, 7, 5, 10, 11, 1, 9, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, - 1, - 1, - 1, - 1, 11, 1, 2, 11, 7, 1, 7, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, - 1, - 1, - 1, - 1, 9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, - 1, - 1, - 1, - 1, 7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, - 1, 2, 5, 10, 2, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, - 1, - 1, - 1, - 1, 9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, - 1, - 1, - 1, - 1, 9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, - 1, 1, 3, 5, 3, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 7, 0, 7, 1, 1, 7, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 0, 3, 9, 3, 5, 5, 3, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 8, 7, 5, 9, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 8, 4, 5, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, - 1, - 1, - 1, - 1, 0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, - 1, - 1, - 1, - 1, 10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, - 1, 2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, - 1, - 1, - 1, - 1, 0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, - 1, 0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, - 1, 9, 4, 5, 2, 11, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, - 1, - 1, - 1, - 1, 5, 10, 2, 5, 2, 4, 4, 2, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, - 1, 5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 3, 5, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 4, 5, 1, 0, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, - 1, - 1, - 1, - 1, 9, 4, 5, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 11, 7, 4, 9, 11, 9, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, - 1, - 1, - 1, - 1, 1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, - 1, - 1, - 1, - 1, 3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, - 1, 4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, - 1, - 1, - 1, - 1, 9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, - 1, 11, 7, 4, 11, 4, 2, 2, 4, 0, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, - 1, - 1, - 1, - 1, 2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, - 1, - 1, - 1, - 1, 9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, - 1, 3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, - 1, 1, 10, 2, 8, 7, 4, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 7, 1, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, - 1, - 1, - 1, - 1, 4, 0, 3, 7, 4, 3, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 4, 8, 7, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 8, 10, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 11, 9, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 1, 10, 0, 10, 8, 8, 10, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 1, 10, 11, 3, 10, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 2, 11, 1, 11, 9, 9, 11, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, - 1, - 1, - 1, - 1, 0, 2, 11, 8, 0, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 3, 2, 11, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 10, 8, 9, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 9, 10, 2, 0, 9, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, - 1, - 1, - 1, - 1, 1, 10, 2, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 1, 3, 8, 9, 1, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 9, 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 0, 3, 8, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1]);\n\nself.onmessage = function(e){\n  var d = e.data;\n  var type = d.type;\n\n  if(type === 'refine'){\n    var min = d.min, max = d.max;\n    var nx = d.nx, ny = d.ny, nz = d.nz;\n    var dx = d.dx, dy = d.dy, dz = d.dz;\n    var subArr = d.subArr;    // array of segment objects\n    var vxCut  = new Uint8Array(d.vxCut);   // low-res cut grid\n    var vxNx = d.vxNx, vxNy = d.vxNy, vxNz = d.vxNz;\n    var vxOx = d.vxOx, vxOy = d.vxOy, vxOz = d.vxOz;\n    var vxDx = d.vxDx, vxDy = d.vxDy, vxDz = d.vxDz;\n    var blkCyl = d.blkCyl || null;\n    var tools  = d.tools;  // {T: {R, R2, T_ANGLE, LCUTS}} map\n\n    // \u2500\u2500 Phase 1: init grid \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var grid    = new Uint8Array(nx*ny*nz);\n    var cutGrid = new Uint8Array(nx*ny*nz);\n\n    // Pre-populate cutGrid from low-res\n    for(var piz=0;piz<nz;piz++) for(var piy=0;piy<ny;piy++) for(var pix=0;pix<nx;pix++){\n      var wx=min.x+pix*dx, wy=min.y+piy*dy, wz=min.z+piz*dz;\n      var vi=Math.round((wx-vxOx)/vxDx), vj=Math.round((wy-vxOy)/vxDy), vk=Math.round((wz-vxOz)/vxDz);\n      if(vi>=0&&vi<vxNx&&vj>=0&&vj<vxNy&&vk>=0&&vk<vxNz){\n        var cv=vxCut[vk*vxNy*vxNx+vj*vxNx+vi];\n        if(cv) cutGrid[piz*ny*nx+piy*nx+pix]=cv;\n      }\n    }\n\n    // Init solid/air grid\n    for(var iz=0;iz<nz;iz++) for(var iy=0;iy<ny;iy++) for(var ix=0;ix<nx;ix++){\n      var border=(ix===0||ix===nx-1||iy===0||iy===ny-1||iz===0||iz===nz-1);\n      var inShape=true;\n      if(!border && blkCyl){\n        var rwx=min.x+ix*dx, rwy=min.y+iy*dy;\n        var rddx=rwx-blkCyl.cx, rddy=rwy-blkCyl.cy;\n        inShape=(rddx*rddx+rddy*rddy)<=(blkCyl.r-dx)*(blkCyl.r-dx);\n      }\n      grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;\n    }\n    self.postMessage({type:'progress', pct:10});\n\n    // \u2500\u2500 Phase 2: apply cuts \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var nSub = subArr.length;\n    for(var si=0;si<nSub;si++){\n      var sm = subArr[si];\n      if(sm.rapid) continue;\n      var tnum = sm.toolNum||1;\n      var _ct = tools[tnum] || null;\n      var _isDrill = _ct && _ct.TYPE==='DRILL';\n      var _isMillT = _ct && (_ct.TYPE==='MILL' || !_ct.TYPE);\n      var _dlOv = _ct ? (_ct.DL||0) : 0;\n      var _drOv = _isMillT ? (_ct.DR||0) : 0;\n      var toolR = _ct ? (_ct.R + _drOv) : 5;\n      var r2base = toolR*toolR;\n      var _isBall  = _ct && _ct.R2>0 && _ct.R2>=_ct.R;\n      var _isTorus = _ct && _ct.R2>0 && _ct.R2<_ct.R;\n      var _isCone  = _ct && _ct.T_ANGLE>0 && !(_ct.R2>0);\n      var _ballR2  = (_isBall||_isTorus) ? _ct.R2 : 0;\n      var _ballR2eff = (_isBall||_isTorus) ? (_ct.R2+_drOv) : 0;\n      var _tCore   = _isTorus ? (toolR-_ct.R2) : 0;\n      var _coneHR  = _isCone  ? (_ct.T_ANGLE/2)*Math.PI/180 : 0;\n      var _lcuts   = _ct ? (_ct.LCUTS||99999) : 99999;\n\n      // scan range\n      var scanR = toolR;\n      if(_isCone && !_isDrill){ var _coneMaxS=(_lcuts||9999)*Math.tan(_coneHR); scanR=Math.max(toolR,_coneMaxS); }\n      var segLen = sm.len || 0;\n      var steps = Math.max(2, Math.ceil(segLen/Math.min(dx,dy)*1.5));\n\n      for(var st=0;st<=steps;st++){\n        var t=st/steps;\n        var tx=sm.from.x+(sm.to.x-sm.from.x)*t;\n        var ty=sm.from.y+(sm.to.y-sm.from.y)*t;\n        var tz=sm.from.z+(sm.to.z-sm.from.z)*t + _dlOv;\n        if(tz>max.z) continue;\n\n        var ixMin=Math.max(0,Math.floor((tx-scanR-min.x)/dx)-1);\n        var ixMax=Math.min(nx-1,Math.ceil((tx+scanR-min.x)/dx)+1);\n        var iyMin=Math.max(0,Math.floor((ty-scanR-min.y)/dy)-1);\n        var iyMax=Math.min(ny-1,Math.ceil((ty+scanR-min.y)/dy)+1);\n        var izMin=Math.max(0,Math.floor((tz-min.z)/dz)-1);\n\n        for(var vz=izMin;vz<nz;vz++){\n          var pz=min.z+vz*dz; if(pz<tz-dz*0.5) continue;\n          var _dzRef=pz-tz;\n          var effR2=r2base;\n          if(_isBall && _dzRef<_ballR2){\n            var _frac=_dzRef/_ballR2;\n            var _eR=_ballR2eff*Math.sqrt(Math.max(0,1-(1-_frac)*(1-_frac)));\n            effR2=_eR*_eR;\n          } else if(_isTorus && _dzRef<_ballR2){\n            var _eRt=_tCore+Math.sqrt(Math.max(0,_ballR2*_ballR2-(_ballR2-_dzRef)*(_ballR2-_dzRef)));\n            effR2=_eRt*_eRt;\n          } else if(_isCone){\n            if(_isDrill){\n              var _eR2=Math.min(toolR,_dzRef*Math.tan(_coneHR));\n              effR2=_eR2*_eR2;\n            } else {\n              var _coneCapW=(_lcuts||9999)*Math.tan(_coneHR);\n              var _eR2b=Math.min(_coneCapW,toolR+_dzRef*Math.tan(_coneHR));\n              effR2=_eR2b*_eR2b;\n            }\n          }\n          var colorVal=(_dzRef<=_lcuts)?(tnum||1):255;\n          for(var vy=iyMin;vy<=iyMax;vy++){\n            var py=min.y+vy*dy;\n            for(var vx2=ixMin;vx2<=ixMax;vx2++){\n              var px=min.x+vx2*dx;\n              var ddx=px-tx,ddy=py-ty;\n              if(ddx*ddx+ddy*ddy<=effR2){\n                var gi2=vz*ny*nx+vy*nx+vx2;\n                if(grid[gi2]){ grid[gi2]=0; cutGrid[gi2]=colorVal; }\n              }\n            }\n          }\n        }\n      }\n      if(si%50===0) self.postMessage({type:'progress', pct:10+Math.round(si/nSub*40)});\n    }\n    self.postMessage({type:'progress', pct:50});\n\n    // \u2500\u2500 Phase 3: Marching Cubes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    var vertsOut=[], normsOut=[], triColorsOut=[];\n\n    function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){\n      if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}\n      var t=(iso-v1)/(v2-v1);\n      out[0]=p1x+t*(p2x-p1x);out[1]=p1y+t*(p2y-p1y);out[2]=p1z+t*(p2z-p1z);\n    }\n\n    var iso=0.5;\n    var ep=[];\n    for(var ei=0;ei<12;ei++) ep.push([0,0,0]);\n    var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];\n\n    for(var miz=0;miz<nz-1;miz++){\n      for(var miy=0;miy<ny-1;miy++){\n        for(var mix=0;mix<nx-1;mix++){\n          var x0=min.x+mix*dx,y0=min.y+miy*dy,z0=min.z+miz*dz;\n          var x1=x0+dx,y1=y0+dy,z1=z0+dz;\n          var g=function(a,b,c){ return grid[c*ny*nx+b*nx+a]||0; };\n          var cv=[g(mix,miy,miz),g(mix+1,miy,miz),g(mix+1,miy+1,miz),g(mix,miy+1,miz),\n                  g(mix,miy,miz+1),g(mix+1,miy,miz+1),g(mix+1,miy+1,miz+1),g(mix,miy+1,miz+1)];\n          var ci=0;\n          if(cv[0]>iso)ci|=1;if(cv[1]>iso)ci|=2;if(cv[2]>iso)ci|=4;if(cv[3]>iso)ci|=8;\n          if(cv[4]>iso)ci|=16;if(cv[5]>iso)ci|=32;if(cv[6]>iso)ci|=64;if(cv[7]>iso)ci|=128;\n          if(ci===0||ci===255) continue;\n          var et=MC_EDGE_TABLE[ci];\n          var cx2=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],\n                   [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];\n          for(var e=0;e<12;e++){\n            if(et&(1<<e)){\n              var ea=edges[e][0],eb=edges[e][1];\n              vInterp(iso,cx2[ea][0],cx2[ea][1],cx2[ea][2],cv[ea],\n                          cx2[eb][0],cx2[eb][1],cx2[eb][2],cv[eb],ep[e]);\n            }\n          }\n          var triBase=ci*16;\n          for(var ti=0;ti<15;ti+=3){\n            if(MC_TRI_TABLE[triBase+ti]<0) break;\n            var pa=ep[MC_TRI_TABLE[triBase+ti]];\n            var pb=ep[MC_TRI_TABLE[triBase+ti+1]];\n            var pc=ep[MC_TRI_TABLE[triBase+ti+2]];\n            // normal\n            var ax=pb[0]-pa[0],ay=pb[1]-pa[1],az=pb[2]-pa[2];\n            var bx=pc[0]-pa[0],by=pc[1]-pa[1],bz=pc[2]-pa[2];\n            var nnx=ay*bz-az*by,nny=az*bx-ax*bz,nnz=ax*by-ay*bx;\n            var nl=Math.sqrt(nnx*nnx+nny*nny+nnz*nnz)||1;\n            nnx/=nl;nny/=nl;nnz/=nl;\n            vertsOut.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);\n            normsOut.push(nnx,nny,nnz,nnx,nny,nnz,nnx,nny,nnz);\n            // color from cutGrid corners\n            var triTool=0;\n            var corners8=[mix,miy,miz, mix+1,miy,miz, mix+1,miy+1,miz, mix,miy+1,miz,\n                           mix,miy,miz+1, mix+1,miy,miz+1, mix+1,miy+1,miz+1, mix,miy+1,miz+1];\n            for(var ci8=0;ci8<24&&!triTool;ci8+=3){\n              var gv8=corners8[ci8+2]*ny*nx+corners8[ci8+1]*nx+corners8[ci8];\n              if(cutGrid[gv8]) triTool=cutGrid[gv8];\n            }\n            if(!triTool){\n              for(var dz3=-1;dz3<=2&&!triTool;dz3++){\n                for(var ci9=0;ci9<24&&!triTool;ci9+=3){\n                  var gz9=(corners8[ci9+2]+dz3)*ny*nx+corners8[ci9+1]*nx+corners8[ci9];\n                  if(gz9>=0&&gz9<cutGrid.length&&cutGrid[gz9]) triTool=cutGrid[gz9];\n                }\n              }\n            }\n            triColorsOut.push(triTool);\n          }\n        }\n      }\n      if(miz%50===0) self.postMessage({type:'progress', pct:50+Math.round(miz/(nz-1)*50)});\n    }\n\n    // Transfer as Float32Array / Int32Array for zero-copy\n    var vertsF  = new Float32Array(vertsOut);\n    var normsF  = new Float32Array(normsOut);\n    var colorsI = new Int32Array(triColorsOut);\n\n    self.postMessage({\n      type: 'done',\n      verts:  vertsF.buffer,\n      norms:  normsF.buffer,\n      colors: colorsI.buffer\n    }, [vertsF.buffer, normsF.buffer, colorsI.buffer]);\n  }\n};";
 
 var _refineWorker = null;
 
@@ -6058,7 +6170,7 @@ function triggerRefine(){
 
   // Build tools map
   var toolsMap = {};
-  toolLibrary.forEach(function(t){ if(t&&t.T) toolsMap[t.T]={R:t.R||5,R2:t.R2||0,T_ANGLE:t.T_ANGLE||0,LCUTS:t.LCUTS||99999,DL:(t._dlOverride!==undefined?t._dlOverride:(t.DL||0)),DR:(t._drOverride!==undefined?t._drOverride:(t.DR||0))}; });
+  toolLibrary.forEach(function(t){ if(t&&t.T) toolsMap[t.T]={TYPE:(t.TYPE||inferToolType(t)),R:t.R||5,R2:t.R2||0,T_ANGLE:t.T_ANGLE||0,LCUTS:t.LCUTS||99999,DL:(t._dlOverride!==undefined?t._dlOverride:(t.DL||0)),DR:(t._drOverride!==undefined?t._drOverride:(t.DR||0))}; });
 
   // Serialize sub[] — only what worker needs
   var executedCount = (mode==='idle'||mode==='done') ? (subIndex>0?subIndex:sub.length) : subIndex;
@@ -6643,8 +6755,11 @@ function buildToolMesh(){
   var shaftColor = getToolColor3(activeToolNum);
 
   // Update global TOOL_R
-  // DL/DR compensation
+  // DL/DR compensation — DR doesn't reshape DRILL (no meaning) or COUNTERSINK
+  // (already fully spent on path offset elsewhere — see vxCut shape-building) tools.
+  var _ttypeMesh = t ? inferToolType(t) : 'MILL';
   var DR = t ? (t._drOverride !== undefined ? t._drOverride : (t.DR||0)) : 0;
+  if(_ttypeMesh!=='MILL') DR = 0;
   var DL = t ? (t._dlOverride !== undefined ? t._dlOverride : (t.DL||0)) : 0;
   TOOL_R = Math.max(0.1, R + DR);
   var Rcomp = TOOL_R;
@@ -6694,19 +6809,43 @@ function buildToolMesh(){
     }
 
   } else if(TANGLE > 0 && TANGLE <= 180){
-    // Conical tip (drill, countersink, center drill).
-    // PHYSICAL cone: width is defined by angle + cutting-edge height (LCUTS),
-    // NOT by Rcomp (which is just the tip reference offset R+DR).
     var halfAngleRad = (TANGLE/2) * Math.PI/180;
-    var coneH = LCUTS;                                  // cutting cone height = cutting edge length
-    var coneMaxR = coneH * Math.tan(halfAngleRad);      // physical max radius at top of cutting edge
-    coneMaxR = Math.max(coneMaxR, 0.2);
+    if(_ttypeMesh==='DRILL'){
+      // Drill / reamer / center drill: point widens from the tip up to the tool's
+      // REAL radius R (Rcomp, no DR), then a cylindrical body up to LCUTS (flute length).
+      var pointDepth = Math.min(LCUTS, Math.max(0.05, Rcomp / Math.tan(halfAngleRad)));
+      var coneGeoD = new THREE.CylinderGeometry(Rcomp, 0, pointDepth, seg);
+      coneGeoD.rotateX(Math.PI/2);
+      coneGeoD.translate(0, 0, pointDepth/2);
+      toolGroup.add(new THREE.Mesh(coneGeoD, cuttingMat));
 
-    // Cone — tip at Z=0 (radius 0), base at Z=coneH (radius coneMaxR)
-    var coneGeo = new THREE.CylinderGeometry(coneMaxR, 0, coneH, seg);
-    coneGeo.rotateX(Math.PI/2);
-    coneGeo.translate(0, 0, coneH/2);
-    toolGroup.add(new THREE.Mesh(coneGeo, cuttingMat));
+      var bodyLen4 = LCUTS - pointDepth;
+      if(bodyLen4 > 0.05){
+        var bodyGeo4 = new THREE.CylinderGeometry(Rcomp, Rcomp, bodyLen4, seg);
+        bodyGeo4.rotateX(Math.PI/2);
+        bodyGeo4.translate(0, 0, pointDepth + bodyLen4/2);
+        toolGroup.add(new THREE.Mesh(bodyGeo4, cuttingMat));
+      }
+    } else {
+      // Countersink / chamfer: Rcomp (R+DR) is the tool's OWN tip radius — ≈0 for
+      // a sharp point, or a real value for a flat/truncated tip (frustum). The cone
+      // surface starts at Rcomp and widens upward; PHYSICAL max diameter is defined
+      // by angle + cutting-edge height (LCUTS), independent of Rcomp.
+      var coneH = LCUTS;                                  // cutting cone height = cutting edge length
+      var coneMaxR = coneH * Math.tan(halfAngleRad);      // physical max radius at top of cutting edge
+      coneMaxR = Math.max(coneMaxR, 0.2, Rcomp + 0.05);
+
+      // Physical (visible) height: the flat tip is already "buried" apexOffset
+      // above the imaginary sharp apex, so less height remains to reach coneMaxR.
+      var apexOffset = Rcomp / Math.tan(halfAngleRad);
+      var frustumH = Math.max(0.15, coneH - apexOffset);
+
+      // Frustum — flat tip (radius Rcomp) at Z=0, full width (coneMaxR) at Z=frustumH
+      var coneGeo = new THREE.CylinderGeometry(coneMaxR, Rcomp, frustumH, seg);
+      coneGeo.rotateX(Math.PI/2);
+      coneGeo.translate(0, 0, frustumH/2);
+      toolGroup.add(new THREE.Mesh(coneGeo, cuttingMat));
+    }
 
   } else {
     // Flat end mill — closed cylinder (caps included)
@@ -6829,7 +6968,15 @@ function commitSeg(sm){
       var _ct = getToolByNum(currentToolNum);
       // Apply DL (length offset): negative DL = tool cuts deeper
       var _dl = _ct ? ((_ct._dlOverride !== undefined ? _ct._dlOverride : (_ct.DL||0))) : 0;
-      var _dr = _ct ? ((_ct._drOverride !== undefined ? _ct._drOverride : (_ct.DR||0))) : 0;
+      var _drRaw = _ct ? ((_ct._drOverride !== undefined ? _ct._drOverride : (_ct.DR||0))) : 0;
+      var _ttype = _ct ? inferToolType(_ct) : 'MILL';
+      // DR never reshapes the actual cut for DRILL (no real-machine meaning) or
+      // COUNTERSINK (DR is already fully accounted for by the path offset —
+      // RL/RR via offsetRun(), CYCL DEF 208's _cycleR — re-adding it here would
+      // double-count it and make the cut wider than intended). Only a MILL
+      // (flat/ball/torus) tool's DR genuinely changes the physical cut radius
+      // (wear/oversize compensation).
+      var _dr = (_ttype==='MILL') ? _drRaw : 0;
       var _shape = null;
       var _lcuts = _ct ? (_ct.LCUTS||(_ct.R*999)) : TOOL_R*999;
       if(_ct && _ct.R2 > 0 && _ct.R2 < _ct.R){
@@ -6837,7 +6984,7 @@ function commitSeg(sm){
       } else if(_ct && _ct.R2 > 0 && _ct.R2 >= _ct.R){
         _shape = {type:'ball', r2:Math.max(0.01, _ct.R2 + _dr), r2orig:_ct.R2, lcuts:_lcuts};
       } else if(_ct && _ct.T_ANGLE > 0){
-        _shape = {type:'cone', angle:_ct.T_ANGLE, lcuts:_lcuts};
+        _shape = {type:'cone', angle:_ct.T_ANGLE, mode:(_ttype==='DRILL'?'drill':'countersink'), lcuts:_lcuts};
       } else {
         _shape = {type:'flat', lcuts:_lcuts};
       }
