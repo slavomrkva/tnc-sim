@@ -125,13 +125,14 @@ app (repo `tnc-sim-android`) bundles its own copy of the files — a SW-cached
 old `index.html` would keep being served after an app update and mask it. Keep
 the gate; never copy `service-worker.js` into the app's `www/`.
 
-### 9. Offline 3D depends on precaching the CDN scripts
-Three.js loads from jsDelivr. Plain runtime caching missed it (no-cors →
-opaque response → status 0, which a `status===200` check rejects). So
-`service-worker.js` lists both CDN URLs in `PRECACHE_URLS` and accepts opaque
-responses in its fetch handler. If you bump the Three.js version in
-`index.html`, update the two CDN URLs in `service-worker.js` too, and bump
-`CACHE_VERSION`.
+### 9. Three.js is vendored in `vendor/` — keep SW precache in sync
+Three.js r128 + OrbitControls live in `vendor/` (no CDN dependency — required
+for offline 3D on the web and inside the Android app bundle; also rule #7).
+`index.html` references them with *relative* paths (`vendor/three.min.js`) so
+they also work when the file is opened via `file://` and inside Capacitor.
+If you ever upgrade Three.js: replace both files in `vendor/`, keep the
+`PRECACHE_URLS` list in `service-worker.js` in sync, bump `CACHE_VERSION`,
+and sync `vendor/` into the Android repo's `www/` as well.
 
 ---
 
@@ -152,6 +153,11 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.803 — Vendored Three.js r128 + OrbitControls into `vendor/` and switched
+  `index.html` to relative local script paths (was jsDelivr CDN). Removes the
+  external runtime dependency (rule #7), makes 3D work offline in the Android
+  app bundle from first launch, and simplifies SW caching (v3: precaches
+  `/vendor/*` instead of CDN URLs). See rule #9.
 - v0.802 — Actually implemented `APP_VERSION` single-sourcing in `index.html`
   (v0.801 documented it but the code still had hard-coded "v0.8" strings);
   About popup now shows the version at the bottom. Service worker v2: precache
