@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">TNC Sim</string>
-    <string name="title_activity_main">TNC Sim</string>
-    <string name="package_name">org.tncsim.twa</string>
-    <string name="custom_url_scheme">org.tncsim.twa</string>
-</resources>
