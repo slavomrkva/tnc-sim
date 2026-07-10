@@ -119,13 +119,28 @@ The web app must keep working offline via the service worker. Don't add hard
 dependencies on external runtime services for core features (editor, 3D, lessons
 all run client-side).
 
+### 8. Service worker: web only, never in the Capacitor app
+SW registration in `index.html` is gated with `!window.Capacitor`. The Android
+app (repo `tnc-sim-android`) bundles its own copy of the files — a SW-cached
+old `index.html` would keep being served after an app update and mask it. Keep
+the gate; never copy `service-worker.js` into the app's `www/`.
+
+### 9. Offline 3D depends on precaching the CDN scripts
+Three.js loads from jsDelivr. Plain runtime caching missed it (no-cors →
+opaque response → status 0, which a `status===200` check rejects). So
+`service-worker.js` lists both CDN URLs in `PRECACHE_URLS` and accepts opaque
+responses in its fetch handler. If you bump the Three.js version in
+`index.html`, update the two CDN URLs in `service-worker.js` too, and bump
+`CACHE_VERSION`.
+
 ---
 
 ## Deploy flow
 Edit `index.html` -> commit -> push to GitHub -> Cloudflare Pages auto-deploys ->
-service worker updates users on their next launch. The Android app (TWA) loads the
-live site, so it updates automatically too (after first launch, which needs
-network once).
+service worker updates web users on their next launch. The Android app
+(Capacitor, repo `tnc-sim-android`) bundles its own copy of `index.html` and
+does NOT auto-update — shipping web changes to the app requires a manual
+sync + rebuild + Play Console release there (see that repo's NOTES.md).
 
 ## Testing checklist before pushing
 - JS parses (no syntax error). Quick check: load in a browser, console clean.
@@ -137,6 +152,13 @@ network once).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.802 — Actually implemented `APP_VERSION` single-sourcing in `index.html`
+  (v0.801 documented it but the code still had hard-coded "v0.8" strings);
+  About popup now shows the version at the bottom. Service worker v2: precache
+  the two Three.js CDN files and accept opaque responses (offline 3D was
+  broken — CDN scripts were never cached), ignoreSearch on navigations,
+  scheme guard. SW registration gated with `!window.Capacitor` (rule #8).
+  Deploy-flow section updated for the Capacitor app (no auto-update).
 - v0.801 — Added NOTES.md project map. Version now single-sourced from
   `APP_VERSION` (feeds header badge, About, bug report). Fixed mobile layout to
   survive "Desktop site" (pointer:coarse + max-device-width clause). Hardened
