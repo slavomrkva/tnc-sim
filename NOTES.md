@@ -98,14 +98,16 @@ The 3D cut is a voxel grid (~1 mm cells on Default). Details finer than a cell
 won't show even at High/after Refine. This is by design; note it, don't "fix" it
 by cranking resolution (memory/perf on mobile).
 
-### 4. Mobile layout must survive "Desktop site"
-Mobile vs desktop is decided by CSS media queries AND JS. "Desktop site" widens
-the viewport and spoofs the UA, which would flip a phone to desktop layout. To
-prevent that, every mobile gate also tests
-`(pointer:coarse) and (max-device-width:500px)` — a real phone can't hide its
-physical screen size or touch pointer. This clause is in ~8 `@media` blocks and in
-`_isMTab()`, `isMob()`, `isMobile()`. If you add a new mobile media query or
-mobile JS check, add the same clause.
+### 4. Layout breakpoint is 1024px (single-column ≤1024, side-by-side >1024)
+Mobile vs desktop layout is decided by `@media(max-width:1024px)` (CSS, ~9
+blocks) and the JS `matchMedia('(max-width:1024px)')` in `_isMTab()` / `isMob()`
+plus `window.innerWidth > 1024` for popup placement. **≤1024px** → single-column
+tabbed layout (Editor/3D/Learn bottom bar) so the 3D sim gets full width;
+**>1024px** → editor-beside-3D. The breakpoint was raised from 700→1024 so
+portrait tablets don't get the cramped side-by-side (the 3D view was too narrow).
+If you add a new layout media query or a JS width check, use 1024px to match.
+(The Android app forces single-column always — see the app repo's NOTES —
+because a tablet running the app would otherwise hit the >1024 desktop layout.)
 
 ### 5. WebGL / 3D can fail on some phones (esp. Xiaomi/HyperOS)
 Renderer creation is wrapped defensively (tiered options; no `high-performance`
@@ -158,6 +160,11 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.804 — Raised the layout breakpoint 700→1024px so tablets (and narrow
+  laptop windows) use the single-column tabbed layout instead of the cramped
+  editor-beside-3D — the 3D simulation now gets full width on tablets. Changed
+  the 9 `@media(max-width:700px)` blocks, the `matchMedia` calls in
+  `_isMTab()`/`isMob()`, and two `innerWidth > 700` popup checks. See rule #4.
 - v0.803 — Vendored Three.js r128 + OrbitControls into `vendor/` and switched
   `index.html` to relative local script paths (was jsDelivr CDN). Removes the
   external runtime dependency (rule #7), makes 3D work offline in the Android

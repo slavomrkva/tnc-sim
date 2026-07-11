@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.804
+- Better layout on tablets: the app now uses the full-width single-column view
+  on tablet-sized screens, so the 3D simulation is no longer cramped.
+
 ## v0.803
 - 3D engine is now bundled with the app — the 3D view loads faster and works
   fully offline (no more loading it from the internet).
