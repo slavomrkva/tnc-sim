@@ -1,11 +1,13 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/favicon.ico',
+  '/favicon-32.png',
   '/icon-192.png',
   '/icon-512.png',
   // Three.js is vendored locally — without these two, offline mode has no 3D engine.

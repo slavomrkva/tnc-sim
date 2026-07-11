@@ -160,6 +160,10 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.805 — Added a browser favicon (`favicon.ico` 16/32/48 + `favicon-32.png`)
+  generated from the app icon; `<link rel="icon">` tags in `<head>`, and both
+  precached by the service worker (cache bumped to v4). Previously the tab had
+  no icon (default /favicon.ico 404'd).
 - v0.804 — Raised the layout breakpoint 700→1024px so tablets (and narrow
   laptop windows) use the single-column tabbed layout instead of the cramped
   editor-beside-3D — the 3D simulation now gets full width on tablets. Changed

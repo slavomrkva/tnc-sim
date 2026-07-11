@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#14b8a6">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>TNC Sim — Free online Heidenhain TNC simulator with lessons</title>
 <meta name="description" content="Free browser-based Heidenhain TNC simulator with 3D toolpath visualization and 15 interactive Klartext programming lessons — from the basics to full contours and cycles. Works on desktop and mobile. No installation, open source.">
@@ -1043,7 +1046,7 @@ END PGM PROGRAM MM</textarea>
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.804';
+var APP_VERSION = '0.805';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
