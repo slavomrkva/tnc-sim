@@ -7,6 +7,11 @@
 > to the Changelog at the bottom, and update any section your change affects) and
 > **bump `APP_VERSION`** — see "Versioning" below. Keep entries short.
 >
+> **Also: if the change is user-visible or otherwise important, add a short
+> user-facing line to `RELEASE_NOTES.md`** under the current `APP_VERSION`.
+> `NOTES.md` Changelog = detailed technical log; `RELEASE_NOTES.md` = the short
+> history a user would care about. Purely internal tweaks go only in NOTES.md.
+>
 > **If you discover a new non-obvious pitfall, a bug caused by a subtle behaviour,
 > or something that could easily be broken by a future edit, ADD IT as a new
 > numbered rule under "NON-OBVIOUS RULES" below.** These rules are how the project
