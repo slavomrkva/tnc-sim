@@ -58,47 +58,99 @@
   --mono:'JetBrains Mono',monospace; --sans:'Syne',sans-serif; --radius:8px;
   --editor-fs:12px;
 }
+/* ── LIGHT THEME — high-contrast: dark chrome (header/toolbars/panels) over a
+   light content area, with a pure-white editor. Not a "day/brightness" mode. ── */
 html[data-theme="light"]{
-  --bg:#e4ddd2; --surface:#ffffff; --surface2:#e8e2d8; --border:#c2b6a6;
-  --accent:#0b7d72; --accent2:#0f6b47; --accent3:#1a56b0; --accent-warm:#c96410;
-  --accent-rgb:11,125,114;
-  --key-pale:#efe9df;
-  --text:#120e0a; --text2:#3a3128; --text3:#665849;
+  /* light content context (main area, editor, cards, modals) */
+  --bg:#eef0f3; --surface:#ffffff; --surface2:#e3e6ed; --border:#c7cbd6;
+  --accent:#14b8a6; --accent2:#0f9d76; --accent3:#1558d4; --accent-warm:#c96410;
+  --accent-rgb:20,184,166;
+  --key-pale:#e3e6ed;
+  --text:#171a20; --text2:#454c5c; --text3:#5c6373;
+  --stage:#c7cdd8;
 }
-/* Buttons that rely on a transparent/none background read as washed-out on a
-   light page (no fill, only a faint border) — give the common interactive
-   classes a visible fill in light mode. Colored action buttons (Run/Stop/...)
-   layer their own background on top via a second class, so this doesn't
-   wash those out. */
+/* Dark chrome regions: re-scope the tokens here so every descendant (text,
+   borders, button fills) automatically flips to the light-on-dark palette. */
+html[data-theme="light"] header,
+html[data-theme="light"] .toolbar,
+html[data-theme="light"] .panel-header,
+html[data-theme="light"] .view-tabs,
+html[data-theme="light"] .status-bar,
+html[data-theme="light"] .ctx-panel,
+html[data-theme="light"] .keypad,
+html[data-theme="light"] .mtab-bar{
+  background:#1b1f27 !important;
+  color:#e8ebf1;
+  --surface:#2d3341; --surface2:#2d3341; --key-pale:#262b34;
+  --border:#333a45;
+  --text:#e8ebf1; --text2:#c2c8d2; --text3:#98a1b0;
+}
+/* Contrast rule: interactive elements get a visible filled background on the
+   dark chrome (base styles use transparent/none). */
 html[data-theme="light"] .btn,
+html[data-theme="light"] .ph-btn,
 html[data-theme="light"] .tool-act-btn,
 html[data-theme="light"] #themeToggle,
 html[data-theme="light"] #aboutBtn{
-  background:var(--surface2);
+  background:#2d3341; color:#e8ebf1; border-color:#3a4150;
 }
 html[data-theme="light"] .btn:hover,
-html[data-theme="light"] .tool-act-btn:hover{
-  background:var(--border);
-}
-html[data-theme="light"] .btn-run{background:rgba(15,107,71,.14);}
-html[data-theme="light"] .btn-run:hover{background:var(--accent2);color:#fff;}
-html[data-theme="light"] .btn-step{background:rgba(26,86,176,.14);}
-html[data-theme="light"] .btn-step:hover{background:var(--accent3);color:#fff;}
-html[data-theme="light"] .btn-stop{background:rgba(200,45,45,.14);color:#c82d2d;border-color:#c82d2d;}
-html[data-theme="light"] .btn-stop:hover{background:#c82d2d;color:#fff;}
-html[data-theme="light"] .btn-reset{background:var(--surface2);}
-html[data-theme="light"] .btn-reset:hover{background:var(--border);}
-/* Floating buttons/panels over the 3D viewport (Measure, Path, Refine, tool
-   legend, measure readout) have a hardcoded dark translucent background
-   meant to float over a dark canvas — flip them to a light translucent fill
-   to match the now-white 3D background. */
+html[data-theme="light"] .ph-btn:hover,
+html[data-theme="light"] .tool-act-btn:hover,
+html[data-theme="light"] #themeToggle:hover,
+html[data-theme="light"] #aboutBtn:hover{ background:#39414f; color:#fff; }
+/* semantic action buttons (Run / Step / Stop / Reset) — filled, readable */
+html[data-theme="light"] .btn-run{ background:#1aa77e; color:#04150f; border-color:transparent; }
+html[data-theme="light"] .btn-run:hover{ background:#22c493; color:#04150f; }
+html[data-theme="light"] .btn-step{ background:#3f83e6; color:#04101f; border-color:transparent; }
+html[data-theme="light"] .btn-step:hover{ background:#5a97f0; color:#04101f; }
+html[data-theme="light"] .btn-stop{ background:#e0574f; color:#1a0402; border-color:transparent; }
+html[data-theme="light"] .btn-stop:hover{ background:#ef6a62; color:#1a0402; }
+html[data-theme="light"] .btn-reset{ background:#2d3341; color:#e8ebf1; border-color:#3a4150; }
+html[data-theme="light"] .btn-reset:hover{ background:#39414f; }
+html[data-theme="light"] .learn-cta{ background:#14b8a6 !important; color:#062420 !important; border-color:#14b8a6 !important; }
+/* segmented toggles (quality Def/High) */
+html[data-theme="light"] .btn-group{ background:#232833; border-color:#333a45; }
+html[data-theme="light"] .btn-group .btn-tog{ color:#c2c8d2; border-right-color:#333a45; }
+html[data-theme="light"] .btn-group .btn-tog:hover{ background:#2d3341; color:#fff; }
+html[data-theme="light"] .btn-group .btn-tog.active{ background:#14b8a6; color:#062420; font-weight:600; }
+/* speed control */
+html[data-theme="light"] .speed-ctrl{ background:#232833; border-color:#333a45; }
+html[data-theme="light"] .speed-btn{ color:#c2c8d2; }
+html[data-theme="light"] .speed-btn:hover{ background:#2d3341; color:#fff; }
+html[data-theme="light"] .speed-val{ color:#6df3dd; border-color:#333a45; }
+/* view tabs (3D view / XY toolpath / Tool Table) */
+html[data-theme="light"] .tab{ background:#232833; color:#98a1b0; }
+html[data-theme="light"] .tab:hover{ color:#c2c8d2; }
+html[data-theme="light"] .tab.active{ background:rgba(20,184,166,.16); color:#6df3dd; border-bottom-color:#14b8a6; }
+/* badges (incl. the "live" badge) */
+html[data-theme="light"] .badge{ background:#2d3341; color:#c2c8d2; border-color:#3a4150; }
+html[data-theme="light"] .badge.green{ background:#0e5148; color:#6df3dd; border-color:transparent; }
+html[data-theme="light"] .badge.blue{ background:#123a6b; color:#84b6ff; border-color:transparent; }
+/* logo text on the dark header */
+html[data-theme="light"] .logo-text{ color:#f2f4f8; }
+html[data-theme="light"] .logo-sub{ color:#98a1b0; }
+/* editor stays pure white; number gutter light */
+html[data-theme="light"] .code-area-wrap{ background:#ffffff; }
+html[data-theme="light"] .line-nums{ background:#e9ebf0; }
+html[data-theme="light"] .line-nums .ln.selected{ border-left-color:#14b8a6; }
+/* 3D stage background (CSS fallback; JS sets the WebGL scene bg to match) */
+html[data-theme="light"] #view3d{ background:var(--stage); }
+/* syntax colours on the white editor (Q-params = info blue) */
+html[data-theme="light"] .syn-comment{color:#2f9e57;}
+html[data-theme="light"] .syn-tool{color:#c2440a;}
+html[data-theme="light"] .syn-lbl{color:#1a52a8;}
+html[data-theme="light"] .syn-qvar{color:#1558d4;}
+html[data-theme="light"] .syn-cycle{color:#8a5a12;}
+/* floating controls over the (light-gray) 3D stage — dark translucent + light text */
 html[data-theme="light"] #pathToggle,
 html[data-theme="light"] #measureBtn,
 html[data-theme="light"] #refineBtnCanvas,
 html[data-theme="light"] #toolLegend,
 html[data-theme="light"] #measureOverlay{
-  background:rgba(255,255,255,0.88) !important;
-  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  background:rgba(27,31,39,0.86) !important;
+  color:#e8ebf1 !important;
+  box-shadow:0 1px 6px rgba(0,0,0,0.18);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%;}
@@ -1046,7 +1098,7 @@ END PGM PROGRAM MM</textarea>
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.805';
+var APP_VERSION = '0.806';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -6229,7 +6281,7 @@ function bufRefresh(buf, partialA, partialB){
 function bufClear(buf){ buf.count=0; buf.geo.setDrawRange(0,0); buf.geo.attributes.position.needsUpdate=true; }
 
 function _scene3dBgColor(){
-  return document.documentElement.getAttribute('data-theme')==='light' ? 0xf5f2ee : 0x100f0d;
+  return document.documentElement.getAttribute('data-theme')==='light' ? 0xc7cdd8 : 0x100f0d;
 }
 function show3DError(msg){
   try{

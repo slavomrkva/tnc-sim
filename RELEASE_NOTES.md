@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.806
+- Reworked light theme: a crisper high-contrast look with dark toolbars, a
+  light workspace, and a pure-white editor.
+
 ## v0.804
 - Better layout on tablets: the app now uses the full-width single-column view
   on tablet-sized screens, so the 3D simulation is no longer cramped.

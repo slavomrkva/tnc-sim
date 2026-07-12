@@ -160,6 +160,14 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.806 — Reworked the light theme into a high-contrast scheme: dark chrome
+  (header/toolbars/panels = #1b1f27) over a light content area (#eef0f3), with a
+  pure-white editor. Implemented by re-scoping the CSS vars (`--surface`,
+  `--text`, `--border`…) inside the chrome containers so descendants flip to
+  light-on-dark automatically, plus explicit filled backgrounds for every
+  button/segment/tab/badge (contrast rule). 3D stage bg → #c7cdd8 (light var +
+  `_scene3dBgColor()` 0xc7cdd8). Q-params now info-blue (#1558d4). [branch:
+  light-theme-rework]
 - v0.805 — Added a browser favicon (`favicon.ico` 16/32/48 + `favicon-32.png`)
   generated from the app icon; `<link rel="icon">` tags in `<head>`, and both
   precached by the service worker (cache bumped to v4). Previously the tab had
