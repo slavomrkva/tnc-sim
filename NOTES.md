@@ -28,7 +28,13 @@ Hosted on **Cloudflare Pages**, repo `slavomrkva/tnc-sim`, live at **tncsim.org*
 Also shipped as an **Android app** (TWA via PWABuilder) and installable as a PWA.
 
 ## Files in the repo
-- `index.html` — the whole app (everything lives here).
+- `index.html` — the HTML shell + markup. The JS/CSS previously inline in it
+  now live in `core/` and `web/` (see "Module map" below), loaded via plain
+  `<script src defer>` / `<link rel=stylesheet>` tags, in the order listed.
+- `core/*.js` — engine/UI logic, byte-for-byte identical to the Android app's
+  `www/core/*.js`. See "Module map".
+- `web/*.js`, `web/styles.css` — web-specific code (genuinely diverged from
+  android, or web-only). See "Module map".
 - `manifest.json` — PWA manifest (name, icons, colors, standalone).
 - `service-worker.js` — offline cache, "stale-while-revalidate" (offline use +
   auto-update from GitHub on next launch).
@@ -41,14 +47,93 @@ Also shipped as an **Android app** (TWA via PWABuilder) and installable as a PWA
 
 ## No build / no tooling
 Plain vanilla JS. Do NOT introduce frameworks, bundlers, or npm build steps.
-Edit `index.html` directly. Test by opening it in a browser.
+No `import`/`export` — classic global-scope scripts loaded via
+`<script src="..." defer>` tags in `index.html`, in the order they appear.
+Edit any file directly; test by opening `index.html` in a browser (or via a
+local static server — some browsers won't fetch module scripts over `file://`).
+
+## Module map (core/ vs web/) — read this before editing
+`index.html`'s inline `<script>`/`<style>` content was mechanically split
+(2026-07-12 refactor, no functionality changed) into:
+- **`core/*.js`** (20 files) — verified byte-for-byte identical to the
+  Android app's `www/core/*.js` (264 of 268 top-level functions + 5 shared
+  data tables are identical between the two repos — mechanically verified,
+  not eyeballed). Includes **the CYCL parser / radius-comp engine**
+  (`core/parser-engine.js`: `parseProgram`, `validateProgram`,
+  `applyRadiusComp`, `offsetRun`, `rebuildRunSegments`, `commitSeg`,
+  `buildToolMesh`, `triggerRefine`, `updateATC`, `resetState`), the voxel
+  cutting engine (`core/voxel-cutting.js`), 3D rendering
+  (`core/render3d.js`), and — notably — **the entire Learn-mode tutorial
+  system** (`core/learn-tutorial.js`, 35 functions) and mobile tab-switching
+  (`core/mobile-tabs.js`) are now shared with the app too. Other core files:
+  `data-tables.js` (`CYCLES`, `Q_FEED_PARAMS`, `Q_FAUTO_PARAMS`,
+  `TOOL_CUT_COLORS`, `LESSONS` — must load first, others reference these at
+  call time so their own order doesn't matter), `tool-table.js`,
+  `editor-core.js`, `field-editing.js`, `view2d.js`, `measure-tool.js`,
+  `klartext-syntax.js`, `block-form-panel.js`, `qparam-panel.js`,
+  `mcode-panel.js`, `cycle-picker.js`, `bug-report.js`, `help-popups.js`,
+  `theme-toast.js`, `sim-controls.js`.
+  If you edit one of these files, you diverge it from the app unless you
+  also hand-port the change to `tnc-sim-android`'s `www/core/` (or that repo
+  runs `./sync-core.sh` afterwards — one-way, web → android, manual only,
+  see that script's header).
+- **`web/*.js`** (4 files) — only 4 functions are genuinely diverged between
+  the two repos, all in the "forced mobile layout" category:
+  - `layout.js`: `_isMTab()` (real `matchMedia('(max-width:1024px)')`
+    breakpoint check here; android hardcodes `true`), `showKpHelp` (has the
+    real desktop-positioning `window.innerWidth > 1024` branches; android
+    replaces them with `false`), plus an `isMob()`/`grow()` textarea-autogrow
+    IIFE (`isMob()` has the same breakpoint-vs-hardcoded-true divergence as
+    `_isMTab`, `grow()` itself is identical).
+  - `panels.js`: `renderIdlePanel`/`updateLineNums` — android added a
+    `#_idleBlocks` block-count span to its idle toolbar that this repo
+    doesn't have; the two functions are a linked pair, kept together.
+  - `keyboard.js`: the `visualViewport`/`kbd-open` keyboard-handling IIFE.
+    **Materially different from android's**, not just a constant swap — this
+    repo runs a continuous `requestAnimationFrame` loop comparing
+    `window.innerHeight - (vv.height + vv.offsetTop)`; android instead
+    tracks a re-synced baseline (`window.innerHeight` doesn't diverge from
+    `visualViewport.height` inside android's Capacitor WebView the way it
+    does in a real mobile browser — see the app repo's NOTES.md rule #7).
+  - `styles.css` — the full `<style>` block (680 lines; android's is 47
+    lines longer — onboarding-tour CSS + extra `kbd-open` selectors).
+  - `app.js` — everything that was top-level (non-function) code in the
+    original inline script, in original relative order: DOM refs, the
+    `APP_VERSION`/version-badge IIFE, the bug-report `window.onerror` hook,
+    panel-resize-handle IIFE, view-hint IIFE, the boot sequence
+    (`init3D()`/`loop()` kickoff), SW registration. **Order-sensitive** —
+    e.g. the version-badge IIFE reads `APP_VERSION` assigned a few lines
+    above it, in the same file; don't reorder chunks without checking
+    what references what. Small **immediately-executing** anonymous blocks
+    like these were deliberately *not* factored into `core/` even though
+    their code is byte-identical to android's copy — extracting them into a
+    `core/` file that loads before `app.js` would run them before
+    `APP_VERSION` (etc.) is assigned. They're harmlessly duplicated between
+    `web/app.js` and the app repo's `android/app.js` instead of shared.
+
+Web is a strict subset by name at the top level — every one of web's 268
+top-level functions also exists in the Android app (by name); the app has no
+extra named functions beyond that anymore (Learn mode and mobile tabs used to
+be app-only; not anymore, see above).
+
+### A real gotcha hit during the split
+When extracting a `function name(){...}` block, stop exactly at its closing
+`}` — do not grab trailing same-line content. `}/* next thing's doc comment
+*/` on one line caused a doc-comment to get half-moved with the preceding
+function during an early attempt, silently breaking a *different* function's
+syntax elsewhere. The page loaded with **zero console errors** and just
+failed to boot (blank/empty UI) — browsers don't always surface a deferred
+external script's top-level `SyntaxError` the way you'd expect. If a page
+looks blank with no console errors after moving code between files, fetch
+the suspect file and try `new Function(src)` to catch a swallowed syntax
+error.
 
 ---
 
 ## Versioning  (single source of truth)
-`APP_VERSION` is defined once near the top of the main `<script>` in `index.html`
-(search for `var APP_VERSION`). It auto-feeds the header badge, the About popup,
-and the bug-report info. **Never hard-code the version anywhere else.**
+`APP_VERSION` is defined once, near the top of `web/app.js` (search for
+`var APP_VERSION`). It auto-feeds the header badge, the About popup, and the
+bug-report info. **Never hard-code the version anywhere else.**
 
 **Web stays in the `0.80x` series — `0.801`, `0.802`, `0.803`… — do not jump to
 `0.9` for a bigger feature; just keep incrementing the third digit.** This is
@@ -64,23 +149,33 @@ you expect.
 
 ---
 
-## Architecture map (where things live in index.html)
-- **Parser** — `parseProgram(code)` turns Klartext into motion segments (`sub`).
-  Helpers: `expandLblLines` (LBL/CALL expansion), `resolveQLine`/`resolveQLineExpr`
-  (Q-variable substitution), `applyRadiusComp` (RL/RR/R0 tool-radius offset).
-- **Cycles** — `executeCycle(cy,...)` implements CYCL DEF 200 (drill), 201 (ream),
-  208 (bore/circular pocket), 209 (tapping), etc.
-- **Voxel cutting / 3D** — `vxCut(...)` removes material from a voxel grid;
-  `buildScene(prog)` builds the Three.js scene; `init3D()` sets up the renderer;
-  `loop()` is the render loop. Three.js is loaded from a CDN; `THREE_OK` flags it.
-- **Tool table** — `toolLibrary` array. Tools have TYPE (MILL / DRILL /
-  COUNTERSINK) with distinct cutting behaviour. Countersink R is ~0.001 (tip).
-- **Learn mode** — `LESSONS` array (each: `id`, `title`, `slides[]`, `tasks[]`).
-  `learnRender`, `learnCheck` (validates the user's program against a task's
-  `checks[]`), `learnStartTask`, `learnSolve` (password fill), progress via
-  `localStorage` key `tnc_learn`.
-- **Mobile** — bottom tab bar (Editor / 3D / Learn); keyboard handling via
-  `visualViewport` (`html.kbd-open`); see "Mobile rules" below.
+## Architecture map (which module each thing lives in — see "Module map" above for file paths)
+- **Parser** (`core/parser-engine.js`) — `parseProgram(code)` turns Klartext into
+  motion segments (`sub`). Helpers: `expandLblLines` (LBL/CALL expansion),
+  `resolveQLine`/`resolveQLineExpr` (Q-variable substitution), `applyRadiusComp`
+  (RL/RR/R0 tool-radius offset).
+- **Cycles** (`core/parser-engine.js`, `core/data-tables.js`) — cycle definitions
+  live in the `CYCLES` table; CYCL DEF 200 (drill), 201 (ream), 208 (bore/
+  circular pocket), 209 (tapping), etc. are handled inside `parseProgram`.
+- **Voxel cutting / 3D** (`core/voxel-cutting.js`, `core/render3d.js`) —
+  `vxCut(...)` removes material from a voxel grid; `buildScene(prog)` builds
+  the Three.js scene; `init3D()` sets up the renderer; `loop()` (per-side,
+  `web/app.js` calls it, defined in `core/sim-controls.js`) is the render
+  loop. Three.js is vendored in `vendor/`; `THREE_OK` flags availability.
+- **Tool table** (`core/tool-table.js`) — `toolLibrary` array. Tools have TYPE
+  (MILL / DRILL / COUNTERSINK) with distinct cutting behaviour. Countersink R
+  is ~0.001 (tip).
+- **Learn mode** (`core/learn-tutorial.js`, `LESSONS` in `core/data-tables.js`)
+  — `LESSONS` array (each: `id`, `title`, `slides[]`, `tasks[]`). `learnRender`,
+  `learnCheck` (validates the user's program against a task's `checks[]`),
+  `learnStartTask`, `learnSolve` (password fill), progress via `localStorage`
+  key `tnc_learn`. **Now shared with the Android app** (was app-only before
+  the 2026-07-12 module split).
+- **Mobile** (`core/mobile-tabs.js` for the shared switching logic;
+  `web/layout.js` for the diverged `_isMTab()` breakpoint check) — bottom tab
+  bar (Editor / 3D / Learn); keyboard handling via `visualViewport`
+  (`html.kbd-open`, `web/keyboard.js` — diverged from android's version, see
+  "Module map").
 
 ---
 
@@ -168,6 +263,22 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.808 — Pure structural refactor, no functionality changed: split
+  `index.html`'s inline `<script>`/`<style>` into `core/*.js` (20 files,
+  byte-for-byte identical to the Android app's `www/core/*.js` — mechanically
+  verified by extracting every function by name from both repos and diffing,
+  not eyeballed) and `web/*.js` + `web/styles.css` (5 files: only 4 functions
+  are genuinely diverged from android, all in the forced-mobile-layout
+  category). Notably, Learn mode and mobile-tab switching are now `core/` —
+  the Android app had fully absorbed web's version by the time of this
+  refactor (an earlier attempt at this same refactor was done against a
+  stale, ~30-commit-old local checkout and had to be discarded and redone
+  against the real `origin/main`). Added `NOTES.md` "Module map" section.
+  Verified via per-function diff against the pre-refactor file (zero drift)
+  and a full functional pass in browser (Editor, Run/3D sim, Learn mode,
+  view switching, theme toggle) — all working, zero console errors. Mirrors
+  the same split done in `tnc-sim-android` in the same session; see that
+  repo's `sync-core.sh` for the one-way (web→android) manual core/ sync tool.
 - v0.807 — Formalized versioning: web stays in the `0.80x` series permanently
   (paired with the Android app's separate `1.0.x` series — never confuse the
   two), and every single push must bump `APP_VERSION`, with no "too small to
