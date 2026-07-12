@@ -244,6 +244,21 @@ If you ever upgrade Three.js: replace both files in `vendor/`, keep the
 `PRECACHE_URLS` list in `service-worker.js` in sync, bump `CACHE_VERSION`,
 and sync `vendor/` into the Android repo's `www/` as well.
 
+### 10. Resize the 3D renderer from the render loop, not only on window 'resize'
+The 3D canvas is CSS-sized (`#view3d canvas{width:100%;height:100%}`) while
+`onResize()` calls `renderer.setSize(w,h,false)` — the `false` deliberately
+skips the inline style so CSS owns the display size. That means the drawing
+buffer/`camera.aspect` must be kept matched to the container's *current* size,
+or the browser stretches the last-sized buffer to fill the box and the model
+distorts. A window `resize` listener alone is not enough: it misses live
+mid-drag frames and misses container resizes that fire no window event at all
+(the editor/3D splitter drag, a mobile tab/orientation change). `loop()` calls
+`resizeToDisplay()` (`core/view2d.js`) every frame; it's a cheap no-op unless
+the container size changed, and returns `true` on the frame it resyncs so the
+idle-render throttle still paints that frame. If you add another code path that
+resizes the 3D pane, you don't need to do anything — the loop already covers it
+— but don't "optimize away" the per-frame check back to a resize-only listener.
+
 ---
 
 ## Deploy flow
@@ -263,6 +278,20 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.809 — Fixed the 3D model changing aspect ratio (stretching) while the
+  browser window is being resized. Root cause: the render `loop()`
+  (`core/sim-controls.js`) repaints every frame but only re-synced the renderer
+  buffer + `camera.aspect` on the window `resize` event; the canvas is
+  CSS-stretched to `100%x100%` of its container while `renderer.setSize(w,h,
+  false)` leaves the inline style alone, so every intermediate frame of a live
+  window drag (and every editor/3D splitter drag, which fires no window resize
+  at all) stretched the stale buffer to the new box. Added `resizeToDisplay()`
+  (`core/view2d.js`), a cheap per-frame "resize-on-render" check called at the
+  top of `loop()` that resyncs only when the container size actually changed.
+  Verified in a headless browser: a container resized without a resize event
+  went from a 37% horizontal stretch (buffer aspect 1.374 vs container 1.0) to
+  1:1. `core/` change — mirrored byte-for-byte into `tnc-sim-android`
+  (`APP_VERSION 1.0.12`). See rule #10.
 - v0.808 — Pure structural refactor, no functionality changed: split
   `index.html`'s inline `<script>`/`<style>` into `core/*.js` (20 files,
   byte-for-byte identical to the Android app's `www/core/*.js` — mechanically
