@@ -49,10 +49,18 @@ Edit `index.html` directly. Test by opening it in a browser.
 `APP_VERSION` is defined once near the top of the main `<script>` in `index.html`
 (search for `var APP_VERSION`). It auto-feeds the header badge, the About popup,
 and the bug-report info. **Never hard-code the version anywhere else.**
-Convention:
-- small fix / tweak -> +0.001  (e.g. 0.801 -> 0.802)
-- larger feature    -> +0.1    (e.g. 0.8xx -> 0.9)
-**Bump it on every meaningful change.**
+
+**Web stays in the `0.80x` series — `0.801`, `0.802`, `0.803`… — do not jump to
+`0.9` for a bigger feature; just keep incrementing the third digit.** This is
+a deliberate, permanent convention (paired with the Android app's separate
+`1.0.x` series — see that repo's NOTES.md) so the two numbering schemes never
+collide or get confused with each other.
+
+**Every single push must bump `APP_VERSION` by +0.001 — no exceptions, no
+"this one's too small to count".** This is how you (or an AI session with no
+memory of prior work) can visually confirm on tncsim.org that a given push
+actually went live — check the About popup / footer badge against the commit
+you expect.
 
 ---
 
@@ -160,6 +168,10 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.807 — Formalized versioning: web stays in the `0.80x` series permanently
+  (paired with the Android app's separate `1.0.x` series — never confuse the
+  two), and every single push must bump `APP_VERSION`, with no "too small to
+  count" exceptions. Documented in this section and CLAUDE.md.
 - v0.806 — Reworked the light theme into a high-contrast scheme: dark chrome
   (header/toolbars/panels = #1b1f27) over a light content area (#eef0f3), with a
   pure-white editor. Implemented by re-scoping the CSS vars (`--surface`,
