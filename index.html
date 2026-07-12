@@ -70,7 +70,11 @@ html[data-theme="light"]{
   --stage:#c7cdd8;
 }
 /* Dark chrome regions (a touch lighter than pure black): re-scope the tokens
-   here so descendants flip to the light-on-dark palette automatically. */
+   here so descendants flip to the light-on-dark palette automatically.
+   Two shades create panel-to-panel contrast: the header/keypad/view-tabs/
+   status-bar/bottom-tabs sit at the darker base tone, while panel-header
+   (program.H + Learn row), ctx-panel (Undo/Redo row) and toolbar (Run/Stop
+   row) sit one step lighter so they visually pop against their neighbors. */
 html[data-theme="light"] header,
 html[data-theme="light"] .toolbar,
 html[data-theme="light"] .panel-header,
@@ -79,11 +83,22 @@ html[data-theme="light"] .status-bar,
 html[data-theme="light"] .ctx-panel,
 html[data-theme="light"] .keypad,
 html[data-theme="light"] .mtab-bar{
-  background:#272d38 !important;
   color:#e8ebf1;
   --surface:#3a414f; --surface2:#3a414f; --key-pale:#333b48;
   --border:#414956;
   --text:#e8ebf1; --text2:#c6ccd6; --text3:#9aa3b2;
+}
+html[data-theme="light"] header,
+html[data-theme="light"] .view-tabs,
+html[data-theme="light"] .status-bar,
+html[data-theme="light"] .keypad,
+html[data-theme="light"] .mtab-bar{
+  background:#272d38 !important;
+}
+html[data-theme="light"] .panel-header,
+html[data-theme="light"] .toolbar,
+html[data-theme="light"] .ctx-panel{
+  background:#353d4c !important;
 }
 /* Header/toolbar action buttons — filled fill on the dark chrome */
 html[data-theme="light"] .btn,
