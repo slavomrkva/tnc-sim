@@ -49,7 +49,8 @@ END PGM PROGRAM
 ```
 
 ### Status
-Open. Root cause identified; no runtime fix applied yet.
+Open. Test fix implemented on `fix/c2-r0-pure-z`; awaiting real-device web
+verification before merge or Android port.
 
 ### Analysis (2026-07-13)
 - The defect is in the shared `core/parser-engine.js` radius-compensation
@@ -68,6 +69,14 @@ Open. Root cause identified; no runtime fix applied yet.
   `nextSeg.to` alone would leave either a diagonal or a discontinuity.
 - Regression coverage should include RL and RR, ordinary lateral R0 lead-out,
   R0 on a pure Z retract, multiple following Z-only moves, and a later XY move.
+
+### Attempts
+- **Web test branch `fix/c2-r0-pure-z` (v0.821):** a zero-XY `R0` now keeps the
+  full retract at the last compensated physical XY position. That position is
+  carried through later Z/state-only segments, and the first later XY move
+  performs the lead-out to its nominal target. Added a Node regression harness
+  for RL, RR, lateral R0, repeated Z retracts, later XY lead-out, and the full
+  reported RND/CHF contour. All checks pass; Android remains unchanged.
 
 ## C3 — Vkladanie RND/CHF niekedy vloží blok na začiatok programu
 **Repos:** web + Android. **Reported:** 2026-07-13.

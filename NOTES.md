@@ -78,6 +78,10 @@ local static server — some browsers won't fetch module scripts over `file://`)
   also hand-port the change to `tnc-sim-android`'s `www/core/` (or that repo
   runs `./sync-core.sh` afterwards — one-way, web → android, manual only,
   see that script's header).
+  **Temporary exception on `fix/c2-r0-pure-z`:** the C2 parser fix and its test
+  are deliberately web-only until the reported contour is verified in the web
+  simulator. If accepted, port the final parser change to Android explicitly
+  and remove this exception.
 - **`web/*.js`** (4 files) — only 4 functions are genuinely diverged between
   the two repos, all in the "forced mobile layout" category:
   - `layout.js`: `_isMTab()` (real `matchMedia('(max-width:1024px)')`
@@ -291,6 +295,12 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.821 — Added the web-only C2 test fix on `fix/c2-r0-pure-z`. A pure-Z R0
+  cancellation now keeps the tool at the last compensated physical XY through
+  the retract and any following Z/state-only segments; the first later XY move
+  leads out to its nominal target. Added regression checks for RL/RR, ordinary
+  lateral R0, repeated Z moves, later XY lead-out, and the full reported
+  RND/CHF contour. Awaiting visual verification before merge or Android port.
 - v0.820 — Closed C1 after successful real-device web and Android verification:
   moved the complete symptom/root-cause/attempt history from `TODO.md` to
   `BUG_HISTORY.md` and removed the temporary shared-core port exception. Added

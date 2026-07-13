@@ -1494,11 +1494,50 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
   // Rewrite the run's segments to follow the offset point list.
   // We have (b-a+1) original segments and 'out' has >= nv points.
   // Rebuild: replace segment endpoints, distributing extra arc points.
-  // Connect boundaries: prev segment's 'to' → first offset point; 
-  // next segment's 'from' → last offset point (avoids jump/gouge at R0 transition)
+  // Connect boundaries: prev segment's 'to' → first offset point;
+  // next segment's 'from' → last offset point (avoids jump/gouge at R0 transition).
   if(prevSeg && out.length>0){ prevSeg.to = {x:out[0].x, y:out[0].y, z:out[0].z}; var pdx=prevSeg.to.x-prevSeg.from.x,pdy=prevSeg.to.y-prevSeg.from.y,pdz=prevSeg.to.z-prevSeg.from.z; prevSeg.len=Math.sqrt(pdx*pdx+pdy*pdy+pdz*pdz); }
-  if(nextSeg && out.length>0){ var lp=out[out.length-1]; nextSeg.from = {x:lp.x, y:lp.y, z:lp.z}; var ndx=nextSeg.to.x-nextSeg.from.x,ndy=nextSeg.to.y-nextSeg.from.y,ndz=nextSeg.to.z-nextSeg.from.z; nextSeg.len=Math.sqrt(ndx*ndx+ndy*ndy+ndz*ndz); }
+  if(nextSeg && out.length>0){
+    var lp=out[out.length-1];
+    var _nextDx=nextSeg.to.x-nextSeg.from.x, _nextDy=nextSeg.to.y-nextSeg.from.y;
+    var _pureZCancel=nextSeg.rc==='R0' && Math.abs(_nextDx)<1e-9 && Math.abs(_nextDy)<1e-9;
+    nextSeg.from = {x:lp.x, y:lp.y, z:lp.z};
+    if(_pureZCancel){
+      // R0 changes compensation state but a Z-only block has no lateral motion
+      // with which to return the physical tool centre to the nominal contour.
+      // Keep the retract vertical at the last compensated XY and carry that
+      // real position through later Z/state-only segments. The first later XY
+      // move can then perform the normal lead-out to its programmed target.
+      nextSeg.to.x=lp.x; nextSeg.to.y=lp.y;
+      _recalcSegmentLen(nextSeg);
+      _carryPhysicalXY(sub, b+2, lp.x, lp.y);
+    } else {
+      _recalcSegmentLen(nextSeg);
+    }
+  }
   return rebuildRunSegments(sub, a, b, out, outSeg);
+}
+
+function _recalcSegmentLen(seg){
+  var dx=seg.to.x-seg.from.x, dy=seg.to.y-seg.from.y, dz=seg.to.z-seg.from.z;
+  seg.len=Math.sqrt(dx*dx+dy*dy+dz*dz);
+}
+
+function _carryPhysicalXY(sub, start, x, y){
+  for(var i=start;i<sub.length;i++){
+    var seg=sub[i];
+    var dx=seg.to.x-seg.from.x, dy=seg.to.y-seg.from.y;
+    seg.from={x:x,y:y,z:seg.from.z};
+    if(Math.abs(dx)<1e-9 && Math.abs(dy)<1e-9){
+      seg.to.x=x; seg.to.y=y;
+      _recalcSegmentLen(seg);
+      continue;
+    }
+    // First programmed XY move after the Z-only cancellation: start from the
+    // actual carried position and lead out to the nominal programmed target.
+    _recalcSegmentLen(seg);
+    break;
+  }
 }
 
 function rebuildRunSegments(sub, a, b, out, outSeg){
