@@ -15,6 +15,31 @@ Newest first.
 
 ---
 
+## C6 — Measure panel overlapped the mobile BLKFORM control
+**Repo:** web `tnc-sim`. **Resolved:** 2026-07-13 in v0.828.
+
+### Symptom
+The new `BLKFORM OFF` control appeared not to work on mobile. Enabling Measure
+also placed its floating panel over the BLKFORM button.
+
+### Root cause
+`#measureOverlay` was fixed at `top:10px; right:10px`, the same top strip used
+by the left-aligned, wrapping `#canvasTopButtons`. Adding BLKFORM made those two
+independently positioned regions intersect on a phone-sized simulation view.
+The published v0.827 handler itself responded in an isolated check, but the
+overlap made the mobile control obstructed/ambiguous. Idle rendering could also
+delay visible feedback after a tap.
+
+### Attempts and fix
+- Reproduced the published v0.827 button and confirmed it changed to
+  `BLKFORM ON`; this ruled out a missing handler in the branch build.
+- Positioned Measure from the live bottom edge of the complete button row plus
+  6px instead of a fixed top coordinate, with a mobile-safe maximum width.
+- Forced one immediate WebGL render after BLKFORM changes and bumped the web
+  service-worker cache to v5. At 390×844, Measure and BLKFORM have no geometric
+  intersection; toggling BLKFORM while Measure is open closes Measure and hides
+  the stock immediately.
+
 ## C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour
 **Repos:** web `tnc-sim` (v0.822; `cc1f5ea`, merged by `67b8393`) + Android
 `tnc-sim-android` (1.0.27; `55c0ace`).

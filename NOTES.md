@@ -291,6 +291,16 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.828 — Follow-up for the mobile BLKFORM toggle: the Measure overlay no
+  longer uses the same fixed top-right position as the canvas buttons. It now
+  measures the complete, possibly wrapped button row and opens 6px below it;
+  at 390×844 the controls ended at Y=230 and the overlay began at Y=236 with
+  no intersection. BLKFORM now forces an immediate WebGL repaint after a tap,
+  and turning it off while Measure is active closes the overlay, disables
+  Measure, and hides the stock. Bumped the web service-worker cache v4→v5 so
+  the new handler/layout cannot remain paired with stale runtime assets.
+  Verified locally and against the published v0.827 handler with no console
+  errors. Web-only; Android remains unchanged.
 - v0.827 — Added the web-only `BLKFORM OFF/ON` view toggle beside Measure and
   Path. It hides the 3D voxel/block/edges and the 2D workpiece footprint while
   toolpath animation, cutting, and collision checks continue internally; ON

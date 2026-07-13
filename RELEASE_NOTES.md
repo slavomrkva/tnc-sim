@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.828 (mobile web test)
+- Fixed the Measure panel overlapping `BLKFORM` on phones, and made workpiece
+  visibility changes repaint immediately after a tap.
+
 ## v0.827 (mobile web test)
 - Added a `BLKFORM OFF/ON` control beside Measure and Path. It can hide or
   restore the current workpiece during simulation so the toolpath is easier to

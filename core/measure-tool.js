@@ -152,6 +152,10 @@ function renderMeasureOverlay(){
   var el = document.getElementById('measureOverlay');
   if(!el) return;
   if(!measureMode){ el.style.display='none'; return; }
+  // Keep the panel below the complete (possibly wrapped) canvas button row.
+  // A fixed top:10px made it overlap BLKFORM on narrow/mobile screens.
+  var topButtons=document.getElementById('canvasTopButtons');
+  if(topButtons) el.style.top=(topButtons.offsetTop+topButtons.offsetHeight+6)+'px';
   el.style.display='block';
   var sub = '<div style="display:flex;gap:4px;margin-bottom:8px;">'
     +'<button onclick="setMeasureMode(&quot;point&quot;)" style="flex:1;font-family:var(--mono);font-size:10px;padding:3px 0;border:1px solid '+(measureSubMode==="point"?"var(--accent)":"var(--border)")+';border-radius:4px;background:'+(measureSubMode==="point"?"var(--accent)":"none")+';color:'+(measureSubMode==="point"?"#fff":"var(--text3)")+';cursor:pointer;">Point</button>'

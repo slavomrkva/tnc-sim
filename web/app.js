@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.827';
+var APP_VERSION = '0.828';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1293,6 +1293,9 @@ function toggleStockVisibility(){
   if(!prog||prog.hasStock===false){ updateStockToggle(); return; }
   stockVisible=!stockVisible;
   applyStockVisibility();
+  // Make a tap visibly take effect immediately even while the idle renderer is
+  // throttled; the animation loop continues to enforce the same state later.
+  if(THREE_OK&&renderer&&scene&&camera) renderer.render(scene,camera);
 }
 
 
