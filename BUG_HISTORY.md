@@ -15,6 +15,75 @@ Newest first.
 
 ---
 
+## C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour
+**Repos:** web `tnc-sim` (v0.822; `cc1f5ea`, merged by `67b8393`) + Android
+`tnc-sim-android` (1.0.27; `55c0ace`).
+**Resolved:** 2026-07-13. **Verified:** automated full-contour regression and
+user testing on current mobile web and Android app.
+
+### Symptom
+At the end of an RL/RR contour, `L Z+20 R0` should retract straight up. The
+simulator instead moved diagonally back toward the programmed contour and could
+cut into the model while retracting.
+
+### Repro contour
+```text
+LBL 1
+L X-20 Y+235 Z+50 FMAX
+L Z+Q1
+L Y+230 FAUTO RL
+L X+101
+CHF 15
+L Y+200
+RND R5.5
+L X+161
+RND R5.5
+L Y+230
+CHF 15
+L X+296
+CHF 15
+L Y+200
+RND R5.5
+L X+366
+CHF 15
+L Y+0
+CHF 15
+L X+0
+CHF 15
+L Y+231
+CHF 16
+L X+20
+L Z+20 R0
+LBL 0
+END PGM PROGRAM
+```
+
+### Root cause
+The shared radius-compensation postprocessor ended the RL/RR run at the
+laterally offset physical tool-centre point. `offsetRun()` then rewrote only
+the following R0 segment's `from`, while its `to` retained the nominal XY.
+Because `L Z+20 R0` has zero programmed XY displacement, this manufactured a
+diagonal exactly equal to the compensation offset. It was a path-segment bug,
+not voxel cutting or rendering.
+
+### Attempts and fix
+- The first tempting one-endpoint changes were rejected during analysis:
+  modifying only `from` preserves the diagonal, while modifying only `to`
+  creates a segment discontinuity.
+- Web branch `fix/c2-r0-pure-z` made a zero-XY R0 keep the full retract at the
+  last compensated physical XY. That actual position is carried through later
+  Z/state-only segments; the first later XY move leads out to its nominal
+  target. The user verified the web result, then the identical shared-core
+  change was ported to Android.
+- Added `tests/parser-radius-comp.test.js` in both repos. It covers RL, RR,
+  ordinary lateral R0, repeated Z retracts, a state-only segment, later XY
+  lead-out, and the complete reported RND/CHF contour. Android also passed
+  Capacitor sync and debug build before its main push.
+
+The user subsequently confirmed the current Android app also retracts correctly.
+
+---
+
 ## C4 — Placement of a newly inserted block relative to the active line
 **Repos:** web `tnc-sim` + Android `tnc-sim-android`.
 **Resolved/accepted:** 2026-07-13 in web v0.823 and Android 1.0.28.
