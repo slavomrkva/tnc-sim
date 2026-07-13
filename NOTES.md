@@ -291,6 +291,10 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.829 — Closed C5 after the accepted web fix was ported to Android 1.0.30.
+  Moved the bounded-editor symptom, root cause, mobile verification and final
+  cross-repo state from `TODO.md` to `BUG_HISTORY.md`. No new runtime behaviour;
+  this commit prepares the tested branch for merge.
 - v0.828 — Follow-up for the mobile BLKFORM toggle: the Measure overlay no
   longer uses the same fixed top-right position as the canvas buttons. It now
   measures the complete, possibly wrapped button row and opens 6px below it;

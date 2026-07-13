@@ -15,6 +15,24 @@ Newest first.
 
 ---
 
+## C5 — Editor text passed behind mobile control panels
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved:** 2026-07-13; web implementation v0.825, merged in v0.829, and
+Android port 1.0.30.
+
+### Symptom
+Program text scrolled behind Path functions, contextual editors and practice
+controls because the whole editor panel was the scroll owner and those controls
+were sticky overlays without firm vertical boundaries.
+
+### Root cause and fix
+The mobile editor is now a bounded flex column: controls remain real rows in
+normal flow, while only the code viewport scrolls in the remaining space.
+Opening a context or practice row therefore reduces the code height instead of
+covering it. Web checks at 390×844 covered normal, scrolled, practice and field
+editing states; the user accepted the web result, and the same layout was then
+ported to Android while preserving its WebView keyboard handling.
+
 ## C6 — Measure panel overlapped the mobile BLKFORM control
 **Repo:** web `tnc-sim`. **Resolved:** 2026-07-13 in v0.828.
 
