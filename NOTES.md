@@ -269,21 +269,34 @@ idle-render throttle still paints that frame. If you add another code path that
 resizes the 3D pane, you don't need to do anything — the loop already covers it
 — but don't "optimize away" the per-frame check back to a resize-only listener.
 
-### 11. Hide the mobile tab bar on focus, not just on viewport shrink
-`web/keyboard.js` hides `.mtab-bar` while the OS keyboard is open. The
-`visualViewport`-shrink detection (`offset > 140`) alone is not enough: it only
-trips once the viewport has *already* lost 140px, which is partway through the
-keyboard's open animation, so the fixed bottom bar is seen riding up with the
-keyboard first (on browsers that lift `position:fixed` above the keyboard). The
-`focusin` handler sets a `focusHold` flag that forces the bar hidden the instant
-a text field is focused — before any viewport change. `focusout` only *drops*
-the hold; the shrink check still decides when to re-show the bar (once the
-keyboard finishes sliding away) so a field-to-field hop doesn't flash it. The
-`focusin` path is gated to the mobile layout (`max-width:1024px,
-max-height:600px`) AND touch input (`pointer: coarse`/`ontouchstart`) — a narrow
-desktop window with the code editor focused raises no on-screen keyboard, so the
-bar must stay visible there. If you touch this file, keep both signals: focus =
-hide-now, viewport = show-when-safe.
+### 11. Mobile tab bar: focus = "hide now", viewport = "when to show again" — never tie visibility to focus
+`web/keyboard.js` hides `.mtab-bar` (the Editor / 3D / Learn bottom bar) while
+the OS keyboard is open. Two signals cooperate and their jobs must stay
+separate:
+- **`visualViewport` shrink (`offset > 140`)** is the *authority* on whether the
+  keyboard is actually up. But it only trips once the viewport has *already*
+  lost 140px — partway through the open animation — so on its own the fixed bar
+  is seen riding up with the rising keyboard first (on browsers that lift
+  `position:fixed` above the keyboard).
+- **`focusin` on a text field (`focusHold`)** hides the bar the instant a field
+  is focused (the real keyboard trigger, fires *before* any viewport change), to
+  bridge that open-animation gap.
+
+**The trap (cost a whole release, v0.812→v0.813):** you cannot make `kbdOpen =
+offset>140 || focusHold` and leave it there. Dismissing the keyboard frequently
+does **not** blur the field (Android's back button, the keyboard's own hide
+button) → **no `focusout` fires** → `focusHold` stays `true` forever → the bar
+stays hidden and never comes back. Focus state is NOT keyboard-visibility state.
+So `apply()` **drops `focusHold` the moment `offset > 140`** (viewport has
+confirmed the keyboard; from then the viewport alone decides when to re-show).
+`focusHold` is only ever a short bridge across the open animation. A 1.5s
+`holdTimer` is the safety net for a focus that raises no keyboard at all (a
+hardware keyboard on a touch device) so the bar can't get stuck hidden.
+Gated to the mobile layout (`max-width:1024px, max-height:600px`) AND touch
+input (`pointer: coarse`/`ontouchstart`) — a narrow desktop window with the
+editor focused raises no on-screen keyboard, so the bar must stay put there.
+If you touch this file: keep the two jobs separate, and never let focus alone
+keep the bar hidden.
 
 ---
 
@@ -304,6 +317,18 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.813 — Follow-up to v0.812: the bottom tab bar stayed hidden after the
+  keyboard was dismissed. v0.812 tied `kbdOpen` to `offset > 140 || focusHold`,
+  but dismissing the OS keyboard often keeps the field focused (Android's back
+  button doesn't blur → no `focusout`), so `focusHold` stayed `true` forever and
+  the bar never came back. Fixed by giving the two signals distinct jobs
+  (`web/keyboard.js`): FOCUS = "hide now" (bridge the open animation only),
+  VIEWPORT = "when to show again" (the authority). `apply()` now drops
+  `focusHold` the moment the viewport confirms the keyboard (`offset > 140`), so
+  when it later closes — focus retained or not — `offset` falling back below 140
+  re-shows the bar. Added a 1.5s `holdTimer` safety net so a focus that raises
+  no keyboard at all (hardware keyboard) can't leave the bar stuck hidden. See
+  rule #11. Web-only (`web/keyboard.js` is already diverged from android).
 - v0.812 — Fixed the mobile bottom tab bar (`.mtab-bar`, Editor / 3D / Learn)
   visibly riding up with the on-screen keyboard while editing. The keyboard IIFE
   (`web/keyboard.js`) hid the bar only via its shrink-based detection

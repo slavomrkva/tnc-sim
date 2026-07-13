@@ -7,16 +7,26 @@
    runs while scrolling/resizing, so the bar stays glued the whole time. */
 (function(){
   if(!window.visualViewport) return;
-  var bar = null, raf = 0, idleTicks = 0, last = -1, focusHold = false;
-  // The shrink-based detection below only fires once the visual viewport has
-  // already lost >140px to the keyboard — i.e. partway through the open
-  // animation. Until then the fixed bottom bar is still visible and, on
-  // browsers that lift fixed elements above the keyboard, it visibly rides up
-  // with it. Focusing a text field is the *real* trigger for the OS keyboard
-  // and fires before any viewport change, so we hide the bar on that event and
-  // keep it hidden (focusHold) until focus leaves. Gated to the mobile layout
-  // (where the bar exists) and to touch input (a narrow desktop window focusing
-  // the editor raises no on-screen keyboard, so the bar must stay put there).
+  var bar = null, raf = 0, idleTicks = 0, last = -1, focusHold = false, holdTimer = 0;
+  // Two signals decide whether the bar is hidden, with distinct jobs:
+  //   • FOCUS = "hide NOW". Focusing a text field is the real trigger for the
+  //     OS keyboard and fires *before* the visual viewport starts shrinking, so
+  //     the shrink check alone (offset>140) only trips partway through the open
+  //     animation — long enough for the fixed bottom bar to be seen riding up
+  //     with the rising keyboard. focusHold hides it the instant focus lands.
+  //   • VIEWPORT = "when to show again". The shrink measurement is the only
+  //     reliable signal for whether the keyboard is *actually* still up. So the
+  //     moment it confirms the keyboard (offset>140) we DROP focusHold and hand
+  //     authority back to the viewport. This is critical: dismissing the
+  //     keyboard often keeps the field focused (Android's back button doesn't
+  //     blur), so no focusout fires — if visibility stayed tied to focus the
+  //     bar would never come back. focusHold is only ever a short bridge across
+  //     the open animation, never the thing that keeps the bar hidden.
+  // holdTimer is the safety net for a focus that raises no keyboard at all
+  // (e.g. a hardware keyboard on a touch device): drop the hold after a beat so
+  // the bar can't get stuck hidden. Gated to the mobile layout (bar exists) and
+  // touch input (a narrow desktop window focusing the editor raises no keyboard).
+  function clearHold(){ if(focusHold){ focusHold = false; kick(); } }
   function kbTriggers(el){
     if(!el) return false;
     var t = el.tagName;
@@ -30,7 +40,9 @@
     var offset = window.innerHeight - (vv.height + vv.offsetTop);
     if(offset < 0.5) offset = 0;
     offset = Math.round(offset);
-    var kbdOpen = offset > 140 || focusHold;
+    var kbdOpen = offset > 140;
+    if(kbdOpen){ focusHold = false; }      // viewport confirms — viewport now owns re-show
+    else if(focusHold){ kbdOpen = true; }  // bridge the open animation only
     // expose the true visible height + keyboard state to CSS so the editor
     // layout can shrink to fit the space actually left above the keyboard
     document.documentElement.style.setProperty('--vvh', vv.height + 'px');
@@ -62,12 +74,20 @@
   window.addEventListener('touchmove', kick, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(kick, 50); });
   document.addEventListener('focusin', function(e){
-    if(kbTriggers(e.target)){ focusHold = true; kick(); }
+    if(kbTriggers(e.target)){
+      focusHold = true;
+      if(holdTimer) clearTimeout(holdTimer);
+      holdTimer = setTimeout(clearHold, 1500);
+      kick();
+    }
   });
   document.addEventListener('focusout', function(){
-    // Don't restore the bar the instant focus is lost — a field-to-field hop
-    // would flash it. Just drop the hold and let the viewport check re-show it
-    // once the keyboard has actually finished sliding away (offset ≤ 140).
+    // Drop the hold when focus leaves. The viewport check still decides when to
+    // actually re-show the bar (once the keyboard has finished sliding away, or
+    // immediately if it was already down), so a field-to-field hop — focus
+    // bounces constantly during field editing — never flashes it while the
+    // keyboard stays up (offset>140 keeps kbdOpen regardless of focusHold).
+    if(holdTimer){ clearTimeout(holdTimer); holdTimer = 0; }
     focusHold = false; kick();
   });
   kick();

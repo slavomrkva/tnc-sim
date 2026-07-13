@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.813
+- Fixed the bottom Editor / 3D / Learn tab bar not reappearing after you close
+  the keyboard on mobile — it now reliably comes back once the keyboard is
+  dismissed (even when the field keeps focus).
+
 ## v0.812
 - Fixed the bottom Editor / 3D / Learn tab bar sliding up with the on-screen
   keyboard while typing in the editor on mobile — it now stays hidden cleanly
