@@ -288,6 +288,19 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.812 — Fixed dead near-black empty space at the bottom of the **Learn tab**
+  in the single-column (mobile/narrow) layout. Root cause: unlike the Editor and
+  3D tabs, the Learn tab had no full-height flex layout — it relied on default
+  block flow plus an arbitrary `body[data-mtab="learn"] #learnPanel
+  .lp-body{max-height:calc(100svh - 220px)}` cap (`web/styles.css`), so
+  `#learnPanel` ended at its content height and everything below it down to the
+  tab bar was bare page background (`--bg`). Gave the Learn tab the same
+  full-height flex treatment as the 3D tab (`height:100svh` flex column;
+  `.sim-container`/`.sim-main` flex:1; `#learnPanel` flex:1) and replaced the
+  `max-height` cap with `max-height:none;flex:1` so `.lp-body` fills to just
+  above the tab bar. Verified headless (Playwright, 390×844): the dead gap
+  between the panel and the tab bar went from 71px to 0. CSS-only. Mirrored into
+  `tnc-sim-android` (`www/android/styles.css`, `APP_VERSION 1.0.16`).
 - v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
   (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
   inconsistent runs of padding spaces (up to 32) left over from an attempt to
