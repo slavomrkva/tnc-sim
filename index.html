@@ -352,6 +352,7 @@ END PGM PROGRAM MM</textarea>
           <button id="measureBtn" onclick="toggleMeasure()" data-help="measure" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">&#x25CE; Measure</button>
           <button id="refineBtnCanvas" onclick="triggerRefine()" title="Compute high-precision mesh" style="display:none;font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid rgba(74,158,255,.4);border-radius:5px;background:rgba(14,16,20,.7);color:rgba(74,158,255,.8);cursor:pointer;backdrop-filter:blur(4px);">&#x25C6; Refine</button>
           <button id="pathToggle" onclick="togglePaths()" title="Show/hide toolpath" data-help="path" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">⛶ Path</button>
+          <button id="stockToggle" onclick="toggleStockVisibility()" title="Hide workpiece and show only the toolpath" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">BLKFORM OFF</button>
         </div>
         <div id="simInfoPanel" style="position:absolute;top:38px;left:10px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.9;display:none;pointer-events:none;"></div>
         <div id="toolLegend" style="position:absolute;bottom:36px;left:10px;font-family:var(--mono);font-size:10px;background:rgba(14,16,20,.75);border:1px solid var(--border);border-radius:6px;padding:8px 12px;display:none;pointer-events:none;backdrop-filter:blur(4px);max-width:200px;"></div>
@@ -359,7 +360,7 @@ END PGM PROGRAM MM</textarea>
           <span id="refineSpinner" style="display:inline-block;width:11px;height:11px;border:2px solid rgba(74,158,255,.3);border-top-color:rgba(74,158,255,1);border-radius:50%;animation:refine-spin 0.7s linear infinite;"></span>
           <span id="refineIndicatorText">Refining mesh&hellip;</span>
         </div>
-        <div id="measureOverlay" style="position:absolute;top:10px;right:10px;background:rgba(14,16,20,.85);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);display:none;min-width:180px;"></div>
+        <div id="measureOverlay" style="position:absolute;top:48px;right:10px;z-index:6;background:rgba(14,16,20,.85);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);display:none;min-width:180px;max-width:calc(100% - 20px);"></div>
       </div>
       <div class="status-bar">
         <span class="status-dot" id="statusDot"></span>

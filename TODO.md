@@ -8,17 +8,6 @@
 
 ## Open bugs
 
-## C5 — Textové pole prechádza pod ovládacie panely
-**Repos:** web + Android. **Reported:** 2026-07-13.
-
-### Symptom
-Textové pole ide v pozadí za ovládacie panely s tlačidlami Path functions a
-ďalšími ovládacími prvkami. Treba určiť vertikálne hranice textového poľa, aby
-obsah neprechádzal pod tieto panely.
-
-### Status
-Open.
-
 <!-- Template for a new bug (copy below "Open bugs"):
 
 ## <short title> — <one-line symptom>

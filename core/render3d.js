@@ -207,18 +207,24 @@ function _applyRefinedMesh(vertsArr, normsArr, triColors){
   scene.add(mesh);
   if(blockMesh) blockMesh.visible = false;
   if(blockEdges) blockEdges.visible = false;
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
 
 function buildScene(prog){
   if(!THREE_OK) return;
-  var min = prog.blkMin, max = prog.blkMax;
+  var min = prog.viewMin || prog.blkMin, max = prog.viewMax || prog.blkMax;
   var w = max.x-min.x, d = max.y-min.y, h = max.z-min.z;
 
   if(blockMesh){ scene.remove(blockMesh); if(blockMesh.geometry) blockMesh.geometry.dispose(); }
-  if(blockEdges){ scene.remove(blockEdges); blockEdges.geometry.dispose(); }
+  if(blockEdges){
+    scene.remove(blockEdges);
+    if(blockEdges.geometry) blockEdges.geometry.dispose();
+    else if(blockEdges.traverse) blockEdges.traverse(function(obj){ if(obj.geometry) obj.geometry.dispose(); });
+  }
+  blockMesh=null; blockEdges=null;
 
   // solid block visible before first cut
-  if(prog.blkCyl){
+  if(prog.hasStock!==false && prog.blkCyl){
     var cyl = prog.blkCyl;
     var cylH = cyl.zMax - cyl.zMin;
     var bg = new THREE.CylinderGeometry(cyl.r, cyl.r, cylH, 64);
@@ -237,17 +243,26 @@ function buildScene(prog){
     blockEdges.add(new THREE.Line(edgeGeoB, edgeMat));
     blockEdges.add(new THREE.Line(edgeGeoT, edgeMat));
     scene.add(blockEdges);
-  } else {
-    var bg = new THREE.BoxGeometry(w, d, h);
-    bg.translate(min.x+w/2, min.y+d/2, min.z+h/2);
+  } else if(prog.hasStock!==false) {
+    var stockMin=prog.blkMin, stockMax=prog.blkMax;
+    var stockW=stockMax.x-stockMin.x, stockD=stockMax.y-stockMin.y, stockH=stockMax.z-stockMin.z;
+    var bg = new THREE.BoxGeometry(stockW, stockD, stockH);
+    bg.translate(stockMin.x+stockW/2, stockMin.y+stockD/2, stockMin.z+stockH/2);
     blockMesh = new THREE.Mesh(bg, new THREE.MeshLambertMaterial({color:_stockHex()}));
     scene.add(blockMesh);
     blockEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bg), new THREE.LineBasicMaterial({color:0x3a3e48}));
     scene.add(blockEdges);
   }
   // voxel init — MC mesh will replace blockMesh immediately
-  vxInit(prog);
+  if(prog.hasStock!==false) vxInit(prog);
+  else {
+    if(VX&&VX.mesh){ scene.remove(VX.mesh); if(VX.mesh.geometry) VX.mesh.geometry.dispose(); }
+    VX=null;
+    var refineBtn=document.getElementById('refineBtnCanvas');
+    if(refineBtn) refineBtn.style.display='none';
+  }
   if(blockMesh) blockMesh.visible=false; // always hide — voxel mesh takes over
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 
 
   // table grid at Z=min.z

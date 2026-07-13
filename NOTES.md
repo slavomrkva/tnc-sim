@@ -291,6 +291,53 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.829 — Closed C5 after the accepted web fix was ported to Android 1.0.30.
+  Moved the bounded-editor symptom, root cause, mobile verification and final
+  cross-repo state from `TODO.md` to `BUG_HISTORY.md`. No new runtime behaviour;
+  this commit prepares the tested branch for merge.
+- v0.828 — Follow-up for the mobile BLKFORM toggle: the Measure overlay no
+  longer uses the same fixed top-right position as the canvas buttons. It now
+  measures the complete, possibly wrapped button row and opens 6px below it;
+  at 390×844 the controls ended at Y=230 and the overlay began at Y=236 with
+  no intersection. BLKFORM now forces an immediate WebGL repaint after a tap,
+  and turning it off while Measure is active closes the overlay, disables
+  Measure, and hides the stock. Bumped the web service-worker cache v4→v5 so
+  the new handler/layout cannot remain paired with stale runtime assets.
+  Verified locally and against the published v0.827 handler with no console
+  errors. Web-only; Android remains unchanged.
+- v0.827 — Added the web-only `BLKFORM OFF/ON` view toggle beside Measure and
+  Path. It hides the 3D voxel/block/edges and the 2D workpiece footprint while
+  toolpath animation, cutting, and collision checks continue internally; ON
+  restores the current machined mesh even mid-run. A single visibility state
+  is re-applied after scene builds, voxel resets/rebuilds, high-resolution
+  refine, and Learn blank updates so hidden stock cannot reappear by itself.
+  Measure is disabled while stock is hidden, and the toggle is disabled for a
+  program that has no actual stock. Verified at 390×844 while running (OFF,
+  continued voxel updates, ON) and with a no-BLK program, with no console
+  errors. Web test branch only; Android is unchanged and shared `core/` files
+  intentionally diverge pending acceptance/port.
+- v0.826 — Fixed the light-theme field editor contrast by giving `--bg` a
+  dark value inside `.ctx-panel`, so TOOL CALL tool names and all other shared
+  interactive field values no longer render light-on-light. Added intentional
+  toolpath-only simulation: no BLK FORM, or a complete box BLK FORM whose six
+  coordinates are all zero, sets `prog.hasStock=false`; validation accepts it,
+  3D/2D omit the workpiece and voxel/refine pipeline, and the viewers frame the
+  programmed motion. Added parser regression tests for absent, all-zero, and
+  valid BLK FORM. Browser-tested all three cases plus the light-mode TOOL CALL
+  panel with no console errors. Web-only test branch for now: the changed
+  shared `core/` files intentionally diverge from Android until this behaviour
+  is accepted and ported.
+- v0.825 — Added the web-only C5 test fix on
+  `fix/c5-bounded-editor-viewport`: the mobile Editor is now a fixed flex
+  column and only the program textarea scrolls, so text has real vertical
+  boundaries below Path functions/context/practice controls and above the
+  bottom tabs instead of passing behind sticky overlays. Removed mobile
+  textarea auto-grow and the obsolete sticky-height variables; the existing
+  textarea/line-number/highlight scroll synchronization is used again.
+  `kbd-open` removes the hidden bottom-tab reservation while the existing rule
+  hides the practice strip. Verified locally at 390×844 (normal, scrolled,
+  practice, and L-field panel) plus 1280×800 desktop. C5 remains open pending
+  real-phone web verification; Android is intentionally unchanged.
 - v0.824 — Closed C2 after the user confirmed the Android 1.0.27 port as well
   as the already-verified web fix. Moved the full repro, root cause, rejected
   partial approaches, final continuity fix, commits, and regression/build

@@ -64,6 +64,7 @@ function vxReset(){
   if(VX.mesh){scene.remove(VX.mesh);VX.mesh.geometry.dispose();VX.mesh=null;}
   if(blockMesh) blockMesh.visible=true;
   if(blockEdges) blockEdges.visible=true;
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
 
 function vxCut(tx,ty,tz,toolR,toolShape){
@@ -260,6 +261,7 @@ function vxRebuildMesh(){
   VX.dirty=false;
   if(blockMesh) blockMesh.visible=false;
   if(blockEdges) blockEdges.visible=false;
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
 
 function easeInOut(t){ return t<0.5 ? 2*t*t : -1+(4-2*t)*t; }
@@ -361,7 +363,7 @@ function advance(dt){
       mode='done';
       updateStatus('Done — '+prog.totalBlocks+' blocks executed', false);
       calcToolTimes(sub);
-      var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=''; rb.disabled=false; rb.textContent='◆ Refine'; }
+      var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=prog.hasStock===false?'none':''; rb.disabled=false; rb.textContent='◆ Refine'; }
       updateSimInfoPanel();
       updateToolLegend();
       triggerRefine();

@@ -37,7 +37,7 @@ function resize2d(){
 }
 
 function tf2d(){
-  var min=prog.blkMin, max=prog.blkMax, pad=36;
+  var min=prog.viewMin||prog.blkMin, max=prog.viewMax||prog.blkMax, pad=36;
   var rx=(max.x-min.x)||100, ry=(max.y-min.y)||80;
   var s = Math.min((canvas2d.width-pad*2)/rx, (canvas2d.height-pad*2)/ry);
   var ox = pad + (canvas2d.width-pad*2 - rx*s)/2 - min.x*s;
@@ -52,13 +52,15 @@ function draw2dFull(withPath){
   resize2d();
   var t = tf2d();
   ctx2d.clearRect(0,0,canvas2d.width,canvas2d.height);
-  // workpiece footprint
-  var p1=sc2d(prog.blkMin.x,prog.blkMin.y,t), p2=sc2d(prog.blkMax.x,prog.blkMax.y,t);
-  ctx2d.fillStyle='rgba(154,157,166,0.06)';
-  ctx2d.fillRect(Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.abs(p2.x-p1.x),Math.abs(p2.y-p1.y));
-  ctx2d.strokeStyle='rgba(74,158,255,0.25)';ctx2d.lineWidth=1;ctx2d.setLineDash([4,4]);
-  ctx2d.strokeRect(Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.abs(p2.x-p1.x),Math.abs(p2.y-p1.y));
-  ctx2d.setLineDash([]);
+  // workpiece footprint (absent in toolpath-only mode)
+  if(prog.hasStock!==false && (typeof stockVisible==='undefined'||stockVisible)){
+    var p1=sc2d(prog.blkMin.x,prog.blkMin.y,t), p2=sc2d(prog.blkMax.x,prog.blkMax.y,t);
+    ctx2d.fillStyle='rgba(154,157,166,0.06)';
+    ctx2d.fillRect(Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.abs(p2.x-p1.x),Math.abs(p2.y-p1.y));
+    ctx2d.strokeStyle='rgba(74,158,255,0.25)';ctx2d.lineWidth=1;ctx2d.setLineDash([4,4]);
+    ctx2d.strokeRect(Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.abs(p2.x-p1.x),Math.abs(p2.y-p1.y));
+    ctx2d.setLineDash([]);
+  }
   ctx2d.font='10px JetBrains Mono, monospace';ctx2d.fillStyle='rgba(255,255,255,0.25)';
   if(withPath){
     for(var i=0;i<sub.length;i++){
@@ -137,7 +139,9 @@ function switchView(v){
   var _refineBtn  = document.getElementById('refineBtnCanvas');
   if(_measureBtn) _measureBtn.style.visibility = v==='3d'?'visible':'hidden';
   var _pathBtn = document.getElementById('pathToggle');
+  var _stockBtn = document.getElementById('stockToggle');
   if(_pathBtn) _pathBtn.style.visibility = v==='tools'?'hidden':'visible';
+  if(_stockBtn) _stockBtn.style.visibility = v==='tools'?'hidden':'visible';
   if(_refineBtn)  _refineBtn.style.visibility  = v==='tools'?'hidden':'visible';
   var _tb2 = document.getElementById('activeToolBadge');
   if(_tb2) _tb2.style.visibility = v==='tools'?'hidden':'visible';

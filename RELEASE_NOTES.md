@@ -10,6 +10,24 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.828 (mobile web test)
+- Fixed the Measure panel overlapping `BLKFORM` on phones, and made workpiece
+  visibility changes repaint immediately after a tap.
+
+## v0.827 (mobile web test)
+- Added a `BLKFORM OFF/ON` control beside Measure and Path. It can hide or
+  restore the current workpiece during simulation so the toolpath is easier to
+  inspect.
+
+## v0.826 (web test)
+- Fixed unreadable tool/function names in light mode interactive panels.
+- Programs can now run without a workpiece: omit BLK FORM or set both box
+  corners to zero to watch only the tool and its path.
+
+## v0.825 (mobile web test)
+- The program editor now has fixed vertical boundaries below its controls, so
+  program text no longer scrolls behind the Path functions or practice panels.
+
 ## v0.822
 - Fixed RL/RR cancellation: `L Z... R0` now retracts vertically instead
   of moving diagonally by the tool-radius compensation offset.

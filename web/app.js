@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.824';
+var APP_VERSION = '0.829';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1259,6 +1259,44 @@ var pendingToolNum = 0; // tool number waiting in magazine
 
 
 var pathsVisible = true;
+var stockVisible = true;
+
+function updateStockToggle(){
+  var btn=document.getElementById('stockToggle');
+  if(!btn) return;
+  var hasStock=!!(prog&&prog.hasStock!==false);
+  btn.disabled=!hasStock;
+  btn.textContent=stockVisible?'BLKFORM OFF':'BLKFORM ON';
+  btn.style.borderColor=!stockVisible&&hasStock?'var(--accent)':'var(--border)';
+  btn.style.color=!stockVisible&&hasStock?'var(--accent)':'var(--text3)';
+  btn.setAttribute('aria-pressed',stockVisible?'false':'true');
+  btn.title=hasStock
+    ? (stockVisible?'Hide workpiece and show only the toolpath':'Show the current machined workpiece')
+    : 'No BLK FORM workpiece in this program';
+}
+
+function applyStockVisibility(){
+  var hasStock=!!(prog&&prog.hasStock!==false);
+  var show=hasStock&&stockVisible;
+  if(VX&&VX.mesh) VX.mesh.visible=show;
+  if(blockMesh) blockMesh.visible=show&&!(VX&&VX.mesh);
+  if(blockEdges) blockEdges.visible=show&&(!VX||!VX.hasCut);
+  if(!show&&measureMode) toggleMeasure();
+  var measureBtn=document.getElementById('measureBtn');
+  if(measureBtn) measureBtn.disabled=!show;
+  updateStockToggle();
+  if(typeof curView!=='undefined'&&curView==='2d') draw2dFull(true);
+}
+
+function toggleStockVisibility(){
+  ensurePrepared();
+  if(!prog||prog.hasStock===false){ updateStockToggle(); return; }
+  stockVisible=!stockVisible;
+  applyStockVisibility();
+  // Make a tap visibly take effect immediately even while the idle renderer is
+  // throttled; the animation loop continues to enforce the same state later.
+  if(THREE_OK&&renderer&&scene&&camera) renderer.render(scene,camera);
+}
 
 
 

@@ -117,6 +117,7 @@ function validateProgram(code){
   var hasBegin=false, hasEnd=false, hasBlk1=false, hasBlk2=false;
   var beginName='', endName='';
   var blkMin1={x:null,y:null,z:null};
+  var blkMax1={x:null,y:null,z:null};
   var _cylPending=false, _cylZ0_val=0; // cylinder blank size check state
   var lastCC=false, ccLine=-1;
   var valRcState='';
@@ -237,14 +238,16 @@ function validateProgram(code){
         probs.push({line:srcI,sev:'warn',msg:'BLK FORM 0.2 incomplete \u2014 define X, Y and Z'});
       else {
         var _bx=u.match(/X([+-]?\d+\.?\d*)/),_by=u.match(/Y([+-]?\d+\.?\d*)/),_bz=u.match(/Z([+-]?\d+\.?\d*)/);
+        if(_bx) blkMax1.x=parseFloat(_bx[1]); if(_by) blkMax1.y=parseFloat(_by[1]); if(_bz) blkMax1.z=parseFloat(_bz[1]);
+        var _zeroBox = blkMin1.x===0&&blkMin1.y===0&&blkMin1.z===0&&blkMax1.x===0&&blkMax1.y===0&&blkMax1.z===0;
         // Side length = max corner (0.2) - min corner (0.1). Limit each side to 500 mm.
         var MAX_SIDE = 500;
         if(_bx&&blkMin1.x!==null){ var _sx=Math.abs(parseFloat(_bx[1])-blkMin1.x); if(_sx>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X side ('+_sx.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
         if(_by&&blkMin1.y!==null){ var _sy=Math.abs(parseFloat(_by[1])-blkMin1.y); if(_sy>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y side ('+_sy.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
         if(_bz&&blkMin1.z!==null){ var _sz=Math.abs(parseFloat(_bz[1])-blkMin1.z); if(_sz>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z side ('+_sz.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
-        if(blkMin1.x!==null&&_bx&&parseFloat(_bx[1])<=blkMin1.x) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X max ('+_bx[1]+') must be > X min ('+blkMin1.x+')'});
-        if(blkMin1.y!==null&&_by&&parseFloat(_by[1])<=blkMin1.y) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y max ('+_by[1]+') must be > Y min ('+blkMin1.y+')'});
-        if(blkMin1.z!==null&&_bz&&parseFloat(_bz[1])<=blkMin1.z) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z max ('+_bz[1]+') must be > Z min ('+blkMin1.z+')'});
+        if(!_zeroBox&&blkMin1.x!==null&&_bx&&parseFloat(_bx[1])<=blkMin1.x) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X max ('+_bx[1]+') must be > X min ('+blkMin1.x+')'});
+        if(!_zeroBox&&blkMin1.y!==null&&_by&&parseFloat(_by[1])<=blkMin1.y) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y max ('+_by[1]+') must be > Y min ('+blkMin1.y+')'});
+        if(!_zeroBox&&blkMin1.z!==null&&_bz&&parseFloat(_bz[1])<=blkMin1.z) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z max ('+_bz[1]+') must be > Z min ('+blkMin1.z+')'});
       }
 
     } else if(u.indexOf('BLK FORM CYLINDER')===0){
@@ -436,7 +439,9 @@ function validateProgram(code){
   if(!hasBegin) probs.push({line:0,sev:'err',msg:'BEGIN PGM missing'});
   if(!hasEnd)   probs.push({line:lines.length-1,sev:'err',msg:'END PGM missing'});
   if(!hasToolCall&&hasBegin) probs.push({line:firstMoveLine>0?firstMoveLine:1,sev:'warn',msg:'No TOOL CALL programmed'});
-  if(!hasBlk1||!hasBlk2) probs.push({line:0,sev:'warn',msg:'BLK FORM incomplete \u2014 default workpiece used'});
+  // No BLK FORM is a supported toolpath-only mode. Warn only when the box
+  // definition is genuinely half-finished.
+  if(hasBlk1!==hasBlk2) probs.push({line:0,sev:'warn',msg:'BLK FORM incomplete'});
   if(valRcState==='RL'||valRcState==='RR') probs.push({line:valRcLine,sev:'err',msg:'Radius comp. '+valRcState+' still active at END PGM \u2014 cancel with R0'});
 
   return probs;
@@ -453,6 +458,9 @@ function parseProgram(code){
   var blkMin = {x:0,y:0,z:0};
   var blkMax = {x:100,y:80,z:40};
   var blkCyl = null; // {cx, cy, r, zMin, zMax} if cylindrical blank
+  _WORKPIECE_TOP_Z = 0;
+  var hasBlkDefinition = false;
+  var boxMinComplete = false, boxMaxComplete = false;
   var ccx=null, ccy=null;
   var feed = DEFAULT_FEED;
   lastDefinedFeed = DEFAULT_FEED;
@@ -490,6 +498,7 @@ function parseProgram(code){
   for(var p=0;p<lines.length;p++){
     var lu = lines[p].trim().replace(/;.*$/,'').trim().toUpperCase();
     if(lu.indexOf('BLK FORM CYLINDER')===0){
+      hasBlkDefinition = true;
       // CYL: 0.1 has center X Y and Z min; 0.2 has radius (X=Y=R) and Z max
       var cx=lu.match(/X([+-]?\d+\.?\d*)/),cy=lu.match(/Y([+-]?\d+\.?\d*)/),cz=lu.match(/Z([+-]?\d+\.?\d*)/);
       if(cx&&cy&&cz){
@@ -497,10 +506,14 @@ function parseProgram(code){
         blkMin.x=parseFloat(cx[1]); blkMin.y=parseFloat(cy[1]); blkMin.z=parseFloat(cz[1]);
       }
     } else if(lu.indexOf('BLK FORM 0.1')===0){
+      hasBlkDefinition = true;
       var x1=lu.match(/X([+-]?\d+\.?\d*)/),y1=lu.match(/Y([+-]?\d+\.?\d*)/),z1=lu.match(/Z([+-]?\d+\.?\d*)/);
+      boxMinComplete = !!(x1&&y1&&z1);
       if(x1)blkMin.x=parseFloat(x1[1]); if(y1)blkMin.y=parseFloat(y1[1]); if(z1)blkMin.z=parseFloat(z1[1]);
     } else if(lu.indexOf('BLK FORM 0.2')===0){
+      hasBlkDefinition = true;
       var x2=lu.match(/X([+-]?\d+\.?\d*)/),y2=lu.match(/Y([+-]?\d+\.?\d*)/),z2=lu.match(/Z([+-]?\d+\.?\d*)/);
+      boxMaxComplete = !!(x2&&y2&&z2);
       if(x2)blkMax.x=parseFloat(x2[1]); if(y2)blkMax.y=parseFloat(y2[1]); if(z2)blkMax.z=parseFloat(z2[1]);
       _WORKPIECE_TOP_Z = blkMax.z;
     }
@@ -527,6 +540,8 @@ function parseProgram(code){
       break;
     }
   }
+  var zeroBox = boxMinComplete&&boxMaxComplete&&blkMin.x===0&&blkMin.y===0&&blkMin.z===0&&blkMax.x===0&&blkMax.y===0&&blkMax.z===0;
+  var hasStock = hasBlkDefinition&&!zeroBox&&(blkMax.x>blkMin.x)&&(blkMax.y>blkMin.y)&&(blkMax.z>blkMin.z);
   pos = {x:blkMin.x, y:blkMax.y, z:blkMax.z + 50}; // home: back-left corner, above block
   // push initial home position as virtual start
   sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:0, srcLine:0, rc:''});
@@ -1334,7 +1349,23 @@ function parseProgram(code){
   // mitre at corners, and insert rounding arcs at convex outer corners.
   applyRadiusComp(sub);
 
-  return {blkMin:blkMin, blkMax:blkMax, blkCyl:blkCyl, sub:sub, totalBlocks:blockIndex, start:{x:blkMin.x,y:blkMax.y,z:blkMax.z+50}};
+  // In toolpath-only mode, frame the viewers around the actual motion instead
+  // of the unused default workpiece dimensions.
+  var viewMin=blkMin, viewMax=blkMax;
+  if(!hasStock&&sub.length){
+    var mn={x:Infinity,y:Infinity,z:Infinity}, mx={x:-Infinity,y:-Infinity,z:-Infinity};
+    sub.forEach(function(sm){
+      [sm.from,sm.to].forEach(function(pt){
+        mn.x=Math.min(mn.x,pt.x); mn.y=Math.min(mn.y,pt.y); mn.z=Math.min(mn.z,pt.z);
+        mx.x=Math.max(mx.x,pt.x); mx.y=Math.max(mx.y,pt.y); mx.z=Math.max(mx.z,pt.z);
+      });
+    });
+    var span=Math.max(mx.x-mn.x,mx.y-mn.y,mx.z-mn.z,20), pad=Math.max(10,span*0.1);
+    viewMin={x:mn.x-pad,y:mn.y-pad,z:mn.z-pad};
+    viewMax={x:mx.x+pad,y:mx.y+pad,z:mx.z+pad};
+  }
+
+  return {blkMin:blkMin, blkMax:blkMax, blkCyl:blkCyl, hasStock:hasStock, viewMin:viewMin, viewMax:viewMax, sub:sub, totalBlocks:blockIndex, start:{x:blkMin.x,y:blkMax.y,z:blkMax.z+50}};
 }
 
 function applyRadiusComp(sub){
