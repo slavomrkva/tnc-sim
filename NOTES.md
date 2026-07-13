@@ -209,6 +209,9 @@ Use the full CSS/JS condition
 landscape/foldable windows. Do not introduce a width-only variant: mixed rules
 create a broken hybrid layout. Android deliberately forces single-column always.
 
+Read `docs/history/layout-and-renderer-rationale.md` only when changing this
+breakpoint or mobile tabs; it preserves the detailed failure modes and rationale.
+
 ### 5. WebGL / 3D can fail on some phones (esp. Xiaomi/HyperOS)
 Renderer creation is wrapped defensively (tiered options; no `high-performance`
 on touch devices — it makes some GPUs kill the context). Context loss is handled:
@@ -246,6 +249,9 @@ and sync `vendor/` into the Android repo's `www/` as well.
 container changes. Keep that check: a window `resize` listener misses splitter
 drags, mobile tabs, and orientation/container changes, which otherwise stretch
 the renderer buffer and camera aspect.
+
+Read `docs/history/layout-and-renderer-rationale.md` only when changing the
+renderer-resize path; it preserves the CSS-sizing and idle-render rationale.
 
 ### 11. Bug lifecycle: TODO.md while open (log every attempt), BUG_HISTORY.md when fixed
 Every discovered bug MUST be tracked in files, not carried only in one session's
@@ -285,6 +291,9 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.816 — Preserved detailed layout and renderer rationale in
+  `docs/history/layout-and-renderer-rationale.md` and linked it from concise
+  current rules, so it is loaded only for relevant changes. No runtime change.
 - v0.815 — Documentation-only cleanup: added concise session routing, corrected
   the modular architecture description, condensed duplicate layout/renderer
   detail, and documented web release tagging. No runtime change.

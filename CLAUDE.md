@@ -10,6 +10,8 @@ modules from `core/` and `web/`; there is no build step.
    bugs must be tracked in both repositories.
 3. For a release/deploy, read `RELEASE_NOTES.md` and the Deploy flow in
    `NOTES.md`.
+4. Read `docs/history/` only when a current root document links to the relevant
+   topic.
 
 ## Non-negotiables
 
