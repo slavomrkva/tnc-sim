@@ -269,34 +269,41 @@ idle-render throttle still paints that frame. If you add another code path that
 resizes the 3D pane, you don't need to do anything — the loop already covers it
 — but don't "optimize away" the per-frame check back to a resize-only listener.
 
-### 11. Mobile tab bar: focus = "hide now", viewport = "when to show again" — never tie visibility to focus
-`web/keyboard.js` hides `.mtab-bar` (the Editor / 3D / Learn bottom bar) while
-the OS keyboard is open. Two signals cooperate and their jobs must stay
-separate:
-- **`visualViewport` shrink (`offset > 140`)** is the *authority* on whether the
-  keyboard is actually up. But it only trips once the viewport has *already*
-  lost 140px — partway through the open animation — so on its own the fixed bar
-  is seen riding up with the rising keyboard first (on browsers that lift
-  `position:fixed` above the keyboard).
-- **`focusin` on a text field (`focusHold`)** hides the bar the instant a field
-  is focused (the real keyboard trigger, fires *before* any viewport change), to
-  bridge that open-animation gap.
+### 11. Mobile tab bar stays STATIC under the keyboard — counter-translate, don't hide
+`web/keyboard.js` keeps `.mtab-bar` (the Editor / 3D / Learn bottom bar) pinned
+to the **physical bottom** of the screen while the OS keyboard is open; the
+keyboard just draws over it. The desired behaviour (chosen by the project owner)
+is: the bar never rides up, never hides, never jumps — it is static.
 
-**The trap (cost a whole release, v0.812→v0.813):** you cannot make `kbdOpen =
-offset>140 || focusHold` and leave it there. Dismissing the keyboard frequently
-does **not** blur the field (Android's back button, the keyboard's own hide
-button) → **no `focusout` fires** → `focusHold` stays `true` forever → the bar
-stays hidden and never comes back. Focus state is NOT keyboard-visibility state.
-So `apply()` **drops `focusHold` the moment `offset > 140`** (viewport has
-confirmed the keyboard; from then the viewport alone decides when to re-show).
-`focusHold` is only ever a short bridge across the open animation. A 1.5s
-`holdTimer` is the safety net for a focus that raises no keyboard at all (a
-hardware keyboard on a touch device) so the bar can't get stuck hidden.
-Gated to the mobile layout (`max-width:1024px, max-height:600px`) AND touch
-input (`pointer: coarse`/`ontouchstart`) — a narrow desktop window with the
-editor focused raises no on-screen keyboard, so the bar must stay put there.
-If you touch this file: keep the two jobs separate, and never let focus alone
-keep the bar hidden.
+**Why it moves in the first place:** the bar is `position:fixed; bottom:0`, but
+the mobile browser raises fixed elements to the bottom of the *visual* viewport
+when the keyboard opens — i.e. **up by exactly the keyboard height** (`offset =
+window.innerHeight - (vv.height + vv.offsetTop)`). That lift is the original
+"bottom panel moves up with the keyboard" bug.
+
+**The fix:** cancel the lift with `bar.style.transform = translateY(offset)` —
+push it back DOWN by the same amount, every frame, so it stays at the physical
+bottom (covered by the keyboard). NOT by hiding it: two earlier releases hid the
+bar (v0.812 hid it on the viewport shrink; v0.813 refined the show/hide), but
+the appearing/disappearing itself read as "jumping up and down", so the owner
+asked for a genuinely static bar instead. **Do not reintroduce show/hide.**
+
+**Gate the transform on focus** (`focusHold`, set on `focusin` of an
+INPUT/TEXTAREA/contenteditable, cleared on `focusout`). Two reasons: (1) focus
+fires *before* the viewport shrinks, so pinning from that instant gives zero
+upward drift even at the very start of the open animation; (2) outside a
+keyboard context the transform is 0, so ordinary URL-bar scrolling never gets
+counter-translated (a raw always-on transform chasing the viewport is what
+caused jitter in an even earlier attempt — see the top-of-file comment). Note
+`offset` is 0 whenever the keyboard is down, so a lingering `focusHold` after a
+back-button dismiss (which doesn't blur, so no `focusout`) is harmless — the bar
+just sits at the bottom. Gated to the mobile layout (`max-width:1024px,
+max-height:600px`) AND touch input (`pointer: coarse`/`ontouchstart`) — a narrow
+desktop window with the editor focused raises no on-screen keyboard.
+
+`kbd-open`/`--vvh` are still driven purely by the viewport shrink (`offset >
+140`) — they size the *editor* so the caret clears the keyboard, an independent
+concern from the bar. Don't couple them to `focusHold`.
 
 ---
 
@@ -317,6 +324,22 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.814 — Reworked the mobile keyboard handling for the bottom tab bar into a
+  genuinely **static** bar (owner's requirement): it no longer hides/shows at
+  all — the appearing/disappearing of v0.812/v0.813 itself read as "jumping up
+  and down". Root cause of all the movement: the bar is `position:fixed;
+  bottom:0` and the mobile browser lifts fixed elements to the *visual*-viewport
+  bottom when the keyboard opens, i.e. up by exactly the keyboard height
+  (`offset`). `web/keyboard.js` now cancels that lift with
+  `transform: translateY(offset)` every frame, so the bar stays pinned to the
+  physical bottom and the keyboard simply draws over it — no rise, no hide, no
+  jump. The counter-translate is gated on `focusHold` (a focused text field) so
+  it only runs in a keyboard context and ordinary URL-bar scrolling isn't
+  counter-moved; `offset` is 0 whenever the keyboard is down, so a lingering
+  focus after a back-button dismiss is harmless. `kbd-open`/`--vvh` still come
+  straight from the viewport shrink (they size the editor, independent of the
+  bar). Removed the v0.812/v0.813 show/hide + `holdTimer` machinery. See rule
+  #11. Web-only (`web/keyboard.js` is already diverged from android).
 - v0.813 — Follow-up to v0.812: the bottom tab bar stayed hidden after the
   keyboard was dismissed. v0.812 tied `kbdOpen` to `offset > 140 || focusHold`,
   but dismissing the OS keyboard often keeps the field focused (Android's back

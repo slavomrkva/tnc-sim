@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.814
+- The bottom Editor / 3D / Learn tab bar now stays completely static while
+  typing on mobile: it no longer rides up with the keyboard, and no longer
+  hides or jumps. The keyboard simply opens over it, and it's right there at the
+  bottom again when the keyboard closes.
+
 ## v0.813
 - Fixed the bottom Editor / 3D / Learn tab bar not reappearing after you close
   the keyboard on mobile — it now reliably comes back once the keyboard is
