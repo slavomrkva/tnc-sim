@@ -10,8 +10,8 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.821 (web test)
-- Test fix for RL/RR cancellation: `L Z... R0` now retracts vertically instead
+## v0.822
+- Fixed RL/RR cancellation: `L Z... R0` now retracts vertically instead
   of moving diagonally by the tool-radius compensation offset.
 
 ## v0.819 (mobile web test)

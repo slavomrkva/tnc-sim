@@ -49,8 +49,8 @@ END PGM PROGRAM
 ```
 
 ### Status
-Open. Test fix implemented on `fix/c2-r0-pure-z`; awaiting real-device web
-verification before merge or Android port.
+Open across both repos. Web fix verified and accepted; Android port prepared
+for 1.0.27 and awaiting real-device verification.
 
 ### Analysis (2026-07-13)
 - The defect is in the shared `core/parser-engine.js` radius-compensation
@@ -77,6 +77,9 @@ verification before merge or Android port.
   performs the lead-out to its nominal target. Added a Node regression harness
   for RL, RR, lateral R0, repeated Z retracts, later XY lead-out, and the full
   reported RND/CHF contour. All checks pass; Android remains unchanged.
+- **Mobile-web verification:** user confirmed the reported contour retracts
+  correctly. The exact parser change and regression harness are therefore
+  being ported to Android 1.0.27; C2 remains open until that build is verified.
 
 ## C3 — Vkladanie RND/CHF niekedy vloží blok na začiatok programu
 **Repos:** web + Android. **Reported:** 2026-07-13.
