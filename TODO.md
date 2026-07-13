@@ -22,6 +22,19 @@ používateľ ručne prescroloval.
 ### Status
 Open. Súvisí s C3.
 
+### Attempts
+- **Web test branch `debug/c1-mobile-focus` (v0.819)** — removed the repeated
+  delayed hidden-input focus and 60/200/450/700 ms scroll rewrites, moved
+  `#mobileInput` out of the editor scroll flow, made focus use
+  `preventScroll`, and explicitly ends field/Q/BLK input sessions before Learn
+  replaces or restores the program. Keyboard detection now has hysteresis and
+  a baseline fallback for browsers where `innerHeight` shrinks with
+  `visualViewport`. Local forced-mobile browser test: opening a field focuses
+  `mobileInput` once; `Done` and entering Learn leave it blurred and it does
+  not return after 150 ms; no JS console errors. **Awaiting real-phone web
+  verification before treating C1 as fixed or porting the shared-core changes
+  to Android.**
+
 ## C2 — RL/RR korekcia pri záverečnom pohybe Z+20 vedie nástroj šikmo do modelu
 **Repos:** web + Android. **Reported:** 2026-07-13.
 

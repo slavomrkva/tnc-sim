@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.819 (mobile web test)
+- Test fix for editor jumping on phones: field editing and Learn practice now
+  manage keyboard focus without repeatedly pulling the program toward the first
+  line. This build still needs verification on a real phone.
+
 ## v0.812
 - Fixed an empty dark strip at the bottom of the Learn tab on phones/narrow
   windows — the lesson panel now fills the screen down to the bottom tabs.

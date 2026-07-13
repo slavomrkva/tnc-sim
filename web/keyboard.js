@@ -8,13 +8,23 @@
 (function(){
   if(!window.visualViewport) return;
   var bar = null, raf = 0, idleTicks = 0, last = -1;
+  var baseline = window.visualViewport.height;
+  var keyboardOpen = false;
   function apply(){
     if(!bar) bar = document.querySelector('.mtab-bar');
     var vv = window.visualViewport;
     var offset = window.innerHeight - (vv.height + vv.offsetTop);
     if(offset < 0.5) offset = 0;
     offset = Math.round(offset);
-    var kbdOpen = offset > 140;
+    if(!keyboardOpen && vv.height >= baseline - 2) baseline = vv.height;
+    var drop = Math.max(offset, baseline - vv.height);
+    // Hysteresis prevents the Learn practice strip and bottom bar from
+    // repeatedly toggling during the keyboard/address-bar animation. The
+    // baseline fallback also covers browsers where innerHeight shrinks with
+    // visualViewport and the old offset therefore stayed near zero.
+    if(!keyboardOpen && drop > 140) keyboardOpen = true;
+    else if(keyboardOpen && drop < 80) keyboardOpen = false;
+    var kbdOpen = keyboardOpen;
     // expose the true visible height + keyboard state to CSS so the editor
     // layout can shrink to fit the space actually left above the keyboard
     document.documentElement.style.setProperty('--vvh', vv.height + 'px');
@@ -44,6 +54,9 @@
   window.visualViewport.addEventListener('scroll', kick);
   window.addEventListener('scroll', kick, {passive:true});
   window.addEventListener('touchmove', kick, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(kick, 50); });
+  window.addEventListener('orientationchange', function(){
+    keyboardOpen = false;
+    setTimeout(function(){ baseline = window.visualViewport.height; kick(); }, 300);
+  });
   kick();
 })();

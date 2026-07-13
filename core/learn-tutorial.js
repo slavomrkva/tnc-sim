@@ -579,6 +579,7 @@ function learnUpdateBlank(){
 }
 
 function openLearn(){
+  _learnEndEditorInput();
   LEARN.open = true;
   // Stash the user's own program right away and start with an EMPTY editor —
   // the whole point of Learn mode is writing every line yourself, and the 3D
@@ -650,7 +651,7 @@ function learnStartTask(ti){
   // dismissed, not blurred), then changing its value below and resizing it in
   // _growCode makes mobile browsers re-open the keyboard. Blur first so the user
   // lands on the new task able to read it, and taps in themselves when ready.
-  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+  _learnEndEditorInput();
   var L = LESSONS[LEARN.lesson];
   if(LEARN.savedCode === null) LEARN.savedCode = codeEl.value; // stash user's work once
   LEARN.task = ti; LEARN.lastResults = null; LEARN.view = 'lesson';
@@ -672,6 +673,7 @@ function learnCheck(){
 }
 
 function learnFinishLesson(){
+  _learnEndEditorInput();
   // Keep what the user wrote in the editor — finishing a lesson shouldn't
   // wipe their result and bring back the previously stashed program.
   LEARN.savedCode = null;           // drop the stash (kept code wins)
@@ -683,6 +685,7 @@ function learnFinishLesson(){
 }
 
 function learnExit(){
+  _learnEndEditorInput();
   if(LEARN.savedCode !== null){
     codeEl.value = LEARN.savedCode; LEARN.savedCode = null;
     dirty = true; updateLineNums(); runValidation();
@@ -699,6 +702,17 @@ function learnExit(){
   document.body.classList.remove('practice-on');
   if(typeof renderIdlePanel==='function') renderIdlePanel();
   if(typeof window._growCode==='function') requestAnimationFrame(window._growCode);
+}
+
+function _learnEndEditorInput(){
+  // A Learn transition may replace the entire program. Never leave a field/Q/
+  // BLK editor alive with offsets that point into the previous code, and never
+  // leave a pending hidden-input focus able to reopen the keyboard afterwards.
+  if(typeof FM!=='undefined' && FM.active) exitFieldMode(true);
+  if(typeof BLK!=='undefined' && BLK.active) closeCtxPanel();
+  if(typeof _qPopupLine!=='undefined' && _qPopupLine>=0) closeQPopup();
+  if(typeof _cancelMobileFocus==='function') _cancelMobileFocus(true);
+  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
 }
 
 function learnRender(){

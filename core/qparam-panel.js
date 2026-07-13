@@ -44,7 +44,8 @@ function openQPopup(lineIdx){
         return;
       }
     });
-    setTimeout(function(){ inp.focus(); inp.select(); }, 30);
+    _focusEditorControl(inp, function(){ return _qPopupLine>=0; });
+    try{ inp.select(); }catch(e){}
   }
 }
 

@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.818';
+var APP_VERSION = '0.819';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -782,6 +782,10 @@ var SUGS={
 document.getElementById('ctxPanel').addEventListener('mousedown', function(e){
   // don't intercept clicks on idle panel buttons
   if(e.target && e.target.closest && e.target.closest('.btn')) return;
+  // Buttons inside an active mobile field/Q editor must not steal focus from
+  // the hidden input. Completion actions explicitly end the input session.
+  if(isMobile() && e.target && e.target.closest && e.target.closest('button') &&
+     (FM.active || _qpPanelOpen())) e.preventDefault();
   saveLastSel();
 });
 document.getElementById('ctxPanel').addEventListener('mouseup', function(){
@@ -943,12 +947,6 @@ if(mobileInput){
     mobileInput.value = MI_SENTINEL;
     lastMobileVal = MI_SENTINEL;
   }
-
-  mobileInput.addEventListener('blur', function(){
-    if((FM.active || _qpPanelOpen()) && isMobile()){
-      setTimeout(function(){ mobileInput.focus(); }, 30);
-    }
-  });
 
   mobileInput.addEventListener('input', function(){
     // ── QP (Q parameter) panel routing — takes priority when open ──

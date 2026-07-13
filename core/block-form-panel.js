@@ -140,9 +140,13 @@ function renderBlkPanel(){
       +'<button class="fbar-done" onclick="'+doneAction+'">'+doneLabel+'</button>'
       +'</div>';
   }
-  // focus input on mobile so keyboard appears
-  setTimeout(function(){ var el=document.getElementById('blkFbarVal'); if(el&&el.tagName==='INPUT'){ el.focus(); el.select(); } },50);
-  _preserveEditorScroll();
+  // Focus once without scrolling the editor container. The input already
+  // exists after innerHTML assignment; no delayed focus is needed.
+  var _blkInput=document.getElementById('blkFbarVal');
+  if(_blkInput&&_blkInput.tagName==='INPUT'){
+    _focusEditorControl(_blkInput, function(){ return !!BLK.active; });
+    try{ _blkInput.select(); }catch(e){}
+  }
   if(typeof window._growCode==='function') requestAnimationFrame(window._growCode);
 }
 

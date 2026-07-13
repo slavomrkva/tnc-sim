@@ -5,8 +5,10 @@ function _qpPanelOpen(){ return !!document.getElementById('qpFbarVal'); }
 function _qpFocusMobile(){
   if(!isMobile()) return;
   var mi=document.getElementById('mobileInput');
-  if(mi){ mi.setAttribute('inputmode','text'); mi.value='​'; lastMobileVal='​'; setTimeout(function(){ mi.focus(); },30); }
-  _preserveEditorScroll();
+  if(mi){
+    mi.setAttribute('inputmode','text'); mi.value='​'; lastMobileVal='​';
+    _focusEditorControl(mi, function(){ return _qpPanelOpen(); });
+  }
 }
 
 function kpIcon(n){
@@ -191,6 +193,30 @@ function insertKey(code){
   dirty=true; updateLineNums(); runValidation();
 }
 
+var _mobileFocusToken = 0;
+
+function _cancelMobileFocus(blur){
+  _mobileFocusToken++;
+  if(!blur) return;
+  var mi=document.getElementById('mobileInput');
+  if(mi && document.activeElement===mi){ try{ mi.blur(); }catch(e){} }
+}
+
+function _focusEditorControl(el, stillValid){
+  if(!el || (stillValid && !stillValid())) return;
+  var token=++_mobileFocusToken;
+  var panel=document.querySelector('body[data-mtab="editor"] .editor-panel');
+  var keep=panel ? panel.scrollTop : 0;
+  try{ el.focus({preventScroll:true}); }catch(e){ try{ el.focus(); }catch(e2){} }
+  // Fallback for older mobile browsers without preventScroll support. Restore
+  // once, after focus, instead of fighting the browser/keyboard animation with
+  // a chain of delayed scrollTop writes.
+  requestAnimationFrame(function(){
+    if(token!==_mobileFocusToken || (stillValid && !stillValid())) return;
+    if(panel && Math.abs(panel.scrollTop-keep)>1) panel.scrollTop=keep;
+  });
+}
+
 function focusMobileInput(){
   if(!isMobile() || !FM.active) return;
   var mi=document.getElementById('mobileInput');
@@ -201,22 +227,9 @@ function focusMobileInput(){
     var f = FM.fields && FM.fields[FM.idx];
     var numeric = f && (f.type==='coord'||f.type==='num'||f.type==='feed'||f.type==='mval');
     mi.setAttribute('inputmode', numeric ? 'decimal' : 'text');
-    mi.value='​'; lastMobileVal='​'; setTimeout(function(){ mi.focus(); },30);
-    _preserveEditorScroll();
+    mi.value='​'; lastMobileVal='​';
+    _focusEditorControl(mi, function(){ return !!FM.active; });
   }
-}
-
-function _preserveEditorScroll(){
-  if(!isMobile()) return;
-  var panel = document.querySelector('body[data-mtab="editor"] .editor-panel');
-  if(!panel) return;
-  var keep = panel.scrollTop;
-  var restore = function(){ if(Math.abs(panel.scrollTop - keep) > 1) panel.scrollTop = keep; };
-  requestAnimationFrame(restore);
-  setTimeout(restore, 60);
-  setTimeout(restore, 200);
-  setTimeout(restore, 450);
-  setTimeout(restore, 700);
 }
 
 function selectField(i){
@@ -235,7 +248,6 @@ function selectField(i){
   }
   renderFbar();
   focusMobileInput();
-  _preserveEditorScroll();
 }
 
 function renderFbar(){
@@ -288,7 +300,6 @@ function renderFbar(){
   html+='</div>'; // ctx-row2
   bar.innerHTML=html;
   if(typeof window._growCode==='function') requestAnimationFrame(window._growCode);
-  focusMobileInput();
 }
 
 function refreshSelection(){
@@ -307,7 +318,7 @@ function refreshSelection(){
   if(el){ var fv=FM.fields[FM.idx]; el.textContent=fv.val===null?'—':fv.val; el.style.color=fv.val===null?'var(--text3)':''; }
 }
 
-function setFieldVal(v){ FM.fields[FM.idx].val=v; FM.typing=true; selectField(FM.idx); focusMobileInput(); }
+function setFieldVal(v){ FM.fields[FM.idx].val=v; FM.typing=true; selectField(FM.idx); }
 
 function toggleQField(){
   var f=FM.fields[FM.idx];
@@ -325,7 +336,6 @@ function toggleQField(){
   // IMPORTANT: set typing AFTER selectField — selectField resets FM.typing to false,
   // which would make the next typed digit wipe the 'Q' instead of appending to it.
   FM.typing=true;
-  focusMobileInput();
 }
 
 function applySug(v){
@@ -541,10 +551,13 @@ function enterFieldModeOnLine(info){
 }
 
 function exitFieldMode(keepCaret){
-  var cp=document.getElementById('ctxPanel'); if(cp){ cp.innerHTML=''; } renderIdlePanel();
   if(!FM.active) return;
+  var caret=FM.lineStart+FM.lineLen;
   FM.active=false;
-  if(!keepCaret){ try{ codeEl.setSelectionRange(FM.lineStart+FM.lineLen,FM.lineStart+FM.lineLen); }catch(e){} }
+  _cancelMobileFocus(true);
+  if(!keepCaret){ try{ codeEl.setSelectionRange(caret,caret); }catch(e){} }
+  var cp=document.getElementById('ctxPanel'); if(cp){ cp.innerHTML=''; }
+  renderIdlePanel();
 }
 
 function saveLastSel(){ lastSel={start:codeEl.selectionStart, end:codeEl.selectionEnd}; }

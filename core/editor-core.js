@@ -348,7 +348,10 @@ function writeLine(){
   dirty=true; updateLineNums(); runValidation();
 }
 
-function isMobile(){ return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
+function isMobile(){
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || /(?:^|[?&])mobileDebug=1(?:&|$)/.test(location.search);
+}
 
 function rcBtn(val,cur){ return '<button class="fbar-drbtn'+(cur===val?' sel':'')+'" onclick="setFieldVal(\''+val+'\')">'+val+'</button>'; }
 

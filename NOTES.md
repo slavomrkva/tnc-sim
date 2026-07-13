@@ -78,6 +78,10 @@ local static server — some browsers won't fetch module scripts over `file://`)
   also hand-port the change to `tnc-sim-android`'s `www/core/` (or that repo
   runs `./sync-core.sh` afterwards — one-way, web → android, manual only,
   see that script's header).
+  **Temporary exception on `debug/c1-mobile-focus`:** the C1 mobile-web test
+  deliberately changes the shared editor/Learn modules here only. Do not sync
+  this experiment to Android until it is verified on a real phone; if accepted,
+  port the final shared-core change deliberately and remove this exception.
 - **`web/*.js`** (4 files) — only 4 functions are genuinely diverged between
   the two repos, all in the "forced mobile layout" category:
   - `layout.js`: `_isMTab()` (real `matchMedia('(max-width:1024px)')`
@@ -291,6 +295,15 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.819 — Added the mobile-web C1 focus/scroll test fix on branch
+  `debug/c1-mobile-focus`: one scroll-safe hidden-input focus instead of
+  repeated delayed focus and scroll restoration, explicit edit-session cleanup
+  before Learn changes the program, and hysteresis plus a baseline fallback for
+  the web keyboard state. Added `?mobileDebug=1` to exercise the mobile JS path
+  in a desktop test browser. Local forced-mobile interaction checks confirmed
+  that `Done` and entering Learn release the hidden input without a delayed
+  refocus; no JS console errors. Real-phone verification still required before
+  merge or Android port.
 - v0.818 — Defined root Markdown as a small navigation layer: update existing
   sections, archive durable background in its existing topic, and add a root
   file only for a new current contract. No runtime change.

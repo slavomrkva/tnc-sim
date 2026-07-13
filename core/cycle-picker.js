@@ -16,6 +16,7 @@ function openCyclePicker(){
 }
 
 function closeCtxPanel(){
+  if(typeof _cancelMobileFocus==='function') _cancelMobileFocus(true);
   var panel = document.getElementById('ctxPanel');
   if(panel){ panel.innerHTML=''; panel.style.height=''; }
   BLK.active = false; BLK.step = 0;
