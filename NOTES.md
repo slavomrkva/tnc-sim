@@ -291,6 +291,12 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.823 — Closed C3 and C4 from user verification in the current app. C3 is
+  no longer observed after C1 stabilised focus/selection; no separate RND/CHF
+  change was needed. C4's current block-placement behaviour is accepted as
+  matching the intended workflow even though it may not literally implement
+  every sentence of the original wording. Moved both entries to
+  `BUG_HISTORY.md`; no insertion runtime change.
 - v0.822 — Accepted the v0.821 C2 fix after real mobile-web verification and
   prepared the identical parser/test port for Android 1.0.27. Removed the
   temporary web-only shared-core exception. C2 stays open until the Android

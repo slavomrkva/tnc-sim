@@ -15,6 +15,48 @@ Newest first.
 
 ---
 
+## C4 — Placement of a newly inserted block relative to the active line
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved/accepted:** 2026-07-13 in web v0.823 and Android 1.0.28.
+**Verified:** user testing in the current Android app.
+
+### Original expectation
+With the caret at the end of a non-empty active line, the next block should be
+inserted directly below it without an extra blank line. On an empty active
+line, the new block should replace that line.
+
+### Resolution note
+This entry described a desired interaction rule rather than a separately
+isolated runtime failure. After the C1 focus/selection stabilisation, the user
+confirmed that current insertion placement works according to their intended
+workflow. It is not necessarily a literal implementation of every sentence in
+the original expectation, but the observed behaviour is explicitly accepted
+as correct. No additional C4 code change was made. Do not reopen or rewrite the
+placement logic merely to match the old wording without a new concrete repro.
+
+---
+
+## C3 — RND/CHF occasionally inserted at the start of the program
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved:** 2026-07-13 in web v0.823 and Android 1.0.28.
+**Verified:** user no longer observes the symptom in the current Android app.
+
+### Symptom
+While programming, inserting RND or CHF could place the block at the very
+start of the program instead of near the active line.
+
+### Root cause and resolution
+No independent RND/CHF parser or insertion defect was isolated. The strongest
+evidence is that the stale/default selection produced by C1's competing focus
+and delayed-refocus paths sometimes made insertion use position zero. C1
+removed that race and stabilised the saved caret/selection. No separate C3 code
+change was required, and the user confirmed the symptom is absent in the
+current app. If it ever recurs, capture the active line, selection offsets and
+exact insertion button; treat that as a new concrete repro rather than
+reapplying the old focus timers.
+
+---
+
 ## C1 — Mobile editor focus/scroll jumping during value editing and Learn
 **Repos:** web `tnc-sim` (v0.819, `b1e111d`) + Android
 `tnc-sim-android` (1.0.25, `e5a8fb6`).
