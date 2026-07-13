@@ -291,6 +291,17 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.826 — Fixed the light-theme field editor contrast by giving `--bg` a
+  dark value inside `.ctx-panel`, so TOOL CALL tool names and all other shared
+  interactive field values no longer render light-on-light. Added intentional
+  toolpath-only simulation: no BLK FORM, or a complete box BLK FORM whose six
+  coordinates are all zero, sets `prog.hasStock=false`; validation accepts it,
+  3D/2D omit the workpiece and voxel/refine pipeline, and the viewers frame the
+  programmed motion. Added parser regression tests for absent, all-zero, and
+  valid BLK FORM. Browser-tested all three cases plus the light-mode TOOL CALL
+  panel with no console errors. Web-only test branch for now: the changed
+  shared `core/` files intentionally diverge from Android until this behaviour
+  is accepted and ported.
 - v0.825 — Added the web-only C5 test fix on
   `fix/c5-bounded-editor-viewport`: the mobile Editor is now a fixed flex
   column and only the program textarea scrolls, so text has real vertical

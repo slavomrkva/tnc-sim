@@ -361,7 +361,7 @@ function advance(dt){
       mode='done';
       updateStatus('Done — '+prog.totalBlocks+' blocks executed', false);
       calcToolTimes(sub);
-      var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=''; rb.disabled=false; rb.textContent='◆ Refine'; }
+      var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=prog.hasStock===false?'none':''; rb.disabled=false; rb.textContent='◆ Refine'; }
       updateSimInfoPanel();
       updateToolLegend();
       triggerRefine();

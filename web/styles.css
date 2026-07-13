@@ -49,6 +49,11 @@ html[data-theme="light"] .toolbar,
 html[data-theme="light"] .ctx-panel{
   background:#353d4c !important;
 }
+/* Field-editor values use --bg while the contextual panel re-scopes its text
+   to the dark-chrome palette. Keep that shared value surface dark too, or the
+   light theme produces white text on a near-white field for TOOL CALL and the
+   other interactive builders. */
+html[data-theme="light"] .ctx-panel{ --bg:#272d38; }
 /* Header/toolbar action buttons — filled fill on the dark chrome */
 html[data-theme="light"] .btn,
 html[data-theme="light"] .tool-act-btn,

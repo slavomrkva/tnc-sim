@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.826 (web test)
+- Fixed unreadable tool/function names in light mode interactive panels.
+- Programs can now run without a workpiece: omit BLK FORM or set both box
+  corners to zero to watch only the tool and its path.
+
 ## v0.825 (mobile web test)
 - The program editor now has fixed vertical boundaries below its controls, so
   program text no longer scrolls behind the Path functions or practice panels.

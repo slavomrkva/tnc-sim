@@ -17,8 +17,9 @@ Textové pole ide v pozadí za ovládacie panely s tlačidlami Path functions a
 obsah neprechádzal pod tieto panely.
 
 ### Status
-Open — web test fix prepared on `fix/c5-bounded-editor-viewport`; Android is
-unchanged.
+Open — the web test fix on `fix/c5-bounded-editor-viewport` was confirmed by
+the user; the branch is awaiting the final two web changes and merge. Android
+is unchanged.
 
 ### Attempts
 - Web v0.825 test fix: replaced the single scrolling `.editor-panel` plus
@@ -28,9 +29,9 @@ unchanged.
   Local Chrome checks at 390×844 confirmed exact adjacent boundaries, synced
   textarea/line-number/highlight scrolling, dynamic L-panel resizing, practice
   resizing, and no desktop-layout change. Existing `kbd-open` still hides the
-  practice strip and now also removes the bottom-tab reservation. Awaiting
-  real-phone web verification before considering C5 resolved or porting it to
-  Android.
+  practice strip and now also removes the bottom-tab reservation.
+- User verification (2026-07-13): the web C5 fix works. Keep C5 open until the
+  branch is merged and the separate Android side is handled.
 
 <!-- Template for a new bug (copy below "Open bugs"):
 
