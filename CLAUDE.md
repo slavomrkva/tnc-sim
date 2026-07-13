@@ -14,6 +14,10 @@ modules from `core/` and `web/`; there is no build step.
    topic.
 5. When shortening documentation, move durable detail to `docs/history/` and
    leave a focused root link; do not discard project context.
+6. Keep root Markdown as a small navigation layer: update an existing relevant
+   section instead of duplicating it, put background and retired detail in its
+   existing `docs/history/` topic, and do not create new root `.md` files unless
+   the information is a new current contract.
 
 ## Non-negotiables
 
