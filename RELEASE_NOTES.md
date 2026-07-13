@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.812
+- Fixed an empty dark strip at the bottom of the Learn tab on phones/narrow
+  windows — the lesson panel now fills the screen down to the bottom tabs.
+
 ## v0.810
 - Fixed scrolling in landscape on large phones and foldables (and in short
   browser windows): the editor no longer collapses so you can see and scroll

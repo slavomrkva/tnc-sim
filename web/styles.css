@@ -622,7 +622,17 @@ footer a:hover{text-decoration:underline;}
   body[data-mtab="view"] .editor-panel{border-bottom:none;}
   body[data-mtab="learn"] .editor-panel{display:none !important;}
   body[data-mtab="learn"] .canvas-panel{display:none !important;}
-  body[data-mtab="learn"] #learnPanel .lp-body{max-height:calc(100svh - 220px);}
+  /* Learn tab = full-height app-like layout (same pattern as the 3D tab), so
+     #learnPanel fills down to just above the bottom tab bar instead of ending at
+     its content height and leaving a strip of bare near-black page background
+     below it. lp-body then flexes to fill (was capped at an arbitrary
+     100svh-220px, which is what left the dead space at the bottom). */
+  body[data-mtab="learn"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  html:has(body[data-mtab="learn"]){overflow:hidden;height:100%;}
+  body[data-mtab="learn"] .sim-container,
+  body[data-mtab="learn"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+  body[data-mtab="learn"] #learnPanel{flex:1;min-height:0;}
+  body[data-mtab="learn"] #learnPanel .lp-body{max-height:none;flex:1;min-height:0;}
   /* 3D tab = fixed app-like layout (no page scroll). */
   body[data-mtab="view"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
   html:has(body[data-mtab="view"]){overflow:hidden;height:100%;}
