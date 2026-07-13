@@ -53,7 +53,7 @@ function draw2dFull(withPath){
   var t = tf2d();
   ctx2d.clearRect(0,0,canvas2d.width,canvas2d.height);
   // workpiece footprint (absent in toolpath-only mode)
-  if(prog.hasStock!==false){
+  if(prog.hasStock!==false && (typeof stockVisible==='undefined'||stockVisible)){
     var p1=sc2d(prog.blkMin.x,prog.blkMin.y,t), p2=sc2d(prog.blkMax.x,prog.blkMax.y,t);
     ctx2d.fillStyle='rgba(154,157,166,0.06)';
     ctx2d.fillRect(Math.min(p1.x,p2.x),Math.min(p1.y,p2.y),Math.abs(p2.x-p1.x),Math.abs(p2.y-p1.y));
@@ -139,7 +139,9 @@ function switchView(v){
   var _refineBtn  = document.getElementById('refineBtnCanvas');
   if(_measureBtn) _measureBtn.style.visibility = v==='3d'?'visible':'hidden';
   var _pathBtn = document.getElementById('pathToggle');
+  var _stockBtn = document.getElementById('stockToggle');
   if(_pathBtn) _pathBtn.style.visibility = v==='tools'?'hidden':'visible';
+  if(_stockBtn) _stockBtn.style.visibility = v==='tools'?'hidden':'visible';
   if(_refineBtn)  _refineBtn.style.visibility  = v==='tools'?'hidden':'visible';
   var _tb2 = document.getElementById('activeToolBadge');
   if(_tb2) _tb2.style.visibility = v==='tools'?'hidden':'visible';

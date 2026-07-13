@@ -291,6 +291,17 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.827 — Added the web-only `BLKFORM OFF/ON` view toggle beside Measure and
+  Path. It hides the 3D voxel/block/edges and the 2D workpiece footprint while
+  toolpath animation, cutting, and collision checks continue internally; ON
+  restores the current machined mesh even mid-run. A single visibility state
+  is re-applied after scene builds, voxel resets/rebuilds, high-resolution
+  refine, and Learn blank updates so hidden stock cannot reappear by itself.
+  Measure is disabled while stock is hidden, and the toggle is disabled for a
+  program that has no actual stock. Verified at 390×844 while running (OFF,
+  continued voxel updates, ON) and with a no-BLK program, with no console
+  errors. Web test branch only; Android is unchanged and shared `core/` files
+  intentionally diverge pending acceptance/port.
 - v0.826 — Fixed the light-theme field editor contrast by giving `--bg` a
   dark value inside `.ctx-panel`, so TOOL CALL tool names and all other shared
   interactive field values no longer render light-on-light. Added intentional

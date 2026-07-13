@@ -576,6 +576,7 @@ function learnUpdateBlank(){
     if(typeof blockEdges!=='undefined' && blockEdges) blockEdges.visible = false;
   }
   _learnBlankShown = want;
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
 
 function openLearn(){

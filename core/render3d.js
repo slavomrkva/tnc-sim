@@ -207,6 +207,7 @@ function _applyRefinedMesh(vertsArr, normsArr, triColors){
   scene.add(mesh);
   if(blockMesh) blockMesh.visible = false;
   if(blockEdges) blockEdges.visible = false;
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
 
 function buildScene(prog){
@@ -261,6 +262,7 @@ function buildScene(prog){
     if(refineBtn) refineBtn.style.display='none';
   }
   if(blockMesh) blockMesh.visible=false; // always hide — voxel mesh takes over
+  if(typeof applyStockVisibility==='function') applyStockVisibility();
 
 
   // table grid at Z=min.z

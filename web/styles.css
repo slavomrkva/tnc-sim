@@ -129,6 +129,7 @@ html[data-theme="light"] .syn-qvar{color:#1558d4;}
 html[data-theme="light"] .syn-cycle{color:#8a5a12;}
 /* floating controls over the (light-gray) 3D stage — dark translucent + light text */
 html[data-theme="light"] #pathToggle,
+html[data-theme="light"] #stockToggle,
 html[data-theme="light"] #measureBtn,
 html[data-theme="light"] #refineBtnCanvas,
 html[data-theme="light"] #toolLegend,
@@ -137,6 +138,7 @@ html[data-theme="light"] #measureOverlay{
   color:#e8ebf1 !important;
   box-shadow:0 1px 6px rgba(0,0,0,0.18);
 }
+#stockToggle:disabled,#measureBtn:disabled{opacity:.42;cursor:not-allowed !important;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;display:flex;flex-direction:column;overscroll-behavior:none;-webkit-text-size-adjust:100%;}
