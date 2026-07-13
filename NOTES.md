@@ -304,6 +304,10 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.814 — Added five newly reported cross-repo open bugs C1–C5 to `TODO.md`:
+  editor focus/scroll jumping, incorrect RL/RR exit motion, RND/CHF insertion at
+  program start, block-insertion rules, and the editor text area extending behind
+  control panels. Includes C2's repro program.
 - v0.813 — Process/docs: added `BUG_HISTORY.md` (archive of resolved bugs with
   root cause + every attempt, incl. the failed ones) and `TODO.md` (open bugs +
   the lifecycle workflow), and NOTES rule #11 formalizing the **bug lifecycle**
