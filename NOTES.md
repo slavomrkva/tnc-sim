@@ -22,10 +22,11 @@
 ---
 
 ## What this is
-A free browser-based **Heidenhain TNC (Klartext) CNC simulator**. The entire app
-is a **single `index.html`** (HTML + CSS + JS, no build step, no framework).
-Hosted on **Cloudflare Pages**, repo `slavomrkva/tnc-sim`, live at **tncsim.org**.
-Also shipped as an **Android app** (TWA via PWABuilder) and installable as a PWA.
+A free browser-based **Heidenhain TNC (Klartext) CNC simulator**. `index.html`
+is the HTML shell; it loads classic JS/CSS modules from `core/` and `web/` with
+no framework or build step. Hosted on **Cloudflare Pages**, repo
+`slavomrkva/tnc-sim`, live at **tncsim.org**, and installable as a PWA. The
+separate Android app is a Capacitor product in `tnc-sim-android`.
 
 ## Files in the repo
 - `index.html` — the HTML shell + markup. The JS/CSS previously inline in it
@@ -202,25 +203,11 @@ won't show even at High/after Refine. This is by design; note it, don't "fix" it
 by cranking resolution (memory/perf on mobile).
 
 ### 4. Layout breakpoint: single-column when width ≤1024px OR height ≤600px
-Mobile (single-column tabbed) vs desktop (editor-beside-3D) is decided by
-`@media(max-width:1024px), (max-height:600px)` (CSS, ~9 blocks) and the JS
-`matchMedia('(max-width:1024px), (max-height:600px)')` in `_isMTab()` /
-`isMob()`, plus `!_isMTab()` for popup placement (`showKpHelp`). The condition
-is an **OR** (comma in a media query = OR): single-column when the viewport is
-**too narrow (≤1024px)** OR **too short (≤600px)**. The width clause was raised
-700→1024 so portrait tablets don't get the cramped side-by-side (3D too narrow);
-the **height clause was added (v0.810)** because the desktop layout's fixed
-editor chrome (keypad + toolbar + ctx-panel + status-bar ≈ 480px) collapses the
-code textarea to ~0 on short viewports — a phone/foldable in **landscape** (wide
-enough to clear 1024 but only ~400px tall), or any short browser window — so the
-program became invisible and unscrollable. Below 600px tall we fall back to the
-single-column tabbed layout, which scrolls the whole editor-panel as one and
-always works. Tall screens (tablet landscape ~768–820px, laptops) stay
-side-by-side. **If you add a new layout media query or JS layout check, use the
-full `(max-width:1024px), (max-height:600px)` condition (or `_isMTab()`), not a
-bare width check** — a partial mix produces a broken hybrid layout. (The Android
-app forces single-column always — see the app repo's NOTES — so it never hits
-this desktop-collapse case at all; this fix is web-only.)
+Use the full CSS/JS condition
+`(max-width:1024px), (max-height:600px)` (an OR) for every layout check, or use
+`_isMTab()`. It prevents cramped tablet 3D views and a collapsed editor on short
+landscape/foldable windows. Do not introduce a width-only variant: mixed rules
+create a broken hybrid layout. Android deliberately forces single-column always.
 
 ### 5. WebGL / 3D can fail on some phones (esp. Xiaomi/HyperOS)
 Renderer creation is wrapped defensively (tiered options; no `high-performance`
@@ -255,19 +242,10 @@ If you ever upgrade Three.js: replace both files in `vendor/`, keep the
 and sync `vendor/` into the Android repo's `www/` as well.
 
 ### 10. Resize the 3D renderer from the render loop, not only on window 'resize'
-The 3D canvas is CSS-sized (`#view3d canvas{width:100%;height:100%}`) while
-`onResize()` calls `renderer.setSize(w,h,false)` — the `false` deliberately
-skips the inline style so CSS owns the display size. That means the drawing
-buffer/`camera.aspect` must be kept matched to the container's *current* size,
-or the browser stretches the last-sized buffer to fill the box and the model
-distorts. A window `resize` listener alone is not enough: it misses live
-mid-drag frames and misses container resizes that fire no window event at all
-(the editor/3D splitter drag, a mobile tab/orientation change). `loop()` calls
-`resizeToDisplay()` (`core/view2d.js`) every frame; it's a cheap no-op unless
-the container size changed, and returns `true` on the frame it resyncs so the
-idle-render throttle still paints that frame. If you add another code path that
-resizes the 3D pane, you don't need to do anything — the loop already covers it
-— but don't "optimize away" the per-frame check back to a resize-only listener.
+`loop()` calls `resizeToDisplay()` every frame; it is a cheap no-op until the
+container changes. Keep that check: a window `resize` listener misses splitter
+drags, mobile tabs, and orientation/container changes, which otherwise stretch
+the renderer buffer and camera aspect.
 
 ### 11. Bug lifecycle: TODO.md while open (log every attempt), BUG_HISTORY.md when fixed
 Every discovered bug MUST be tracked in files, not carried only in one session's
@@ -294,6 +272,9 @@ service worker updates web users on their next launch. The Android app
 does NOT auto-update — shipping web changes to the app requires a manual
 sync + rebuild + Play Console release there (see that repo's NOTES.md).
 
+For a shipped web milestone, create the Git tag `web-v<APP_VERSION>`. The web
+release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
+
 ## Testing checklist before pushing
 - JS parses (no syntax error). Quick check: load in a browser, console clean.
 - If you changed a lesson: its `sol` passes all its `checks`, and it does not cut
@@ -304,6 +285,9 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.815 — Documentation-only cleanup: added concise session routing, corrected
+  the modular architecture description, condensed duplicate layout/renderer
+  detail, and documented web release tagging. No runtime change.
 - v0.814 — Added five newly reported cross-repo open bugs C1–C5 to `TODO.md`:
   editor focus/scroll jumping, incorrect RL/RR exit motion, RND/CHF insertion at
   program start, block-insertion rules, and the editor text area extending behind

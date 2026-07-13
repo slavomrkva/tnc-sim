@@ -1,6 +1,8 @@
 # TNC Sim
 
-Free, open-source online simulator for Heidenhain TNC programming. Runs entirely in the browser — no installation needed.
+Free, open-source online simulator for Heidenhain TNC programming. A static
+`index.html` shell loads plain JS/CSS modules in the browser — no installation
+or build step needed.
 
 **Live: [tncsim.org](https://tncsim.org)**
 
@@ -26,7 +28,8 @@ Use the **Bug report** button inside the app — it opens a pre-filled GitHub is
 
 ## Running locally
 
-It's a single HTML file. Clone the repo and open `index.html` in a browser, or serve it with any static file server.
+Clone the repo and serve `index.html` with any static file server. It loads
+classic JS/CSS modules from `core/` and `web/`.
 
 ```bash
 git clone https://github.com/slavomrkva/tnc-sim.git

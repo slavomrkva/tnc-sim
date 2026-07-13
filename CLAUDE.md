@@ -1,11 +1,21 @@
-# TNC Sim
+# TNC Sim web
 
-Read `NOTES.md` in this repo root before making any change — it has the
-architecture map, non-obvious rules, and deploy flow.
+Static web/PWA app: `index.html` is the HTML shell and loads classic JS/CSS
+modules from `core/` and `web/`; there is no build step.
 
-**Every push must bump `APP_VERSION` in `index.html` — no exceptions.** Web
-stays in the `0.80x` series (see NOTES.md "Versioning"). After making a
-change, also update `NOTES.md`: add a line to its Changelog, and add a new
-numbered rule under "NON-OBVIOUS RULES" if you hit a non-obvious pitfall. If
-the change is user-visible or important, also add a short line to
-`RELEASE_NOTES.md`.
+## Start of every session
+
+1. Read every root Markdown file before analysing or editing.
+2. For a bug, read `TODO.md` and the relevant `BUG_HISTORY.md` entry. Cross-repo
+   bugs must be tracked in both repositories.
+3. For a release/deploy, read `RELEASE_NOTES.md` and the Deploy flow in
+   `NOTES.md`.
+
+## Non-negotiables
+
+- Every push bumps `APP_VERSION` in `web/app.js` by `0.001`, updates `NOTES.md`,
+  and stays in the `0.80x` series.
+- `core/` is the reference for currently shared logic. Port a deliberate shared
+  core change to Android's `www/core/`; do not overwrite either product wholesale.
+- A user-visible change also gets a short `RELEASE_NOTES.md` entry. Add a new
+  numbered NOTES rule only for a durable, non-obvious pitfall.
