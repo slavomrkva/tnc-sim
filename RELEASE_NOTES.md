@@ -10,22 +10,6 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.814
-- The bottom Editor / 3D / Learn tab bar now stays completely static while
-  typing on mobile: it no longer rides up with the keyboard, and no longer
-  hides or jumps. The keyboard simply opens over it, and it's right there at the
-  bottom again when the keyboard closes.
-
-## v0.813
-- Fixed the bottom Editor / 3D / Learn tab bar not reappearing after you close
-  the keyboard on mobile — it now reliably comes back once the keyboard is
-  dismissed (even when the field keeps focus).
-
-## v0.812
-- Fixed the bottom Editor / 3D / Learn tab bar sliding up with the on-screen
-  keyboard while typing in the editor on mobile — it now stays hidden cleanly
-  while the keyboard is open and reappears once you dismiss it.
-
 ## v0.810
 - Fixed scrolling in landscape on large phones and foldables (and in short
   browser windows): the editor no longer collapses so you can see and scroll

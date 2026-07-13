@@ -269,42 +269,6 @@ idle-render throttle still paints that frame. If you add another code path that
 resizes the 3D pane, you don't need to do anything — the loop already covers it
 — but don't "optimize away" the per-frame check back to a resize-only listener.
 
-### 11. Mobile tab bar stays STATIC under the keyboard — counter-translate, don't hide
-`web/keyboard.js` keeps `.mtab-bar` (the Editor / 3D / Learn bottom bar) pinned
-to the **physical bottom** of the screen while the OS keyboard is open; the
-keyboard just draws over it. The desired behaviour (chosen by the project owner)
-is: the bar never rides up, never hides, never jumps — it is static.
-
-**Why it moves in the first place:** the bar is `position:fixed; bottom:0`, but
-the mobile browser raises fixed elements to the bottom of the *visual* viewport
-when the keyboard opens — i.e. **up by exactly the keyboard height** (`offset =
-window.innerHeight - (vv.height + vv.offsetTop)`). That lift is the original
-"bottom panel moves up with the keyboard" bug.
-
-**The fix:** cancel the lift with `bar.style.transform = translateY(offset)` —
-push it back DOWN by the same amount, every frame, so it stays at the physical
-bottom (covered by the keyboard). NOT by hiding it: two earlier releases hid the
-bar (v0.812 hid it on the viewport shrink; v0.813 refined the show/hide), but
-the appearing/disappearing itself read as "jumping up and down", so the owner
-asked for a genuinely static bar instead. **Do not reintroduce show/hide.**
-
-**Gate the transform on focus** (`focusHold`, set on `focusin` of an
-INPUT/TEXTAREA/contenteditable, cleared on `focusout`). Two reasons: (1) focus
-fires *before* the viewport shrinks, so pinning from that instant gives zero
-upward drift even at the very start of the open animation; (2) outside a
-keyboard context the transform is 0, so ordinary URL-bar scrolling never gets
-counter-translated (a raw always-on transform chasing the viewport is what
-caused jitter in an even earlier attempt — see the top-of-file comment). Note
-`offset` is 0 whenever the keyboard is down, so a lingering `focusHold` after a
-back-button dismiss (which doesn't blur, so no `focusout`) is harmless — the bar
-just sits at the bottom. Gated to the mobile layout (`max-width:1024px,
-max-height:600px`) AND touch input (`pointer: coarse`/`ontouchstart`) — a narrow
-desktop window with the editor focused raises no on-screen keyboard.
-
-`kbd-open`/`--vvh` are still driven purely by the viewport shrink (`offset >
-140`) — they size the *editor* so the caret clears the keyboard, an independent
-concern from the bar. Don't couple them to `focusHold`.
-
 ---
 
 ## Deploy flow
@@ -324,50 +288,6 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
-- v0.814 — Reworked the mobile keyboard handling for the bottom tab bar into a
-  genuinely **static** bar (owner's requirement): it no longer hides/shows at
-  all — the appearing/disappearing of v0.812/v0.813 itself read as "jumping up
-  and down". Root cause of all the movement: the bar is `position:fixed;
-  bottom:0` and the mobile browser lifts fixed elements to the *visual*-viewport
-  bottom when the keyboard opens, i.e. up by exactly the keyboard height
-  (`offset`). `web/keyboard.js` now cancels that lift with
-  `transform: translateY(offset)` every frame, so the bar stays pinned to the
-  physical bottom and the keyboard simply draws over it — no rise, no hide, no
-  jump. The counter-translate is gated on `focusHold` (a focused text field) so
-  it only runs in a keyboard context and ordinary URL-bar scrolling isn't
-  counter-moved; `offset` is 0 whenever the keyboard is down, so a lingering
-  focus after a back-button dismiss is harmless. `kbd-open`/`--vvh` still come
-  straight from the viewport shrink (they size the editor, independent of the
-  bar). Removed the v0.812/v0.813 show/hide + `holdTimer` machinery. See rule
-  #11. Web-only (`web/keyboard.js` is already diverged from android).
-- v0.813 — Follow-up to v0.812: the bottom tab bar stayed hidden after the
-  keyboard was dismissed. v0.812 tied `kbdOpen` to `offset > 140 || focusHold`,
-  but dismissing the OS keyboard often keeps the field focused (Android's back
-  button doesn't blur → no `focusout`), so `focusHold` stayed `true` forever and
-  the bar never came back. Fixed by giving the two signals distinct jobs
-  (`web/keyboard.js`): FOCUS = "hide now" (bridge the open animation only),
-  VIEWPORT = "when to show again" (the authority). `apply()` now drops
-  `focusHold` the moment the viewport confirms the keyboard (`offset > 140`), so
-  when it later closes — focus retained or not — `offset` falling back below 140
-  re-shows the bar. Added a 1.5s `holdTimer` safety net so a focus that raises
-  no keyboard at all (hardware keyboard) can't leave the bar stuck hidden. See
-  rule #11. Web-only (`web/keyboard.js` is already diverged from android).
-- v0.812 — Fixed the mobile bottom tab bar (`.mtab-bar`, Editor / 3D / Learn)
-  visibly riding up with the on-screen keyboard while editing. The keyboard IIFE
-  (`web/keyboard.js`) hid the bar only via its shrink-based detection
-  (`offset > 140`), which doesn't fire until the visual viewport has already
-  lost 140px — i.e. partway through the keyboard's open animation — so the fixed
-  bar was seen rising with the keyboard before it disappeared (browsers that
-  lift `position:fixed` elements above the keyboard). Added a `focusin`/
-  `focusout` path: focusing an editable (`INPUT`/`TEXTAREA`/contenteditable) is
-  the true keyboard trigger and fires *before* any viewport change, so we now
-  set a `focusHold` flag that forces `kbdOpen` (hides the bar) immediately, held
-  until focus leaves; the viewport check still decides when to *re-show* it
-  (once the keyboard has finished sliding away), so a field-to-field hop doesn't
-  flash it. Gated to the mobile layout AND touch input (`pointer: coarse` /
-  `ontouchstart`) so a narrow desktop window — which raises no on-screen
-  keyboard — keeps the bar put. Web-only (`web/keyboard.js` is already diverged
-  from android — see Module map / rule #11). See rule #11.
 - v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
   (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
   inconsistent runs of padding spaces (up to 32) left over from an attempt to
