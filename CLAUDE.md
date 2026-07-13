@@ -12,6 +12,8 @@ modules from `core/` and `web/`; there is no build step.
    `NOTES.md`.
 4. Read `docs/history/` only when a current root document links to the relevant
    topic.
+5. When shortening documentation, move durable detail to `docs/history/` and
+   leave a focused root link; do not discard project context.
 
 ## Non-negotiables
 

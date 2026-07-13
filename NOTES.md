@@ -291,6 +291,9 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.817 — Added the explicit documentation rule: preserve durable context in
+  `docs/history/` with a root link when simplifying; never discard it. No
+  runtime change.
 - v0.816 — Preserved detailed layout and renderer rationale in
   `docs/history/layout-and-renderer-rationale.md` and linked it from concise
   current rules, so it is loaded only for relevant changes. No runtime change.
