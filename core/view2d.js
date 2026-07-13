@@ -10,6 +10,26 @@ function onResize(){
   resize2d();
 }
 
+// Keep the renderer buffer + camera aspect in sync with the 3D container on
+// EVERY rendered frame, not only on the window 'resize' event. The canvas is
+// CSS-stretched to 100%x100% of its container while renderer.setSize(...,false)
+// leaves the inline style alone, so any time the container changes size without
+// firing window 'resize' — every intermediate frame of a live browser-window
+// drag, dragging the editor/3D splitter, a tab/orientation change — the old
+// buffer gets stretched to the new box and the model visibly changes aspect
+// ratio. Called from loop(); cheap no-op when the size is unchanged. Returns
+// true only on the frames where it actually resynced (so loop can force a paint).
+function resizeToDisplay(){
+  if(!THREE_OK || !renderer || !view3dEl) return false;
+  var w = view3dEl.clientWidth, h = view3dEl.clientHeight;
+  if(!w || !h) return false;               // container hidden (e.g. non-3D mobile tab)
+  var c = renderer.domElement;
+  if(c._syncW === w && c._syncH === h) return false;
+  c._syncW = w; c._syncH = h;
+  onResize();
+  return true;
+}
+
 function resize2d(){
   var r = canvas2d.parentElement.getBoundingClientRect();
   canvas2d.width = r.width || 400;

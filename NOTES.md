@@ -201,16 +201,26 @@ The 3D cut is a voxel grid (~1 mm cells on Default). Details finer than a cell
 won't show even at High/after Refine. This is by design; note it, don't "fix" it
 by cranking resolution (memory/perf on mobile).
 
-### 4. Layout breakpoint is 1024px (single-column ≤1024, side-by-side >1024)
-Mobile vs desktop layout is decided by `@media(max-width:1024px)` (CSS, ~9
-blocks) and the JS `matchMedia('(max-width:1024px)')` in `_isMTab()` / `isMob()`
-plus `window.innerWidth > 1024` for popup placement. **≤1024px** → single-column
-tabbed layout (Editor/3D/Learn bottom bar) so the 3D sim gets full width;
-**>1024px** → editor-beside-3D. The breakpoint was raised from 700→1024 so
-portrait tablets don't get the cramped side-by-side (the 3D view was too narrow).
-If you add a new layout media query or a JS width check, use 1024px to match.
-(The Android app forces single-column always — see the app repo's NOTES —
-because a tablet running the app would otherwise hit the >1024 desktop layout.)
+### 4. Layout breakpoint: single-column when width ≤1024px OR height ≤600px
+Mobile (single-column tabbed) vs desktop (editor-beside-3D) is decided by
+`@media(max-width:1024px), (max-height:600px)` (CSS, ~9 blocks) and the JS
+`matchMedia('(max-width:1024px), (max-height:600px)')` in `_isMTab()` /
+`isMob()`, plus `!_isMTab()` for popup placement (`showKpHelp`). The condition
+is an **OR** (comma in a media query = OR): single-column when the viewport is
+**too narrow (≤1024px)** OR **too short (≤600px)**. The width clause was raised
+700→1024 so portrait tablets don't get the cramped side-by-side (3D too narrow);
+the **height clause was added (v0.810)** because the desktop layout's fixed
+editor chrome (keypad + toolbar + ctx-panel + status-bar ≈ 480px) collapses the
+code textarea to ~0 on short viewports — a phone/foldable in **landscape** (wide
+enough to clear 1024 but only ~400px tall), or any short browser window — so the
+program became invisible and unscrollable. Below 600px tall we fall back to the
+single-column tabbed layout, which scrolls the whole editor-panel as one and
+always works. Tall screens (tablet landscape ~768–820px, laptops) stay
+side-by-side. **If you add a new layout media query or JS layout check, use the
+full `(max-width:1024px), (max-height:600px)` condition (or `_isMTab()`), not a
+bare width check** — a partial mix produces a broken hybrid layout. (The Android
+app forces single-column always — see the app repo's NOTES — so it never hits
+this desktop-collapse case at all; this fix is web-only.)
 
 ### 5. WebGL / 3D can fail on some phones (esp. Xiaomi/HyperOS)
 Renderer creation is wrapped defensively (tiered options; no `high-performance`
@@ -244,6 +254,21 @@ If you ever upgrade Three.js: replace both files in `vendor/`, keep the
 `PRECACHE_URLS` list in `service-worker.js` in sync, bump `CACHE_VERSION`,
 and sync `vendor/` into the Android repo's `www/` as well.
 
+### 10. Resize the 3D renderer from the render loop, not only on window 'resize'
+The 3D canvas is CSS-sized (`#view3d canvas{width:100%;height:100%}`) while
+`onResize()` calls `renderer.setSize(w,h,false)` — the `false` deliberately
+skips the inline style so CSS owns the display size. That means the drawing
+buffer/`camera.aspect` must be kept matched to the container's *current* size,
+or the browser stretches the last-sized buffer to fill the box and the model
+distorts. A window `resize` listener alone is not enough: it misses live
+mid-drag frames and misses container resizes that fire no window event at all
+(the editor/3D splitter drag, a mobile tab/orientation change). `loop()` calls
+`resizeToDisplay()` (`core/view2d.js`) every frame; it's a cheap no-op unless
+the container size changed, and returns `true` on the frame it resyncs so the
+idle-render throttle still paints that frame. If you add another code path that
+resizes the 3D pane, you don't need to do anything — the loop already covers it
+— but don't "optimize away" the per-frame check back to a resize-only listener.
+
 ---
 
 ## Deploy flow
@@ -263,6 +288,53 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
+  (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
+  inconsistent runs of padding spaces (up to 32) left over from an attempt to
+  column-align them that never actually lined up. Normalized to a single space
+  before `;`, matching the convention already used in the default "Complete
+  Part" demo. Purely cosmetic — reformatted-only, no code/logic lines touched;
+  verified the reformatted program still parses with zero errors/warnings and
+  runs to completion with the same Z-ramp values as before. `Q1 = Q1+0,5774`'s
+  decimal **comma** was deliberately left as-is: `parseProgram()` normalizes
+  `\d,\d` → `\d.\d` globally at the top of the function
+  (`core/parser-engine.js` line ~447) before any Q-expression is evaluated, so
+  the comma is not a bug — confirmed by instrumenting `evalQExpr` during a real
+  parse (values step 10 → 10.5774 → 11.1548 … correctly). `web/app.js` only
+  (not `core/`) — mirrored by hand into `tnc-sim-android`'s `www/android/app.js`
+  (`APP_VERSION 1.0.13`) since `DEMO_PROGRAMS` is duplicated verbatim between
+  the two repos' `app.js` files.
+- v0.810 — Fixed scrolling being broken in landscape on large phones / foldables
+  (and in any short browser window). Root cause: when the viewport is wide
+  enough to clear the 1024px breakpoint but too **short** (e.g. a phone/foldable
+  in landscape, ~1180×400), the desktop editor-beside-3D layout's fixed chrome
+  (keypad + toolbar + ctx-panel + status-bar ≈ 480px) exceeded the editor-panel
+  height and collapsed the code `.editor-wrap`/textarea to ~0px — the program
+  became invisible and the page can't scroll in the desktop layout, so scrolling
+  appeared dead. Made the mobile single-column tabbed layout trigger on **height
+  too** — `@media(max-width:1024px)` → `@media(max-width:1024px),
+  (max-height:600px)` across all ~9 layout blocks, and the matching
+  `matchMedia(...)` in `_isMTab()`/`isMob()`, plus `showKpHelp`'s two
+  `innerWidth > 1024` popup checks → `!_isMTab()`. Below 600px tall the app now
+  uses the full-width single-column layout (which scrolls correctly). Verified
+  headless with real touch input across phone/tablet/desktop in both
+  orientations: the previously-collapsed 1180×390 case now shows the scrollable
+  single-column editor; tablet-landscape (1180×820) and desktop stay
+  side-by-side. Web-only (the Android app is always single-column). See rule #4.
+- v0.809 — Fixed the 3D model changing aspect ratio (stretching) while the
+  browser window is being resized. Root cause: the render `loop()`
+  (`core/sim-controls.js`) repaints every frame but only re-synced the renderer
+  buffer + `camera.aspect` on the window `resize` event; the canvas is
+  CSS-stretched to `100%x100%` of its container while `renderer.setSize(w,h,
+  false)` leaves the inline style alone, so every intermediate frame of a live
+  window drag (and every editor/3D splitter drag, which fires no window resize
+  at all) stretched the stale buffer to the new box. Added `resizeToDisplay()`
+  (`core/view2d.js`), a cheap per-frame "resize-on-render" check called at the
+  top of `loop()` that resyncs only when the container size actually changed.
+  Verified in a headless browser: a container resized without a resize event
+  went from a 37% horizontal stretch (buffer aspect 1.374 vs container 1.0) to
+  1:1. `core/` change — mirrored byte-for-byte into `tnc-sim-android`
+  (`APP_VERSION 1.0.12`). See rule #10.
 - v0.808 — Pure structural refactor, no functionality changed: split
   `index.html`'s inline `<script>`/`<style>` into `core/*.js` (20 files,
   byte-for-byte identical to the Android app's `www/core/*.js` — mechanically

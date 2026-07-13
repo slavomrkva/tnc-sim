@@ -86,11 +86,15 @@ function loop(){
   if(!THREE_OK || !renderer) return;
   if(glContextLost) return;           // skip rendering while the GPU context is gone
   if(renderer.getContext && renderer.getContext().isContextLost && renderer.getContext().isContextLost()) return;
+  // Keep the buffer/camera aspect matched to the container every frame so the
+  // model never stretches when the pane resizes without a window 'resize' event
+  // (live window-drag frames, editor/3D splitter drag, tab/orientation change).
+  var resized = (typeof resizeToDisplay==='function') && resizeToDisplay();
   var dt = clock.getDelta();
   if(dt > 0.1) dt = 0.1;
   var isActive = (mode==='running' || mode==='stepping' || atcAnim || (VX && VX.dirty));
-  // Throttle idle rendering to ~20fps to save GPU
-  if(!isActive && controls && !controls._changed){
+  // Throttle idle rendering to ~20fps to save GPU (but always paint a resync frame)
+  if(!isActive && !resized && controls && !controls._changed){
     _idleFrames = (_idleFrames||0)+1;
     if(_idleFrames % 3 !== 0) return;
   } else {

@@ -225,7 +225,7 @@ canvas#sim2d{width:100%;height:100%;display:block;}
 /* ── Tools tab ── */
 #viewTools{position:absolute;inset:0;width:100%;height:100%;display:none;overflow-y:auto;background:var(--bg);padding:16px;}
 .tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:1024px){.tools-grid{grid-template-columns:1fr;}}
+@media(max-width:1024px), (max-height:600px){.tools-grid{grid-template-columns:1fr;}}
 .tools-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
 .tools-table th{text-align:left;padding:6px 10px;border-bottom:2px solid var(--border);color:var(--text3);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
 .tools-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
@@ -368,10 +368,10 @@ footer a:hover{text-decoration:underline;}
 .help-popup-desc{font-size:11px;color:var(--text2);line-height:1.6;}
 .help-popup-ex{margin-top:6px;font-size:10px;color:var(--text3);}
 .help-popup-ex code{color:var(--accent3);}
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   .help-popup{bottom:12px;left:12px;right:12px;max-width:none;top:auto !important;}
 }
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   /* iOS Safari auto-zooms when a focused input has font-size < 16px. Force 16px on touch.
      Editor (#code) is excluded — its size is controlled by the A-/A+ buttons. */
   input[type="text"], input[type="number"], input[type="search"] {
@@ -445,7 +445,7 @@ footer a:hover{text-decoration:underline;}
 .fbar-crumb-btn{font-family:var(--mono);font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text3);cursor:pointer;}
 .fbar-crumb-btn.active{background:var(--accent);color:#fff;border-color:transparent;}
 .fbar-crumb-btn:hover:not(.active){color:var(--text);border-color:var(--text3);}
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   /* Mobile = one long naturally-scrolling page. Override desktop's fixed-viewport layout. */
   html{height:auto;overflow:visible;}
   body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:visible;}
@@ -569,7 +569,7 @@ footer a:hover{text-decoration:underline;}
 .lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 12px 8px;}
 .lp-sec-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:8px;}
 .lp-slide-view{height:390px;overflow-y:auto;padding-right:4px;}
-@media(max-width:1024px){ .lp-slide-view{height:300px;} }
+@media(max-width:1024px), (max-height:600px){ .lp-slide-view{height:300px;} }
 .lp-slides-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .lp-slides-nav .lp-btn{padding:6px 14px;font-size:16px;font-weight:700;color:var(--accent);border-color:var(--accent);line-height:1;}
 .lp-slides-nav .lp-btn:hover:not(:disabled){background:var(--accent);color:#fff;}
@@ -580,14 +580,14 @@ footer a:hover{text-decoration:underline;}
 .lp-divider span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;}
 .lp-practice-btns{display:flex;gap:8px;margin-top:12px;}
 @media(pointer:coarse){ .lp-btn{min-height:40px;padding:8px 12px;} .learn-li{padding:13px 12px;} }
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   #learnPanel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:2px solid var(--accent);}
   .lp-body{max-height:52vh;}
 }
 
 
 .ft-mini{display:none;}
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   footer .ft-full{display:none !important;}
   footer{display:none;}
   .ft-mini{display:none;}
@@ -595,7 +595,7 @@ footer a:hover{text-decoration:underline;}
 /* Scroll rail removed — the mobile 3D tab is a fixed (non-scrolling) layout now. */
 .scroll-rail{display:none !important;}
 /* ── Mobile bottom tabs: Editor / 3D / Learn (desktop untouched) ── */
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   /* overflow-x:clip (unlike hidden) does NOT create a scroll container,
      so page scrolling stays with the document */
   html, body{overflow-x:clip;}
@@ -606,7 +606,7 @@ footer a:hover{text-decoration:underline;}
 
 .mtab-bar{display:none;}
 #learnMobileBar{display:none;}
-@media(max-width:1024px){
+@media(max-width:1024px), (max-height:600px){
   .mtab-bar{position:fixed;left:0;right:0;bottom:0;z-index:8000;display:flex;background:var(--surface2);border-top:1px solid var(--border);height:calc(46px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;transform:translateZ(0);}
   .mtab-bar button{flex:1;background:none;border:none;border-top:3px solid transparent;color:var(--text3);font-family:var(--mono);font-size:9.5px;padding:3px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;transition:background .15s,color .15s;}
   .mtab-bar button .mi{font-size:0;line-height:0;display:flex;}

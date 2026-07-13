@@ -10,6 +10,17 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.810
+- Fixed scrolling in landscape on large phones and foldables (and in short
+  browser windows): the editor no longer collapses so you can see and scroll
+  your whole program. Short, wide screens now use the full-width single-column
+  layout with the bottom Editor / 3D / Learn tabs.
+
+## v0.809
+- Fixed the 3D model looking stretched/squashed while resizing the browser
+  window (or dragging the editor/3D divider) — it now keeps its correct
+  proportions at every size.
+
 ## v0.806
 - Reworked light theme: a crisper high-contrast look with dark toolbars, a
   light workspace, and a pure-white editor.
