@@ -269,6 +269,22 @@ idle-render throttle still paints that frame. If you add another code path that
 resizes the 3D pane, you don't need to do anything — the loop already covers it
 — but don't "optimize away" the per-frame check back to a resize-only listener.
 
+### 11. Bug lifecycle: TODO.md while open (log every attempt), BUG_HISTORY.md when fixed
+Every discovered bug MUST be tracked in files, not carried only in one session's
+memory:
+1. **On discovery** → add an entry under "Open bugs" in `TODO.md`.
+2. **On every fix attempt** → append what was tried and its result to that TODO
+   entry *as it happens*. The failed attempts are the point — they stop the next
+   memory-less session from re-trying a known dead end (mobile keyboard / layout
+   bugs are real-device/real-browser-timing territory and eat time when attempts
+   aren't all captured in one place).
+3. **When fixed** → move the whole entry out of `TODO.md` into `BUG_HISTORY.md`
+   (symptom + root cause + all attempts + final state) and delete it from
+   `TODO.md`.
+Do this in the SAME commit as the code change so the docs never drift from the
+tree. The Android repo (`tnc-sim-android`) keeps its own `TODO.md` +
+`BUG_HISTORY.md`; when a bug spans both, cross-reference the other repo.
+
 ---
 
 ## Deploy flow
@@ -288,6 +304,13 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.813 — Process/docs: added `BUG_HISTORY.md` (archive of resolved bugs with
+  root cause + every attempt, incl. the failed ones) and `TODO.md` (open bugs +
+  the lifecycle workflow), and NOTES rule #11 formalizing the **bug lifecycle**
+  (discovered → TODO with every attempt → on fix move to BUG_HISTORY.md, same
+  commit). Seeded `BUG_HISTORY.md` with the Learn dead-space fix and the
+  reverted web mobile-keyboard tab-bar attempts. Mirrors the same workflow set
+  up in `tnc-sim-android`. No runtime code change.
 - v0.812 — Fixed dead near-black empty space at the bottom of the **Learn tab**
   in the single-column (mobile/narrow) layout. Root cause: unlike the Editor and
   3D tabs, the Learn tab had no full-height flex layout — it relied on default
