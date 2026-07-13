@@ -288,6 +288,22 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
+  (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
+  inconsistent runs of padding spaces (up to 32) left over from an attempt to
+  column-align them that never actually lined up. Normalized to a single space
+  before `;`, matching the convention already used in the default "Complete
+  Part" demo. Purely cosmetic — reformatted-only, no code/logic lines touched;
+  verified the reformatted program still parses with zero errors/warnings and
+  runs to completion with the same Z-ramp values as before. `Q1 = Q1+0,5774`'s
+  decimal **comma** was deliberately left as-is: `parseProgram()` normalizes
+  `\d,\d` → `\d.\d` globally at the top of the function
+  (`core/parser-engine.js` line ~447) before any Q-expression is evaluated, so
+  the comma is not a bug — confirmed by instrumenting `evalQExpr` during a real
+  parse (values step 10 → 10.5774 → 11.1548 … correctly). `web/app.js` only
+  (not `core/`) — mirrored by hand into `tnc-sim-android`'s `www/android/app.js`
+  (`APP_VERSION 1.0.13`) since `DEMO_PROGRAMS` is duplicated verbatim between
+  the two repos' `app.js` files.
 - v0.810 — Fixed scrolling being broken in landscape on large phones / foldables
   (and in any short browser window). Root cause: when the viewport is wide
   enough to clear the 1024px breakpoint but too **short** (e.g. a phone/foldable
