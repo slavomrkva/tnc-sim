@@ -269,6 +269,22 @@ idle-render throttle still paints that frame. If you add another code path that
 resizes the 3D pane, you don't need to do anything — the loop already covers it
 — but don't "optimize away" the per-frame check back to a resize-only listener.
 
+### 11. Hide the mobile tab bar on focus, not just on viewport shrink
+`web/keyboard.js` hides `.mtab-bar` while the OS keyboard is open. The
+`visualViewport`-shrink detection (`offset > 140`) alone is not enough: it only
+trips once the viewport has *already* lost 140px, which is partway through the
+keyboard's open animation, so the fixed bottom bar is seen riding up with the
+keyboard first (on browsers that lift `position:fixed` above the keyboard). The
+`focusin` handler sets a `focusHold` flag that forces the bar hidden the instant
+a text field is focused — before any viewport change. `focusout` only *drops*
+the hold; the shrink check still decides when to re-show the bar (once the
+keyboard finishes sliding away) so a field-to-field hop doesn't flash it. The
+`focusin` path is gated to the mobile layout (`max-width:1024px,
+max-height:600px`) AND touch input (`pointer: coarse`/`ontouchstart`) — a narrow
+desktop window with the code editor focused raises no on-screen keyboard, so the
+bar must stay visible there. If you touch this file, keep both signals: focus =
+hide-now, viewport = show-when-safe.
+
 ---
 
 ## Deploy flow
@@ -288,6 +304,22 @@ sync + rebuild + Play Console release there (see that repo's NOTES.md).
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.812 — Fixed the mobile bottom tab bar (`.mtab-bar`, Editor / 3D / Learn)
+  visibly riding up with the on-screen keyboard while editing. The keyboard IIFE
+  (`web/keyboard.js`) hid the bar only via its shrink-based detection
+  (`offset > 140`), which doesn't fire until the visual viewport has already
+  lost 140px — i.e. partway through the keyboard's open animation — so the fixed
+  bar was seen rising with the keyboard before it disappeared (browsers that
+  lift `position:fixed` elements above the keyboard). Added a `focusin`/
+  `focusout` path: focusing an editable (`INPUT`/`TEXTAREA`/contenteditable) is
+  the true keyboard trigger and fires *before* any viewport change, so we now
+  set a `focusHold` flag that forces `kbdOpen` (hides the bar) immediately, held
+  until focus leaves; the viewport check still decides when to *re-show* it
+  (once the keyboard has finished sliding away), so a field-to-field hop doesn't
+  flash it. Gated to the mobile layout AND touch input (`pointer: coarse` /
+  `ontouchstart`) so a narrow desktop window — which raises no on-screen
+  keyboard — keeps the bar put. Web-only (`web/keyboard.js` is already diverged
+  from android — see Module map / rule #11). See rule #11.
 - v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
   (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
   inconsistent runs of padding spaces (up to 32) left over from an attempt to
