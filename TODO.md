@@ -8,33 +8,6 @@
 
 ## Open bugs
 
-## C1 — Editor pri editácii hodnoty preskakuje na prvý riadok
-**Repos:** web + Android. **Reported:** 2026-07-13.
-
-### Symptom
-Keď kliknem v editore na ľubovoľnú hodnotu a chcem ju editovať, editor chce
-skočiť na prvý riadok, ale predchádzajúce úpravy sa snažia držať focus na
-editovanom riadku. Výsledok je, že obsah skáče a nie je statický. Pri kliknutí
-na ľubovoľnú hodnotu alebo ľubovoľný riadok, pri vysunutí klávesnice a pri
-skrytí panelu so zadaním v Learn mode musí editor zostať stabilne tam, kam ho
-používateľ ručne prescroloval.
-
-### Status
-Open. Súvisí s C3.
-
-### Attempts
-- **Web test branch `debug/c1-mobile-focus` (v0.819)** — removed the repeated
-  delayed hidden-input focus and 60/200/450/700 ms scroll rewrites, moved
-  `#mobileInput` out of the editor scroll flow, made focus use
-  `preventScroll`, and explicitly ends field/Q/BLK input sessions before Learn
-  replaces or restores the program. Keyboard detection now has hysteresis and
-  a baseline fallback for browsers where `innerHeight` shrinks with
-  `visualViewport`. Local forced-mobile browser test: opening a field focuses
-  `mobileInput` once; `Done` and entering Learn leave it blurred and it does
-  not return after 150 ms; no JS console errors. **Awaiting real-phone web
-  verification before treating C1 as fixed or porting the shared-core changes
-  to Android.**
-
 ## C2 — RL/RR korekcia pri záverečnom pohybe Z+20 vedie nástroj šikmo do modelu
 **Repos:** web + Android. **Reported:** 2026-07-13.
 
@@ -76,7 +49,25 @@ END PGM PROGRAM
 ```
 
 ### Status
-Open.
+Open. Root cause identified; no runtime fix applied yet.
+
+### Analysis (2026-07-13)
+- The defect is in the shared `core/parser-engine.js` radius-compensation
+  postprocessor, not voxel cutting or rendering. `offsetRun()` finishes an
+  RL/RR run at the laterally offset tool-centre point, then rewrites only the
+  following R0 segment's `from` to that point. Its `to` remains the nominal
+  programmed XY target. For `L Z+20 R0`, whose programmed XY displacement is
+  zero, this creates an artificial diagonal by exactly the compensation offset.
+- The relevant boundary code is identical in the Android copy. The validator
+  intentionally accepts this block because R0 clears compensation before the
+  pure-Z-under-RL/RR check.
+- A safe fix must recognise a zero-XY R0 cancellation, keep the complete Z
+  segment at the last compensated XY position, and carry that physical
+  position through any later Z-only blocks. The first later XY move may then
+  lead out to its programmed target. Merely changing `nextSeg.from` or
+  `nextSeg.to` alone would leave either a diagonal or a discontinuity.
+- Regression coverage should include RL and RR, ordinary lateral R0 lead-out,
+  R0 on a pure Z retract, multiple following Z-only moves, and a later XY move.
 
 ## C3 — Vkladanie RND/CHF niekedy vloží blok na začiatok programu
 **Repos:** web + Android. **Reported:** 2026-07-13.
@@ -87,7 +78,7 @@ Pri písaní programu vkladanie hodnôt RND a CHF niekedy vloží tieto bloky na
 otváraní panelov na editáciu týchto funkcií.
 
 ### Status
-Open. Súvisí s C1.
+Open. C1 focus handling is fixed; C3 still needs an independent retest.
 
 ## C4 — Pravidlá vloženia ďalšieho bloku podľa aktívneho riadku
 **Repos:** web + Android. **Reported:** 2026-07-13.

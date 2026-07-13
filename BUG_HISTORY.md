@@ -15,6 +15,47 @@ Newest first.
 
 ---
 
+## C1 — Mobile editor focus/scroll jumping during value editing and Learn
+**Repos:** web `tnc-sim` (v0.819, `b1e111d`) + Android
+`tnc-sim-android` (1.0.25, `e5a8fb6`).
+**Resolved:** 2026-07-13. **Verified:** local forced-mobile browser checks and
+user testing on real mobile web and Android devices.
+
+### Symptom
+Opening or editing a field could pull the editor toward the first line and
+fight the user's scroll position. Showing/dismissing the keyboard and changing
+or leaving a Learn task could also jump the editor or reopen the keyboard.
+
+### Root cause
+Focus had several competing owners. The hidden `#mobileInput` lived at the top
+of the scroll flow, multiple render paths scheduled delayed focus, and
+`_preserveEditorScroll()` repeatedly rewrote `scrollTop` during the keyboard
+animation. A global blur handler then refocused the hidden input even after an
+edit session had ended. Learn could replace the program while a field/Q/BLK
+editor or pending focus still referred to the old code. Keyboard visibility
+also lacked hysteresis in changing viewport regimes.
+
+### Attempts and fix
+- The old mitigation used delayed focus plus scroll restores at 60, 200, 450
+  and 700 ms. It did not stabilise the UI; it fought the browser's own keyboard
+  scrolling and produced the visible oscillation.
+- Web branch `debug/c1-mobile-focus` replaced those timers with one cancellable
+  focus request using `preventScroll`, moved the hidden input to a fixed
+  off-content position, cancelled focus when editing ends, and explicitly
+  closed editor input before Learn replaces/restores code. Keyboard state got
+  a baseline fallback and open/close hysteresis. Forced-mobile checks confirmed
+  no delayed refocus; real-phone web testing then confirmed the behaviour.
+- Android branch `debug/c1-android-focus` ported the shared fix, removed its
+  blur-refocus loop, and kept the Capacitor-specific remembered
+  `visualViewport` baseline while adding hysteresis. The debug APK built and
+  the user verified the app on device before merge.
+
+The related C3 insertion report remains open for an independent retest; fixing
+the shared focus race removes its suspected trigger but does not prove C3 by
+itself.
+
+---
+
 ## Learn tab: dead near-black empty strip at the bottom (single-column layout)
 **Repos:** web `tnc-sim` (v0.812) + android `tnc-sim-android` (1.0.16).
 **Resolved:** 2026-07-13. **Verified:** headless (Playwright 390×844) + on device.

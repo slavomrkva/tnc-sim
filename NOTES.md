@@ -78,10 +78,6 @@ local static server — some browsers won't fetch module scripts over `file://`)
   also hand-port the change to `tnc-sim-android`'s `www/core/` (or that repo
   runs `./sync-core.sh` afterwards — one-way, web → android, manual only,
   see that script's header).
-  **Temporary exception on `debug/c1-mobile-focus`:** the C1 mobile-web test
-  deliberately changes the shared editor/Learn modules here only. Do not sync
-  this experiment to Android until it is verified on a real phone; if accepted,
-  port the final shared-core change deliberately and remove this exception.
 - **`web/*.js`** (4 files) — only 4 functions are genuinely diverged between
   the two repos, all in the "forced mobile layout" category:
   - `layout.js`: `_isMTab()` (real `matchMedia('(max-width:1024px)')`
@@ -295,6 +291,12 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.820 — Closed C1 after successful real-device web and Android verification:
+  moved the complete symptom/root-cause/attempt history from `TODO.md` to
+  `BUG_HISTORY.md` and removed the temporary shared-core port exception. Added
+  a code-path analysis of C2: the R0 boundary rewrites only the next segment's
+  start, making a nominal pure-Z cancellation diagonal from the compensated XY
+  point. No C2 runtime change yet.
 - v0.819 — Added the mobile-web C1 focus/scroll test fix on branch
   `debug/c1-mobile-focus`: one scroll-safe hidden-input focus instead of
   repeated delayed focus and scroll restoration, explicit edit-session cleanup
