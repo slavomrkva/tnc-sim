@@ -291,6 +291,17 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.825 — Added the web-only C5 test fix on
+  `fix/c5-bounded-editor-viewport`: the mobile Editor is now a fixed flex
+  column and only the program textarea scrolls, so text has real vertical
+  boundaries below Path functions/context/practice controls and above the
+  bottom tabs instead of passing behind sticky overlays. Removed mobile
+  textarea auto-grow and the obsolete sticky-height variables; the existing
+  textarea/line-number/highlight scroll synchronization is used again.
+  `kbd-open` removes the hidden bottom-tab reservation while the existing rule
+  hides the practice strip. Verified locally at 390×844 (normal, scrolled,
+  practice, and L-field panel) plus 1280×800 desktop. C5 remains open pending
+  real-phone web verification; Android is intentionally unchanged.
 - v0.824 — Closed C2 after the user confirmed the Android 1.0.27 port as well
   as the already-verified web fix. Moved the full repro, root cause, rejected
   partial approaches, final continuity fix, commits, and regression/build

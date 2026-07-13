@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.825 (mobile web test)
+- The program editor now has fixed vertical boundaries below its controls, so
+  program text no longer scrolls behind the Path functions or practice panels.
+
 ## v0.822
 - Fixed RL/RR cancellation: `L Z... R0` now retracts vertically instead
   of moving diagonally by the tool-radius compensation offset.

@@ -39,35 +39,18 @@ function showKpHelp(key, anchorEl){
 
 function _isMTab(){ return window.matchMedia && matchMedia('(max-width:1024px), (max-height:600px)').matches; }
 
-/* Keep --kp-h (keypad + task strip header height) available if needed. The
-   editor tab now uses a fixed layout with internal code scroll, so no textarea
-   auto-grow is required. */
+/* Mobile uses a bounded editor viewport: controls stay in normal flex flow and
+   only the textarea scrolls. Shared render paths still call the legacy
+   _growCode hook, so keep it as a stale inline-size cleanup. */
 (function(){
-  function isMob(){ return window.matchMedia('(max-width:1024px), (max-height:600px)').matches; }
-  function grow(){
-    if(!isMob() || document.body.getAttribute('data-mtab')!=='editor'){
-      var t=document.getElementById('code'); if(t) t.style.height='';
-      return;
-    }
+  function fit(){
     var ta = document.getElementById('code');
     if(!ta) return;
-    ta.style.height = 'auto';
-    ta.style.height = Math.max(300, ta.scrollHeight) + 'px';
+    ta.style.height = '';
     var ln = document.getElementById('lineNums');
-    if(ln) ln.style.minHeight = ta.style.height;
-    var ph = document.querySelector('.panel-header');
-    var phH = (ph && getComputedStyle(ph).display!=='none') ? ph.offsetHeight : 0;
-    var kp = document.querySelector('.keypad');
-    var kpH = (kp && getComputedStyle(kp).display!=='none') ? kp.offsetHeight : 0;
-    var cx = document.getElementById('ctxPanel');
-    var cxH = (cx && getComputedStyle(cx).display!=='none' && cx.offsetHeight) ? cx.offsetHeight : 0;
-    document.documentElement.style.setProperty('--ph-h', phH + 'px');
-    document.documentElement.style.setProperty('--kp-h', (phH + kpH) + 'px');
-    document.documentElement.style.setProperty('--kp-h2', (phH + kpH + cxH) + 'px');
+    if(ln) ln.style.minHeight = '';
   }
-  window._growCode = grow;
-  var ta = document.getElementById('code');
-  if(ta){ ta.addEventListener('input', grow); ta.addEventListener('focus', grow); }
-  window.addEventListener('resize', grow);
-  setTimeout(grow, 60);
+  window._growCode = fit;
+  window.addEventListener('resize', fit);
+  setTimeout(fit, 60);
 })();

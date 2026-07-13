@@ -17,7 +17,20 @@ Textové pole ide v pozadí za ovládacie panely s tlačidlami Path functions a
 obsah neprechádzal pod tieto panely.
 
 ### Status
-Open.
+Open — web test fix prepared on `fix/c5-bounded-editor-viewport`; Android is
+unchanged.
+
+### Attempts
+- Web v0.825 test fix: replaced the single scrolling `.editor-panel` plus
+  sticky overlays with a fixed flex column where only `#code` scrolls. The
+  header, Path functions, context/cycle panel and optional practice strip now
+  consume real rows above the code, whose bottom ends at the mobile tab bar.
+  Local Chrome checks at 390×844 confirmed exact adjacent boundaries, synced
+  textarea/line-number/highlight scrolling, dynamic L-panel resizing, practice
+  resizing, and no desktop-layout change. Existing `kbd-open` still hides the
+  practice strip and now also removes the bottom-tab reservation. Awaiting
+  real-phone web verification before considering C5 resolved or porting it to
+  Android.
 
 <!-- Template for a new bug (copy below "Open bugs"):
 
