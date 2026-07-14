@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>graphify - 3D graph</title>
+<script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #0f0f1a; color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow: hidden; }
+  #graph { width: 100vw; height: 100vh; }
+  #panel {
+    position: fixed; top: 12px; left: 12px; z-index: 10;
+    background: rgba(20,20,32,0.85); border: 1px solid #333; border-radius: 8px;
+    padding: 10px 14px; max-width: 320px; backdrop-filter: blur(4px);
+  }
+  #panel h1 { font-size: 14px; margin-bottom: 6px; color: #fff; }
+  #panel p { font-size: 12px; color: #aaa; line-height: 1.5; }
+  #panel input {
+    width: 100%; margin-top: 8px; padding: 6px 8px; border-radius: 4px;
+    border: 1px solid #444; background: #1a1a28; color: #e0e0e0; font-size: 12px;
+  }
+  #status { position: fixed; top: 12px; right: 12px; z-index: 10; font-size: 12px; color: #888; }
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 20; display: none;
+    background: rgba(20,20,32,0.95); border: 1px solid #444; border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; max-width: 320px; line-height: 1.4;
+  }
+  #tooltip b { color: #fff; }
+  #tooltip .muted { color: #888; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>graphify — 3D view</h1>
+  <p>Drag to rotate · scroll to zoom · click a node to focus.<br>Color = community. Node size = connections.</p>
+  <input id="search" type="text" placeholder="Filter by label or file...">
+</div>
+<div id="status">loading graph.json...</div>
+<div id="tooltip"></div>
+<div id="graph"></div>
+<script>
+function communityColor(id) {
+  const hue = (id * 47) % 360;
+  return `hsl(${hue}, 65%, 58%)`;
+}
+
+fetch('./graph.json')
+  .then(r => r.json())
+  .then(data => {
+    const degree = {};
+    data.links.forEach(l => {
+      degree[l.source] = (degree[l.source] || 0) + 1;
+      degree[l.target] = (degree[l.target] || 0) + 1;
+    });
+
+    const nodes = data.nodes.map(n => ({
+      id: n.id,
+      name: n.label,
+      file: n.source_file,
+      loc: n.source_location,
+      community: n.community,
+      communityName: n.community_name || `Community ${n.community}`,
+      val: Math.max(1, Math.sqrt(degree[n.id] || 1)),
+    }));
+    const links = data.links.map(l => ({
+      source: l.source,
+      target: l.target,
+      relation: l.relation,
+    }));
+
+    document.getElementById('status').textContent =
+      `${nodes.length} nodes · ${links.length} edges`;
+
+    const tooltip = document.getElementById('tooltip');
+
+    const Graph = ForceGraph3D()(document.getElementById('graph'))
+      .graphData({ nodes, links })
+      .backgroundColor('#0f0f1a')
+      .nodeLabel(null)
+      .nodeColor(n => communityColor(n.community))
+      .nodeVal('val')
+      .nodeOpacity(0.9)
+      .linkColor(() => 'rgba(255,255,255,0.15)')
+      .linkDirectionalParticles(0)
+      .linkWidth(0.4)
+      .onNodeHover((node, prev) => {
+        document.getElementById('graph').style.cursor = node ? 'pointer' : null;
+        if (node) {
+          tooltip.style.display = 'block';
+          tooltip.innerHTML =
+            `<b>${node.name}</b><br>` +
+            `<span class="muted">${node.file || ''}${node.loc ? ' · ' + node.loc : ''}</span><br>` +
+            `<span class="muted">community: ${node.communityName}</span>`;
+        } else {
+          tooltip.style.display = 'none';
+        }
+      })
+      .onNodeClick(node => {
+        const distance = 120;
+        const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z || 1);
+        Graph.cameraPosition(
+          { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+          node,
+          1000
+        );
+      });
+
+    document.addEventListener('mousemove', e => {
+      tooltip.style.left = (e.clientX + 16) + 'px';
+      tooltip.style.top = (e.clientY + 16) + 'px';
+    });
+
+    document.getElementById('search').addEventListener('input', e => {
+      const q = e.target.value.trim().toLowerCase();
+      Graph.nodeColor(n => {
+        if (!q) return communityColor(n.community);
+        const hit = n.name.toLowerCase().includes(q) ||
+          (n.file || '').toLowerCase().includes(q) ||
+          n.communityName.toLowerCase().includes(q);
+        return hit ? communityColor(n.community) : 'rgba(255,255,255,0.06)';
+      });
+    });
+  })
+  .catch(err => {
+    document.getElementById('status').textContent = 'failed to load graph.json: ' + err;
+  });
+</script>
+</body>
+</html>
