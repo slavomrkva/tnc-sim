@@ -643,6 +643,7 @@ function learnSolve(){
 function learnResetProgress(){
   if(!confirm('Reset all lesson progress?')) return;
   try { localStorage.removeItem('tnc_learn'); } catch(e){}
+  try { localStorage.removeItem('tnc_learn_coach'); } catch(e){}
   learnRender();
 }
 
@@ -656,6 +657,7 @@ function learnStartTask(ti){
   var L = LESSONS[LEARN.lesson];
   if(LEARN.savedCode === null) LEARN.savedCode = codeEl.value; // stash user's work once
   LEARN.task = ti; LEARN.lastResults = null; LEARN.view = 'lesson';
+  LEARN.hint = 0;                        // progressive hints start closed
   codeEl.value = L.tasks[ti].starter;
   dirty = true; if(typeof _undoPush==='function') _undoPush();
   updateLineNums(); runValidation();
@@ -663,6 +665,18 @@ function learnStartTask(ti){
   if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();
   learnRender();
   if(_isMTab()) mtabSwitch('editor');
+  // The intro lesson always replays the tour (it IS the tour); every other
+  // lesson only shows it once, the very first time practice is ever opened.
+  if(typeof learnCoachMaybeStart==='function') learnCoachMaybeStart(L.intro);
+}
+
+/* Progressive hints: one more level per press (nudge -> structure -> answer).
+   A hint is never punished — it only nudges the counter shown in the footer. */
+function learnHint(){
+  var T = LESSONS[LEARN.lesson].tasks[LEARN.task];
+  var n = (T.hints && T.hints.length) || 0;
+  LEARN.hint = Math.min(n, (LEARN.hint||0) + 1);
+  learnRender();
 }
 
 function learnCheck(){
@@ -673,16 +687,26 @@ function learnCheck(){
   learnRender();
 }
 
+/* The intro/orientation lesson has nothing to grade, so it can be finished at
+   any time; count it as done so the list shows the tick. */
+function learnFinishIntro(){
+  learnTaskDone(LESSONS[LEARN.lesson].id, LEARN.task);
+  learnFinishLesson();
+}
+
 function learnFinishLesson(){
   _learnEndEditorInput();
   // Keep what the user wrote in the editor — finishing a lesson shouldn't
   // wipe their result and bring back the previously stashed program.
   LEARN.savedCode = null;           // drop the stash (kept code wins)
-  LEARN.task = -1; LEARN.lastResults = null;
+  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0;
   LEARN.view = 'list'; LEARN.lesson = -1;
   runValidation();
   learnRender();
   learnUpdateBlank();
+  // Land back on the lesson list, not the editor. Mobile stays on whatever tab
+  // learnStartTask switched to (the editor), so make the list visible again.
+  if(_isMTab()) mtabSwitch('learn');
 }
 
 function learnExit(){
@@ -693,7 +717,7 @@ function learnExit(){
     if(typeof renderIdlePanel==='function') renderIdlePanel();
     if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();
   }
-  LEARN.task = -1; LEARN.lastResults = null;
+  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0;
   if(LEARN.open){ LEARN.view = 'list'; LEARN.lesson = -1; learnRender(); }
   learnUpdateBlank();
   // Mobile: hide the pinned practice strip and restore the normal editor idle
@@ -716,11 +740,15 @@ function _learnEndEditorInput(){
   try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
 }
 
+/* Display number of a lesson in the list, skipping the intro card(s) so the
+   real course still reads 1..N. Intro lessons return 0. */
+function _learnNo(i){ var n=0; for(var k=0;k<=i;k++){ if(!LESSONS[k].intro) n++; } return LESSONS[i].intro ? 0 : n; }
+
 function learnRender(){
   var p = _lpEl();
   if(!p) return;
   var L = LEARN.lesson >= 0 ? LESSONS[LEARN.lesson] : null;
-  var title = L ? ('Lesson ' + (LEARN.lesson+1) + ' \u00b7 ' + L.title) : 'Learn \u2014 Heidenhain basics';
+  var title = L ? (L.intro ? L.title : ('Lesson ' + _learnNo(LEARN.lesson) + ' \u00b7 ' + L.title)) : 'Learn \u2014 Heidenhain basics';
   var head = '<div class="lp-head"><span style="font-size:15px;">&#127891;</span>'
     + '<span class="lp-title">' + title + '</span>'
     + '<button class="lp-x" onclick="closeLearn()" title="Close Learn">&#10005;</button></div>';
@@ -728,6 +756,7 @@ function learnRender(){
 
   if(LEARN.view === 'list' || !L){
     var prog = learnProgress();
+    var num = 0;                                    // running number of real (non-intro) lessons
     var rows = LESSONS.map(function(Ls, i){
       var done = (prog[Ls.id]||0) >= Ls.tasks.length;
       var started = (prog[Ls.id]||0) > 0;
@@ -736,8 +765,15 @@ function learnRender(){
       var st = done ? '<span class="li-st" style="color:'+tickCol+';"'+(assisted?' title="Solved with assistance"':'')+'>&#10003;</span>'
              : started ? '<span class="li-st" style="color:'+(assisted?'#f0a94a':'var(--accent)')+';">'+prog[Ls.id]+'/'+Ls.tasks.length+'</span>'
              : '<span class="li-st" style="color:var(--text3);">&#9675;</span>';
+      if(Ls.intro){
+        // highlighted, un-numbered "Start here" card that sits apart from the course
+        return '<div class="learn-li intro" onclick="learnOpenLesson('+i+')">'
+          + '<span class="li-num intro">&#9658;</span>'
+          + '<span class="li-t"><span class="li-eyebrow">START HERE</span>'+Ls.title+'</span>'+st+'</div>';
+      }
+      num++;
       return '<div class="learn-li" onclick="learnOpenLesson('+i+')">'
-        + '<span class="li-num">'+(i+1)+'</span><span class="li-t">'+Ls.title+'</span>'+st+'</div>';
+        + '<span class="li-num">'+num+'</span><span class="li-t">'+Ls.title+'</span>'+st+'</div>';
     }).join('');
     var more = '<div class="learn-li lock" style="cursor:default;"><span class="li-num">&#127942;</span><span class="li-t">That\u2019s the full course \u2014 pass the exam and you can write real programs. Ideas? Report a Bug / Suggestion below.</span><span class="li-st"></span></div>';
     body = '<p>Short lessons with small practice exercises solved in the <b>real editor</b> \u2014 the simulator checks your code. Progress is saved.</p>'
@@ -780,14 +816,31 @@ function learnRender(){
     var res = LEARN.lastResults;
     var allOk = res && res.every(function(r){ return r.ok; });
     var lastTask = LEARN.task === L.tasks.length - 1;
+    var nHints = (T.hints && T.hints.length) || 0;
+    var shown  = Math.min(LEARN.hint||0, nHints);
     practice += '<span class="lp-task-badge">PRACTICE '+(LEARN.task+1)+' / '+L.tasks.length+'</span>'
       + '<div class="lp-prompt">'+T.prompt+'</div>';
-    // criteria stay hidden until the first Check — the assignment is ONE sentence
-    if(res){
-      practice += '<div class="lp-checks">' + res.map(function(r){
-        return '<div class="lp-check" style="color:'+(r.ok?'#5dcaa5':'var(--text2)')+';">'
-          + '<span class="c-ic" style="color:'+(r.ok?'#5dcaa5':'#e24b4a')+';">'+(r.ok?'&#10003;':'&#10007;')+'</span>'
-          + '<span>'+r.label + (!r.ok && r.hint ? '<div class="c-hint">&#128161; '+r.hint+'</div>' : '') + '</span></div>';
+    // Goals are visible from the start — grey/pending before the first Check, then
+    // green/red. Guessing what is graded is not the exercise; writing the code is.
+    practice += '<div class="lp-goals'+(res?' checked':'')+'">'
+      + '<div class="lp-goals-cap">GOALS'+(res?'':' \u00b7 not checked yet')+'</div>'
+      + T.checks.map(function(ch, i){
+          var r = res ? res[i] : null;
+          var col = !r ? 'var(--text3)' : (r.ok ? '#5dcaa5' : 'var(--text2)');
+          var ic  = !r ? '&#9675;' : (r.ok ? '&#10003;' : '&#10007;');
+          var icc = !r ? 'var(--text3)' : (r.ok ? '#5dcaa5' : '#e24b4a');
+          return '<div class="lp-check" style="color:'+col+';">'
+            + '<span class="c-ic" style="color:'+icc+';">'+ic+'</span>'
+            + '<span>'+ch.label
+            + (r && !r.ok && ch.hint ? '<div class="c-hint">&#128161; '+ch.hint+'</div>' : '')
+            + '</span></div>';
+        }).join('')
+      + '</div>';
+    // progressive hints, revealed one press at a time
+    if(shown > 0){
+      practice += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){
+        return '<div class="lp-hint-row"><span class="lp-hint-n">HINT '+(i+1)+'</span>'
+          + '<div class="lp-hint-b">'+h+'</div></div>';
       }).join('') + '</div>';
     }
     if(allOk){
@@ -800,11 +853,20 @@ function learnRender(){
       + '<button class="lp-btn" style="padding:8px 10px;" onclick="learnExit()" title="Exit practice \u2014 back to editor">&#10005;</button>'
       + '<button class="lp-btn" style="opacity:.25;padding:8px 8px;border-color:transparent;" onclick="learnSolve()" title="">&#8943;</button>'
       + '<button class="lp-btn" onclick="learnStartTask('+LEARN.task+')" title="Reload starter code">Reset</button>'
+      + (!allOk && nHints
+          ? '<button class="lp-btn hint'+(shown>=nHints?' spent':'')+'" onclick="learnHint()"'
+            + (shown>=nHints?' disabled':'')+' title="Reveal one more hint">&#128161; Hint'
+            + (shown ? ' '+shown+'/'+nHints : '') + '</button>'
+          : '')
       + (allOk
           ? (lastTask
               ? '<button class="lp-btn pri grow" onclick="learnFinishLesson()">Finish lesson &#10003;</button>'
               : '<button class="lp-btn pri grow" onclick="learnStartTask('+(LEARN.task+1)+')">Next \u2192</button>')
-          : '<button class="lp-btn chk grow" onclick="learnCheck()">Check</button>')
+          : (L.intro
+              // orientation lesson: nothing to grade, so let it be finished any time
+              ? '<button class="lp-btn chk" onclick="learnCheck()">Check</button>'
+                + '<button class="lp-btn pri grow" onclick="learnFinishIntro()">Finish &#10003;</button>'
+              : '<button class="lp-btn chk grow" onclick="learnCheck()">Check</button>'))
       + '</div>';
   }
 

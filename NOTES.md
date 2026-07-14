@@ -305,6 +305,14 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.832 — Ported only the accepted Learn improvements from
+  `preview/learn-practice-onboarding` onto the optimized v0.831 `main`: a
+  highlighted Start here orientation lesson, replayable guided practice coach,
+  goals visible before grading, progressive three-level hints for every task,
+  and a consistent return to the lesson list after Finish. The old preview
+  branch was not merged; the chunked voxel renderer and quality profiles remain
+  unchanged. Added `core/learn-coach.js` to the classic-script load order and
+  bumped the service-worker cache to v8.
 - v0.831 — Accepted and merged the chunked voxel update after successful user
   testing, moved C7 from `TODO.md` to `BUG_HISTORY.md`, and introduced three
   explicit quality profiles. Low is 100 voxels / 1 mm, the new recommended

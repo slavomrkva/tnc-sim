@@ -560,6 +560,11 @@ footer a:hover{text-decoration:underline;}
 .learn-li .li-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;background:rgba(var(--accent-rgb),.14);border-radius:5px;flex-shrink:0;}
 .learn-li .li-t{flex:1;font-size:14px;color:var(--text);line-height:1.35;}
 .learn-li .li-st{font-family:var(--mono);font-size:11px;flex-shrink:0;}
+/* "Start here" intro card — highlighted, sits apart from the numbered course */
+.learn-li.intro{border-color:var(--accent);background:linear-gradient(90deg,rgba(var(--accent-rgb),.16),var(--surface) 62%);box-shadow:0 2px 12px rgba(var(--accent-rgb),.12);margin-bottom:4px;}
+.learn-li.intro:hover{background:linear-gradient(90deg,rgba(var(--accent-rgb),.24),var(--surface2) 70%);}
+.learn-li .li-num.intro{color:#fff;background:var(--accent);font-size:12px;}
+.learn-li .li-eyebrow{display:block;font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;color:var(--accent);margin-bottom:2px;}
 .lp-task-badge{display:inline-block;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:9px;letter-spacing:.04em;}
 .lp-prompt{font-size:15.5px;line-height:1.55;color:var(--text);font-weight:600;margin:0 0 8px;font-family:var(--sans);}
 .lp-editor-hint{font-family:var(--mono);font-size:11.5px;color:var(--text3);margin:0 0 12px;line-height:1.5;}
@@ -689,3 +694,28 @@ footer a:hover{text-decoration:underline;}
   body.practice-on[data-mtab="editor"] .panel-header{display:none;}
 }
 
+
+/* ── Learn: goals, progressive hints, first-run coach ───────────────── */
+.lp-goals{border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin:10px 0 0;}
+.lp-goals-cap{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text3);margin-bottom:6px;}
+.lp-goals.checked{border-color:var(--accent);}
+.lp-hints{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.lp-hint-row{display:flex;gap:8px;align-items:flex-start;background:rgba(240,169,74,.07);
+  border-left:2px solid #f0a94a;border-radius:0 6px 6px 0;padding:7px 9px;}
+.lp-hint-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:#f0a94a;flex:0 0 auto;padding-top:2px;}
+.lp-hint-b{font-size:12.5px;line-height:1.5;color:var(--text2);}
+.lp-hint-b code{font-family:var(--mono);font-size:12px;}
+.lp-btn.hint{border-color:rgba(240,169,74,.5);color:#f0a94a;}
+.lp-btn.hint.spent{opacity:.35;}
+
+#learnCoach{position:fixed;inset:0;z-index:9000;}
+#learnCoach .coach-hole{position:fixed;border-radius:8px;pointer-events:none;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.66);outline:2px solid var(--accent);
+  transition:left .2s,top .2s,width .2s,height .2s;}
+#learnCoach .coach-tip{position:fixed;background:var(--panel,#1b1f27);border:1px solid var(--accent);
+  border-radius:10px;padding:12px 13px;box-shadow:0 12px 34px rgba(0,0,0,.5);}
+#learnCoach .coach-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text3);}
+#learnCoach .coach-t{font-size:14px;font-weight:600;color:var(--text);margin:3px 0 5px;}
+#learnCoach .coach-d{font-size:12.5px;line-height:1.55;color:var(--text2);}
+#learnCoach .coach-btns{display:flex;gap:8px;margin-top:11px;}
+#learnCoach .coach-btns .grow{flex:1;}
