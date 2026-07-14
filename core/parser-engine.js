@@ -464,6 +464,10 @@ function parseProgram(code){
   var ccx=null, ccy=null;
   var feed = DEFAULT_FEED;
   lastDefinedFeed = DEFAULT_FEED;
+  // FAUTO in the supported fixed cycles follows the feed from the current
+  // TOOL CALL. Keep it separate from the ordinary modal feed, which later L/C
+  // blocks are allowed to change without redefining the tool's automatic feed.
+  var toolCallFeed = DEFAULT_FEED;
   var rcState = '';
   // Programmed deltas from the CURRENT TOOL CALL block (Heidenhain semantics:
   // these are ADDED to the tool-table deltas and affect only the tool PATH /
@@ -546,12 +550,12 @@ function parseProgram(code){
   // push initial home position as virtual start
   sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:0, srcLine:0, rc:''});
 
-  function pushSeg(to, rapid, srcLine, rc, safeRetract){
+  function pushSeg(to, rapid, srcLine, rc, safeRetract, ensureVisible){
     var from = {x:pos.x,y:pos.y,z:pos.z};
     var dx=to.x-from.x, dy=to.y-from.y, dz=to.z-from.z;
     var len = Math.sqrt(dx*dx+dy*dy+dz*dz);
     if(len > 1e-6){
-      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, dlPgm:curDLpgm, drPgm:curDRpgm});
+      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, dlPgm:curDLpgm, drPgm:curDRpgm});
     }
     pos = {x:to.x,y:to.y,z:to.z};
   }
@@ -581,7 +585,7 @@ function parseProgram(code){
       var depth  = cy.Q201 !== undefined ? cy.Q201 : -20;
       if(depth > 0) depth = -depth;
       var depthZ = surfZ + depth;
-      var pFeed  = (cy.Q206==='FAUTO') ? lastDefinedFeed : (cy.Q206 !== undefined ? cy.Q206 : 150);
+      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 !== undefined ? cy.Q206 : 150);
       var peck   = (cy.Q202 !== undefined && cy.Q202 > 0) ? cy.Q202 : Math.abs(depth);
       if(peck >= Math.abs(depth)) peck = Math.abs(depth); // single pass
 
@@ -607,17 +611,17 @@ function parseProgram(code){
         if(pecked < Math.abs(depth) - 1e-6){
           // Not final depth — retract to safeZ for chip removal
           feed = 9999;
-          pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true);
+          pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true, true);
           // Rapid back down into the pre-drilled hole to 0.2mm above the last
           // peck depth (Heidenhain advanced stop distance), NOT above the surface
-          pushSeg({x:cx2, y:cy2a, z:surfZ - pecked + 0.2}, true, srcLine, rc, true);
+          pushSeg({x:cx2, y:cy2a, z:surfZ - pecked + 0.2}, true, srcLine, rc, true, true);
           feed = pFeed;
         }
       }
 
       // 3. Retract to safeZ (rapid)
       feed = 9999;
-      pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true);
+      pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true, true);
 
       // 4. Retract to 2nd safety clearance (rapid)
       pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
@@ -644,9 +648,11 @@ function parseProgram(code){
       var depth  = cy.Q201 || -10;
       if(depth > 0) depth = -Math.abs(depth);
       var depthZ = surfZ + depth;
-      var pFeed  = (cy.Q206==='FAUTO') ? lastDefinedFeed : (cy.Q206 || 150);
+      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 || 150);
       var rFeed  = 9999;
-      var zStep  = cy.Q334 > 0 ? cy.Q334 : Math.abs(depth); // Z descent per revolution (Q334)
+      // Q334=0 retains the existing single-revolution behavior. A positive
+      // value is the maximum Z descent per complete 360-degree helix.
+      var zStep  = cy.Q334 > 0 ? cy.Q334 : Number.POSITIVE_INFINITY;
       var boreDia = cy.Q335 || TOOL_R * 4;
       var preDia  = cy.Q342 || 0;
       var dir     = (cy.Q351 === -1) ? -1 : 1; // +1=CCW (climb), -1=CW (conventional)
@@ -707,7 +713,9 @@ function parseProgram(code){
       pos={x:cx2, y:cy2, z:safeZ};
 
       feed = pFeed;
-      var totalZ = Math.abs(depth);
+      // Q334 is the maximum Z infeed per complete helix. The helix starts at
+      // safeZ, so Q200 is part of the traversed Z distance as well as Q201.
+      var totalZ = Math.abs(depthZ - safeZ);
 
       if(preDia <= 0){
         // ── Q342=0: Solid material ──────────────────────────────────────
@@ -720,13 +728,12 @@ function parseProgram(code){
 
         // Build ring list: start from 2*_stepR (center ramp covers 0.._stepR)
         var solidRings = [];
-        solidRings.push(0); // r=0: center expanding ramp
         var _solidCount = Math.ceil(mR / _stepR);
         if(_solidCount > 5000){
           if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_stepR.toFixed(3)+'mm needs '+_solidCount+' passes for solid D'+boreDia+' — capped at 5000. Real machine would run extremely long. Check R/DR.'});
           _solidCount = 5000;
         }
-        for(var ri0b = 2; ri0b <= _solidCount; ri0b++){
+        for(var ri0b = 1; ri0b <= _solidCount; ri0b++){
           var _r3 = Math.min(ri0b * _stepR, mR);
           solidRings.push(_r3);
           if(_r3 >= mR) break;
@@ -754,8 +761,12 @@ function parseProgram(code){
               pushSeg({x:cx2+_rampR*Math.cos(a3), y:cy2+_rampR*Math.sin(a3), z:depthZ}, false, srcLine, rc);
             }
           } else {
-            // Normal ring: rapid to start, helical descent, finishing circle
-            pushSeg({x:cx2+curR3, y:cy2, z:safeZ}, true, srcLine, rc);
+            // Cycle 208 enters every constant-radius helix from the bore center
+            // on a semicircle; it must not descend in an expanding r=0 spiral.
+            for(var ap3=1; ap3<=N_arc/2; ap3++){
+              var aa3 = Math.PI + dir*Math.PI*ap3/(N_arc/2);
+              pushSeg({x:cx2+curR3/2+(curR3/2)*Math.cos(aa3), y:cy2+(curR3/2)*Math.sin(aa3), z:safeZ}, false, srcLine, rc);
+            }
             var numRevs3 = Math.max(1, Math.ceil(totalZ / zStep));
             var zPerRev3 = totalZ / numRevs3;
             var zCur3 = safeZ;
@@ -773,7 +784,7 @@ function parseProgram(code){
               var a3 = dir*2*Math.PI*k/N_arc;
               pushSeg({x:cx2+curR3*Math.cos(a3), y:cy2+curR3*Math.sin(a3), z:depthZ}, false, srcLine, rc);
             }
-            pushSeg({x:cx2+curR3, y:cy2, z:safeZ}, true, srcLine, rc);
+            pushSeg({x:cx2+curR3, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
           }
         }
 
@@ -785,7 +796,7 @@ function parseProgram(code){
           if(curR <= 0) continue; // skip center if accidentally added
 
           // Rapid to approach point on ring at safeZ
-          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc);
+          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc, true);
 
           // Helical descent: Q334 = Z drop per full revolution (360°)
           var numRevs = Math.max(1, Math.ceil(totalZ / zStep));
@@ -808,7 +819,7 @@ function parseProgram(code){
           }
 
           // Retract to safeZ before next ring
-          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc);
+          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
         }
       }
 
@@ -845,7 +856,7 @@ function parseProgram(code){
       var depth  = cy.Q201 || -10;
       if(depth > 0) depth = -depth;
       var depthZ = surfZ + depth;
-      var reamF  = (cy.Q206==='FAUTO') ? lastDefinedFeed : (cy.Q206 || 100);
+      var reamF  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 || 100);
       var retF   = cy.Q208 > 0 ? cy.Q208 : reamF;
       var cx2 = pos.x, cy2a = pos.y;
       var oldFeed = feed;
@@ -860,7 +871,7 @@ function parseProgram(code){
 
       // 3. Retract at Q208 — a synchronized FEED move (smooth reamer exit), never FMAX
       feed = retF;
-      pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true);
+      pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
 
       // 4. Rapid to 2nd safety clearance
       pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
@@ -899,8 +910,8 @@ function parseProgram(code){
       if(depth > 0) depth = -depth;
       var depthZ = surfZ + depth;
       var pitch  = Math.abs(cy.Q239 || 1.25);
-      // Feed = pitch × RPM; fallback to lastDefinedFeed if RPM unknown
-      var tapFeed = pitch > 0 && spindleS > 0 ? pitch * spindleS : lastDefinedFeed;
+      // Feed = pitch × RPM; fallback to the current TOOL CALL feed if RPM is unknown
+      var tapFeed = pitch > 0 && spindleS > 0 ? pitch * spindleS : toolCallFeed;
       var chipDepth = cy.Q257 > 0 ? cy.Q257 : Math.abs(depth); // depth per chip-break step
       // Q256=0: full retract to safeZ; Q256>0: retract by pitch*Q256
       var chipFullRetract = (cy.Q256 === 0);
@@ -928,20 +939,20 @@ function parseProgram(code){
         if(tapped < totalDepth - 1e-6){
           if(chipFullRetract){
             // Q256=0: full retract to safeZ (synchronized feed — spindle reverses, tool follows thread)
-            pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true);
+            pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
             // Re-tap down to just above last depth (synchronized feed — tool follows existing thread)
-            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true);
+            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
           } else {
             // Q256>0: retract by pitch*Q256, stays in hole (synchronized feed)
             var breakZ = targetZ + chipRetract;
-            pushSeg({x:cx2, y:cy2a, z:breakZ}, false, srcLine, rc, true);
-            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true);
+            pushSeg({x:cx2, y:cy2a, z:breakZ}, false, srcLine, rc, true, true);
+            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
           }
         }
       }
 
       // 3. Full retract to safeZ — synchronized feed (spindle reverses, tool follows thread out)
-      pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true);
+      pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
 
       // 4. Rapid to 2nd safety clearance (tool is out of the hole — FMAX allowed)
       pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
@@ -1113,7 +1124,7 @@ function parseProgram(code){
       var tn=line.match(/TOOL CALL (\d+)/); if(tn) toolNum=parseInt(tn[1]);
       // Add to GOTO list with current sub[] index
       toolCallList.push({toolNum:toolNum, lineNum:srcLineI, subIdx:sub.length});
-      var tf=line.match(/\bF(\d+)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; }
+      var tf=line.match(/\bF(\d+)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; toolCallFeed=feed; }
       var ts=line.match(/\bS(\d+)/); if(ts) spindleS=parseInt(ts[1]);
       // DL/DR overrides from TOOL CALL line (override tool table values)
       // Accept both '.' and ',' as decimal separator (e.g. DL0.2 or DL0,2)
@@ -1591,6 +1602,7 @@ function rebuildRunSegments(sub, a, b, out, outSeg){
       rapid:meta.rapid, feed:meta.feed, spindleS:meta.spindleS, spindleOn:meta.spindleOn,
       coolantOn:meta.coolantOn, len:len, blockIndex:meta.blockIndex, srcLine:meta.srcLine,
       rc:meta.rc, toolNum:meta.toolNum, pendingDef:meta.pendingDef,
+      safeRetract:!!meta.safeRetract, ensureVisible:!!meta.ensureVisible,
       dlPgm:meta.dlPgm||0, drPgm:meta.drPgm||0
     });
   }

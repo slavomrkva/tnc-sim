@@ -10,6 +10,15 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.834 (web test)
+- Cycle 208 now uses a semicircular entry from the bore center, followed by
+  constant-radius helical passes; it no longer expands a helix from zero radius.
+
+## v0.833 (web test)
+- The Complete Part demo now uses a 2 mm helix infeed. Cycle FAUTO follows the
+  TOOL CALL feed, Cycle 208 keeps every revolution within its programmed Z
+  infeed, and short drilling/tapping retracts remain visibly animated.
+
 ## v0.832 (Learn test)
 - Added a Start here tutorial that explains how lessons and practice work.
 - Every practice task now shows its goals and offers three progressive hints.

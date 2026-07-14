@@ -283,6 +283,15 @@ a 32-cell chunk boundary will leave stale triangles/a visible seam. Measurement
 raycasting must remain recursive because `VX.mesh` is now a `THREE.Group` of
 chunk meshes until the final refined mesh replaces it.
 
+### 13. Cycle FAUTO feed and short retract visibility are separate concerns
+`Q206 FAUTO` in the supported cycles uses the feed from the current `TOOL CALL`,
+not a later modal F programmed on an L/C contour block. Keep `toolCallFeed`
+separate from `lastDefinedFeed`. Cycle 200 chip-release moves are FMAX; Cycle
+209 chip-break moves remain synchronized at pitch × spindle RPM. The latter
+must never be changed to FMAX merely to make it look faster. Short
+cycle-internal reversals carry `ensureVisible`; `advance()` gives only those
+moves one midpoint render when they would otherwise finish inside one frame.
+
 ---
 
 ## Deploy flow
@@ -305,6 +314,17 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.834 — Corrected Cycle 208 solid-stock entry to a semicircle from the bore
+  center followed by constant-radius helices, matching the documented cycle run.
+- v0.833 — Added the web-only C8/C9 test fix on
+  `agent/fix-cycle-feed-retract-motion`. The Complete Part demo now uses Q334=2.
+  Cycle FAUTO keeps the current TOOL CALL feed even after later modal feed
+  changes; Cycle 208 includes Q200 in its helix travel so every revolution
+  respects Q334. Short cycle retract/return moves get one visible midpoint
+  frame instead of teleporting, while Cycle 200 remains FMAX and Cycle 209
+  remains synchronized to pitch × RPM. Added `tests/parser-cycles.test.js` and
+  bumped the service-worker cache v8→v9. Awaiting web verification before merge
+  or Android port.
 - v0.832 — Ported only the accepted Learn improvements from
   `preview/learn-practice-onboarding` onto the optimized v0.831 `main`: a
   highlighted Start here orientation lesson, replayable guided practice coach,

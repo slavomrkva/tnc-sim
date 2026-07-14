@@ -348,6 +348,10 @@ function segSpeed(sm){
   return base * VISUAL_GAIN * SPEEDS[speedIdx];
 }
 
+function shouldHoldVisibleSegment(sm, progress, remaining, segTime){
+  return !!(sm && sm.ensureVisible && progress===0 && segTime>0 && remaining>=segTime);
+}
+
 function rapidCollision(sm, cx, cy, cz){
   if(mode==='idle') return;
   mode='idle';
@@ -395,6 +399,14 @@ function advance(dt){
     var spd = segSpeed(sm);
     var segTime = sm.len / spd;
     var tLeft = (1 - subProgress) * segTime;
+    // A short cycle retract can otherwise start and finish between two render
+    // frames and look like a teleport. Show its midpoint once, while retaining
+    // the real FMAX/feed metadata and leaving ordinary short arc segments fast.
+    if(shouldHoldVisibleSegment(sm, subProgress, remaining, segTime)){
+      subProgress = 0.5;
+      remaining = 0;
+      break;
+    }
     if(remaining < tLeft){
       subProgress += remaining/segTime;
       remaining = 0;
