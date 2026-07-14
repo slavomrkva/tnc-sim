@@ -81,9 +81,10 @@ fetch('./graph.json')
       .nodeColor(n => communityColor(n.community))
       .nodeVal('val')
       .nodeOpacity(0.9)
-      .linkColor(() => 'rgba(255,255,255,0.15)')
+      .linkColor(() => 'rgba(180,200,255,0.55)')
+      .linkOpacity(0.6)
       .linkDirectionalParticles(0)
-      .linkWidth(0.4)
+      .linkWidth(1.1)
       .onNodeHover((node, prev) => {
         document.getElementById('graph').style.cursor = node ? 'pointer' : null;
         if (node) {
