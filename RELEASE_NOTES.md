@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.842 (web test)
+- Follow-up: the 3D / XY toolpath / Tool Table view switcher tabs are now also
+  capped on tablet-sized screens, matching the previous button-width fix.
+
 ## v0.841 (web test)
 - Capped the width of the 3D view's Run/Step/Stop and quality/speed buttons on
   tablet-sized screens, where they previously stretched edge-to-edge.

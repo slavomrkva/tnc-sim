@@ -314,6 +314,14 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.842 — Follow-up to v0.841: the view switcher (`.view-tabs .tab` — 3D view
+  / XY toolpath / Tool Table) had the same uncapped-`flex:1` stretch on
+  tablet-width screens; confirmed headless it was 300px per tab at 900px
+  width (quality/speed were already fine — bounded by their v0.841-capped
+  parent container). Added `max-width:190px`, chosen just above the 130px
+  phone-width size so text ("XY toolpath") stays comfortable; verified 190px
+  at 900px and unchanged 130px at 390px. CSS-only. Bumped service-worker cache
+  v17→v18. Web only.
 - v0.841 — Capped the 3D-tab mobile toolbar buttons so they stop growing past
   a sane size on tablet-width screens. `body[data-mtab="view"] .toolbar`'s
   Run/Step/Stop (`flex:1 1 20%`), the quality-profile group and the speed

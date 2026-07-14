@@ -509,8 +509,10 @@ footer a:hover{text-decoration:underline;}
   body[data-mtab="view"] .toolbar .speed-ctrl{flex:1 1 42%;max-width:260px;justify-content:space-between;height:36px;box-sizing:border-box;}
   body[data-mtab="view"] .toolbar .speed-btn{height:34px;padding:0 14px;display:flex;align-items:center;}
   body[data-mtab="view"] .toolbar .speed-val{display:flex;align-items:center;justify-content:center;}
-  /* view switcher tabs (3D / XY toolpath / Tool Table) share the width evenly */
-  body[data-mtab="view"] .view-tabs .tab{flex:1;text-align:center;padding-left:4px;padding-right:4px;}
+  /* view switcher tabs (3D / XY toolpath / Tool Table) share the width evenly,
+     capped so they don't stretch edge-to-edge on tablet widths (same issue as
+     the transport/quality/speed controls above). */
+  body[data-mtab="view"] .view-tabs .tab{flex:1;max-width:190px;text-align:center;padding-left:4px;padding-right:4px;}
   .panel-header{padding:5px 10px;}
   .ph-btn{padding:3px 9px !important;min-height:26px !important;}
   .ctx-panel:has(#_idleUndo) .btn{min-height:26px !important;padding:2px 8px !important;font-size:10px;}
