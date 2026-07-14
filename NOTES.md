@@ -314,6 +314,18 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.841 — Capped the 3D-tab mobile toolbar buttons so they stop growing past
+  a sane size on tablet-width screens. `body[data-mtab="view"] .toolbar`'s
+  Run/Step/Stop (`flex:1 1 20%`), the quality-profile group and the speed
+  control (`flex:1 1 42%` each) had no `max-width`, so on the tablet end of
+  the `@media(max-width:1024px)` mobile layout (which applies well past phone
+  widths) they stretched edge-to-edge. Added `max-width:150px` to Run/Step/Stop
+  and `max-width:260px` to the quality group and speed control; phones stay
+  unaffected since their natural flex-basis width is already under the caps.
+  Verified headless (Playwright): at 900px width Run/Step/Stop went from
+  261px each to capped 150px and the quality group from 749px to 260px; at
+  390px (phone) widths were unchanged (91px / 239px, under both caps).
+  CSS-only. Bumped service-worker cache v16→v17. Web only.
 - v0.840 — Fixed near-invisible light-theme text in three dark floating
   overlays: the Learn practice coach tour tooltip (`#learnCoach .coach-tip`,
   first step titled "The assignment") and the 3D "TOOLS USED" legend

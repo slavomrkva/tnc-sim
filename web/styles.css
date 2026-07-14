@@ -496,14 +496,17 @@ footer a:hover{text-decoration:underline;}
   /* 3D tab: transport buttons fill row 1, quality + speed fill row 2 */
   body[data-mtab="view"] .canvas-panel{overflow:hidden;}
   body[data-mtab="view"] .toolbar{overflow:hidden;}
+  /* Capped so these keep growing proportionally on a phone but stop at a
+     sane button size instead of stretching edge-to-edge on tablet widths
+     (this layout applies up to 1024px, not just phones). */
   body[data-mtab="view"] .toolbar .btn-run,
   body[data-mtab="view"] .toolbar .btn-step,
-  body[data-mtab="view"] .toolbar .btn-stop{flex:1 1 20%;justify-content:center;height:34px;min-height:34px;padding:0 8px;font-size:11px;}
+  body[data-mtab="view"] .toolbar .btn-stop{flex:1 1 20%;max-width:150px;justify-content:center;height:34px;min-height:34px;padding:0 8px;font-size:11px;}
   body[data-mtab="view"] .toolbar .btn-reset{flex:0 1 auto;height:34px;min-height:34px;padding:0 10px;font-size:11px;}
-  body[data-mtab="view"] .toolbar > div:has(#qualityGroup){flex:1 1 42%;}
+  body[data-mtab="view"] .toolbar > div:has(#qualityGroup){flex:1 1 42%;max-width:260px;}
   body[data-mtab="view"] .toolbar #qualityGroup{display:flex;}
   body[data-mtab="view"] .toolbar #qualityGroup .btn-tog{flex:1;min-height:0;height:34px;padding:0 10px;display:flex;align-items:center;justify-content:center;}
-  body[data-mtab="view"] .toolbar .speed-ctrl{flex:1 1 42%;justify-content:space-between;height:36px;box-sizing:border-box;}
+  body[data-mtab="view"] .toolbar .speed-ctrl{flex:1 1 42%;max-width:260px;justify-content:space-between;height:36px;box-sizing:border-box;}
   body[data-mtab="view"] .toolbar .speed-btn{height:34px;padding:0 14px;display:flex;align-items:center;}
   body[data-mtab="view"] .toolbar .speed-val{display:flex;align-items:center;justify-content:center;}
   /* view switcher tabs (3D / XY toolpath / Tool Table) share the width evenly */

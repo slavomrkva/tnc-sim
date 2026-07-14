@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.841 (web test)
+- Capped the width of the 3D view's Run/Step/Stop and quality/speed buttons on
+  tablet-sized screens, where they previously stretched edge-to-edge.
+
 ## v0.840 (web test)
 - Fixed near-invisible text in light theme: the Learn practice tutorial's
   guided-tour tooltip (starting with "The assignment") and the 3D view's
