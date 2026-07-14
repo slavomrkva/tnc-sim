@@ -314,6 +314,16 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.837 — Fixed the mobile status bar jumping height during simulation.
+  `#statusMsg` shows `Block N/M: <source line>` (`core/voxel-cutting.js`), whose
+  length varies per block (`M3` vs a long `CYCL DEF`/contour line); `.status-bar`
+  had `flex-wrap:wrap` with no line clamp on `#statusMsg`, so a long block wrapped
+  to 2 lines and a short one didn't, changing bar height every block. Scoped a
+  mobile-only fix (`@media(max-width:1024px), (max-height:600px)`): `.status-bar{
+  flex-wrap:nowrap}` and `#statusMsg{white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;min-width:0}` so the running block always renders on one
+  line, truncated with an ellipsis if needed — bar height is now constant.
+  CSS-only. Bumped service-worker cache v12→v13. Web only.
 - v0.836 — Reformatted the Complete Part demo's Cycle 209 (`index.html`) to the
   standard Klartext layout used by every other cycle in the demo: `CYCL DEF 209
   ;Title` on the first line, then each Q param on its own indented line in the

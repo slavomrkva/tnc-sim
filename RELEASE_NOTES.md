@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.837 (web test)
+- Fixed the mobile status bar jumping height while a program runs. The running
+  block description now stays on one line (truncated with … if long) instead of
+  wrapping and changing the bar's height between blocks.
+
 ## v0.835 (web test)
 - Tapping Cycle 209 with `Q256=0` now correctly retracts the tool fully out of
   the hole between chip-break steps (instead of ignoring the 0), and `Q257=0`

@@ -477,6 +477,11 @@ footer a:hover{text-decoration:underline;}
   .ph-blocks{display:none;}
   .logo-sub{display:none;}
   .status-bar #posDisplay{display:none;}
+  /* Running-block text (core/voxel-cutting.js updateStatus) varies wildly in
+     length per source line; wrapping to 2 lines vs 1 made the bar jump height
+     between blocks. Force one line + ellipsis so the bar height stays fixed. */
+  .status-bar{flex-wrap:nowrap;}
+  .status-bar #statusMsg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
   :root{--editor-fs:13px;}
   /* compact editor chrome: no icons in panel-header buttons, less height */
   .ph-ico{display:none;}
