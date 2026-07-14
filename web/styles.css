@@ -445,6 +445,7 @@ footer a:hover{text-decoration:underline;}
 .fbar-sug{display:none;}
 .fbar-fmax{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 8px;cursor:pointer;flex-shrink:0;}
 .fbar-fmax:hover{background:rgba(20,184,166,.1);}
+.fbar-feedmode{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 4px;cursor:pointer;flex-shrink:1;min-width:0;max-width:100px;}
 .fbar-sug button{font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;}
 .fbar-sug button:hover{background:var(--bg);color:var(--text);border-color:var(--accent3);}
 .fbar-sug button.max{border-color:var(--accent);color:var(--accent);}

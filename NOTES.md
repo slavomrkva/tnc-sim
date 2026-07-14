@@ -314,6 +314,23 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.839 — Fixed the field-editing panel (`.ctx-panel`) growing/jumping on
+  mobile when editing an F (feed) field on an L/C/CR block. The F field has 4
+  extra actions (insert Q ref, FMAX, FAUTO, skip) versus coord/num fields'
+  2 — as separate buttons (`renderFbar()`, `core/field-editing.js`) they
+  wrapped `.ctx-row2` to a 2nd line at mobile width (no `max-height` on
+  `.ctx-panel`), pushing Done down and growing the panel every time an F field
+  was opened. Collapsed the 4 feed actions into one native `<select class=
+  "fbar-feedmode">` dropdown (`applyFeedMode()` routes to the same existing
+  setters `toggleQField`/`applySug`/`setFieldVal` — no new state logic), added
+  `.fbar-feedmode` in `web/styles.css`. Verified headless (Playwright, iPhone
+  13 viewport): before the fix `.ctx-row2` was 374×69px (wrapped) and the
+  panel 108px tall with Done at the start of a new row; after, `.ctx-row2` is
+  374×36px (single line, no scroll overflow) and the panel is 75px tall with
+  Done staying on the same row. Confirmed the dropdown's FMAX/Skip/Insert-Q
+  options each still set `FM.fields[idx].val` exactly as the old buttons did.
+  `core/field-editing.js` now diverges from Android's copy pending a
+  deliberate port. Bumped service-worker cache v14→v15. Web only.
 - v0.838 — Hid the Tool Table's "Click ? Help above, then any column header, for
   an explanation" hint on touch devices. `toggleKpHelp()` (`core/help-popups.js`)
   skips desktop hover-help mode entirely on `pointer:coarse` and opens the full

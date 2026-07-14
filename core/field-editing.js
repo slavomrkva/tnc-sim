@@ -280,19 +280,31 @@ function renderFbar(){
     html+='<div class="fbar-dr">'+rcBtn('RL',f.val)+rcBtn('R0',f.val)+rcBtn('RR',f.val)+'<button class="'+rcSkipCls+'" onclick="setFieldVal(\'\')">—</button></div>';
   } else {
     html+='<span class="fbar-pfx">'+(f.lbl||f.p||'')+'</span><span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':f.val)+'</span>';
-    // Q parameter reference button (coord/num/feed fields)
-    if(f.type==='coord'||f.type==='num'||f.type==='feed'){
-      var qSel = /Q/i.test(String(f.val||''));
-      html+='<button class="fbar-fmax'+(qSel?' sel':'')+'" onclick="toggleQField()" title="Insert Q parameter reference">Q</button>';
-    }
     if(f.type==='feed'){
-      html+='<button class="fbar-fmax" onclick="applySug(\'MAX\')">FMAX</button>';
-      html+='<button class="fbar-fmax" onclick="applySug(\'AUTO\')">FAUTO</button>';
-    }
-    // Skip button for optional fields
-    if(f.opt){
-      var skipBtnCls='fbar-drbtn'+(f.val===null?' sel':'');
-      html+='<button class="'+skipBtnCls+'" onclick="setFieldVal(null)" title="Skip this field">—</button>';
+      // Feed has 4 extra actions (Q ref, FMAX, FAUTO, skip) — as separate
+      // buttons they wrapped this row on mobile and grew the panel height
+      // every time an F field was edited (coord/num fields only have up to 2
+      // and don’t wrap). Collapse them into one native dropdown instead.
+      var qSel = /Q/i.test(String(f.val||''));
+      var curSel = f.val===null?'SKIP':(f.val==='MAX'?'MAX':(f.val==='AUTO'?'AUTO':(qSel?'Q':'')));
+      html+='<select class="fbar-feedmode" onchange="applyFeedMode(this.value)" title="Feed options">';
+      html+='<option value=""'+(curSel===''?' selected':'')+'>⋯</option>';
+      html+='<option value="MAX"'+(curSel==='MAX'?' selected':'')+'>FMAX</option>';
+      html+='<option value="AUTO"'+(curSel==='AUTO'?' selected':'')+'>FAUTO</option>';
+      html+='<option value="Q"'+(curSel==='Q'?' selected':'')+'>'+(qSel?'Remove Q':'Insert Q')+'</option>';
+      if(f.opt) html+='<option value="SKIP"'+(curSel==='SKIP'?' selected':'')+'>Skip (—)</option>';
+      html+='</select>';
+    } else {
+      // Q parameter reference button (coord/num fields)
+      if(f.type==='coord'||f.type==='num'){
+        var qSel2 = /Q/i.test(String(f.val||''));
+        html+='<button class="fbar-fmax'+(qSel2?' sel':'')+'" onclick="toggleQField()" title="Insert Q parameter reference">Q</button>';
+      }
+      // Skip button for optional fields (coord/num/mval/etc.)
+      if(f.opt){
+        var skipBtnCls='fbar-drbtn'+(f.val===null?' sel':'');
+        html+='<button class="'+skipBtnCls+'" onclick="setFieldVal(null)" title="Skip this field">—</button>';
+      }
     }
   }
   html+='<button class="fbar-nav" onclick="fieldNext()">&#9654;</button>';
@@ -345,6 +357,16 @@ function applySug(v){
   } else { f.val=v; }
   FM.typing=true;
   selectField(FM.idx);
+}
+
+// Dispatcher for the feed field's collapsed dropdown (renderFbar) — routes to
+// the same setters the old FMAX/FAUTO/Q/skip buttons used, so state stays
+// identical either way.
+function applyFeedMode(v){
+  if(v==='') return; // placeholder option, no-op
+  if(v==='Q'){ toggleQField(); return; }
+  if(v==='SKIP'){ setFieldVal(null); return; }
+  applySug(v); // 'MAX' or 'AUTO'
 }
 
 function fieldNext(){ if(FM.idx<FM.fields.length-1) selectField(FM.idx+1); else exitFieldMode(); }

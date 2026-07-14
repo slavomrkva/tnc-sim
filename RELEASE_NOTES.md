@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.839 (web test)
+- Fixed the mobile field editor panel jumping/growing when editing a feed (F)
+  value on an L/C/CR block. FMAX, FAUTO, Insert Q and Skip are now one compact
+  dropdown instead of 4 separate buttons that could wrap to a 2nd row.
+
 ## v0.838 (web test)
 - Removed the Tool Table's "Click ? Help…" hint on phones/tablets, where that
   hover-based help flow doesn't apply.
