@@ -199,7 +199,8 @@ function initMeasureRaycaster(){
     var targets=[];
     if(VX&&VX.mesh) targets.push(VX.mesh);
     if(blockMesh&&blockMesh.visible) targets.push(blockMesh);
-    var hits=measureRaycaster.intersectObjects(targets);
+    // VX.mesh can be a Group of incrementally rebuilt chunk meshes.
+    var hits=measureRaycaster.intersectObjects(targets,true);
     if(hits.length>0) handleMeasureClick(hits[0].point.clone());
   }
 

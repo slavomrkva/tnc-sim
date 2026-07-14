@@ -32,8 +32,10 @@ separate Android app is a Capacitor product in `tnc-sim-android`.
 - `index.html` — the HTML shell + markup. The JS/CSS previously inline in it
   now live in `core/` and `web/` (see "Module map" below), loaded via plain
   `<script src defer>` / `<link rel=stylesheet>` tags, in the order listed.
-- `core/*.js` — engine/UI logic, byte-for-byte identical to the Android app's
-  `www/core/*.js`. See "Module map".
+- `core/*.js` — shared engine/UI logic, normally kept byte-for-byte identical to
+  the Android app's `www/core/*.js`. The v0.830 web performance test temporarily
+  diverges `voxel-cutting.js`, `render3d.js`, and `measure-tool.js` pending
+  browser acceptance and an intentional Android port. See "Module map".
 - `web/*.js`, `web/styles.css` — web-specific code (genuinely diverged from
   android, or web-only). See "Module map".
 - `manifest.json` — PWA manifest (name, icons, colors, standalone).
@@ -56,10 +58,11 @@ local static server — some browsers won't fetch module scripts over `file://`)
 ## Module map (core/ vs web/) — read this before editing
 `index.html`'s inline `<script>`/`<style>` content was mechanically split
 (2026-07-12 refactor, no functionality changed) into:
-- **`core/*.js`** (20 files) — verified byte-for-byte identical to the
-  Android app's `www/core/*.js` (264 of 268 top-level functions + 5 shared
-  data tables are identical between the two repos — mechanically verified,
-  not eyeballed). Includes **the CYCL parser / radius-comp engine**
+- **`core/*.js`** (20 files) — shared with the Android app's `www/core/*.js`
+  (264 of 268 top-level functions + 5 shared data tables were mechanically
+  verified identical at the module split). The v0.830 web test temporarily
+  changes three files listed above; port them deliberately after acceptance.
+  Includes **the CYCL parser / radius-comp engine**
   (`core/parser-engine.js`: `parseProgram`, `validateProgram`,
   `applyRadiusComp`, `offsetRun`, `rebuildRunSegments`, `commitSeg`,
   `buildToolMesh`, `triggerRefine`, `updateATC`, `resetState`), the voxel
@@ -162,7 +165,9 @@ you expect.
   `vxCut(...)` removes material from a voxel grid; `buildScene(prog)` builds
   the Three.js scene; `init3D()` sets up the renderer; `loop()` (per-side,
   `web/app.js` calls it, defined in `core/sim-controls.js`) is the render
-  loop. Three.js is vendored in `vendor/`; `THREE_OK` flags availability.
+  loop. The v0.830 web test divides the live workpiece into 32×32-cell XY
+  chunks and rebuilds only chunks touched by a cut. Three.js is vendored in
+  `vendor/`; `THREE_OK` flags availability.
 - **Tool table** (`core/tool-table.js`) — `toolLibrary` array. Tools have TYPE
   (MILL / DRILL / COUNTERSINK) with distinct cutting behaviour. Countersink R
   is ~0.001 (tip).
@@ -198,9 +203,10 @@ When reading cycle params, use `Q!==undefined ? Q : default`, NOT `Q || default`
 E.g. `Q202=+0` (full-depth peck) is valid; `Q||5` would wrongly become 5.
 
 ### 3. Voxel cell size limits detail
-The 3D cut is a voxel grid (~1 mm cells on Default). Details finer than a cell
-won't show even at High/after Refine. This is by design; note it, don't "fix" it
-by cranking resolution (memory/perf on mobile).
+The live 3D grid has three profiles: Low 100 / up to 1 mm, Default 150 / up to
+0.7 mm, and High 200 / up to 0.5 mm. Refine uses 300/400/500 with cell caps of
+0.5/0.4/0.3 mm. Details finer than a cell still won't show. Keep the web memory
+guards at 24 million live and 64 million Refine voxels.
 
 ### 4. Layout breakpoint: single-column when width ≤1024px OR height ≤600px
 Use the full CSS/JS condition
@@ -269,6 +275,14 @@ Do this in the SAME commit as the code change so the docs never drift from the
 tree. The Android repo (`tnc-sim-android`) keeps its own `TODO.md` +
 `BUG_HISTORY.md`; when a bug spans both, cross-reference the other repo.
 
+### 12. Chunked Marching Cubes needs a one-cell dirty halo
+The live voxel mesh is divided into half-open XY cell ranges. Changing one grid
+vertex affects the Marching Cubes cell at that index and the cell immediately
+before it on both X and Y. Keep `vxMarkDirtyBounds()`'s one-cell halo or cuts on
+a 32-cell chunk boundary will leave stale triangles/a visible seam. Measurement
+raycasting must remain recursive because `VX.mesh` is now a `THREE.Group` of
+chunk meshes until the final refined mesh replaces it.
+
 ---
 
 ## Deploy flow
@@ -291,6 +305,25 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.831 — Accepted and merged the chunked voxel update after successful user
+  testing, moved C7 from `TODO.md` to `BUG_HISTORY.md`, and introduced three
+  explicit quality profiles. Low is 100 voxels / 1 mm, the new recommended
+  Default is 150 / 0.7 mm, and High is 200 / 0.5 mm; their Refine targets are
+  300/400/500 with 0.5/0.4/0.3 mm caps. Added a profile wiring regression and
+  bumped the service-worker cache v6→v7.
+- v0.830 — Added the web-only chunked voxel-meshing performance test. The live
+  stock is split into 32×32-cell XY chunks; each cut tracks its actually changed
+  grid bounds plus the one-cell Marching Cubes dependency halo, then rebuilds
+  and uploads only intersecting chunk geometries. Reused corner/value buffers,
+  hoisted the edge table, colored triangles during generation, and removed the
+  redundant `computeVertexNormals()` pass without changing Default/High cell
+  resolution. Made Measure raycasting recursive and generalized mesh disposal
+  so chunk groups, reset and final Refine remain compatible. New regression
+  coverage proved 20,844 triangles/normals/colors identical to a full mesh and
+  verified boundary invalidation plus selective geometry replacement; a Node
+  Default-grid microbenchmark measured an approximately 11× local scan speedup.
+  Cache v5→v6. Awaiting real-browser/device verification; Android intentionally
+  remains unchanged pending acceptance.
 - v0.829 — Closed C5 after the accepted web fix was ported to Android 1.0.30.
   Moved the bounded-editor symptom, root cause, mobile verification and final
   cross-repo state from `TODO.md` to `BUG_HISTORY.md`. No new runtime behaviour;

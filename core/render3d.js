@@ -182,7 +182,7 @@ function _runRefineMainThread(d){
 
 function _applyRefinedMesh(vertsArr, normsArr, triColors){
   if(!THREE_OK || !scene) return;
-  if(VX && VX.mesh){ scene.remove(VX.mesh); VX.mesh.geometry.dispose(); }
+  if(VX && VX.mesh){ scene.remove(VX.mesh); vxDisposeObject(VX.mesh,true); }
   var geo = new THREE.BufferGeometry();
   var vf = new Float32Array(vertsArr);
   geo.setAttribute('position', new THREE.BufferAttribute(vf, 3));
@@ -203,7 +203,7 @@ function _applyRefinedMesh(vertsArr, normsArr, triColors){
   var mat = new THREE.MeshLambertMaterial({vertexColors:true, side:THREE.DoubleSide});
   var mesh = new THREE.Mesh(geo, mat);
   mesh.frustumCulled = false;
-  if(VX) VX.mesh = mesh;
+  if(VX){ VX.mesh=mesh; VX.chunks=null; VX.material=null; VX.chunked=false; }
   scene.add(mesh);
   if(blockMesh) blockMesh.visible = false;
   if(blockEdges) blockEdges.visible = false;
@@ -256,7 +256,7 @@ function buildScene(prog){
   // voxel init — MC mesh will replace blockMesh immediately
   if(prog.hasStock!==false) vxInit(prog);
   else {
-    if(VX&&VX.mesh){ scene.remove(VX.mesh); if(VX.mesh.geometry) VX.mesh.geometry.dispose(); }
+    if(VX&&VX.mesh){ scene.remove(VX.mesh); vxDisposeObject(VX.mesh,true); }
     VX=null;
     var refineBtn=document.getElementById('refineBtnCanvas');
     if(refineBtn) refineBtn.style.display='none';
