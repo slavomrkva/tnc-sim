@@ -1,7 +1,28 @@
-// voxel-cutting -- verified byte-for-byte identical between web and android repos.
+// voxel-cutting -- web test branch: incremental chunk meshing (not yet ported to Android).
+
+var VX_CHUNK_CELLS = 32;
+var VX_EDGE_CORNERS = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+
+function vxDisposeObject(obj, disposeMaterials){
+  if(!obj) return;
+  var disposedMaterials=[];
+  function disposeOne(child){
+    if(child.geometry) child.geometry.dispose();
+    if(!disposeMaterials || !child.material) return;
+    var materials=Array.isArray(child.material)?child.material:[child.material];
+    materials.forEach(function(mat){
+      if(mat && disposedMaterials.indexOf(mat)<0){
+        disposedMaterials.push(mat);
+        if(mat.dispose) mat.dispose();
+      }
+    });
+  }
+  if(obj.traverse) obj.traverse(disposeOne);
+  else disposeOne(obj);
+}
 
 function vxInit(prog){
-  if(VX && VX.mesh){ scene.remove(VX.mesh); VX.mesh.geometry.dispose(); }
+  if(VX && VX.mesh){ scene.remove(VX.mesh); vxDisposeObject(VX.mesh,true); }
   var min=prog.blkMin, max=prog.blkMax;
   var w=max.x-min.x, d=max.y-min.y, h=max.z-min.z;
   // Isotropic cells: cell size derived from the longest axis / VX_RES, so dx~=dy~=dz.
@@ -40,7 +61,7 @@ function vxInit(prog){
     grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;
   }
   var cut=new Uint8Array(nx*ny*nz); // tool number that cut this voxel (0=uncut)
-  VX={grid:grid,cut:cut,nx:nx,ny:ny,nz:nz,ox:min.x,oy:min.y,oz:min.z,dx:dx,dy:dy,dz:dz,minZ:min.z,maxZ:max.z,w:w,d:d,h:h,mesh:null,dirty:false,hasCut:false,blkCyl:cylVx};
+  VX={grid:grid,cut:cut,nx:nx,ny:ny,nz:nz,ox:min.x,oy:min.y,oz:min.z,dx:dx,dy:dy,dz:dz,minZ:min.z,maxZ:max.z,w:w,d:d,h:h,mesh:null,chunks:null,material:null,chunked:false,dirty:false,hasCut:false,blkCyl:cylVx};
   VX.mesh=vxBuildMesh();
   scene.add(VX.mesh);
 }
@@ -61,7 +82,8 @@ function vxReset(){
     VX.cut[iz*VX.ny*VX.nx+iy*VX.nx+ix]=0;
   }
   VX.hasCut=false; VX.dirty=false;
-  if(VX.mesh){scene.remove(VX.mesh);VX.mesh.geometry.dispose();VX.mesh=null;}
+  if(VX.mesh){scene.remove(VX.mesh);vxDisposeObject(VX.mesh,true);VX.mesh=null;}
+  VX.chunks=null; VX.material=null; VX.chunked=false;
   if(blockMesh) blockMesh.visible=true;
   if(blockEdges) blockEdges.visible=true;
   if(typeof applyStockVisibility==='function') applyStockVisibility();
@@ -95,6 +117,7 @@ function vxCut(tx,ty,tz,toolR,toolShape){
   var izMax=VX.nz-1;
   var _lcutsZ = toolShape ? (toolShape.lcuts||toolR*999) : toolR*999;
   var changed=false;
+  var changedIxMin=VX.nx, changedIxMax=-1, changedIyMin=VX.ny, changedIyMax=-1;
   for(var iz=izMin;iz<=izMax;iz++){
     var pz=VX.oz+iz*VX.dz;
     if(pz < tz - VX.dz*0.5) continue;
@@ -146,19 +169,45 @@ function vxCut(tx,ty,tz,toolR,toolShape){
         var ddx=px-tx,ddy=py-ty;
         if(ddx*ddx+ddy*ddy<=r2){
           var gi=iz*VX.ny*VX.nx+iy*VX.nx+ix;
-          if(VX.grid[gi]){VX.grid[gi]=0;VX.cut[gi]=(dz2<=_lcutsZ)?currentToolNum||1:255;changed=true;}
+          if(VX.grid[gi]){
+            VX.grid[gi]=0;
+            VX.cut[gi]=(dz2<=_lcutsZ)?currentToolNum||1:255;
+            changed=true;
+            if(ix<changedIxMin) changedIxMin=ix;
+            if(ix>changedIxMax) changedIxMax=ix;
+            if(iy<changedIyMin) changedIyMin=iy;
+            if(iy>changedIyMax) changedIyMax=iy;
+          }
         }
       }
     }
   }
-  if(changed){ VX.dirty=true; VX.hasCut=true; if(blockEdges&&blockEdges.visible) blockEdges.visible=false; }
+  if(changed){
+    vxMarkDirtyBounds(changedIxMin,changedIxMax,changedIyMin,changedIyMax);
+    VX.dirty=true;
+    VX.hasCut=true;
+    if(blockEdges&&blockEdges.visible) blockEdges.visible=false;
+  }
 }
 
-function vxBuildMesh(){
-  var nx=VX.nx,ny=VX.ny,nz=VX.nz;
-  var verts=[],normals=[];
+function vxMarkDirtyBounds(ixMin,ixMax,iyMin,iyMax){
+  if(!VX || !VX.chunks) return;
+  // Each Marching Cubes cell uses eight grid vertices, so include the cells
+  // immediately before every changed vertex as a one-cell dependency halo.
+  var cellXMin=Math.max(0,ixMin-1), cellXMax=Math.min(VX.nx-2,ixMax);
+  var cellYMin=Math.max(0,iyMin-1), cellYMax=Math.min(VX.ny-2,iyMax);
+  for(var i=0;i<VX.chunks.length;i++){
+    var chunk=VX.chunks[i];
+    if(chunk.x0<=cellXMax && chunk.x1>cellXMin && chunk.y0<=cellYMax && chunk.y1>cellYMin){
+      chunk.dirty=true;
+    }
+  }
+}
 
-  function lerp(a,b,t){ return a+(b-a)*t; }
+function vxBuildGeometryRange(cellX0,cellX1,cellY0,cellY1){
+  var nx=VX.nx,ny=VX.ny,nz=VX.nz;
+  var verts=[],normals=[],colors=[];
+
   function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){
     if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}
     var t=(iso-v1)/(v2-v1);
@@ -170,6 +219,9 @@ function vxBuildMesh(){
   var iso=0.5;
   var ep=new Array(12);
   for(var ei2=0;ei2<12;ei2++) ep[ei2]=[0,0,0];
+  var values=new Uint8Array(8);
+  var cornerX=new Float64Array(8), cornerY=new Float64Array(8), cornerZ=new Float64Array(8);
+  var stockColor=_stockRGB();
 
   function val(ix,iy,iz){
     if(ix<0||ix>=nx||iy<0||iy>=ny||iz<0||iz>=nz) return 0;
@@ -177,24 +229,31 @@ function vxBuildMesh(){
   }
 
   for(var iz=0;iz<nz-1;iz++){
-    for(var iy=0;iy<ny-1;iy++){
-      for(var ix=0;ix<nx-1;ix++){
+    for(var iy=cellY0;iy<cellY1;iy++){
+      for(var ix=cellX0;ix<cellX1;ix++){
         var x0=VX.ox+ix*VX.dx, y0=VX.oy+iy*VX.dy, z0=VX.oz+iz*VX.dz;
         var x1=x0+VX.dx, y1=y0+VX.dy, z1=z0+VX.dz;
-        var v=[val(ix,iy,iz),val(ix+1,iy,iz),val(ix+1,iy+1,iz),val(ix,iy+1,iz),
-               val(ix,iy,iz+1),val(ix+1,iy,iz+1),val(ix+1,iy+1,iz+1),val(ix,iy+1,iz+1)];
+        values[0]=val(ix,iy,iz); values[1]=val(ix+1,iy,iz);
+        values[2]=val(ix+1,iy+1,iz); values[3]=val(ix,iy+1,iz);
+        values[4]=val(ix,iy,iz+1); values[5]=val(ix+1,iy,iz+1);
+        values[6]=val(ix+1,iy+1,iz+1); values[7]=val(ix,iy+1,iz+1);
         var ci=0;
-        if(v[0]>iso)ci|=1; if(v[1]>iso)ci|=2; if(v[2]>iso)ci|=4; if(v[3]>iso)ci|=8;
-        if(v[4]>iso)ci|=16;if(v[5]>iso)ci|=32;if(v[6]>iso)ci|=64;if(v[7]>iso)ci|=128;
+        if(values[0]>iso)ci|=1; if(values[1]>iso)ci|=2; if(values[2]>iso)ci|=4; if(values[3]>iso)ci|=8;
+        if(values[4]>iso)ci|=16;if(values[5]>iso)ci|=32;if(values[6]>iso)ci|=64;if(values[7]>iso)ci|=128;
         if(ci===0||ci===255) continue;
         var et=MC_EDGE_TABLE[ci];
-        var cx=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],
-                [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
-        var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+        cornerX[0]=x0;cornerY[0]=y0;cornerZ[0]=z0;
+        cornerX[1]=x1;cornerY[1]=y0;cornerZ[1]=z0;
+        cornerX[2]=x1;cornerY[2]=y1;cornerZ[2]=z0;
+        cornerX[3]=x0;cornerY[3]=y1;cornerZ[3]=z0;
+        cornerX[4]=x0;cornerY[4]=y0;cornerZ[4]=z1;
+        cornerX[5]=x1;cornerY[5]=y0;cornerZ[5]=z1;
+        cornerX[6]=x1;cornerY[6]=y1;cornerZ[6]=z1;
+        cornerX[7]=x0;cornerY[7]=y1;cornerZ[7]=z1;
         for(var e=0;e<12;e++){
           if(et&(1<<e)){
-            var ea=edges[e][0],eb=edges[e][1];
-            vInterp(iso,cx[ea][0],cx[ea][1],cx[ea][2],v[ea],cx[eb][0],cx[eb][1],cx[eb][2],v[eb],ep[e]);
+            var ea=VX_EDGE_CORNERS[e][0],eb=VX_EDGE_CORNERS[e][1];
+            vInterp(iso,cornerX[ea],cornerY[ea],cornerZ[ea],values[ea],cornerX[eb],cornerY[eb],cornerZ[eb],values[eb],ep[e]);
           }
         }
         var triBase=ci*16;
@@ -209,55 +268,69 @@ function vxBuildMesh(){
           nx2/=nl;ny2/=nl;nz2/=nl;
           verts.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);
           normals.push(nx2,ny2,nz2,nx2,ny2,nz2,nx2,ny2,nz2);
+          var centerX=(pa[0]+pb[0]+pc[0])/3;
+          var centerY=(pa[1]+pb[1]+pc[1])/3;
+          var centerZ=(pa[2]+pb[2]+pc[2])/3;
+          var cutX=Math.round((centerX-VX.ox)/VX.dx);
+          var cutY=Math.round((centerY-VX.oy)/VX.dy);
+          var cutZ=Math.round((centerZ-VX.oz)/VX.dz);
+          var isCut=0;
+          if(cutX>=0&&cutX<VX.nx&&cutY>=0&&cutY<VX.ny&&cutZ>=0&&cutZ<VX.nz){
+            isCut=VX.cut[cutZ*VX.ny*VX.nx+cutY*VX.nx+cutX];
+          }
+          var r=stockColor[0],g=stockColor[1],b=stockColor[2];
+          if(isCut>0 && isCut<255){
+            var tc=TOOL_CUT_COLORS[(isCut-1)%TOOL_CUT_COLORS.length];
+            r=tc[0];g=tc[1];b=tc[2];
+          }
+          colors.push(r,g,b,r,g,b,r,g,b);
         }
       }
     }
   }
 
-  // vertex colors: cut surface = lighter/different color
-  var colors=[];
-  // we'll set colors per triangle after building
   var geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(verts),3));
   geo.setAttribute('normal',new THREE.BufferAttribute(new Float32Array(normals),3));
-  // color each triangle based on whether center is near a cut voxel
-  for(var ci=0;ci<verts.length;ci+=9){
-    var cx2=(verts[ci]+verts[ci+3]+verts[ci+6])/3;
-    var cy2=(verts[ci+1]+verts[ci+4]+verts[ci+7])/3;
-    var cz2=(verts[ci+2]+verts[ci+5]+verts[ci+8])/3;
-    // check if this surface point is near a cut voxel
-    var ix2=Math.round((cx2-VX.ox)/VX.dx);
-    var iy2=Math.round((cy2-VX.oy)/VX.dy);
-    var iz2=Math.round((cz2-VX.oz)/VX.dz);
-    // Exact voxel only — no neighbor search
-    var isCut=0;
-    if(ix2>=0&&ix2<VX.nx&&iy2>=0&&iy2<VX.ny&&iz2>=0&&iz2<VX.nz){
-      isCut=VX.cut[iz2*VX.ny*VX.nx+iy2*VX.nx+ix2];
-    }
-    // color based on which tool cut this voxel
-    var r,g,b;
-    if(isCut>0 && isCut<255){
-      var tc=TOOL_CUT_COLORS[(isCut-1)%TOOL_CUT_COLORS.length];
-      r=tc[0];g=tc[1];b=tc[2];
-    } else {
-      var _s=_stockRGB(); r=_s[0];g=_s[1];b=_s[2];
-    }
-    colors.push(r,g,b, r,g,b, r,g,b);
-  }
   geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(colors),3));
-  // Smooth normals — recompute vertex normals by averaging face normals
-  geo.computeVertexNormals();
-  var mat=new THREE.MeshLambertMaterial({vertexColors:true, side:THREE.DoubleSide});
-  var mesh=new THREE.Mesh(geo,mat);
-  mesh.frustumCulled=false;
-  return mesh;
+  return geo;
+}
+
+function vxBuildMesh(){
+  VX.material=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide});
+  VX.chunks=[];
+  var group=new THREE.Group();
+  for(var y0=0;y0<VX.ny-1;y0+=VX_CHUNK_CELLS){
+    for(var x0=0;x0<VX.nx-1;x0+=VX_CHUNK_CELLS){
+      var x1=Math.min(x0+VX_CHUNK_CELLS,VX.nx-1);
+      var y1=Math.min(y0+VX_CHUNK_CELLS,VX.ny-1);
+      var geometry=vxBuildGeometryRange(x0,x1,y0,y1);
+      var mesh=new THREE.Mesh(geometry,VX.material);
+      mesh.frustumCulled=false;
+      group.add(mesh);
+      VX.chunks.push({x0:x0,x1:x1,y0:y0,y1:y1,mesh:mesh,dirty:false});
+    }
+  }
+  VX.chunked=true;
+  return group;
 }
 
 function vxRebuildMesh(){
   if(!VX) return;
-  if(VX.mesh){scene.remove(VX.mesh);VX.mesh.geometry.dispose();}
-  VX.mesh=vxBuildMesh();
-  scene.add(VX.mesh);
+  if(!VX.chunked || !VX.mesh || !VX.chunks){
+    if(VX.mesh){scene.remove(VX.mesh);vxDisposeObject(VX.mesh,true);}
+    VX.mesh=vxBuildMesh();
+    scene.add(VX.mesh);
+  } else {
+    for(var i=0;i<VX.chunks.length;i++){
+      var chunk=VX.chunks[i];
+      if(!chunk.dirty) continue;
+      var nextGeometry=vxBuildGeometryRange(chunk.x0,chunk.x1,chunk.y0,chunk.y1);
+      chunk.mesh.geometry.dispose();
+      chunk.mesh.geometry=nextGeometry;
+      chunk.dirty=false;
+    }
+  }
   VX.dirty=false;
   if(blockMesh) blockMesh.visible=false;
   if(blockEdges) blockEdges.visible=false;

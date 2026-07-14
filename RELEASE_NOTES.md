@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.830 (web performance test)
+- The 3D workpiece now updates only around the current cut instead of rebuilding
+  the complete voxel model every time. Default and High keep the same resolution,
+  while machining should run much more smoothly in the browser.
+
 ## v0.828 (mobile web test)
 - Fixed the Measure panel overlapping `BLKFORM` on phones, and made workpiece
   visibility changes repaint immediately after a tap.
