@@ -15,6 +15,35 @@ Newest first.
 
 ---
 
+## C7 — 3D stock updates stalled during machining
+**Repos:** web `tnc-sim`; Android port tracked separately until device testing.
+**Resolved:** 2026-07-14 in web v0.831. **Verified:** automated exact-geometry
+regression, browser workflow, and user testing of the published v0.830 branch.
+
+### Symptom
+The tool animation visibly stalled whenever the voxel workpiece refreshed,
+including Default quality on the moderate 100×100×20 stock. High quality made
+the pauses more prominent.
+
+### Root cause
+Every changed segment made `vxRebuildMesh()` scan the entire voxel grid,
+allocate a complete replacement mesh and upload it to the GPU. Profiling against
+an otherwise identical toolpath-only run isolated pauses above 50 ms to this
+stock rebuild path.
+
+### Attempts and fix
+- First profiled stock and toolpath-only runs; this ruled out the renderer loop
+  and tool motion and identified full-grid meshing as the bottleneck.
+- The v0.830 test split Marching Cubes into 32×32-cell XY chunks. Cuts now mark
+  their actual changed bounds plus the one-cell dependency halo and rebuild only
+  intersecting chunk geometries. It also reuses per-cell buffers and removes a
+  redundant normal pass.
+- Regression coverage proved all 20,844 triangle, normal and color values match
+  a full rebuild and verifies boundary invalidation and selective replacement.
+  A Node microbenchmark measured an approximately 11× local scan speedup. The
+  user reported that the published browser fix works very well, so it was
+  accepted and merged in v0.831.
+
 ## C5 — Editor text passed behind mobile control panels
 **Repos:** web `tnc-sim` + Android `tnc-sim-android`.
 **Resolved:** 2026-07-13; web implementation v0.825, merged in v0.829, and

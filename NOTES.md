@@ -203,9 +203,10 @@ When reading cycle params, use `Q!==undefined ? Q : default`, NOT `Q || default`
 E.g. `Q202=+0` (full-depth peck) is valid; `Q||5` would wrongly become 5.
 
 ### 3. Voxel cell size limits detail
-The 3D cut is a voxel grid (~1 mm cells on Default). Details finer than a cell
-won't show even at High/after Refine. This is by design; note it, don't "fix" it
-by cranking resolution (memory/perf on mobile).
+The live 3D grid has three profiles: Low 100 / up to 1 mm, Default 150 / up to
+0.7 mm, and High 200 / up to 0.5 mm. Refine uses 300/400/500 with cell caps of
+0.5/0.4/0.3 mm. Details finer than a cell still won't show. Keep the web memory
+guards at 24 million live and 64 million Refine voxels.
 
 ### 4. Layout breakpoint: single-column when width ≤1024px OR height ≤600px
 Use the full CSS/JS condition
@@ -304,6 +305,12 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.831 — Accepted and merged the chunked voxel update after successful user
+  testing, moved C7 from `TODO.md` to `BUG_HISTORY.md`, and introduced three
+  explicit quality profiles. Low is 100 voxels / 1 mm, the new recommended
+  Default is 150 / 0.7 mm, and High is 200 / 0.5 mm; their Refine targets are
+  300/400/500 with 0.5/0.4/0.3 mm caps. Added a profile wiring regression and
+  bumped the service-worker cache v6→v7.
 - v0.830 — Added the web-only chunked voxel-meshing performance test. The live
   stock is split into 32×32-cell XY chunks; each cut tracks its actually changed
   grid bounds plus the one-cell Marching Cubes dependency halo, then rebuilds

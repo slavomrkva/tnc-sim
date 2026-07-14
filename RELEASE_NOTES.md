@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.831
+- Added Low, Default and High simulation profiles. The new Default balances
+  smooth machining with visibly finer detail, and Refine scales with each
+  selected profile.
+- The faster local 3D workpiece updates passed browser testing and are now part
+  of the main web version.
+
 ## v0.830 (web performance test)
 - The 3D workpiece now updates only around the current cut instead of rebuilding
   the complete voxel model every time. Default and High keep the same resolution,

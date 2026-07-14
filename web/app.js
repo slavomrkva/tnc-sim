@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.830';
+var APP_VERSION = '0.831';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -235,8 +235,9 @@ var HELP_MAP = {
   'step':     {title:'▶▶ Step', desc:'Executes one block at a time. Each click advances to the next NC block. Useful for inspecting individual moves.', ex:''},
   'stop':     {title:'⏸ Stop', desc:'Pauses the simulation at the current position. Press Run to continue. After stopping you can also trigger Refine to see the high-resolution mesh.', ex:''},
   'reset':    {title:'↺ Reset', desc:'Resets the simulation back to the beginning. The workpiece returns to its original shape and the tool goes to the start position.', ex:''},
-  'q-low':    {title:'Quality: Default (100 vox)', desc:'Voxel grid 100×100. Each voxel ~1mm on a 100mm block. Very fast — smooth on any hardware. Good for testing program logic and tool paths. Fine features below ~1mm are not visible. Use Refine after simulation for a high-resolution mesh at 300 voxels.', ex:''},
-  'q-med':    {title:'Quality: High (200 vox)', desc:'Voxel grid 200×200. Each voxel ~0.5mm — shows most machining operations clearly. Slower than Default during an active run; smooth on most modern hardware. Use Refine after simulation for a high-resolution mesh at 500 voxels.', ex:''},
+  'q-low':    {title:'Quality: Low (100 vox)', desc:'Voxel grid 100×100 with cells up to 1mm. Fastest option for weaker devices and quick toolpath checks. Fine features below ~1mm may not appear. Refine uses up to 300 voxels and 0.5mm cells.', ex:''},
+  'q-med':    {title:'Quality: Default (150 vox)', desc:'Balanced voxel grid 150×150 with cells up to 0.7mm. Recommended for normal simulation. Refine uses up to 400 voxels and 0.4mm cells.', ex:''},
+  'q-high':   {title:'Quality: High (200 vox)', desc:'Voxel grid 200×200 with cells up to 0.5mm for finer live detail. It needs more memory and processing time. Refine uses up to 500 voxels and 0.3mm cells.', ex:''},
   'view-3d':  {title:'3D view', desc:'Interactive 3D rendering of the workpiece and tool. Drag to orbit, scroll to zoom, right-drag to pan. Use Refine after simulation for a high-resolution mesh.', ex:''},
   'view-2d':  {title:'XY toolpath', desc:'Top-down 2D view of the tool path. Orange = feed moves, blue = rapid moves. Useful for verifying the tool path geometry before running the full simulation.', ex:''},
   'view-tools':{title:'Tool Table', desc:'Define tools with their geometry: radius R, length L, cutting edge length, tip angle, ball nose radius R2, DL/DR offsets. Tools are referenced by number in TOOL CALL.', ex:'TOOL CALL 1 Z S3000 F800'},
@@ -1172,8 +1173,8 @@ var feedLine, rapidLine, feedBuf, rapidBuf;
 var _idleFrames = 0;
 // ---------- voxel + marching cubes ----------
 var VX = null; // voxel grid
-var VX_QUALITY = 0; // 0=default, 1=high
-var VX_RES_LEVELS = [100, 200];
+var VX_QUALITY = 1; // 0=low, 1=default, 2=high
+var VX_RES_LEVELS = [100, 150, 200];
 var VX_RES = VX_RES_LEVELS[VX_QUALITY];
 
 // Marching Cubes lookup tables and implementation

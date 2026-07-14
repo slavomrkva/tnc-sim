@@ -1607,13 +1607,13 @@ function triggerRefine(){
   _showRefineIndicator('Refining mesh\u2026');
   updateStatus('\u2699\ufe0f Initialising refine\u2026', false);
 
-  var HI_LEVELS = [300, 500];
+  var HI_LEVELS = [300, 400, 500];
   var HI = HI_LEVELS[VX_QUALITY];
   var min = prog.blkMin, max = prog.blkMax;
   var w = max.x-min.x, d = max.y-min.y, h = max.z-min.z;
   // Isotropic cells, capped so large blanks keep detail (same logic as vxInit).
   var hiCell = Math.max(w, d, h) / (HI - 1);
-  var HI_CELL_CAP = [0.5, 0.3][VX_QUALITY!==undefined?VX_QUALITY:0] || 0.5; // finer than live sim
+  var HI_CELL_CAP = [0.5, 0.4, 0.3][VX_QUALITY!==undefined?VX_QUALITY:1] || 0.4; // finer than live sim
   if(hiCell > HI_CELL_CAP) hiCell = HI_CELL_CAP;
   var nx = Math.max(4, Math.round(w/hiCell)+1);
   var ny = Math.max(4, Math.round(d/hiCell)+1);

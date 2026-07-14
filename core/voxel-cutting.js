@@ -30,7 +30,7 @@ function vxInit(prog){
   var cell = maxDim / (VX_RES - 1);
   // Large blanks must not lose detail: cap the cell size so resolution stays usable.
   // The cap scales with quality (low/med/high) but never lets a cell exceed it.
-  var CELL_CAP = [1.0, 0.6][VX_QUALITY!==undefined?VX_QUALITY:0] || 1.0; // mm
+  var CELL_CAP = [1.0, 0.7, 0.5][VX_QUALITY!==undefined?VX_QUALITY:1] || 0.7; // mm
   if(cell > CELL_CAP) cell = CELL_CAP;
   var nx=Math.max(4, Math.round(w/cell)+1);
   var ny=Math.max(4, Math.round(d/cell)+1);
