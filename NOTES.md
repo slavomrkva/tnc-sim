@@ -314,6 +314,32 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.843 — Added two steps to the intro lesson's guided coach tour
+  (`core/learn-coach.js`): "Leave Learn mode" (the `.lp-x` ✕ in the panel
+  head, `closeLearn()`) and "Back to all lessons" (the hamburger in
+  `.lp-slides-nav`, `learnBackToList()` — given a new `.lp-hamburger` class in
+  `core/learn-tutorial.js` for a stable selector, matching the existing
+  `.lp-btn.hint`/`.lp-btn.chk` pattern), shown first before the existing
+  assignment/editor/goals/hint/check steps. Both controls live only in
+  `#learnPanel`, which on mobile only exists on the Learn tab — the pinned
+  practice strip the rest of the tour uses (`#learnMobileBar`) is Editor-tab
+  only and never contains them (confirmed via `learnStartTask()`'s existing
+  `mtabSwitch('editor')` call, and the `body[data-mtab=...] #learnPanel
+  {display:none}` / `.editor-panel` visibility rules in `web/styles.css`).
+  Added `_coachEnsureTabFor(key)`: on mobile, switches to the Learn tab for
+  these two steps and back to Editor for every other step (no-op on desktop,
+  where `#learnPanel` is always visible); `learnCoachEnd()` now also restores
+  the Editor tab if Skip happens mid-panel-step, so the user is never
+  stranded away from their code. `_coachTarget()` resolves the two new keys
+  directly against `#learnPanel .lp-x`/`.lp-hamburger` regardless of
+  platform. Verified headless (Playwright, mobile iPhone 13 viewport and
+  desktop): all 7 steps produced a non-zero spotlight rect; the mobile tab
+  correctly read 'learn' for the two new steps and 'editor' for the rest;
+  Skip while on step 0 (`closeLearn`) restored the Editor tab. All 5 existing
+  regression suites (`tests/*.test.js`) still pass.
+  `core/learn-coach.js`/`core/learn-tutorial.js` now diverge from Android's
+  copy pending a deliberate port. Bumped service-worker cache v18→v19. Web
+  only.
 - v0.842 — Follow-up to v0.841: the view switcher (`.view-tabs .tab` — 3D view
   / XY toolpath / Tool Table) had the same uncapped-`flex:1` stretch on
   tablet-width screens; confirmed headless it was 300px per tab at 900px

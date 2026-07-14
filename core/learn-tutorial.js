@@ -792,7 +792,7 @@ function learnRender(){
   var slides = '<div class="lp-slides">'
     + '<div class="lp-sec-cap">&#128214; THEORY</div>'
     + '<div class="lp-slides-nav">'
-    + '<button class="lp-btn" onclick="learnBackToList()" title="All lessons">&#9776;</button>'
+    + '<button class="lp-btn lp-hamburger" onclick="learnBackToList()" title="All lessons">&#9776;</button>'
     + '<button class="lp-btn" onclick="learnNav(-1)"'+(LEARN.slide===0?' disabled':'')+'>&#8249;</button>'
     + '<div class="learn-prog" style="flex:1;margin:0;">'+dots+'</div>'
     + '<button class="lp-btn" onclick="learnNav(1)"'+(LEARN.slide===L.slides.length-1?' disabled':'')+'>&#8250;</button>'
