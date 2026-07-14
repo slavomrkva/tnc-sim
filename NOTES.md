@@ -314,6 +314,36 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.840 — Fixed near-invisible light-theme text in three dark floating
+  overlays: the Learn practice coach tour tooltip (`#learnCoach .coach-tip`,
+  first step titled "The assignment") and the 3D "TOOLS USED" legend
+  (`#toolLegend`; `#measureOverlay` shares the same root cause and was fixed
+  too). Root cause: these overlays keep a fixed dark background in both
+  themes (by design, since they float over the 3D stage/spotlight), but their
+  text used the global `var(--text)/--text2/--text3` tokens, which
+  `html[data-theme="light"]` redefines to dark colors for use on light
+  surfaces. A prior partial fix (`html[data-theme="light"] #toolLegend,
+  #measureOverlay{color:#e8ebf1 !important;...}`, `web/styles.css` ~line 138)
+  forces color on the container itself, but `updateToolLegend()`
+  (`core/view2d.js`) and `renderMeasureOverlay()` (`core/measure-tool.js`)
+  set `color:var(--text2)`/`var(--text3)` **inline on their child spans**,
+  which shadows the ancestor's forced `color` (inheritance doesn't reach an
+  element with its own explicit color, `!important` or not). Added
+  `#toolLegend`, `#measureOverlay`, `#learnCoach .coach-tip` to the existing
+  dark-chrome custom-property re-scope block (`web/styles.css` ~line 27) that
+  already gives header/toolbar/ctx-panel/etc. light-on-dark `--text*` values
+  in light theme — CSS custom properties (unlike plain `color`) are
+  re-resolved per `var()` use-site from the nearest ancestor definition, so
+  this reaches the inline/class-based `var(--text2)` children where the
+  container-level `!important` couldn't. Also replaced the always-dead
+  `var(--panel,#1b1f27)` in `.coach-tip` (`--panel` is never defined anywhere)
+  with the literal `#1b1f27` it always resolved to. Verified headless
+  (Playwright, WCAG contrast ratios against the actual background): before
+  the fix, the coach tooltip's "The assignment" title was 1.06:1 and tool
+  names in the legend were 1.61:1 (both effectively invisible); after, 13.83:1
+  and 8.57:1. Confirmed dark theme (unscoped) is byte-identical to before.
+  Web only (`web/styles.css`; the touched `core/` functions themselves were
+  not modified, so nothing new diverges from Android).
 - v0.839 — Fixed the field-editing panel (`.ctx-panel`) growing/jumping on
   mobile when editing an F (feed) field on an L/C/CR block. The F field has 4
   extra actions (insert Q ref, FMAX, FAUTO, skip) versus coord/num fields'

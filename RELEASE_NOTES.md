@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.840 (web test)
+- Fixed near-invisible text in light theme: the Learn practice tutorial's
+  guided-tour tooltip (starting with "The assignment") and the 3D view's
+  "TOOLS USED" / Measure panels now show properly readable light text on
+  their dark overlay backgrounds.
+
 ## v0.839 (web test)
 - Fixed the mobile field editor panel jumping/growing when editing a feed (F)
   value on an L/C/CR block. FMAX, FAUTO, Insert Q and Skip are now one compact

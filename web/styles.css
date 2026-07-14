@@ -31,7 +31,10 @@ html[data-theme="light"] .view-tabs,
 html[data-theme="light"] .status-bar,
 html[data-theme="light"] .ctx-panel,
 html[data-theme="light"] .keypad,
-html[data-theme="light"] .mtab-bar{
+html[data-theme="light"] .mtab-bar,
+html[data-theme="light"] #toolLegend,
+html[data-theme="light"] #measureOverlay,
+html[data-theme="light"] #learnCoach .coach-tip{
   color:#e8ebf1;
   --surface:#3a414f; --surface2:#3a414f; --key-pale:#333b48;
   --border:#414956;
@@ -722,7 +725,7 @@ footer a:hover{text-decoration:underline;}
 #learnCoach .coach-hole{position:fixed;border-radius:8px;pointer-events:none;
   box-shadow:0 0 0 9999px rgba(0,0,0,.66);outline:2px solid var(--accent);
   transition:left .2s,top .2s,width .2s,height .2s;}
-#learnCoach .coach-tip{position:fixed;background:var(--panel,#1b1f27);border:1px solid var(--accent);
+#learnCoach .coach-tip{position:fixed;background:#1b1f27;border:1px solid var(--accent);
   border-radius:10px;padding:12px 13px;box-shadow:0 12px 34px rgba(0,0,0,.5);}
 #learnCoach .coach-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text3);}
 #learnCoach .coach-t{font-size:14px;font-weight:600;color:var(--text);margin:3px 0 5px;}
