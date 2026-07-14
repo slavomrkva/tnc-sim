@@ -55,8 +55,8 @@ using TOOL CALL F3500, and the final revolution could take a larger Z step.
   Q334. The Complete Part demo now uses Q334=2.
 
 ### Status
-Automated web regression verifies F3500, two 11-revolution solid-stock paths
-from Z22 to Z0, and at most 2 mm per revolution. Awaiting visual web verification
+Automated web regression verifies F3500, a semicircular entry followed by one
+11-revolution constant-radius solid-stock helix from Z22 to Z0, and at most 2 mm per revolution. Awaiting visual web verification
 before merge and the deliberate Android port.
 
 <!-- Template for a new bug (copy below "Open bugs"):

@@ -314,6 +314,8 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.834 — Corrected Cycle 208 solid-stock entry to a semicircle from the bore
+  center followed by constant-radius helices, matching the documented cycle run.
 - v0.833 — Added the web-only C8/C9 test fix on
   `agent/fix-cycle-feed-retract-motion`. The Complete Part demo now uses Q334=2.
   Cycle FAUTO keeps the current TOOL CALL feed even after later modal feed

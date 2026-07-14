@@ -63,9 +63,11 @@ CYCL CALL`);
     const zDrop = helix[i].from.z - helix[i+31].to.z;
     assert.ok(zDrop <= 2 + 1e-9, `Q334=2 exceeded in revolution ${i/32 + 1}: ${zDrop}`);
   }
-  // Solid stock uses two full-depth paths here: the expanding center ramp and
-  // the final wall ring. Each needs 11 revolutions from Z22 to Z0.
-  assert.strictEqual(helix.length / 32, 22, 'both solid-stock helix paths should use 11 revolutions');
+  assert.strictEqual(helix.length / 32, 11, 'solid-stock helix should use 11 revolutions');
+  helix.forEach(segment => {
+    assert.ok(Math.abs(Math.hypot(segment.from.x, segment.from.y) - 5) < 1e-6, 'helix must not start at radius zero');
+    assert.ok(Math.abs(Math.hypot(segment.to.x, segment.to.y) - 5) < 1e-6, 'helix radius must remain constant');
+  });
   assert.ok(segments.some(segment => segment.rapid && segment.ensureVisible && segment.to.z > segment.from.z), 'Cycle 208 retract should be visible');
 }
 

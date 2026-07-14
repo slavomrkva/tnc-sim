@@ -728,13 +728,12 @@ function parseProgram(code){
 
         // Build ring list: start from 2*_stepR (center ramp covers 0.._stepR)
         var solidRings = [];
-        solidRings.push(0); // r=0: center expanding ramp
         var _solidCount = Math.ceil(mR / _stepR);
         if(_solidCount > 5000){
           if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_stepR.toFixed(3)+'mm needs '+_solidCount+' passes for solid D'+boreDia+' — capped at 5000. Real machine would run extremely long. Check R/DR.'});
           _solidCount = 5000;
         }
-        for(var ri0b = 2; ri0b <= _solidCount; ri0b++){
+        for(var ri0b = 1; ri0b <= _solidCount; ri0b++){
           var _r3 = Math.min(ri0b * _stepR, mR);
           solidRings.push(_r3);
           if(_r3 >= mR) break;
@@ -762,8 +761,12 @@ function parseProgram(code){
               pushSeg({x:cx2+_rampR*Math.cos(a3), y:cy2+_rampR*Math.sin(a3), z:depthZ}, false, srcLine, rc);
             }
           } else {
-            // Normal ring: rapid to start, helical descent, finishing circle
-            pushSeg({x:cx2+curR3, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
+            // Cycle 208 enters every constant-radius helix from the bore center
+            // on a semicircle; it must not descend in an expanding r=0 spiral.
+            for(var ap3=1; ap3<=N_arc/2; ap3++){
+              var aa3 = Math.PI + dir*Math.PI*ap3/(N_arc/2);
+              pushSeg({x:cx2+curR3/2+(curR3/2)*Math.cos(aa3), y:cy2+(curR3/2)*Math.sin(aa3), z:safeZ}, false, srcLine, rc);
+            }
             var numRevs3 = Math.max(1, Math.ceil(totalZ / zStep));
             var zPerRev3 = totalZ / numRevs3;
             var zCur3 = safeZ;
