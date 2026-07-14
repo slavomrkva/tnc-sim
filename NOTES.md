@@ -314,6 +314,14 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.836 — Reformatted the Complete Part demo's Cycle 209 (`index.html`) to the
+  standard Klartext layout used by every other cycle in the demo: `CYCL DEF 209
+  ;Title` on the first line, then each Q param on its own indented line in the
+  real Heidenhain order (…Q204, `Q257`, `Q256`, `Q336`). Previously `Q257=+11
+  Q256=+0` sat inline on the `CYCL DEF 209` line and both were missing from the
+  parameter block — the exact single-line inline form that hit the C10 falsy-`||`
+  parse bug. Cosmetic/source only: the v0.835 parser reads both forms identically,
+  so runtime output is unchanged. Bumped service-worker cache v11→v12. Web only.
 - v0.835 — Fixed Cycle 209 `Q256=0` (and `Q257=0`) being ignored when all Q
   params are on a single `CYCL DEF 209` line. The inline parse read defaults with
   `+(qm[256]||0.2)`; an explicit `0` is falsy so `||` substituted the default,

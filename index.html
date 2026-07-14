@@ -301,12 +301,14 @@ M9 ; Coolant OFF
 TOOL CALL 7 Z S350
 M3 ; Spindle ON — clockwise
 M8 ; Coolant ON — flood
-CYCL DEF 209 Q257=+11 Q256=+0 ;Tapping with Chip Breaking
+CYCL DEF 209 ;Tapping with Chip Breaking
   Q200=+2 ;Safety clearance [mm]
   Q201=-22 ;Thread depth [mm]
   Q239=+1.25 ;Thread pitch [mm]
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
+  Q257=+11 ;Infeed depth for chip breaking [mm]
+  Q256=+0 ;Retract for chip breaking (0 = full retract) [mm]
   Q336=+0 ;Spindle angle [deg]
 CALL LBL 2
 M5 ; Spindle OFF
