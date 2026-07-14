@@ -1,0 +1,172 @@
+{
+  ".well-known/assetlinks.json": {
+    "mtime": 1784031046.071172,
+    "ast_hash": "0ab90d57dd7181a32f7a9c4cc7de2c9d",
+    "semantic_hash": "0ab90d57dd7181a32f7a9c4cc7de2c9d"
+  },
+  "core/block-form-panel.js": {
+    "mtime": 1784031046.0776885,
+    "ast_hash": "d014caa7694500572e4ec7e95832f578",
+    "semantic_hash": "d014caa7694500572e4ec7e95832f578"
+  },
+  "core/bug-report.js": {
+    "mtime": 1784031046.0776885,
+    "ast_hash": "95c83a0ad9525f50cf61bd0e8616bd07",
+    "semantic_hash": "95c83a0ad9525f50cf61bd0e8616bd07"
+  },
+  "core/cycle-picker.js": {
+    "mtime": 1784031046.0786874,
+    "ast_hash": "13a278ef3d4c6fd794ac263aee5aaedc",
+    "semantic_hash": "13a278ef3d4c6fd794ac263aee5aaedc"
+  },
+  "core/data-tables.js": {
+    "mtime": 1784031046.0799181,
+    "ast_hash": "8917367797a066793fb1207ec75e1033",
+    "semantic_hash": "8917367797a066793fb1207ec75e1033"
+  },
+  "core/editor-core.js": {
+    "mtime": 1784031046.0809174,
+    "ast_hash": "9835543219288ac3d69881e3c4dac3fe",
+    "semantic_hash": "9835543219288ac3d69881e3c4dac3fe"
+  },
+  "core/field-editing.js": {
+    "mtime": 1784031046.0820222,
+    "ast_hash": "be1a86487f716982bb50965fa3b7d765",
+    "semantic_hash": "be1a86487f716982bb50965fa3b7d765"
+  },
+  "core/help-popups.js": {
+    "mtime": 1784031046.0820222,
+    "ast_hash": "cc719765700b4b69bdaa4c27119b422f",
+    "semantic_hash": "cc719765700b4b69bdaa4c27119b422f"
+  },
+  "core/klartext-syntax.js": {
+    "mtime": 1784031046.0830224,
+    "ast_hash": "4450b2a719752d169681820eb05c2d8d",
+    "semantic_hash": "4450b2a719752d169681820eb05c2d8d"
+  },
+  "core/learn-coach.js": {
+    "mtime": 1784031046.084029,
+    "ast_hash": "900e8ef3aa08aa25fe708716d0247a11",
+    "semantic_hash": "900e8ef3aa08aa25fe708716d0247a11"
+  },
+  "core/learn-tutorial.js": {
+    "mtime": 1784031046.084029,
+    "ast_hash": "065ff8975321e0adf18004288fc7d0ba",
+    "semantic_hash": "065ff8975321e0adf18004288fc7d0ba"
+  },
+  "core/mcode-panel.js": {
+    "mtime": 1784031046.0850332,
+    "ast_hash": "8cd44b0798db1de84a03e805f06def38",
+    "semantic_hash": "8cd44b0798db1de84a03e805f06def38"
+  },
+  "core/measure-tool.js": {
+    "mtime": 1784031046.0850332,
+    "ast_hash": "641b435801145d5b821102862deb2fef",
+    "semantic_hash": "641b435801145d5b821102862deb2fef"
+  },
+  "core/mobile-tabs.js": {
+    "mtime": 1784031046.0860298,
+    "ast_hash": "e8be05a7c2cf400c3e7941b7a4c256d8",
+    "semantic_hash": "e8be05a7c2cf400c3e7941b7a4c256d8"
+  },
+  "core/parser-engine.js": {
+    "mtime": 1784031046.0870295,
+    "ast_hash": "0a43a3c17e429ef2f5b8115d87401d52",
+    "semantic_hash": "0a43a3c17e429ef2f5b8115d87401d52"
+  },
+  "core/qparam-panel.js": {
+    "mtime": 1784031046.0880294,
+    "ast_hash": "40cef8c95ec695bcc9470e5d6e778c70",
+    "semantic_hash": "40cef8c95ec695bcc9470e5d6e778c70"
+  },
+  "core/render3d.js": {
+    "mtime": 1784031046.0880294,
+    "ast_hash": "e80dbd7c2e88d6ccfc31b20ae732cdde",
+    "semantic_hash": "e80dbd7c2e88d6ccfc31b20ae732cdde"
+  },
+  "core/sim-controls.js": {
+    "mtime": 1784031046.0880294,
+    "ast_hash": "fdce840cfb0664937787ec61a1d3c805",
+    "semantic_hash": "fdce840cfb0664937787ec61a1d3c805"
+  },
+  "core/theme-toast.js": {
+    "mtime": 1784031046.0895212,
+    "ast_hash": "957793bf31f8bb240a7fd14af77f88d1",
+    "semantic_hash": "957793bf31f8bb240a7fd14af77f88d1"
+  },
+  "core/tool-table.js": {
+    "mtime": 1784031046.0905154,
+    "ast_hash": "95c33ea9b65b327f29211aad43754541",
+    "semantic_hash": "95c33ea9b65b327f29211aad43754541"
+  },
+  "core/view2d.js": {
+    "mtime": 1784031046.0905154,
+    "ast_hash": "e3c4951264bf28699eb484d3466568cf",
+    "semantic_hash": "e3c4951264bf28699eb484d3466568cf"
+  },
+  "core/voxel-cutting.js": {
+    "mtime": 1784031046.0915155,
+    "ast_hash": "5c61b676a8d24e49bdaebdfe87e00a4b",
+    "semantic_hash": "5c61b676a8d24e49bdaebdfe87e00a4b"
+  },
+  "manifest.json": {
+    "mtime": 1784031046.09556,
+    "ast_hash": "65efdb0a17d8a4d392e05ff416f875c7",
+    "semantic_hash": "65efdb0a17d8a4d392e05ff416f875c7"
+  },
+  "service-worker.js": {
+    "mtime": 1784031046.1026936,
+    "ast_hash": "b1f1a358ffc0d6582c21b886ffd2682d",
+    "semantic_hash": "b1f1a358ffc0d6582c21b886ffd2682d"
+  },
+  "tests/parser-radius-comp.test.js": {
+    "mtime": 1784031046.1038573,
+    "ast_hash": "57679193100f4a392f2f9e83eb8a76db",
+    "semantic_hash": "57679193100f4a392f2f9e83eb8a76db"
+  },
+  "tests/parser-toolpath-only.test.js": {
+    "mtime": 1784031046.1048574,
+    "ast_hash": "b8adcafcd1c927b2cdc108b31ea7b8ad",
+    "semantic_hash": "b8adcafcd1c927b2cdc108b31ea7b8ad"
+  },
+  "tests/quality-profiles.test.js": {
+    "mtime": 1784031046.1058574,
+    "ast_hash": "66688875c0d5b6b5af11c9b6f7c3aadc",
+    "semantic_hash": "66688875c0d5b6b5af11c9b6f7c3aadc"
+  },
+  "tests/voxel-chunks.test.js": {
+    "mtime": 1784031046.1058574,
+    "ast_hash": "f26b2c0cb3761d966066f01ac9967a86",
+    "semantic_hash": "f26b2c0cb3761d966066f01ac9967a86"
+  },
+  "vendor/OrbitControls.js": {
+    "mtime": 1784031046.1068573,
+    "ast_hash": "f0d5ef9abdb36bcdcd5495370c842604",
+    "semantic_hash": "f0d5ef9abdb36bcdcd5495370c842604"
+  },
+  "vendor/three.min.js": {
+    "mtime": 1784031046.1093614,
+    "ast_hash": "8524cd01c45671cc93ea6ab9e73494e7",
+    "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
+  },
+  "web/app.js": {
+    "mtime": 1784031046.1108084,
+    "ast_hash": "949a7fcd72c1ec0d22f0a26e2b5ddac5",
+    "semantic_hash": "949a7fcd72c1ec0d22f0a26e2b5ddac5"
+  },
+  "web/keyboard.js": {
+    "mtime": 1784031046.1118083,
+    "ast_hash": "21807fda2b2f7b7ba107d7ed88ee2229",
+    "semantic_hash": "21807fda2b2f7b7ba107d7ed88ee2229"
+  },
+  "web/layout.js": {
+    "mtime": 1784031046.1118083,
+    "ast_hash": "049f9c0174874aa78be269a4e8e979b6",
+    "semantic_hash": "049f9c0174874aa78be269a4e8e979b6"
+  },
+  "web/panels.js": {
+    "mtime": 1784031046.1131084,
+    "ast_hash": "f8a38db40b83a30e82064213773b33ef",
+    "semantic_hash": "f8a38db40b83a30e82064213773b33ef"
+  }
+}

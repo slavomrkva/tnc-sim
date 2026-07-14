@@ -27,3 +27,16 @@ modules from `core/` and `web/`; there is no build step.
   core change to Android's `www/core/`; do not overwrite either product wholesale.
 - A user-visible change also gets a short `RELEASE_NOTES.md` entry. Add a new
   numbered NOTES rule only for a durable, non-obvious pitfall.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- `graphify-out/` is tracked in git, not local-only: commit its changed files together with the
+  code change that triggered them, in the same push. This repo has no persistent local checkout
+  (worked on from phone and computer), so the graph must be current on GitHub after every push.
