@@ -80,6 +80,40 @@ var TOOL_CUT_COLORS = [
 
 var LESSONS = [
 {
+  id:'L00', intro:true, title:'Start here — how a lesson works',
+  muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
+  slides:[
+    { html:function(){ return ''
+      + '<p><b>Welcome!</b> Every lesson has the <b>same shape</b> — a little <b>theory</b> up here, then hands-on <b>practice</b> below in a real editor. Learn this one screen and you know them all; your workpiece even shows up in 3D as you type.</p>'; } },
+    { html:function(){ return ''
+      + '<p>Down in practice you always get three helpers:</p>'
+      + '<p>• <b>Goals</b> — the checklist of what is graded, shown from the start (grey, then green).<br>'
+      + '• <b>Hint</b> — stuck? up to three escalating nudges, and they cost you nothing.<br>'
+      + '• <b>Check</b> — grade your code whenever you like; it tells you which goal failed and why.</p>'; } },
+    { html:function(){ return ''
+      + '<p>Your <b>progress saves automatically</b>, so you can leave and come back. The <b>&#9776;</b> button returns to all lessons, and the arrows or dots flip these slides back and forth.</p>'
+      + '<p>Ready? Start the warm-up below — a quick guided tour points everything out.</p>'; } }
+  ],
+  tasks:[
+    {
+      prompt:'This line is the task — what you have to do. The goals below show exactly what counts.',
+      hints:[
+        'A comment is a note for you, not the machine — the control skips it. It starts with a semicolon <code>;</code>.',
+        'Add a brand new line of your own. It must begin with <code>;</code>; everything after that is free text.',
+        'For example, type this as a new line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
+      ],
+      solRepl:['END PGM','; my first Heidenhain program\nEND PGM'],
+      starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
+      checks:[
+        {t:'has_comment', label:'You added a comment (text after ;)',
+         hint:'Add a line that starts with ; — e.g.  ; my first program'},
+        {t:'begin_end', label:'Program still opens and closes correctly',
+         hint:'Keep the BEGIN PGM / END PGM lines as they are.'}
+      ]
+    }
+  ]
+},
+{
   id:'L01', title:'Program skeleton & BLK FORM (the blank)',
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
@@ -100,6 +134,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Add a comment to the program \u2014 e.g. describe the blank',
+      hints:[
+        'A comment is a note for a human; the control skips it. Which character starts one? Slide 1 shows it.',
+        'Put a new line of your own <b>above</b> the first BLK FORM line. It has to start with <code>;</code> \u2014 everything after that is free text.',
+        'Type exactly this as a new line before <code>BLK FORM 0.1</code>:<br><code>; blank 100 x 80 x 20</code>'
+      ],
       solRepl:['BLK FORM 0.1','; blank 100 x 80 x 20\nBLK FORM 0.1'],
       starter:'BEGIN PGM FIRST MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM FIRST MM',
       checks:[
@@ -113,6 +152,11 @@ var LESSONS = [
     },
     {
       prompt:'Add BLK FORM for a 90 \u00d7 40 \u00d7 15 mm blank (top face at Z+0)',
+      hints:[
+        'The blank always takes <b>two</b> lines: corner 0.1 = MIN (bottom), corner 0.2 = MAX (top). Watch the 3D view \u2014 it appears the moment both lines are valid.',
+        'Line 0.1 also carries the spindle axis letter and the <b>negative</b> depth: <code>BLK FORM 0.1 Z X+0 Y+0 Z-?</code><br>Line 0.2 carries the far corner: <code>BLK FORM 0.2 X+? Y+? Z+0</code>',
+        'Top face at Z+0 and 15 mm deep means the bottom sits at Z-15:<br><code>BLK FORM 0.1 Z X+0 Y+0 Z-15</code><br><code>BLK FORM 0.2 X+90 Y+40 Z+0</code>'
+      ],
       sol:'BLK FORM 0.1 Z X+0 Y+0 Z-15\nBLK FORM 0.2 X+90 Y+40 Z+0',
       starter:'BEGIN PGM PLATE MM\n; add the two BLK FORM lines here\n\nEND PGM PLATE MM',
       checks:[
@@ -126,6 +170,11 @@ var LESSONS = [
     },
     {
       prompt:'Add BLK FORM with Z+0 at the BOTTOM of the blank: 100 \u00d7 100 \u00d7 20 mm, top face at Z+20',
+      hints:[
+        'Same two lines as before \u2014 only the datum moved. If zero is at the bottom face, is any part of the blank still in negative Z?',
+        'The whole blank now lives in <b>positive</b> Z: the MIN corner sits at <code>Z+0</code> and the MAX corner 20 mm above it.',
+        '<code>BLK FORM 0.1 Z X+0 Y+0 Z+0</code><br><code>BLK FORM 0.2 X+100 Y+100 Z+20</code>'
+      ],
       sol:'BLK FORM 0.1 Z X+0 Y+0 Z+0\nBLK FORM 0.2 X+100 Y+100 Z+20',
       starter:'BEGIN PGM BOTTOM MM\n; blank 100 x 100 x 20, zero at the bottom face\n\nEND PGM BOTTOM MM',
       checks:[
@@ -157,6 +206,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Call tool 1 (D10 end mill) with spindle 3000 rpm and feed 500',
+      hints:[
+        "A tool is loaded on one line that starts with <code>TOOL CALL</code> — slide 1 shows the shape.",
+        "Fill in <code>TOOL CALL 1 Z S… F…</code>: the spindle axis is Z, then the speed and the feed.",
+        "<code>TOOL CALL 1 Z S3000 F500</code>"
+      ],
       sol:'TOOL CALL 1 Z S3000 F500',
       starter:'BEGIN PGM TOOLS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n; call the tool here\n\nEND PGM TOOLS MM',
       checks:[
@@ -166,6 +220,11 @@ var LESSONS = [
     },
     {
       prompt:'Switch the spindle and the coolant ON, after the tool call',
+      hints:[
+        "Machine states flip with <b>M-functions</b>, one per line — see slide 3.",
+        "A line with just <code>M3</code> (spindle on), then a line with just <code>M8</code> (coolant on), below the TOOL CALL.",
+        "<code>M3</code><br><code>M8</code>"
+      ],
       sol:'M3\nM8',
       starter:'BEGIN PGM TOOLS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\n; >>> write here\n\nEND PGM TOOLS MM',
       checks:[
@@ -177,6 +236,11 @@ var LESSONS = [
     },
     {
       prompt:'Prepare the D6.8 drill (tool 4): tool call with S2500 F150, spindle and coolant ON, and both OFF at the end',
+      hints:[
+        "Follow the slide-3 recipe: load the tool, switch things on, machine, switch them off.",
+        "<code>TOOL CALL 4 Z S2500 F150</code>, then <code>M3</code> and <code>M8</code>; leave the drilling gap; end with <code>M5</code> then <code>M9</code>.",
+        "<code>TOOL CALL 4 Z S2500 F150</code><br><code>M3</code><br><code>M8</code><br>…<br><code>M5</code><br><code>M9</code>"
+      ],
       sol:'TOOL CALL 4 Z S2500 F150\nM3\nM8\n; ...drilling here...\nM5\nM9',
       starter:'BEGIN PGM TOOLS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n; >>> write here\n\nEND PGM TOOLS MM',
       checks:[
@@ -210,6 +274,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Move rapid to X+20 Y+40 at safe height Z+50',
+      hints:[
+        "A straight move is an <code>L</code> block; <code>FMAX</code> makes it a rapid — fast positioning, no cutting.",
+        "One line: <code>L</code> then the target <code>X.. Y.. Z..</code> then <code>FMAX</code>.",
+        "<code>L X+20 Y+40 Z+50 FMAX</code>"
+      ],
       sol:'L X+20 Y+40 Z+50 FMAX',
       starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
@@ -219,6 +288,11 @@ var LESSONS = [
     },
     {
       prompt:'Descend rapid to Z+2, then plunge with feed F200 to Z-3',
+      hints:[
+        "Two moves: drop fast to just above the part, then dip <b>into</b> it slowly with a feed. Rapids never cut.",
+        "<code>L Z+2 FMAX</code> hovers 2 mm up; <code>L Z-3 F…</code> feeds below the surface.",
+        "<code>L Z+2 FMAX</code><br><code>L Z-3 F200</code>"
+      ],
       sol:'L Z+2 FMAX\nL Z-3 F200',
       starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
@@ -232,6 +306,11 @@ var LESSONS = [
     },
     {
       prompt:'Cut with feed F300 to X+80 (stay at Z-3), then retract FMAX to Z+50',
+      hints:[
+        "A real cutting move has a feed and no <code>FMAX</code>; then jump clear with a rapid in Z.",
+        "<code>L X+80 F300</code> cuts across at depth; <code>L Z+50 FMAX</code> lifts out fast.",
+        "<code>L X+80 F300</code><br><code>L Z+50 FMAX</code>"
+      ],
       sol:'L X+80 F300\nL Z+50 FMAX',
       starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
@@ -264,6 +343,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Plunge to Z-2 with F150 and mill a straight slot to X+80 with F300',
+      hints:[
+        "Same rhythm: plunge to depth with a feed, then cut along the slot.",
+        "<code>L Z-2 F…</code> to reach depth, then <code>L X+80 F…</code> to mill.",
+        "<code>L Z-2 F150</code><br><code>L X+80 F300</code>"
+      ],
       sol:'L Z-2 F150\nL X+80 F300',
       starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
       checks:[
@@ -277,6 +361,11 @@ var LESSONS = [
     },
     {
       prompt:'Continue with incremental moves: IY+20, then IX-30 (still at Z-2)',
+      hints:[
+        "<code>IX</code>/<code>IY</code> are <b>relative</b> steps — from where you are now, not an absolute point.",
+        "<code>L IY+20 F300</code> steps +20 in Y; <code>L IX-30</code> then steps -30 in X (the feed carries over).",
+        "<code>L IY+20 F300</code><br><code>L IX-30</code>"
+      ],
       sol:'L IY+20 F300\nL IX-30',
       starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
       checks:[
@@ -292,6 +381,11 @@ var LESSONS = [
     },
     {
       prompt:'Cut a second, deeper pass of the first slot at Z-4',
+      hints:[
+        "Go a little deeper, then cut back the other way — a second pass.",
+        "<code>L Z-4 F…</code> for the deeper pass, then <code>L X+20 F…</code> to mill back.",
+        "<code>L Z-4 F150</code><br><code>L X+20 F300</code>"
+      ],
       sol:'L Z-4 F150\nL X+20 F300',
       starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
       checks:[
@@ -325,6 +419,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Below the last L block add CC X+35 Y+45 (circle centre), then a C block to X+50 Y+45 with clockwise direction DR-',
+      hints:[
+        "A <code>C</code> arc needs a centre first: <code>CC</code> marks it, then <code>C</code> swings to the end. <code>DR-</code> = clockwise.",
+        "<code>CC X+35 Y+45</code> sets the centre; then <code>C X+50 Y+45 DR-</code> arcs there.",
+        "<code>CC X+35 Y+45</code><br><code>C X+50 Y+45 DR-</code>"
+      ],
       sol:'CC X+35 Y+45\nC X+50 Y+45 DR-',
       starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\n; write the arc below (keep the lines above!)\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
@@ -338,6 +437,11 @@ var LESSONS = [
     },
     {
       prompt:'Continue with CR: radius 15 to X+80 Y+45, again over the top (DR-)',
+      hints:[
+        "<code>CR</code> draws an arc by its <b>radius</b> instead of a centre — handy when you know R, not the centre.",
+        "<code>CR</code> then the end <code>X.. Y..</code>, the radius <code>R+15</code>, and the direction <code>DR-</code>.",
+        "<code>CR X+80 Y+45 R+15 DR-</code>"
+      ],
       sol:'CR X+80 Y+45 R+15 DR-',
       starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
@@ -351,6 +455,11 @@ var LESSONS = [
     },
     {
       prompt:'Close the shape: cut a straight line back to X+50 Y+10, retract with FMAX to Z+50 \u2014 then press Run and look at what you milled',
+      hints:[
+        "Finish the outline with a straight move back, then lift clear.",
+        "<code>L X+50 Y+10</code> closes the shape; <code>L Z+50 FMAX</code> retracts.",
+        "<code>L X+50 Y+10</code><br><code>L Z+50 FMAX</code>"
+      ],
       sol:'L X+50 Y+10\nL Z+50 FMAX',
       starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
@@ -382,6 +491,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Round the corner: insert RND R10 between the two straight moves',
+      hints:[
+        "<code>RND</code> rounds the corner <b>between</b> two straight moves — it sits on its own line between them.",
+        "A single line <code>RND R…</code> with the radius, placed between the two <code>L</code> blocks.",
+        "<code>RND R10</code>"
+      ],
       sol:'RND R10',
       starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
       checks:[
@@ -395,6 +509,11 @@ var LESSONS = [
     },
     {
       prompt:'Now cut the same corner with a chamfer instead: insert CHF 8',
+      hints:[
+        "<code>CHF</code> slices a straight <b>chamfer</b> across the corner instead of rounding it.",
+        "One line <code>CHF …</code> with the chamfer width, again between the two straight moves.",
+        "<code>CHF 8</code>"
+      ],
       sol:'CHF 8',
       starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
       checks:[
@@ -408,6 +527,11 @@ var LESSONS = [
     },
     {
       prompt:'Mill an L-shaped path with BOTH: X+70 (RND R10), up to Y+60 (CHF 8), then left to X+20',
+      hints:[
+        "Each insert lives between the two moves that form its corner — so move, insert, move, insert, move.",
+        "<code>L X+70 F300</code>, then <code>RND R10</code>, then <code>L Y+60</code>, then <code>CHF 8</code>, then <code>L X+20</code>.",
+        "<code>L X+70 F300</code><br><code>RND R10</code><br><code>L Y+60</code><br><code>CHF 8</code><br><code>L X+20</code>"
+      ],
       sol:'L X+70 F300\nRND R10\nL Y+60\nCHF 8\nL X+20',
       starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\n; >>> write here\n\nM5\nM9\nEND PGM CORNER MM',
       checks:[
@@ -441,6 +565,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Press Run and watch the cutter bite 5 mm into the part \u2014 then add RR to the L Y+0 block and Run again: now it skims just 1 mm off the edge',
+      hints:[
+        "Compensation offsets the tool by its radius so the <b>edge</b> follows your line. <code>RR</code> = tool on the right of the path.",
+        "Add <code>RR</code> to the existing move, right after the coordinate: <code>L Y+0 RR F300</code>.",
+        "<code>L Y+0 RR F300</code>"
+      ],
       starter:'BEGIN PGM COMP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+51 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 F300\nL Y+90\nL Z+50 FMAX\nM5\nM9\nEND PGM COMP MM',
       solRepl:['L Y+0 F300','L Y+0 RR F300'],
       checks:[
@@ -452,6 +581,11 @@ var LESSONS = [
     },
     {
       prompt:'Cancel the compensation: add a block L Y+90 R0 after the contour',
+      hints:[
+        "<code>R0</code> switches compensation <b>off</b> — back to the tool centre on the path.",
+        "A move that ends in <code>R0</code>: <code>L Y+90 R0</code>.",
+        "<code>L Y+90 R0</code>"
+      ],
       starter:'BEGIN PGM COMP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+51 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 RR F300\nL Y+80\n; >>> write here\n\nL Z+50 FMAX\nM5\nM9\nEND PGM COMP MM',
       sol:'L Y+90 R0',
       checks:[
@@ -463,6 +597,11 @@ var LESSONS = [
     },
     {
       prompt:'Add the contour blocks: L Y+0 RL F300 (activates left compensation), then L Y+80, and cancel with L Y+90 R0 \u2014 the tool now works on the other side of the wall',
+      hints:[
+        "<code>RL</code> puts the tool on the <b>left</b> of the path — the other side of the wall from RR.",
+        "Turn it on <code>L Y+0 RL F300</code>, keep cutting <code>L Y+80</code>, turn it off <code>L Y+90 R0</code>.",
+        "<code>L Y+0 RL F300</code><br><code>L Y+80</code><br><code>L Y+90 R0</code>"
+      ],
       starter:'BEGIN PGM COMP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM COMP MM',
       sol:'L Y+0 RL F300\nL Y+80\nL Y+90 R0',
       checks:[
@@ -492,6 +631,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Define cycle 200: depth 10 mm, peck 5 mm, clearance 2 mm, surface at Z+0',
+      hints:[
+        "A <b>cycle</b> is defined once, then fired at each position. <code>CYCL DEF 200</code> is drilling; its <code>Q</code> values are depth, peck, clearance… (slide).",
+        "The ones that matter: <code>Q201</code>=depth -10, <code>Q202</code>=peck 5, <code>Q200</code>=clearance 2, <code>Q203</code>=surface 0.",
+        "Type the <code>CYCL DEF 200</code> block from the slide, with <code>Q201=-10</code>, <code>Q202=+5</code>, <code>Q200=+2</code>, <code>Q203=+0</code>."
+      ],
       sol:'CYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0',
       starter:'BEGIN PGM DRILL MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\n; define the cycle here\n\nM5\nM9\nEND PGM DRILL MM',
       checks:[
@@ -507,6 +651,11 @@ var LESSONS = [
     },
     {
       prompt:'Drill one hole at X+30 Y+30 by calling the cycle with M99',
+      hints:[
+        "The cycle only <i>defines</i> the drilling — <code>M99</code> at a position actually fires it there.",
+        "Rapid to the spot and tack on <code>M99</code>: <code>L X+30 Y+30 FMAX M99</code>.",
+        "<code>L X+30 Y+30 FMAX M99</code>"
+      ],
       sol:'L X+30 Y+30 FMAX M99',
       starter:'BEGIN PGM DRILL MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; >>> write here\n\nM5\nM9\nEND PGM DRILL MM',
       checks:[
@@ -518,6 +667,11 @@ var LESSONS = [
     },
     {
       prompt:'Add three more holes: X+70 Y+30, X+70 Y+50 and X+30 Y+50',
+      hints:[
+        "Same trick, three more spots — one <code>M99</code> line each.",
+        "A line per hole: <code>L X.. Y.. FMAX M99</code> for (70,30), (70,50), (30,50).",
+        "<code>L X+70 Y+30 FMAX M99</code><br><code>L X+70 Y+50 FMAX M99</code><br><code>L X+30 Y+50 FMAX M99</code>"
+      ],
       sol:'L X+70 Y+30 FMAX M99\nL X+70 Y+50 FMAX M99\nL X+30 Y+50 FMAX M99',
       starter:'BEGIN PGM DRILL MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nL X+30 Y+30 FMAX M99\n; >>> write here\n\nM5\nM9\nEND PGM DRILL MM',
       checks:[
@@ -550,6 +704,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Wrap the two drilling blocks into a subprogram: put LBL 1 above them and LBL 0 below them',
+      hints:[
+        "A <b>subprogram</b> is a labelled block you can reuse. <code>LBL 1</code> opens it, <code>LBL 0</code> closes it.",
+        "Put <code>LBL 1</code> on the line above the two drilling blocks and <code>LBL 0</code> on the line below them.",
+        "<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>"
+      ],
       starter:'BEGIN PGM SUB MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-5 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; wrap the two blocks below into LBL 1 ... LBL 0\n\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\n\nM5\nM9\nEND PGM SUB MM',
       solRepl:['L X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99','LBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0'],
       checks:[
@@ -563,6 +722,11 @@ var LESSONS = [
     },
     {
       prompt:'A deeper drilling cycle is already defined below \u2014 drill the same two holes again with CALL LBL 1',
+      hints:[
+        "Once a label exists, <code>CALL LBL 1</code> runs that block again — no retyping the holes.",
+        "A single line does it.",
+        "<code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM SUB MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-5 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; >>> write here\n\nM5\nM9\nEND PGM SUB MM',
       sol:'CALL LBL 1',
       checks:[
@@ -576,6 +740,11 @@ var LESSONS = [
     },
     {
       prompt:'Define a variable Q1 = -6 and use it as the slot depth: plunge with L Z+Q1 F150, then mill to X+80 with F300',
+      hints:[
+        "A <b>Q parameter</b> is a variable: set it once, then write <code>Q1</code> wherever that number goes.",
+        "Define <code>Q1 = -6</code>, plunge with <code>L Z+Q1 F…</code>, then mill <code>L X+80 F…</code>.",
+        "<code>Q1 = -6</code><br><code>L Z+Q1 F150</code><br><code>L X+80 F300</code>"
+      ],
       starter:'BEGIN PGM QVAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM QVAR MM',
       sol:'Q1 = -6\nL Z+Q1 F150\nL X+80 F300',
       checks:[
@@ -615,6 +784,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Set the pole CC X+50 Y+40 and drill one hole at PR+25 PA+0 (call the cycle with M99)',
+      hints:[
+        "Polar coordinates place points by <b>radius + angle</b> from a pole. <code>CC</code> sets the pole; <code>LP</code> is a polar move.",
+        "<code>CC X+50 Y+40</code> sets the centre; <code>LP PR+25 PA+0 FMAX M99</code> drills 25 mm out at 0°.",
+        "<code>CC X+50 Y+40</code><br><code>LP PR+25 PA+0 FMAX M99</code>"
+      ],
       starter:'BEGIN PGM POLAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; >>> write here\n\nM5\nM9\nEND PGM POLAR MM',
       sol:'CC X+50 Y+40\nLP PR+25 PA+0 FMAX M99',
       checks:[
@@ -626,6 +800,11 @@ var LESSONS = [
     },
     {
       prompt:'Add two more holes on the same circle: PA+120 and PA+240 (PR stays +25)',
+      hints:[
+        "Same radius — just spin the <b>angle</b>. <code>PA</code> is the angle.",
+        "Keep <code>PR+25</code>, set <code>PA</code> to +120 and +240, each with <code>FMAX M99</code>.",
+        "<code>LP PR+25 PA+120 FMAX M99</code><br><code>LP PR+25 PA+240 FMAX M99</code>"
+      ],
       starter:'BEGIN PGM POLAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nCC X+50 Y+40\nLP PR+25 PA+0 FMAX M99\n; >>> write here\n\nM5\nM9\nEND PGM POLAR MM',
       sol:'LP PR+25 PA+120 FMAX M99\nLP PR+25 PA+240 FMAX M99',
       checks:[
@@ -637,6 +816,11 @@ var LESSONS = [
     },
     {
       prompt:'Drill a second, smaller circle: three holes at PR+12, angles PA+60, PA+180 and PA+300',
+      hints:[
+        "A tighter ring: smaller radius, three fresh angles.",
+        "Three <code>LP PR+12 PA.. FMAX M99</code> lines at 60°, 180°, 300°.",
+        "<code>LP PR+12 PA+60 FMAX M99</code><br><code>LP PR+12 PA+180 FMAX M99</code><br><code>LP PR+12 PA+300 FMAX M99</code>"
+      ],
       starter:'BEGIN PGM POLAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-10 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nCC X+50 Y+40\nLP PR+25 PA+0 FMAX M99\nLP PR+25 PA+120 FMAX M99\nLP PR+25 PA+240 FMAX M99\n; >>> write here\n\nM5\nM9\nEND PGM POLAR MM',
       sol:'LP PR+12 PA+60 FMAX M99\nLP PR+12 PA+180 FMAX M99\nLP PR+12 PA+300 FMAX M99',
       checks:[
@@ -669,6 +853,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Define cycle 208 for a round pocket: diameter 30 mm, 8 mm deep, 2 mm per helix turn, clearance 2 mm, surface at Z+0, climb milling',
+      hints:[
+        "<code>CYCL DEF 208</code> mills a round pocket by helixing down. Q values set diameter, depth, infeed per turn… (slide).",
+        "Watch <code>Q201</code>=-8 depth, <code>Q334</code>=2 per turn, <code>Q335</code>=30 diameter, <code>Q351</code>=+1 climb.",
+        "Type the <code>CYCL DEF 208</code> block from the slide, with <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code>."
+      ],
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; define the cycle here\n\nM5\nM9\nEND PGM POCKET MM',
       sol:'CYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1',
       checks:[
@@ -684,6 +873,11 @@ var LESSONS = [
     },
     {
       prompt:'Mill the pocket: position to the centre X+50 Y+40 and call the cycle with M99',
+      hints:[
+        "The cycle knows the pocket shape — you just take the tool to the centre and fire it with <code>M99</code>.",
+        "One line.",
+        "<code>L X+50 Y+40 FMAX M99</code>"
+      ],
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\n; >>> write here\n\nM5\nM9\nEND PGM POCKET MM',
       sol:'L X+50 Y+40 FMAX M99',
       checks:[
@@ -697,6 +891,11 @@ var LESSONS = [
     },
     {
       prompt:'Enlarge the pocket to D40 by changing ONE parameter, then check the new wall',
+      hints:[
+        "The pocket diameter is a single parameter — change it and the pocket grows.",
+        "Find <code>Q335=+30</code> (the nominal diameter) and make it +40.",
+        "<code>Q335=+40</code>"
+      ],
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nL X+50 Y+40 FMAX M99\nM5\nM9\nEND PGM POCKET MM',
       solRepl:['Q335=+30','Q335=+40'],
       checks:[
@@ -726,6 +925,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Spot-drill both positions: write LBL 1 with L X+30 Y+30 FMAX M99 and L X+70 Y+30 FMAX M99, closed by LBL 0',
+      hints:[
+        "Both spots get reused three times (spot, drill, ream), so wrap them in a subprogram once: <code>LBL 1</code> … <code>LBL 0</code>.",
+        "<code>LBL 1</code>, then the two <code>L X.. Y.. FMAX M99</code> lines, then <code>LBL 0</code>.",
+        "<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>"
+      ],
       starter:'BEGIN PGM HOLE7 MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 3 Z S3000 F120\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-2 ;depth\n  Q206=+120 ;plunge feed rate\n  Q202=+2 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; >>> write here\n\nM5\nM9\nEND PGM HOLE7 MM',
       sol:'LBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0',
       checks:[
@@ -739,6 +943,11 @@ var LESSONS = [
     },
     {
       prompt:'Drill through with T4: the tool change and the deep cycle are ready \u2014 run the positions again with CALL LBL 1',
+      hints:[
+        "Tool and deep cycle are ready — just replay the positions.",
+        "One line reuses the label.",
+        "<code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM HOLE7 MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 3 Z S3000 F120\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-2 ;depth\n  Q206=+120 ;plunge feed rate\n  Q202=+2 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 4 Z S2500 F150\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-24 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; >>> write here\n\nM5\nM9\nEND PGM HOLE7 MM',
       sol:'CALL LBL 1',
       checks:[
@@ -752,6 +961,11 @@ var LESSONS = [
     },
     {
       prompt:'Ream to 7H7 with T6: define cycle 201 \u2014 depth 21 mm, feed in 80, feed OUT 500, clearance 2 mm, surface at Z+0, no dwell \u2014 and run the positions with CALL LBL 1',
+      hints:[
+        "Reaming is <code>CYCL DEF 201</code>: like drilling but with a separate <b>retract feed</b> (Q208) for a clean bore. Then reuse the holes.",
+        "Set <code>Q201</code>=-21, <code>Q206</code>=80 in, <code>Q208</code>=500 out, <code>Q200</code>=2; finish with <code>CALL LBL 1</code>.",
+        "Type the <code>CYCL DEF 201</code> block from the slide (<code>Q201=-21</code>, <code>Q206=+80</code>, <code>Q208=+500</code>, <code>Q200=+2</code>), then <code>CALL LBL 1</code>."
+      ],
       starter:'BEGIN PGM HOLE7 MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 3 Z S3000 F120\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-2 ;depth\n  Q206=+120 ;plunge feed rate\n  Q202=+2 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 4 Z S2500 F150\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-24 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nCALL LBL 1\nTOOL CALL 6 Z S500 F80\n; >>> write here\n\nM5\nM9\nEND PGM HOLE7 MM',
       sol:'CYCL DEF 201\n  Q200=+2 ;set-up clearance\n  Q201=-21 ;depth\n  Q206=+80 ;plunge feed rate\n  Q211=+0 ;dwell at bottom\n  Q208=+500 ;retraction feed rate\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\nCALL LBL 1',
       checks:[
@@ -787,6 +1001,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Define the tapping cycle: CYCL DEF 209 with depth per chip break = +4, retract for chip breaking = +0.5, then set-up clearance = +2, thread depth = -15, thread pitch = +1.25, surface coordinate = +0, 2nd set-up clearance = +30',
+      hints:[
+        "Tapping cuts a thread — <code>CYCL DEF 209</code>. The spindle syncs to the <b>pitch</b>, so the pitch sets the feed, not F.",
+        "Key values: <code>Q201</code>=-15 thread depth, <code>Q239</code>=1.25 pitch, <code>Q257</code>=4 chip-break, <code>Q200</code>=2.",
+        "Type the <code>CYCL DEF 209 Q257=+4 Q256=+0.5</code> block from the slide, with <code>Q201=-15</code>, <code>Q239=+1.25</code>, <code>Q200=+2</code>."
+      ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\n; define cycle 209 here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'CYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30',
       checks:[
@@ -800,6 +1019,11 @@ var LESSONS = [
     },
     {
       prompt:'Tap the first hole: position to X+30 Y+30 and call the cycle with M99',
+      hints:[
+        "Just like drilling — go to the hole and fire the cycle with <code>M99</code>.",
+        "One positioning line with <code>M99</code>.",
+        "<code>L X+30 Y+30 FMAX M99</code>"
+      ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'L X+30 Y+30 FMAX M99',
       checks:[
@@ -811,6 +1035,11 @@ var LESSONS = [
     },
     {
       prompt:'Tap both holes in one go instead: replace the single call with CALL LBL 1',
+      hints:[
+        "Both positions already live in <code>LBL 1</code> — reuse them instead of the single call.",
+        "Replace the single line with the label call.",
+        "<code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'CALL LBL 1',
       checks:[
@@ -847,6 +1076,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Deburr the drilled hole with the countersink: call T5 with DL-2 DR+2 (any feed/speed, e.g. S2000 F2000), then a drilling CYCL DEF 200 that dips 4 mm from the tip \u2014 set Q203=+2 so the +2 surface cancels the DL-2, and CALL LBL 1',
+      hints:[
+        "The 90° countersink deburrs by <b>dipping</b> like a drill. The <code>DL/DR</code> deltas shift the tip and path so the cone meets the rim at 1 mm (slide 2).",
+        "Call <code>TOOL CALL 5 Z S… F… DL-2 DR+2</code>, then a <code>CYCL DEF 200</code> with <code>Q201=-4</code> and <code>Q203=+2</code> (the +2 cancels DL-2), then <code>CALL LBL 1</code>.",
+        "<code>TOOL CALL 5 Z S2000 F2000 DL-2 DR+2</code><br>a <code>CYCL DEF 200</code> block with <code>Q201=-4</code>, <code>Q203=+2</code><br><code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM CHAMF MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-24 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\n; chamfer tool call + drilling cycle go below\n\n\nM5\nM9\nEND PGM CHAMF MM',
       sol:'TOOL CALL 5 Z S2000 F2000 DL-2 DR+2\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-4 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+4 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+2 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nCALL LBL 1',
       checks:[
@@ -866,6 +1100,11 @@ var LESSONS = [
     },
     {
       prompt:'Deburr the milled hole (bigger than the tool): call T5 with DL-2 DR+2 (any feed/speed, e.g. S15000 F500), then write CYCL DEF 208 for the edge-break \u2014 Q201=-1 for a 1 mm chamfer and Q342 = the milled hole diameter \u2014 and CALL LBL 1',
+      hints:[
+        "When the hole is wider than the tool, the cone cannot reach by dipping — mill the rim with <code>CYCL DEF 208</code> and <code>Q342</code> = the existing bore, so it only rides the edge (slide 2).",
+        "Call <code>TOOL CALL 5 … DL-2 DR+2</code>, then <code>CYCL DEF 208</code> with <code>Q201=-1</code> and <code>Q342=+10</code> (the milled diameter), then <code>CALL LBL 1</code>.",
+        "<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>a <code>CYCL DEF 208</code> block with <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code><br><code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM CHAMF MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+4 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;hole diameter\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nLBL 1\nL X+50 Y+40 FMAX M99\nLBL 0\n; chamfer tool call + cycle go below\n\n\nM5\nM9\nEND PGM CHAMF MM',
       sol:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-1 ;depth\n  Q206=+300 ;plunge feed rate\n  Q334=+1 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;nominal diameter\n  Q342=+10 ;milled hole diameter\n  Q351=+1 ;milling mode (+1 climb)\nCALL LBL 1',
       checks:[
@@ -885,6 +1124,11 @@ var LESSONS = [
     },
     {
       prompt:'Chamfer the whole outside contour with T5 (any feed/speed): approach clear of the blank at R0, plunge to Z-1, keep DL-2 DR+2 on the tool call, then run the four walls of the 50\u00d750 block with RL and cancel R0 leaving the part',
+      hints:[
+        "Chamfering a contour = run the same walls once more with the countersink, 1 mm below the top, using <code>RL</code> (slide 3).",
+        "From the approach, turn comp on <code>L X+15 RL F500</code>, walk the four walls, then cancel <code>R0</code> after leaving the block.",
+        "<code>L X+15 RL F500</code><br><code>L Y+65</code><br><code>L X+65</code><br><code>L Y+15</code><br><code>L X+10</code><br><code>L X+0 R0</code>"
+      ],
       starter:'BEGIN PGM CHAMF MM\nBLK FORM 0.1 Z X+15 Y+15 Z-20\nBLK FORM 0.2 X+65 Y+65 Z+0\n; the raw part is the 50\u00d750 block itself \u2014 chamfer its top edge\nTOOL CALL 5 Z S15000 F500 DL-2 DR+2\nM3\nM8\n; approach OUTSIDE the blank at R0, then plunge to Z-1\nL X+0 Y+15 Z+50 FMAX R0\nL Z-1 FMAX\n; >>> run the contour here\n\n\nL Z+50 FMAX R0\nM5\nM9\nEND PGM CHAMF MM',
       sol:'L X+15 RL F500\nL Y+65\nL X+65\nL Y+15\nL X+10\nL X+0 R0',
       checks:[
@@ -921,6 +1165,11 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Write the profile yourself \u2014 the mill T1 is already called. Set Q1 = +0, then place the profile in LBL 1 \u2026 LBL 0 (it runs where you write it, so no CALL is needed here). Steps: approach X+10 Y-10 R0 \u00b7 plunge Z+Q1 \u00b7 X+5 RL \u00b7 Y+95 \u00b7 RND R15 \u00b7 X+95 \u00b7 Y+5 \u00b7 CHF 15 \u00b7 X-5 \u00b7 Z+50 R0.',
+      hints:[
+        "One profile in a subprogram, its depth driven by <code>Q1</code>. It runs where written (fall-through), so no CALL here — just build <code>LBL 1 … LBL 0</code>.",
+        "Order: <code>Q1 = +0</code>, <code>LBL 1</code>, approach <code>X+10 Y-10 R0</code>, plunge <code>Z+Q1</code>, <code>X+5 RL</code>, <code>Y+95</code>, <code>RND R15</code>, <code>X+95</code>, <code>Y+5</code>, <code>CHF 15</code>, <code>X-5</code>, retract <code>Z+50 R0</code>, <code>LBL 0</code>.",
+        "<code>Q1 = +0</code><br><code>LBL 1</code><br><code>L X+10 Y-10 Z+50 FMAX R0</code><br><code>L Z+Q1 FMAX</code><br><code>L X+5 F500 RL</code><br><code>L Y+95</code><br><code>RND R15</code><br><code>L X+95</code><br><code>L Y+5</code><br><code>CHF 15</code><br><code>L X-5</code><br><code>L Z+50 FMAX R0</code><br><code>LBL 0</code>"
+      ],
       starter:'BEGIN PGM PART MM\nBLK FORM 0.1 Z X+0 Y+0 Z+0\nBLK FORM 0.2 X+100 Y+100 Z+5\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n\nM5\nM9\nEND PGM PART MM',
       sol:'Q1 = +0\nLBL 1\nL X+10 Y-10 Z+50 FMAX R0\nL Z+Q1 FMAX\nL X+5 F500 RL\nL Y+95\nRND R15\nL X+95\nL Y+5\nCHF 15\nL X-5\nL Z+50 FMAX R0\nLBL 0',
       checks:[
@@ -946,6 +1195,11 @@ var LESSONS = [
     },
     {
       prompt:'Milling pass: the profile is already in LBL 1 below. Call the end mill (T1) and set Q1 to the floor depth +0 \u2014 the profile runs straight after (it sits right below, so no CALL is needed). Blank top Z+5 \u2192 cutting to Z0 shaves off all 5 mm of stock.',
+      hints:[
+        "The profile is written below and runs by fall-through — you only need the tool and the depth in front of it.",
+        "Call the mill <code>TOOL CALL 1 Z S3000 F500</code> (with <code>M3</code>/<code>M8</code>) and set <code>Q1 = +0</code> so it cuts to the Z0 floor.",
+        "<code>TOOL CALL 1 Z S3000 F500</code><br><code>M3</code><br><code>M8</code><br><code>Q1 = +0</code>"
+      ],
       starter:'BEGIN PGM PART MM\nBLK FORM 0.1 Z X+0 Y+0 Z+0\nBLK FORM 0.2 X+100 Y+100 Z+5\n; >>> call the mill and set the depth:\n\nLBL 1\nL X+10 Y-10 Z+50 FMAX R0\nL Z+Q1 FMAX\nL X+5 F500 RL\nL Y+95\nRND R15\nL X+95\nL Y+5\nCHF 15\nL X-5\nL Z+50 FMAX R0\nLBL 0\nM5\nM9\nEND PGM PART MM',
       sol:'TOOL CALL 1 Z S3000 F500\nM3\nM8\nQ1 = +0',
       checks:[
@@ -961,6 +1215,11 @@ var LESSONS = [
     },
     {
       prompt:'Chamfer pass: the mill already runs the profile once (it is defined in LBL 1 right after the mill). Below it, call the 90\u00b0 countersink (T5) with DL-2 DR+2, set Q1 to +4 \u2014 the top of the part is at Z+5, so +4 dips the cone 1 mm below the surface for the edge break \u2014 and CALL LBL 1 to reuse the same profile',
+      hints:[
+        "Reuse the exact same profile with a different tool and depth — this time you must <code>CALL</code> it, since it already ran once above.",
+        "Call <code>TOOL CALL 5 … DL-2 DR+2</code>, set <code>Q1 = +4</code> (1 mm below the Z+5 top), then <code>CALL LBL 1</code>.",
+        "<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br><code>M3</code><br><code>M8</code><br><code>Q1 = +4</code><br><code>CALL LBL 1</code>"
+      ],
       starter:'BEGIN PGM PART MM\nBLK FORM 0.1 Z X+0 Y+0 Z+0\nBLK FORM 0.2 X+100 Y+100 Z+5\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nQ1 = +0\nLBL 1\nL X+10 Y-10 Z+50 FMAX R0\nL Z+Q1 FMAX\nL X+5 F500 RL\nL Y+95\nRND R15\nL X+95\nL Y+5\nCHF 15\nL X-5\nL Z+50 FMAX R0\nLBL 0\n; >>> add the chamfer pass here:\n\nM5\nM9\nEND PGM PART MM',
       sol:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nM3\nM8\nQ1 = +4\nCALL LBL 1',
       checks:[

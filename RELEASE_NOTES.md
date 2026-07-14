@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.832 (Learn test)
+- Added a Start here tutorial that explains how lessons and practice work.
+- Every practice task now shows its goals and offers three progressive hints.
+- Added a guided tour of the assignment, editor, goals, hints and Check button.
+- Finishing a lesson now returns to the lesson list on phones and narrow screens.
+
 ## v0.831
 - Added Low, Default and High simulation profiles. The new Default balances
   smooth machining with visibly finer detail, and Refine scales with each
