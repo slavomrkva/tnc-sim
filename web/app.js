@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.832';
+var APP_VERSION = '0.833';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1131,7 +1131,7 @@ codeEl.addEventListener('click', function(){
 // TNC Sim — Parser
 
 var DEFAULT_FEED = 500;
-var lastDefinedFeed = DEFAULT_FEED; // tracks last explicitly set F value for FAUTO
+var lastDefinedFeed = DEFAULT_FEED; // tracks the ordinary modal F value
 var TOOL_R = 5; // tool radius mm — used for radius compensation offset
 var _WORKPIECE_TOP_Z = 20; // top surface Z, set during parsing — used for cone chamfer offset
 var TOOL_NUM = 1; // current tool number
