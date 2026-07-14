@@ -314,6 +314,18 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.835 — Fixed Cycle 209 `Q256=0` (and `Q257=0`) being ignored when all Q
+  params are on a single `CYCL DEF 209` line. The inline parse read defaults with
+  `+(qm[256]||0.2)`; an explicit `0` is falsy so `||` substituted the default,
+  and the engine never received 0 — `Q256=0` (full retract out of the hole) ran
+  as the default in-hole break, and `Q257=0` (single pass) ran as 5. Converted
+  all Cycle 209 defaults to the `Q!==undefined?Q:default` pattern (matching Cycle
+  200 and NOTES rule #2). The `executeCycle` `chipFullRetract` branch was already
+  correct. The multi-line conversational form was unaffected (its per-line Q path
+  stores an explicit 0). Bumped service-worker cache v10→v11. Web only on
+  `claude/debug-effort-estimation-ivbkid`; shared `core/parser-engine.js`
+  intentionally diverges from Android pending web verification and a deliberate
+  port. New open bug C10 logged in `TODO.md`.
 - v0.834 — Corrected Cycle 208 solid-stock entry to a semicircle from the bore
   center followed by constant-radius helices, matching the documented cycle run.
 - v0.833 — Added the web-only C8/C9 test fix on

@@ -8,6 +8,37 @@
 
 ## Open bugs
 
+## C10 — Cycle 209 Q256=0 not treated as full retract to surface
+**Repos:** web `tnc-sim` (fix v0.835) + Android `tnc-sim-android` (not yet ported).
+**Reported:** 2026-07-14. **Repro:** Run tapping Cycle 209 with chip breaking
+(`Q257`>0) and `Q256=+0`, all Q params on one `CYCL DEF 209` line.
+
+### Symptom
+`Q256=0` should make the tool fully retract out of the hole to set-up clearance
+between chip-break steps, then re-enter and continue. Instead the tool behaved as
+if chip breaking were effectively disabled — it stayed in the hole doing a small
+in-hole retract rather than coming out to the surface.
+
+### Root cause
+`parseProgram`'s single-line `CYCL DEF 209` parse (`core/parser-engine.js`) read
+its defaults with `+(qm[256]||0.2)`. An explicit `Q256=0` is falsy, so `||`
+dropped it and substituted the default `0.2`, so the engine never saw 0. The
+`executeCycle` branch `chipFullRetract = (cy.Q256===0)` was correct; it just
+never received 0. The same `||` pattern also broke `Q257=0` (single pass → 5).
+This is exactly the failure NOTES rule #2 warns about; Cycle 200 already uses the
+safe `!==undefined` pattern, Cycle 209 did not.
+
+### Attempts
+- Web v0.835 converted all Cycle 209 defaults to the `Q!==undefined?Q:default`
+  pattern (matching Cycle 200). `Q256=0` now reaches the engine as 0 → full
+  retract to `safeZ` and re-tap; `Q257=0` → single pass. The multi-line
+  conversational form already stored an explicit 0 correctly via the per-line
+  Q-assignment path; only the single-line inline form was affected.
+
+### Status
+Fix pushed on `claude/debug-effort-estimation-ivbkid` (web only). Awaiting visual
+web verification before merge and the deliberate Android port.
+
 ## C9 — Short drilling/tapping retracts appear to teleport
 **Repos:** web `tnc-sim` + Android `tnc-sim-android`.
 **Reported:** 2026-07-14. **Repro:** Run drilling Cycle 200 with multiple

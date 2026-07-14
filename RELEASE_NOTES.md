@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.835 (web test)
+- Tapping Cycle 209 with `Q256=0` now correctly retracts the tool fully out of
+  the hole between chip-break steps (instead of ignoring the 0), and `Q257=0`
+  again means a single pass with no chip breaking.
+
 ## v0.834 (web test)
 - Cycle 208 now uses a semicircular entry from the bore center, followed by
   constant-radius helical passes; it no longer expands a helix from zero radius.
