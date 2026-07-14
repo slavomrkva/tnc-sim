@@ -314,6 +314,17 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.838 — Hid the Tool Table's "Click ? Help above, then any column header, for
+  an explanation" hint on touch devices. `toggleKpHelp()` (`core/help-popups.js`)
+  skips desktop hover-help mode entirely on `pointer:coarse` and opens the full
+  reference modal instead, so tapping a column header there does nothing — the
+  hint described an interaction that cannot happen on mobile. Wrapped the
+  sentence in `<span class="tt-help-hint">` in `core/tool-table.js` (shared) and
+  added `@media(pointer:coarse){.tt-help-hint{display:none;}}` in
+  `web/styles.css` (web-only), matching the exact condition `toggleKpHelp()`
+  itself checks. `core/tool-table.js` now diverges from Android's copy pending a
+  deliberate port (same wrapper span + a touch-hide rule in the app's own
+  stylesheet). Bumped service-worker cache v13→v14. Web only.
 - v0.837 — Fixed the mobile status bar jumping height during simulation.
   `#statusMsg` shows `Block N/M: <source line>` (`core/voxel-cutting.js`), whose
   length varies per block (`M3` vs a long `CYCL DEF`/contour line); `.status-bar`

@@ -302,7 +302,7 @@ function renderToolsTab(){
   var activeNum = m ? parseInt(m[1]) : 0;
 
   var html = '';
-  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one. Click <b style=\"color:var(--text2);\">? Help</b> above, then any column header, for an explanation.</div>';
+  html += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Select a tool to edit, or click <b style=\"color:var(--text2);\">+ Add tool</b> to create a new one. <span class="tt-help-hint">Click <b style=\"color:var(--text2);\">? Help</b> above, then any column header, for an explanation.</span></div>';
   html += '<div>';
 
   // Left: table

@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.838 (web test)
+- Removed the Tool Table's "Click ? Help…" hint on phones/tablets, where that
+  hover-based help flow doesn't apply.
+
 ## v0.837 (web test)
 - Fixed the mobile status bar jumping height while a program runs. The running
   block description now stays on one line (truncated with … if long) instead of

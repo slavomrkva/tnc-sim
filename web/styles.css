@@ -525,6 +525,10 @@ footer a:hover{text-decoration:underline;}
   .fbar-nav{padding:9px 13px;font-size:14px;}
   .btn-group .btn-tog{padding:10px 12px;}
   .speed-val{min-width:52px;}
+  /* toggleKpHelp() (core/help-popups.js) skips hover-help mode on pointer:coarse
+     and opens the full reference modal instead, so tapping a column header does
+     nothing there — hide the hint that describes the desktop-only hover flow. */
+  .tt-help-hint{display:none;}
   .cycle-list-item{padding:14px 12px;}
 }
 /* ── Safe area insets — notch / home indicator (iOS & Android) */
