@@ -32,6 +32,8 @@ function _coachTarget(key){
   if(key === 'goals')  return root.querySelector('.lp-goals');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
+  if(key === 'giveUp') return root.querySelector('.lp-exit');
+  if(key === 'solve')  return root.querySelector('.lp-solve');
   return null;
 }
 
@@ -67,7 +69,11 @@ function learnCoachStart(){
     { k:'hint',   t:'Stuck? Take a hint',
       d:'Three steps: a nudge, the structure, then the answer. Free to use.' },
     { k:'check',  t:'Check your work',
-      d:'Press it any time. The simulator says which goal failed and why.' }
+      d:'Press it any time. The simulator says which goal failed and why.' },
+    { k:'giveUp', t:'Give up on this task',
+      d:'Leaves just this exercise and returns to the lesson list — Learn stays open, and your own code (if any) comes back exactly as you left it.' },
+    { k:'solve',  t:'Psst — a password button',
+      d:'Reveals the answer, but only if you already know the secret password. We’re not telling. 😉 This probably doesn’t concern you — using it still finishes the lesson, just with an orange tick instead of green.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

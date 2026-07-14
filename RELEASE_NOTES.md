@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.844 (web test)
+- The intro lesson's guided tour now also covers the "give up on this task" ✕
+  and gives the hidden password/solve button a playful explanation instead of
+  leaving it a mystery.
+
 ## v0.843 (web test)
 - The intro lesson's guided tour now also points out the ✕ (leave Learn mode)
   and the hamburger menu (back to the lesson list) before walking through the

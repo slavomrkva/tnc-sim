@@ -314,6 +314,24 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.844 — Added two more steps to the end of the intro coach tour
+  (`core/learn-coach.js`): "Give up on this task" (the ✕ in `.lp-practice-btns`,
+  `learnExit()` — distinct from v0.843's panel-head ✕/`closeLearn()`: this one
+  leaves just the current exercise and returns to the lesson list, Learn stays
+  open) and "Psst — a password button" for the low-opacity `⋯` solve button
+  (`learnSolve()`), written with a wink rather than a plain description since
+  it's the intentionally-underplayed answer-reveal control — notes it still
+  finishes the lesson with an orange (assisted) tick instead of green. Gave
+  both buttons stable classes (`lp-exit`, `lp-solve` in
+  `core/learn-tutorial.js`) matching the existing `.lp-btn.hint`/`.lp-btn.chk`
+  pattern; `_coachTarget()` resolves them via the same mobile-bar/learnPanel
+  `root` as hint/check (no new tab-switching needed — `.lp-practice-btns` is
+  already inside that root on both platforms). Verified headless (Playwright,
+  mobile iPhone 13 + desktop): all 9 steps produced a non-zero spotlight rect,
+  ending correctly after "solve". All 5 existing regression suites still pass.
+  `core/learn-coach.js`/`core/learn-tutorial.js` diverge further from
+  Android's copy pending a deliberate port. Bumped service-worker cache
+  v19→v20. Web only.
 - v0.843 — Added two steps to the intro lesson's guided coach tour
   (`core/learn-coach.js`): "Leave Learn mode" (the `.lp-x` ✕ in the panel
   head, `closeLearn()`) and "Back to all lessons" (the hamburger in

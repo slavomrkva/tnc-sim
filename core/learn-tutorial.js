@@ -850,8 +850,8 @@ function learnRender(){
             : ' Ready for the next task.') + '</span></div>';
     }
     practice += '<div class="lp-practice-btns">'
-      + '<button class="lp-btn" style="padding:8px 10px;" onclick="learnExit()" title="Exit practice \u2014 back to editor">&#10005;</button>'
-      + '<button class="lp-btn" style="opacity:.25;padding:8px 8px;border-color:transparent;" onclick="learnSolve()" title="">&#8943;</button>'
+      + '<button class="lp-btn lp-exit" style="padding:8px 10px;" onclick="learnExit()" title="Exit practice \u2014 back to editor">&#10005;</button>'
+      + '<button class="lp-btn lp-solve" style="opacity:.25;padding:8px 8px;border-color:transparent;" onclick="learnSolve()" title="">&#8943;</button>'
       + '<button class="lp-btn" onclick="learnStartTask('+LEARN.task+')" title="Reload starter code">Reset</button>'
       + (!allOk && nHints
           ? '<button class="lp-btn hint'+(shown>=nHints?' spent':'')+'" onclick="learnHint()"'
