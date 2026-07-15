@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.858 — accepted Learn audit release
+
+- Moved the user-accepted Learn audit from TODO into BUG_HISTORY with all ten
+  implementation and visual-review attempts preserved.
+- Prepared the complete v0.849–v0.857 Learn package for production merge and
+  deliberate Android port.
+
 ## v0.857 — full-width tutorial helper cards
 
 - Replaced the three narrow columns in tutorial slide 2 with three stacked,

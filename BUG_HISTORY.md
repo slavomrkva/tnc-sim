@@ -15,6 +15,43 @@ Newest first.
 
 ---
 
+## C16 — Complete Learn correctness, content and visual audit
+**Repos:** web `tnc-sim`, with the accepted Learn package ported separately to
+Android. **Resolved:** web v0.858. **Accepted:** 2026-07-15 after iterative user
+review of previews v0.849–v0.857.
+
+### Symptom and root causes
+Some tasks could pass from starter code, comments, wrong-sign depths or motion
+created by an older cycle. Several Q parameters were not scoped to the requested
+cycle. Lesson explanations and hints included ambiguous machining claims, while
+many diagrams were generic, too small, geometrically misleading or crowded by
+labels. The Start here lesson repeated a nine-step coach instead of giving the
+student a short interactive first success.
+
+### Attempts and accepted fixes
+- Attempt 1 moved grading from raw source text to executable code, added scoped
+  cycle/parameter and ordered-sequence checks, and verified all 46 official
+  solutions pass while every starter and the regression cheats fail.
+- Attempt 2 improved control semantics, contrast, alternative labels, hint
+  progression and machining wording; local Learn regressions passed.
+- Attempt 3 replaced the Lesson 7 compensation thumbnail and Lesson 11 spiral
+  with enlarged, operation-specific diagrams.
+- Attempt 4 audited every slide image in both themes, replaced remaining generic
+  drawings and added missing LBL, precision-hole, edge-breaking and final-pass
+  visuals.
+- Attempt 5 corrected the inverted countersink and moved reported Lesson 7, 9,
+  11, 13 and 14 labels away from intersecting geometry.
+- Attempt 6 rebuilt Lesson 14.2 with a true 90° countersink, 45° flanks and
+  visible finished hole edges, and isolated the remaining 13.1/14.1 labels.
+- Attempt 7 positioned the Cycle 208 countersink so its cutting flank coincides
+  with the finished edge and visually communicates DL−2/DR+2 without labels.
+- Attempt 8 rebuilt Start here around the read/try/check/improve loop, shortened
+  its coach to five essential actions and required the checked warm-up.
+- Attempt 9 replaced cramped circular status marks with a wider score card.
+- Attempt 10 replaced tutorial slide 2's narrow columns with full-width stacked
+  Goals, Hint and Check rows. The user accepted the resulting v0.857 preview and
+  requested the complete Learn package be merged and ported to Android.
+
 ## C14 — Revealed hints leaked into a newly opened lesson
 **Repo:** web `tnc-sim`; Android port prepared separately. **Resolved:** web
 v0.847. **Accepted:** 2026-07-15 after user testing.

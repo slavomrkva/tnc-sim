@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.858
+- Released the accepted complete Learn audit: stricter task checking, clearer
+  lesson and hint wording, redesigned diagrams and the shorter interactive
+  Start here tutorial.
+
 ## v0.857 (web test)
 - Rebuilt the tutorial's second diagram as three full-width horizontal cards so
   Goals, Hint and Check text stays well clear of both side borders.

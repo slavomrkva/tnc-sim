@@ -115,8 +115,8 @@
     "semantic_hash": "65efdb0a17d8a4d392e05ff416f875c7"
   },
   "service-worker.js": {
-    "mtime": 1784147623.359462,
-    "ast_hash": "f0a68fe3ccbfe614c0e9864ed5472ed7",
+    "mtime": 1784148777.1319673,
+    "ast_hash": "e00560082c3044ca7a62333020453e1c",
     "semantic_hash": ""
   },
   "tests/parser-radius-comp.test.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784147623.3584611,
-    "ast_hash": "09b6441d3b4a839bdaee51194a17aab2",
+    "mtime": 1784148777.1309662,
+    "ast_hash": "0d6c26f08602807988a830025339f88d",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "BUG_HISTORY.md": {
-    "mtime": 1784129575.72187,
-    "ast_hash": "fed727111016c3f1b555fb82771afb3e",
+    "mtime": 1784148777.1289668,
+    "ast_hash": "6e50ac2e11b42dbc8d3def1ef4d4c58b",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -200,13 +200,13 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784147623.3609478,
-    "ast_hash": "ae58324d9153536d1467d05b3a2cc200",
+    "mtime": 1784148777.132967,
+    "ast_hash": "6f628ee92c2fb05839fb33941e03d53d",
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1784147623.362957,
-    "ast_hash": "b97220bd613f1e31911b4ae8143a16dc",
+    "mtime": 1784148777.12797,
+    "ast_hash": "92bbec47d793a777be9c8987f269a458",
     "semantic_hash": ""
   },
   "docs/history/layout-and-renderer-rationale.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784147623.3619454,
-    "ast_hash": "61bbf14ad43b5727b01649a82b1e8d23",
+    "mtime": 1784148777.1339672,
+    "ast_hash": "8f7f597c002e1d648347b436aa2346d2",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {
