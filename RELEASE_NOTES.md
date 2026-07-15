@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.845 (web test)
+- Learn (desktop): the theory slide box now hugs its content instead of always
+  reserving a tall fixed area, so short slides no longer leave empty space above
+  practice. Revealing a new Hint now scrolls it into view automatically instead
+  of jumping the panel back to the top and leaving you to scroll down to find it.
+
 ## v0.844 (web test)
 - The intro lesson's guided tour now also covers the "give up on this task" ✕
   and gives the hidden password/solve button a playful explanation instead of

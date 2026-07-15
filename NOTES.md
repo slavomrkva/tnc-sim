@@ -314,6 +314,19 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.845 — Learn (desktop) fixes, see `BUG_HISTORY.md` C11:
+  `.lp-slide-view` (`web/styles.css`) changed from a fixed `height:390px` to
+  `max-height:390px` (and `max-height:300px` in its narrow/short-viewport
+  media query) so the THEORY box sizes to actual slide content instead of
+  always reserving the full height. `learnHint()` (`core/learn-tutorial.js`)
+  now scrolls the newly revealed `.lp-hint-row` into view after `learnRender()`
+  rebuilds `#learnPanel` (which always resets `.lp-body`'s scroll to the top,
+  since it's a brand-new element on every render). Verified headless
+  (Playwright, 1400×900 and 1400×700): slide box height now tracks
+  `scrollHeight`, and each hint lands fully inside `.lp-body`'s visible area.
+  Web only — not ported to Android's mobile Learn layout, which already has
+  its own bounded-scroll arrangement (C5). Bumped service-worker cache
+  v20→v21.
 - v0.844 — Added two more steps to the end of the intro coach tour
   (`core/learn-coach.js`): "Give up on this task" (the ✕ in `.lp-practice-btns`,
   `learnExit()` — distinct from v0.843's panel-head ✕/`closeLearn()`: this one
