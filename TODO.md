@@ -25,8 +25,11 @@ read or operate with a keyboard.
 - Attempt 2 — improved control semantics, contrast, diagram labels and
   machining wording; result: local SVG render inspection and regression suite
   pass, pending user verification in the web preview.
+- Attempt 3 — replaced the unclear Lesson 7 compensation thumbnail and tiny
+  Lesson 11 helix with dedicated enlarged diagrams; result: local SVG renders
+  now separate programmed contour/tool-centre offset and helix/finishing rings.
 ### Status
-Implemented in v0.849; keep open until the web preview is accepted, then move
+Implemented through v0.850; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

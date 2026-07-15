@@ -20,8 +20,8 @@
     "semantic_hash": "13a278ef3d4c6fd794ac263aee5aaedc"
   },
   "core/data-tables.js": {
-    "mtime": 1784133408.1538103,
-    "ast_hash": "ddba4cb0b1330c20215ac967a3a7d54c",
+    "mtime": 1784133929.2619932,
+    "ast_hash": "ae626589cac2419765b2ffd7d3902066",
     "semantic_hash": ""
   },
   "core/editor-core.js": {
@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "core/learn-tutorial.js": {
-    "mtime": 1784133279.387388,
-    "ast_hash": "80bb23e2c285ed0cf9be944fca02d4b5",
+    "mtime": 1784133984.56832,
+    "ast_hash": "c255f7dd3380ef5f365d90dc08585d4e",
     "semantic_hash": ""
   },
   "core/mcode-panel.js": {
@@ -115,8 +115,8 @@
     "semantic_hash": "65efdb0a17d8a4d392e05ff416f875c7"
   },
   "service-worker.js": {
-    "mtime": 1784133311.0037715,
-    "ast_hash": "936dc5923af4444ca702bb428388d893",
+    "mtime": 1784133984.5713363,
+    "ast_hash": "4d78c478dfee92b1533061dc15425eb0",
     "semantic_hash": ""
   },
   "tests/parser-radius-comp.test.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784133311.0027728,
-    "ast_hash": "9ba274c901a6621df6ee8bede4252418",
+    "mtime": 1784133984.5703342,
+    "ast_hash": "79de83a4e3bc3df02b6f37d2e971f222",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -200,13 +200,13 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784133311.0047882,
-    "ast_hash": "58ff88f6513fb648d20ce231449967b6",
+    "mtime": 1784133984.5723343,
+    "ast_hash": "f5a4fbf219f3278cc31d9eada97486a6",
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1784133311.0067909,
-    "ast_hash": "f9cc9e2a672bdfecc4f725c6427f2310",
+    "mtime": 1784133984.574428,
+    "ast_hash": "adc0eac798ce0a124c068f37e8670901",
     "semantic_hash": ""
   },
   "docs/history/layout-and-renderer-rationale.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784133311.0057874,
-    "ast_hash": "3183c37897de4c1379ddc6882b985f87",
+    "mtime": 1784133984.573409,
+    "ast_hash": "8e4d695b00cff5034cb4eef9a6ea6779",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {

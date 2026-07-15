@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.850 (web test)
+- Replaced the confusing final diagram in Lesson 7 with a dedicated RL
+  compensation view showing the programmed X+50 wall, the X+45 tool-centre
+  path, and the R5 contact offset.
+- Replaced Lesson 11's tiny top-view spiral with a large side-view Cycle 208
+  diagram showing helical infeed, depth per turn, total depth, and widening
+  finishing rings.
+
 ## v0.849 (web test)
 - Learn now grades executable Klartext instead of accepting answers hidden in
   comments, and cycle tasks verify the requested parameters in the correct

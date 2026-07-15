@@ -558,9 +558,9 @@ var LESSONS = [
       + learnSnippet('L X+50 Y-10 Z-2 FMAX R0\nL Y+0 RL F300\nL Y+80\nL Y+90 R0')
       + '<p><code>RL</code> = tool <b>left</b> of the path, <code>RR</code> = right \u2014 looking along the direction of motion.</p>'; } },
     { html:function(){ return ''
-      + '<p>Watch the offset: the tool centre (orange) runs 5 mm beside the programmed wall X+50 (T1 = D10, R5):</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 RL F300\nL Y+80\nL Y+90 R0\nEND PGM D MM')
-      + '<p>The wall X+50 comes out exactly on size \u2014 the control did the offset maths.</p>'; } }
+      + '<p>For motion in Y+, <code>RL</code> puts the tool centre on the <b>left</b> of the programmed contour. With T1 = D10 (R5), the centre runs at X+45 while the cutter edge touches the programmed wall X+50:</p>'
+      + learnSvgCompPath()
+      + '<p>You still program the required wall at X+50. The control calculates the 5 mm centre offset from the tool table.</p>'; } }
   ],
   tasks:[
     {
@@ -841,8 +841,8 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>Cycle <b>208</b> mills a round hole <b>bigger than the tool</b>: it spirals down helically, then widens in rings to the target diameter <code>Q335</code>:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nL X+50 Y+40 FMAX M99\nEND PGM D MM')
-      + '<p>One D10 tool \u2014 any diameter from D10 up.</p>'; } },
+      + learnSvgCycle208()
+      + '<p>The helix makes the first opening down to <code>Q201</code>. At the floor, finishing rings expand outward until the D10 tool produces the requested D30 bore.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Q335</b> — target pocket <b>diameter</b><br><b>Q334</b> — depth per helix <b>turn</b><br><b>Q342</b> — <b>pre-drilled</b> hole diameter (0 = solid)<br><b>Q351</b> — +1 climb, -1 conventional</p>'
       + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling'); } },

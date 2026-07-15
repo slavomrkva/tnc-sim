@@ -1,4 +1,4 @@
-// learn-tutorial -- verified byte-for-byte identical between web and android repos.
+// Learn tutorial web reference; deliberate shared changes can be ported to Android after acceptance.
 
 function learnSvgBlank(dx, dy, dz){
   return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
@@ -213,6 +213,56 @@ function learnSvgComp(){
     + '<circle cx="255" cy="75" r="2" fill="#5dcaa5"/>'
     + '<text x="266" y="115" font-family="monospace" font-size="12" fill="#5dcaa5">RR</text>'
     + '<text x="20" y="145" font-family="monospace" font-size="9.5" fill="var(--text3)">looking along the motion: RL = tool left, RR = tool right</text>'
+    + '</svg>';
+}
+
+function learnSvgCompPath(){
+  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img">'
+    + '<defs><marker id="lpCompArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#f0a94a"/></marker></defs>'
+    + '<rect x="172" y="30" width="138" height="170" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<text x="238" y="52" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">material</text>'
+    + '<line x1="172" y1="22" x2="172" y2="207" stroke="var(--text)" stroke-width="2" stroke-dasharray="5 4"/>'
+    + '<text x="178" y="220" font-family="monospace" font-size="11" fill="var(--text)">programmed wall X+50</text>'
+    + '<line x1="132" y1="190" x2="132" y2="42" stroke="#f0a94a" stroke-width="3" marker-end="url(#lpCompArrow)"/>'
+    + '<text x="16" y="26" font-family="monospace" font-size="11" fill="#f0a94a">tool-centre path X+45</text>'
+    + '<text x="16" y="42" font-family="monospace" font-size="10.5" fill="var(--text3)">RL for motion in Y+</text>'
+    + '<circle cx="132" cy="165" r="40" fill="rgba(240,169,74,.08)" stroke="#f0a94a" stroke-width="1.5"/>'
+    + '<circle cx="132" cy="165" r="3.5" fill="#f0a94a"/>'
+    + '<circle cx="132" cy="90" r="40" fill="rgba(240,169,74,.04)" stroke="#f0a94a" stroke-width="1.2" stroke-dasharray="4 3"/>'
+    + '<circle cx="132" cy="90" r="3" fill="#f0a94a"/>'
+    + '<line x1="132" y1="165" x2="172" y2="165" stroke="var(--accent)" stroke-width="1.5"/>'
+    + '<text x="145" y="158" font-family="monospace" font-size="11" fill="var(--accent)">R5</text>'
+    + '<circle cx="172" cy="165" r="3.5" fill="var(--accent)"/>'
+    + '</svg>';
+}
+
+function learnSvgCycle208(){
+  var path = '', turns = 4, points = 128;
+  for(var i=0; i<=points; i++){
+    var t = i / points;
+    var a = t * turns * Math.PI * 2;
+    var x = 150 + Math.cos(a) * 48;
+    var y = 48 + t * 118 + Math.sin(a) * 11;
+    path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+  }
+  return '<svg class="learn-svg" viewBox="0 0 340 245" role="img">'
+    + '<defs><marker id="lpHelixArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#f0a94a"/></marker></defs>'
+    + '<text x="14" y="18" font-family="monospace" font-size="11" fill="var(--text3)">ENLARGED SIDE VIEW</text>'
+    + '<ellipse cx="150" cy="42" rx="108" ry="20" fill="rgba(74,158,255,.08)" stroke="var(--border)"/>'
+    + '<path d="M42 42 L42 205 M258 42 L258 205" stroke="var(--border)" stroke-width="1.2"/>'
+    + '<path d="M42 205 A108 20 0 0 0 258 205" fill="none" stroke="var(--border)" stroke-width="1.2"/>'
+    + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>'
+    + '<circle cx="198" cy="48" r="5" fill="#f0a94a"/>'
+    + '<text x="210" y="52" font-family="monospace" font-size="11" fill="#f0a94a">start at Q200 +2</text>'
+    + '<line x1="274" y1="55" x2="274" y2="164" stroke="#f0a94a" stroke-width="1.5" marker-end="url(#lpHelixArrow)"/>'
+    + '<text x="282" y="112" font-family="monospace" font-size="11" fill="#f0a94a">Q201 -8</text>'
+    + '<line x1="92" y1="75" x2="72" y2="106" stroke="var(--accent)" stroke-width="1"/>'
+    + '<text x="12" y="118" font-family="monospace" font-size="11" fill="var(--accent)">Q334 = 2 mm</text>'
+    + '<text x="12" y="132" font-family="monospace" font-size="10.5" fill="var(--text3)">deeper each turn</text>'
+    + '<ellipse cx="150" cy="174" rx="48" ry="11" fill="none" stroke="#5dcaa5" stroke-width="1.5"/>'
+    + '<ellipse cx="150" cy="187" rx="75" ry="14" fill="none" stroke="#5dcaa5" stroke-width="1.7"/>'
+    + '<ellipse cx="150" cy="202" rx="102" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.2"/>'
+    + '<text x="86" y="235" font-family="monospace" font-size="11" fill="#5dcaa5">finish rings widen to Q335 = Ø30</text>'
     + '</svg>';
 }
 

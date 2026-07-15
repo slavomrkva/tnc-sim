@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.850 — clearer compensation and Cycle 208 diagrams
+
+- Replaced Lesson 7's generic toolpath thumbnail with an explanatory RL offset
+  diagram and rewrote the slide around the X+50 / X+45 / R5 relationship.
+- Replaced Lesson 11's full-blank top view with a large Cycle 208 side view
+  separating helical infeed from the floor-level widening rings.
+
 ## v0.849 — Learn correctness and accessibility audit
 
 - Made text-based Learn checks ignore comments and added scoped cycle/parameter
