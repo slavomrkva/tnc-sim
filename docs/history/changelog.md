@@ -7,6 +7,16 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.855 — shorter interactive Start here tutorial
+
+- Replaced the intro lesson's three dense text slides with three focused visual
+  explanations: the learning loop, practice helpers and the first one-line win.
+- Reduced the coach overlay to assignment, editor, goals, Hint and Check; moved
+  secondary navigation and password controls out of the first-run tour.
+- Required the checked comment warm-up before the tutorial can be completed.
+- Preserved specific SVG accessibility labels and removed two stray drawing
+  statements from the Learn render path.
+
 ## v0.854 — Cycle 208 countersink contact position
 
 - Shifted the Lesson 14 Cycle 208 tool down and into the bore so its right 45°

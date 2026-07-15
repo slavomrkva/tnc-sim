@@ -40,8 +40,11 @@ read or operate with a keyboard.
 - Attempt 7 — moved the Cycle 208 countersink into the bore until its right
   cutting flank coincides exactly with the finished edge; result: the diagram
   now visually communicates the DL−2/DR+2 tool position without extra labels.
+- Attempt 8 — rebuilt the Start here tutorial around a four-step visual learning
+  loop, shortened its coach to five essential controls and required the checked
+  warm-up before Finish; result: a less repetitive, genuinely interactive intro.
 ### Status
-Implemented through v0.854; keep open until the web preview is accepted, then move
+Implemented through v0.855; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

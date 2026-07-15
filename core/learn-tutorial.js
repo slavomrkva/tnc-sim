@@ -1,5 +1,65 @@
 // Learn tutorial web reference; deliberate shared changes can be ported to Android after acceptance.
 
+function learnSvgLearningLoop(){
+  var cards = [
+    {x:5,   n:'1', title:'READ',    a:'one small', b:'idea', c:'var(--accent)'},
+    {x:90,  n:'2', title:'TRY',     a:'edit real', b:'code', c:'#f0a94a'},
+    {x:175, n:'3', title:'CHECK',   a:'see every', b:'goal', c:'#5dcaa5'},
+    {x:260, n:'4', title:'IMPROVE', a:'hint or', b:'next task', c:'var(--accent)'}
+  ];
+  var g = '';
+  cards.forEach(function(c, i){
+    g += '<rect x="'+c.x+'" y="28" width="75" height="82" rx="8" fill="rgba(74,158,255,.07)" stroke="'+c.c+'"/>'
+      + '<circle cx="'+(c.x+37.5)+'" cy="48" r="11" fill="'+c.c+'" opacity=".18"/>'
+      + '<text x="'+(c.x+37.5)+'" y="52" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="'+c.c+'">'+c.n+'</text>'
+      + '<text x="'+(c.x+37.5)+'" y="74" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="'+c.c+'">'+c.title+'</text>'
+      + '<text x="'+(c.x+37.5)+'" y="91" text-anchor="middle" font-family="monospace" font-size="9" fill="var(--text3)">'+c.a+'</text>'
+      + '<text x="'+(c.x+37.5)+'" y="103" text-anchor="middle" font-family="monospace" font-size="9" fill="var(--text3)">'+c.b+'</text>';
+    if(i < cards.length-1){
+      g += '<path d="M'+(c.x+77)+' 69 H'+(c.x+85)+'" stroke="var(--text3)" stroke-width="1.6"/>'
+        + '<path d="M'+(c.x+81)+' 65 l5 4 l-5 4" fill="none" stroke="var(--text3)" stroke-width="1.6"/>';
+    }
+  });
+  return '<svg class="learn-svg" viewBox="0 0 340 125" role="img" aria-label="Lesson loop: read, try, check and improve">'
+    + g
+    + '<text x="170" y="121" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">small steps · instant feedback · progress saved</text>'
+    + '</svg>';
+}
+
+function learnSvgPracticeHelpers(){
+  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img" aria-label="Practice helpers: goals, hints and check">'
+    + '<rect x="8" y="24" width="100" height="102" rx="8" fill="rgba(74,158,255,.07)" stroke="var(--accent)"/>'
+    + '<text x="58" y="48" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="var(--accent)">GOALS</text>'
+    + '<circle cx="27" cy="70" r="5" fill="#5dcaa5"/><text x="39" y="74" font-family="monospace" font-size="9.5" fill="var(--text3)">what counts</text>'
+    + '<circle cx="27" cy="92" r="5" fill="none" stroke="var(--text3)"/><text x="39" y="96" font-family="monospace" font-size="9.5" fill="var(--text3)">grey → green</text>'
+    + '<rect x="120" y="24" width="100" height="102" rx="8" fill="rgba(240,169,74,.07)" stroke="#f0a94a"/>'
+    + '<text x="170" y="48" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="#f0a94a">HINT</text>'
+    + '<text x="170" y="72" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">1 · nudge</text>'
+    + '<text x="170" y="92" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">2 · structure</text>'
+    + '<text x="170" y="112" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">3 · answer</text>'
+    + '<rect x="232" y="24" width="100" height="102" rx="8" fill="rgba(93,202,165,.07)" stroke="#5dcaa5"/>'
+    + '<text x="282" y="48" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="#5dcaa5">CHECK</text>'
+    + '<text x="282" y="74" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">press anytime</text>'
+    + '<text x="282" y="94" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">see what failed</text>'
+    + '<text x="282" y="114" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#5dcaa5">✓ try again</text>'
+    + '<text x="170" y="144" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">Hints are free. Checking never resets your code.</text>'
+    + '</svg>';
+}
+
+function learnSvgFirstWin(){
+  return '<svg class="learn-svg" viewBox="0 0 340 125" role="img" aria-label="Add a comment, press Check and complete two goals">'
+    + '<rect x="15" y="25" width="185" height="72" rx="7" fill="rgba(74,158,255,.07)" stroke="var(--border)"/>'
+    + '<text x="28" y="48" font-family="monospace" font-size="10" fill="var(--text3)">BEGIN PGM HELLO MM</text>'
+    + '<text x="28" y="68" font-family="monospace" font-size="11" font-weight="700" fill="#f0a94a">; my first program</text>'
+    + '<text x="28" y="88" font-family="monospace" font-size="10" fill="var(--text3)">END PGM HELLO MM</text>'
+    + '<path d="M210 61 H238" stroke="var(--text3)" stroke-width="2"/><path d="M230 55 l9 6 l-9 6" fill="none" stroke="var(--text3)" stroke-width="2"/>'
+    + '<circle cx="282" cy="61" r="34" fill="rgba(93,202,165,.10)" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<text x="282" y="58" text-anchor="middle" font-family="monospace" font-size="20" font-weight="700" fill="#5dcaa5">✓</text>'
+    + '<text x="282" y="77" text-anchor="middle" font-family="monospace" font-size="10" fill="#5dcaa5">2 / 2 goals</text>'
+    + '<text x="170" y="118" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">Your first win takes one line.</text>'
+    + '</svg>';
+}
+
 function learnSvgBlank(dx, dy, dz){
   return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
     + '<path d="M60 110 L170 110 L230 80 L120 80 Z" fill="rgba(74,158,255,.10)" stroke="var(--accent)" stroke-width="1"/>'
@@ -1044,13 +1104,6 @@ function learnCheck(){
   learnRender();
 }
 
-/* The intro/orientation lesson has nothing to grade, so it can be finished at
-   any time; count it as done so the list shows the tick. */
-function learnFinishIntro(){
-  learnTaskDone(LESSONS[LEARN.lesson].id, LEARN.task);
-  learnFinishLesson();
-}
-
 function learnFinishLesson(){
   _learnEndEditorInput();
   // Keep what the user wrote in the editor — finishing a lesson shouldn't
@@ -1222,11 +1275,7 @@ function learnRender(){
           ? (lastTask
               ? '<button class="lp-btn pri grow" onclick="learnFinishLesson()">Finish lesson &#10003;</button>'
               : '<button class="lp-btn pri grow" onclick="learnStartTask('+(LEARN.task+1)+')">Next \u2192</button>')
-          : (L.intro
-              // orientation lesson: nothing to grade, so let it be finished any time
-              ? '<button class="lp-btn chk" onclick="learnCheck()">Check</button>'
-                + '<button class="lp-btn pri grow" onclick="learnFinishIntro()">Finish &#10003;</button>'
-              : '<button class="lp-btn chk grow" onclick="learnCheck()">Check</button>'))
+          : '<button class="lp-btn chk grow" onclick="learnCheck()">Check</button>')
       + '</div>';
   }
 
@@ -1236,10 +1285,8 @@ function learnRender(){
      individual geometry is generated dynamically from the example program. */
   Array.prototype.forEach.call(p.querySelectorAll('.learn-svg'), function(svg, i){
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', L.title + ' diagram ' + (i+1));
+    if(!svg.hasAttribute('aria-label')) svg.setAttribute('aria-label', L.title + ' diagram ' + (i+1));
   });
-  g += '<path d="M182 100 A32 32 0 0 0 134 72" fill="none" stroke="#f0a94a" stroke-width="1" opacity=".75"/>';
-  g += '<path d="M134 72 A32 32 0 0 0 134 128" fill="none" stroke="#f0a94a" stroke-width="1" opacity=".75"/>';
 
   // Mobile: pin the ACTIVE practice above the editor (Editor tab), so the
   // assignment is visible while typing. Slides stay on the Learn tab.

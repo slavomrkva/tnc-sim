@@ -80,32 +80,34 @@ var TOOL_CUT_COLORS = [
 
 var LESSONS = [
 {
-  id:'L00', intro:true, title:'Start here — how a lesson works',
+  id:'L00', intro:true, title:'Start here — your first 2 minutes',
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p><b>Welcome!</b> Every lesson has the <b>same shape</b> — a little <b>theory</b> up here, then hands-on <b>practice</b> below in a real editor. Learn this one screen and you know them all; your workpiece even shows up in 3D as you type.</p>'; } },
+      + '<p><b>Welcome!</b> Every lesson follows the same short loop. Read one idea, try it in the real editor, check the visible goals, then improve or continue.</p>'
+      + learnSvgLearningLoop()
+      + '<p>The simulator updates while you type, so code and the 3D result stay connected.</p>'; } },
     { html:function(){ return ''
-      + '<p>Down in practice you always get three helpers:</p>'
-      + '<p>• <b>Goals</b> — the checklist of what is graded, shown from the start (grey, then green).<br>'
-      + '• <b>Hint</b> — stuck? up to three escalating nudges, and they cost you nothing.<br>'
-      + '• <b>Check</b> — grade your code whenever you like; it tells you which goal failed and why.</p>'; } },
+      + '<p>Practice never hides the rules. These three helpers are available on every task:</p>'
+      + learnSvgPracticeHelpers()
+      + '<p>Use <b>Check</b> early and often — a failed check is feedback, not a penalty.</p>'; } },
     { html:function(){ return ''
-      + '<p>Your <b>progress saves automatically</b>, so you can leave and come back. The <b>&#9776;</b> button returns to all lessons, and the arrows or dots flip these slides back and forth.</p>'
-      + '<p>Ready? Start the warm-up below — a quick guided tour points everything out.</p>'; } }
+      + '<p>Let’s make one tiny, safe edit: add a comment. The machine ignores comments, but they make programs easier for people to understand.</p>'
+      + learnSvgFirstWin()
+      + '<p>Your work and progress save automatically. <b>&#9776;</b> returns to all lessons. Start the warm-up below; a short five-step tour will point out the editor, goals, Hint and Check.</p>'; } }
   ],
   tasks:[
     {
-      prompt:'This line is the task — what you have to do. The goals below show exactly what counts.',
+      prompt:'Add one comment of your own before END PGM, then press Check.',
       hints:[
-        'A comment is a note for you, not the machine — the control skips it. It starts with a semicolon <code>;</code>.',
-        'Add a brand new line of your own. It must begin with <code>;</code>; everything after that is free text.',
-        'For example, type this as a new line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
+        'A comment is a note for people; the control skips it. Comments begin with a semicolon <code>;</code>.',
+        'Click the empty line above <code>END PGM</code>, type <code>;</code>, then add any short message.',
+        'Type this on the empty line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
       ],
       solRepl:['END PGM','; my first Heidenhain program\nEND PGM'],
       starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
       checks:[
-        {t:'has_comment', label:'You added a comment (text after ;)',
+        {t:'has_comment', label:'Your program contains a comment after ;',
          hint:'Add a line that starts with ; — e.g.  ; my first program'},
         {t:'begin_end', label:'Program still opens and closes correctly',
          hint:'Keep the BEGIN PGM / END PGM lines as they are.'}

@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.855 (web test)
+- Rebuilt the Start here tutorial as a short visual two-minute introduction:
+  read, try, check and improve, with clear diagrams for Goals, Hint and Check.
+- Shortened the first-run interface tour from nine steps to the five actions a
+  student needs for their first task.
+- Made the warm-up genuinely interactive: add one comment, press Check, pass
+  both visible goals, then finish the tutorial.
+
 ## v0.854 (web test)
 - Positioned the Lesson 14 Cycle 208 countersink inside the bore so its 45°
   cutting flank sits exactly on the finished material edge, visually showing

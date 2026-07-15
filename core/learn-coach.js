@@ -56,24 +56,16 @@ function learnCoachMaybeStart(force){
 
 function learnCoachStart(){
   COACH.steps = [
-    { k:'closeLearn', t:'Leave Learn mode',
-      d:'Closes Learn entirely and returns to the plain editor. Your practice progress is saved automatically.' },
-    { k:'backToList', t:'Back to all lessons',
-      d:'Jumps back to the lesson list without leaving Learn mode \u2014 pick up any lesson from here.' },
-    { k:'prompt', t:'The assignment',
-      d:'What to achieve \u2014 one line. The theory above stays open; scroll back any time.' },
-    { k:'editor', t:'You write here',
-      d:'The real editor, with the starter program loaded. Add your lines; the blank appears in 3D as you type.' },
-    { k:'goals',  t:'What is graded',
-      d:'Each goal must go green. Grey until you press Check \u2014 nothing is hidden.' },
-    { k:'hint',   t:'Stuck? Take a hint',
-      d:'Three steps: a nudge, the structure, then the answer. Free to use.' },
-    { k:'check',  t:'Check your work',
-      d:'Press it any time. The simulator says which goal failed and why.' },
-    { k:'giveUp', t:'Give up on this task',
-      d:'Leaves just this exercise and returns to the lesson list — Learn stays open, and your own code (if any) comes back exactly as you left it.' },
-    { k:'solve',  t:'Psst — a password button',
-      d:'Reveals the answer, but only if you already know the secret password. We’re not telling. 😉 This probably doesn’t concern you — using it still finishes the lesson, just with an orange tick instead of green.' }
+    { k:'prompt', t:'1. Read the assignment',
+      d:'One clear action. This warm-up asks you to add a comment before END PGM.' },
+    { k:'editor', t:'2. Make the edit here',
+      d:'This is the real editor with a safe starter program. Add your own line; nothing is submitted until you choose Check.' },
+    { k:'goals',  t:'3. Know what counts',
+      d:'Every graded goal is visible from the start. Grey means not checked yet; green means passed.' },
+    { k:'hint',   t:'4. Ask for help when needed',
+      d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
+    { k:'check',  t:'5. Check and improve',
+      d:'Press Check whenever you like. You will see exactly what passed and what still needs work.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;
