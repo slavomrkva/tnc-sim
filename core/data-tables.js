@@ -268,7 +268,7 @@ var LESSONS = [
       + '<p>The safe pattern: rapid <b>high above</b> the part \u2192 rapid down to <b>+2 mm</b> above the surface \u2192 <b>feed</b> into the material. Never rapid through stock or through space that has not been proven clear; a below-surface rapid is safe only in a known, already cleared path.</p>'; } },
     { html:function(){ return ''
       + '<p>Retracting straight <b>up</b> with FMAX is fine \u2014 the path above you is already cut:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\nL X+80 F300\nL Z+50 FMAX\nEND PGM D MM')
+      + learnSvgSafeRetract()
       + learnSnippet('L X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\nL X+80 F300\nL Z+50 FMAX'); } }
   ],
   tasks:[
@@ -329,7 +329,7 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>A feed move below the surface <b>cuts</b>. The D10 tool leaves a 10 mm wide slot along the path centre-line:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\nEND PGM D MM')
+      + learnSvgSlotWidth()
       + learnSnippet('L Z-2 F150\nL X+80 F300'); } },
     { html:function(){ return ''
       + '<p><b>Incremental</b> coordinates <code>IX/IY/IZ</code> move <b>relative to the current position</b> \u2014 ideal for steps and patterns:</p>'
@@ -409,7 +409,7 @@ var LESSONS = [
       + '<p>Here <code>DR-</code> (clockwise) goes over the top of the circle.</p>'; } },
     { html:function(){ return ''
       + '<p><b>CR</b> needs no centre \u2014 just the end point and the radius. The sign of R picks the arc: <code>R+</code> \u2264 180\u00b0, <code>R-</code> &gt; 180\u00b0:</p>'
-      + learnSvgArcCR()
+      + learnSvgArcCRCompare()
       + learnSnippet('CR X+80 Y+45 R+15 DR-'); } },
     { html:function(){ return ''
       + '<p>Arc blocks chain freely with straight blocks. In the practice you will mill a small closed shape from two arcs and two lines \u2014 follow the three steps and <b>run the simulation at the end</b> to see what you made.</p>'
@@ -481,11 +481,11 @@ var LESSONS = [
       + '<p><b>RND</b> replaces a sharp corner with an arc of radius R; <b>CHF</b> cuts it off with a straight 45\u00b0-style chamfer. Both go on their <b>own block between two straight moves</b>.</p>'; } },
     { html:function(){ return ''
       + '<p>The rounding block just names the radius \u2014 the control computes the tangent arc itself:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\nRND R10\nL Y+60\nEND PGM D MM')
+      + learnSvgRndDetail()
       + learnSnippet('L X+70 F300\nRND R10\nL Y+60'); } },
     { html:function(){ return ''
       + '<p><b>CHF</b> works the same way \u2014 the number is the chamfer side length in mm:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\nCHF 8\nL Y+60\nEND PGM D MM')
+      + learnSvgChfDetail()
       + learnSnippet('L X+70 F300\nCHF 8\nL Y+60'); } }
   ],
   tasks:[
@@ -617,7 +617,7 @@ var LESSONS = [
   id:'L08', title:'Drilling \u2014 CYCL DEF 200 + M99',
   slides:[
     { html:function(){ return ''
-      + learnSvgDrill()
+      + learnSvgPeckDrill()
       + '<p>A <b>cycle</b> is a canned routine driven by Q parameters. Cycle <b>200</b> drills with pecking \u2014 define it once, call it at each hole.</p>'; } },
     { html:function(){ return ''
       + '<p>Depth <code>Q201</code> is <b>negative</b>, measured from the surface <code>Q203</code>:</p>'
@@ -696,6 +696,7 @@ var LESSONS = [
       + '<p>Here the body drills two holes \u2014 a reusable pattern.</p>'; } },
     { html:function(){ return ''
       + '<p><b>CALL LBL 1</b> runs the body again from anywhere \u2014 typically after changing the tool or the cycle. Same positions, no copy-pasting:</p>'
+      + learnSvgLblFlow()
       + learnSnippet('CYCL DEF 200      ; spot drill, shallow\n...\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\n\nCYCL DEF 200      ; drill, deep\n...\nCALL LBL 1        ; same holes again')
       + '<p>Change a hole position once \u2014 every call uses the new one.</p>'; } },
     { html:function(){ return ''
@@ -848,7 +849,7 @@ var LESSONS = [
       + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling'); } },
     { html:function(){ return ''
       + '<p>Typical use: a <b>counterbore</b> for a screw head in an existing \u00d86.6 hole \u2014 the head sinks flush:</p>'
-      + learnSvgCounterbore()
+      + learnSvgCounterboreClear()
       + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-6   ;head depth\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;head diameter\n  Q342=+6.6 ;the drilled hole\n  Q351=+1\nL X+50 Y+40 FMAX M99')
       + '<p>Called with <code>M99</code> at the hole centre, like every cycle.</p>'; } }
   ],
@@ -920,6 +921,7 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>A drill on a flat face <b>wanders</b> \u2014 a precise hole (like \u00d87 H7) starts with a <b>centre drill</b> making a small dimple, then the drill, then a <b>reamer</b> for the final size:</p>'
+      + learnSvgPrecisionChain()
       + learnSnippet('T3 CENTER_D6   ; spot ~2 mm\nT4 DRILL_D6_8  ; drill through\nT6 REAMER_7H7  ; ream to size')
       + '<p>The drill is 6.8 \u2014 the reamer removes the last 0.2 mm and is used to finish the bore to the specified H7 tolerance. The result still depends on the tool, setup and cutting conditions.</p>'; } },
     { html:function(){ return ''
@@ -1002,7 +1004,7 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p><b>Tapping</b> cuts a thread: the spindle and the feed are locked together by the <b>pitch</b> \u2014 one revolution = exactly one pitch deeper. Cycle <b>209</b> also breaks chips by backing off:</p>'
-      + learnSvgThread()
+      + learnSvgThreadCycle()
       + learnSnippet('CYCL DEF 209 TAPPING\n  Q200=+2    ;set-up clearance\n  Q201=-15   ;thread depth\n  Q239=+1.25 ;PITCH (M8 = 1.25)\n  Q203=+0    ;surface coordinate\n  Q204=+30   ;2nd set-up clearance\n  Q257=+4    ;depth for chip breaking\n  Q256=+0.5  ;retract for chip breaking')
       + '<p><code>Q257</code>: back off every 4 mm; <code>Q256</code>: by 0.5 mm.</p>'; } },
     { html:function(){ return ''
@@ -1083,6 +1085,7 @@ var LESSONS = [
       + '<p>In this simulator\u2019s configured T5 setup, <code>DR+2</code> shifts the <b>path</b> 2 mm away from the edge and <code>DL-2</code> lowers the reference point 2 mm, producing the shown 1 mm chamfer. On a real machine, verify the tool reference, measured geometry and compensation signs before machining.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Hole edges \u2014 two ways.</b> The fast way: let the 90\u00b0 countersink <b>dip in like a drill</b> with a plain <code>CYCL DEF 200</code>. Only works if the hole is <b>smaller than the countersink diameter</b>, so the cone reaches the rim:</p>'
+      + learnSvgChamferMethods()
       + learnSnippet('TOOL CALL 5 Z S2000 F2000 DL-2 DR+2\nCYCL DEF 200\n  Q201=-4   ;dip 4 mm from the tip\n  Q203=+2   ;surface +2 cancels DL-2\n  ...\nCALL LBL 1')
       + '<p><code>DL-2</code> drops the tip 2 mm and <code>Q203=+2</code> raises the surface by the same 2 mm \u2014 they cancel, so the 4 mm dip starts at the real top. The cone width at that depth sets the chamfer.</p>'
       + '<p>For a <b>bigger hole</b> the cone can no longer reach the rim by dipping \u2014 then mill the edge with <code>CYCL DEF 208</code> and set <code>Q342</code> to the existing hole diameter. That tells the cycle about the pre-machined opening and changes its path and plausibility checks:</p>'
@@ -1188,6 +1191,7 @@ var LESSONS = [
       + '<p>Change the tool and one number \u2014 that is the whole job.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Milling pass:</b> call the mill, set the floor depth, and place the profile in <code>LBL 1</code> right after it. The label <b>runs where it is written</b>, so the mill cuts it once \u2014 Q1=0 shaves off all 5 mm:</p>'
+      + learnSvgFinalPasses()
       + learnSnippet('TOOL CALL 1 Z S3000 F500\nQ1 = +0\nLBL 1\n  ... profile ...\nLBL 0')
       + '<p><b>Chamfer pass:</b> below it, swap to the 90\u00b0 countersink with <code>DL-2 DR+2</code>, and this time <b>CALL</b> the same label. The top of the part is at Z+5, so <code>Q1=+4</code> dips the cone 1 mm below the surface \u2014 a clean edge break with no need to rewrite the profile:</p>'
       + learnSnippet('TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nQ1 = +4        ; 1 mm below the Z+5 top\nCALL LBL 1'); } }

@@ -7,6 +7,17 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.851 — complete Learn slide-image redesign
+
+- Audited and locally rendered every Learn SVG in both supported themes.
+- Replaced generic or misleading thumbnails with lesson-specific diagrams for
+  safe retracts, slot width, radius-sign arc selection, RND/CHF, peck drilling,
+  counterboring, tapping and the final two-pass workflow.
+- Added diagrams for LBL execution/reuse, spot-drill-ream sequencing and the
+  two hole-edge chamfer methods where the lesson previously relied on text.
+- Improved existing drawings with clearer axes, datums, dimensions, contact
+  and tangent points, phase labels and stock/profile coordinates.
+
 ## v0.850 — clearer compensation and Cycle 208 diagrams
 
 - Replaced Lesson 7's generic toolpath thumbnail with an explanatory RL offset

@@ -28,8 +28,11 @@ read or operate with a keyboard.
 - Attempt 3 — replaced the unclear Lesson 7 compensation thumbnail and tiny
   Lesson 11 helix with dedicated enlarged diagrams; result: local SVG renders
   now separate programmed contour/tool-centre offset and helix/finishing rings.
+- Attempt 4 — audited all Learn slide images, redesigned the remaining generic
+  or crowded diagrams, and added four missing visual explanations; result: all
+  25 slide images render clearly in local dark- and light-theme contact sheets.
 ### Status
-Implemented through v0.850; keep open until the web preview is accepted, then move
+Implemented through v0.851; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

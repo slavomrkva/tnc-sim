@@ -7,13 +7,15 @@ function learnSvgBlank(dx, dy, dz){
     + '<path d="M60 60 L170 60 L230 30 L120 30 Z" fill="rgba(74,158,255,.16)" stroke="var(--accent)" stroke-width="1"/>'
     + '<path d="M170 110 L170 60 L230 30 L230 80 Z" fill="rgba(74,158,255,.08)" stroke="var(--accent)" stroke-width="1"/>'
     + '<circle cx="60" cy="110" r="4" fill="#f0a94a"/>'
-    + '<text x="12" y="128" font-family="monospace" font-size="11" fill="#f0a94a">0.1  X+0 Y+0 Z-'+dz+'</text>'
+    + '<text x="12" y="128" font-family="monospace" font-size="11" fill="#f0a94a">MIN 0.1 · X+0 Y+0 Z-'+dz+'</text>'
     + '<circle cx="230" cy="30" r="4" fill="#5dcaa5"/>'
-    + '<text x="188" y="16" font-family="monospace" font-size="11" fill="#5dcaa5">0.2  X+'+dx+' Y+'+dy+' Z+0</text>'
+    + '<text x="174" y="16" font-family="monospace" font-size="11" fill="#5dcaa5">MAX 0.2 · X+'+dx+' Y+'+dy+' Z+0</text>'
     + '<line x1="285" y1="122" x2="285" y2="76" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="291" y="82" font-family="monospace" font-size="10" fill="var(--text3)">Z+</text>'
     + '<line x1="285" y1="122" x2="331" y2="122" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="320" y="138" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
+    + '<line x1="285" y1="122" x2="265" y2="132" stroke="var(--text3)" stroke-width="1"/>'
+    + '<text x="248" y="144" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
     + '<text x="145" y="143" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">'+dx+' x '+dy+' x '+dz+' mm</text>'
     + '</svg>';
 }
@@ -71,7 +73,7 @@ function learnSvgToolpath(code, labelIncr){
 }
 
 function learnSvgChamfer(){
-  var W=340, H=225;
+  var W=340, H=240;
   var scale=13;              // px per mm
   var d=2*scale;             // DL and DR magnitude (2 mm) — EQUAL lengths
   var Sy=104;                // workpiece surface y
@@ -83,6 +85,7 @@ function learnSvgChamfer(){
   s+='<path d="M24 '+Sy+' L'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+' L'+Ex+' '+(H-18)+' L24 '+(H-18)+' Z" fill="rgba(74,158,255,.12)" stroke="var(--border)"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" fill="none"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  s+='<text x="'+(Ex-54)+'" y="'+(Sy+26)+'" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">finished 1 x 45°</text>';
 
   // contact point = midpoint of the workpiece chamfer face
   var contactX=Ex-ch/2, contactY=Sy+ch/2;
@@ -172,12 +175,13 @@ function learnSvgTool(){
     + '<rect x="150" y="18" width="40" height="52" rx="3" fill="rgba(139,147,161,.25)" stroke="var(--text3)"/>'
     + '<rect x="155" y="70" width="30" height="52" fill="rgba(74,158,255,.18)" stroke="var(--accent)"/>'
     + '<path d="M155 122 L160 128 L165 122 L170 128 L175 122 L180 128 L185 122" stroke="var(--accent)" fill="none" stroke-width="1.4"/>'
+    + '<circle cx="170" cy="128" r="3" fill="#f0a94a"/><text x="196" y="127" font-family="monospace" font-size="9.5" fill="#f0a94a">tool datum</text>'
     + '<line x1="120" y1="18" x2="120" y2="128" stroke="#f0a94a" stroke-width="1"/>'
     + '<line x1="114" y1="18" x2="126" y2="18" stroke="#f0a94a"/><line x1="114" y1="128" x2="126" y2="128" stroke="#f0a94a"/>'
-    + '<text x="96" y="78" font-family="monospace" font-size="12" fill="#f0a94a">L</text>'
-    + '<line x1="170" y1="138" x2="185" y2="138" stroke="#5dcaa5" stroke-width="1"/>'
-    + '<line x1="170" y1="133" x2="170" y2="143" stroke="#5dcaa5"/><line x1="185" y1="133" x2="185" y2="143" stroke="#5dcaa5"/>'
-    + '<text x="192" y="142" font-family="monospace" font-size="12" fill="#5dcaa5">R</text>'
+    + '<text x="72" y="78" font-family="monospace" font-size="11" fill="#f0a94a">L = total</text>'
+    + '<line x1="155" y1="139" x2="185" y2="139" stroke="#5dcaa5" stroke-width="1"/>'
+    + '<line x1="155" y1="134" x2="155" y2="144" stroke="#5dcaa5"/><line x1="185" y1="134" x2="185" y2="144" stroke="#5dcaa5"/>'
+    + '<text x="194" y="143" font-family="monospace" font-size="11" fill="#5dcaa5">D = 2R</text>'
     + '<text x="215" y="45" font-family="monospace" font-size="10" fill="var(--text3)">shank</text>'
     + '<text x="215" y="96" font-family="monospace" font-size="10" fill="var(--text3)">flutes (LCUTS)</text>'
     + '</svg>';
@@ -194,7 +198,7 @@ function learnSvgApproach(){
     + '<circle cx="60" cy="20" r="3" fill="#f0a94a"/>'
     + '<text x="182" y="24" font-family="monospace" font-size="10" fill="var(--text3)">FMAX high</text>'
     + '<line x1="150" y1="85" x2="150" y2="95" stroke="#f0a94a" stroke-width="1"/>'
-    + '<text x="60" y="92" font-family="monospace" font-size="10" fill="#f0a94a">FMAX to +2 mm</text>'
+    + '<circle cx="150" cy="85" r="3.5" fill="#f0a94a"/><text x="58" y="92" font-family="monospace" font-size="10" fill="#f0a94a">datum-safe Z+2</text>'
     + '<text x="182" y="108" font-family="monospace" font-size="10" fill="var(--accent)">FEED below surface</text>'
     + '</svg>';
 }
@@ -206,13 +210,13 @@ function learnSvgComp(){
     + '<text x="64" y="16" font-family="monospace" font-size="10" fill="var(--text)">motion</text>'
     + '<circle cx="55" cy="75" r="20" fill="rgba(20,184,166,.15)" stroke="var(--accent)" stroke-width="1.6"/>'
     + '<circle cx="55" cy="75" r="2" fill="var(--accent)"/>'
-    + '<text x="38" y="115" font-family="monospace" font-size="12" fill="var(--accent)">RL</text>'
+    + '<text x="25" y="115" font-family="monospace" font-size="12" fill="var(--accent)">RL · LEFT</text>'
     + '<path d="M230 130 L230 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M226 35 L230 22 L234 35" fill="none" stroke="var(--text)" stroke-width="2"/>'
     + '<circle cx="255" cy="75" r="20" fill="rgba(93,202,165,.15)" stroke="#5dcaa5" stroke-width="1.6"/>'
     + '<circle cx="255" cy="75" r="2" fill="#5dcaa5"/>'
-    + '<text x="266" y="115" font-family="monospace" font-size="12" fill="#5dcaa5">RR</text>'
-    + '<text x="20" y="145" font-family="monospace" font-size="9.5" fill="var(--text3)">looking along the motion: RL = tool left, RR = tool right</text>'
+    + '<text x="244" y="115" font-family="monospace" font-size="12" fill="#5dcaa5">RIGHT · RR</text>'
+    + '<text x="170" y="145" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--text3)">LOOK ALONG THE DIRECTION OF MOTION</text>'
     + '</svg>';
 }
 
@@ -233,6 +237,7 @@ function learnSvgCompPath(){
     + '<line x1="132" y1="165" x2="172" y2="165" stroke="var(--accent)" stroke-width="1.5"/>'
     + '<text x="145" y="158" font-family="monospace" font-size="11" fill="var(--accent)">R5</text>'
     + '<circle cx="172" cy="165" r="3.5" fill="var(--accent)"/>'
+    + '<text x="180" y="181" font-family="monospace" font-size="10" fill="var(--accent)">contact stays at X+50</text>'
     + '</svg>';
 }
 
@@ -247,12 +252,13 @@ function learnSvgCycle208(){
   }
   return '<svg class="learn-svg" viewBox="0 0 340 245" role="img">'
     + '<defs><marker id="lpHelixArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#f0a94a"/></marker></defs>'
-    + '<text x="14" y="18" font-family="monospace" font-size="11" fill="var(--text3)">ENLARGED SIDE VIEW</text>'
+    + '<text x="14" y="18" font-family="monospace" font-size="11" fill="var(--text3)">SIDE VIEW</text>'
     + '<ellipse cx="150" cy="42" rx="108" ry="20" fill="rgba(74,158,255,.08)" stroke="var(--border)"/>'
     + '<path d="M42 42 L42 205 M258 42 L258 205" stroke="var(--border)" stroke-width="1.2"/>'
     + '<path d="M42 205 A108 20 0 0 0 258 205" fill="none" stroke="var(--border)" stroke-width="1.2"/>'
     + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>'
     + '<circle cx="198" cy="48" r="5" fill="#f0a94a"/>'
+    + '<text x="120" y="18" font-family="monospace" font-size="10" font-weight="600" fill="var(--accent)">1 · HELICAL PLUNGE</text>'
     + '<text x="210" y="52" font-family="monospace" font-size="11" fill="#f0a94a">start at Q200 +2</text>'
     + '<line x1="274" y1="55" x2="274" y2="164" stroke="#f0a94a" stroke-width="1.5" marker-end="url(#lpHelixArrow)"/>'
     + '<text x="282" y="112" font-family="monospace" font-size="11" fill="#f0a94a">Q201 -8</text>'
@@ -262,7 +268,231 @@ function learnSvgCycle208(){
     + '<ellipse cx="150" cy="174" rx="48" ry="11" fill="none" stroke="#5dcaa5" stroke-width="1.5"/>'
     + '<ellipse cx="150" cy="187" rx="75" ry="14" fill="none" stroke="#5dcaa5" stroke-width="1.7"/>'
     + '<ellipse cx="150" cy="202" rx="102" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.2"/>'
+    + '<text x="202" y="170" font-family="monospace" font-size="10" font-weight="600" fill="#5dcaa5">2 · FINISH RINGS</text>'
     + '<text x="86" y="235" font-family="monospace" font-size="11" fill="#5dcaa5">finish rings widen to Q335 = Ø30</text>'
+    + '</svg>';
+}
+
+function learnSvgSafeRetract(){
+  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img">'
+    + '<rect x="25" y="110" width="290" height="85" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<line x1="25" y1="110" x2="315" y2="110" stroke="var(--accent)" stroke-width="1.5"/>'
+    + '<text x="264" y="104" font-family="monospace" font-size="11" fill="var(--text3)">surface Z0</text>'
+    + '<path d="M55 25 L125 25 L125 92" fill="none" stroke="var(--text3)" stroke-width="2" stroke-dasharray="5 4"/>'
+    + '<path d="M125 92 L125 140 L245 140" fill="none" stroke="var(--accent)" stroke-width="3"/>'
+    + '<path d="M245 140 L245 25" fill="none" stroke="#f0a94a" stroke-width="3"/>'
+    + '<path d="M239 36 L245 24 L251 36" fill="#f0a94a"/>'
+    + '<circle cx="55" cy="25" r="4" fill="#f0a94a"/>'
+    + '<text x="38" y="16" font-family="monospace" font-size="11" fill="var(--text3)">1  FMAX high</text>'
+    + '<text x="132" y="82" font-family="monospace" font-size="11" fill="var(--text3)">2  FMAX to Z+2</text>'
+    + '<text x="132" y="132" font-family="monospace" font-size="11" fill="var(--accent)">3  FEED to Z-3</text>'
+    + '<text x="160" y="157" font-family="monospace" font-size="11" fill="var(--accent)">4  cut X+20 → X+80</text>'
+    + '<text x="252" y="62" font-family="monospace" font-size="11" fill="#f0a94a">5  FMAX up</text>'
+    + '<text x="252" y="77" font-family="monospace" font-size="10.5" fill="var(--text3)">known clear path</text>'
+    + '</svg>';
+}
+
+function learnSvgSlotWidth(){
+  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
+    + '<rect x="25" y="28" width="290" height="132" fill="rgba(74,158,255,.07)" stroke="var(--border)"/>'
+    + '<rect x="70" y="75" width="200" height="34" rx="17" fill="rgba(20,184,166,.20)" stroke="var(--accent)" stroke-width="2"/>'
+    + '<line x1="70" y1="92" x2="270" y2="92" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
+    + '<circle cx="270" cy="92" r="17" fill="rgba(240,169,74,.10)" stroke="#f0a94a" stroke-width="2"/>'
+    + '<circle cx="270" cy="92" r="3" fill="#f0a94a"/>'
+    + '<text x="74" y="68" font-family="monospace" font-size="11" fill="var(--accent)">swept slot</text>'
+    + '<text x="197" y="87" font-family="monospace" font-size="10.5" fill="var(--text3)">centre-line</text>'
+    + '<line x1="294" y1="75" x2="294" y2="109" stroke="#f0a94a"/>'
+    + '<line x1="288" y1="75" x2="300" y2="75" stroke="#f0a94a"/>'
+    + '<line x1="288" y1="109" x2="300" y2="109" stroke="#f0a94a"/>'
+    + '<text x="305" y="96" font-family="monospace" font-size="11" fill="#f0a94a">10</text>'
+    + '<text x="170" y="178" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">D10 cutter → 10 mm slot around centre-line</text>'
+    + '</svg>';
+}
+
+function learnSvgArcCRCompare(){
+  return '<svg class="learn-svg" viewBox="0 0 340 205" role="img">'
+    + '<text x="80" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">R+  short arc ≤180°</text>'
+    + '<path d="M28 115 A52 52 0 0 1 132 115" fill="none" stroke="var(--accent)" stroke-width="3"/>'
+    + '<path d="M77 66 l10 3 l-7 7" fill="none" stroke="var(--accent)" stroke-width="1.8"/>'
+    + '<circle cx="28" cy="115" r="4" fill="#f0a94a"/><circle cx="132" cy="115" r="4" fill="#5dcaa5"/>'
+    + '<line x1="80" y1="115" x2="117" y2="78" stroke="#f0a94a" stroke-dasharray="4 3"/>'
+    + '<text x="93" y="91" font-family="monospace" font-size="11" fill="#f0a94a">R+15</text>'
+    + '<text x="250" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="#5dcaa5">R−  long arc &gt;180°</text>'
+    + '<path d="M198 115 A52 52 0 1 0 302 115" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
+    + '<path d="M253 166 l-10 -3 l7 -7" fill="none" stroke="#5dcaa5" stroke-width="1.8"/>'
+    + '<circle cx="198" cy="115" r="4" fill="#f0a94a"/><circle cx="302" cy="115" r="4" fill="#5dcaa5"/>'
+    + '<text x="170" y="195" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">same start and end · radius sign chooses short or long way</text>'
+    + '</svg>';
+}
+
+function learnSvgRndDetail(){
+  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img">'
+    + '<path d="M35 135 L145 135 L145 25" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="5 4"/>'
+    + '<path d="M35 135 L115 135 A30 30 0 0 0 145 105 L145 25" fill="none" stroke="var(--accent)" stroke-width="3"/>'
+    + '<circle cx="115" cy="135" r="4" fill="#f0a94a"/><circle cx="145" cy="105" r="4" fill="#f0a94a"/>'
+    + '<circle cx="115" cy="105" r="3" fill="var(--text3)"/>'
+    + '<line x1="115" y1="105" x2="136" y2="126" stroke="#f0a94a"/>'
+    + '<text x="122" y="112" font-family="monospace" font-size="12" fill="#f0a94a">R10</text>'
+    + '<text x="164" y="77" font-family="monospace" font-size="11" fill="var(--text3)">tangent point</text>'
+    + '<line x1="160" y1="80" x2="148" y2="103" stroke="var(--text3)"/>'
+    + '<text x="170" y="158" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">RND replaces the sharp corner</text>'
+    + '<text x="170" y="173" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">between two straight moves</text>'
+    + '</svg>';
+}
+
+function learnSvgChfDetail(){
+  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img">'
+    + '<path d="M35 135 L145 135 L145 25" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="5 4"/>'
+    + '<path d="M35 135 L105 135 L145 95 L145 25" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
+    + '<circle cx="105" cy="135" r="4" fill="#f0a94a"/><circle cx="145" cy="95" r="4" fill="#f0a94a"/>'
+    + '<line x1="105" y1="150" x2="145" y2="150" stroke="#f0a94a"/>'
+    + '<line x1="105" y1="145" x2="105" y2="155" stroke="#f0a94a"/><line x1="145" y1="145" x2="145" y2="155" stroke="#f0a94a"/>'
+    + '<text x="125" y="168" text-anchor="middle" font-family="monospace" font-size="11" fill="#f0a94a">8</text>'
+    + '<line x1="160" y1="95" x2="160" y2="135" stroke="#f0a94a"/>'
+    + '<line x1="155" y1="95" x2="165" y2="95" stroke="#f0a94a"/><line x1="155" y1="135" x2="165" y2="135" stroke="#f0a94a"/>'
+    + '<text x="168" y="119" font-family="monospace" font-size="11" fill="#f0a94a">8</text>'
+    + '<text x="190" y="111" font-family="monospace" font-size="12" fill="#5dcaa5">CHF 8</text>'
+    + '<text x="190" y="128" font-family="monospace" font-size="10.5" fill="var(--text3)">cuts 8 mm from</text>'
+    + '<text x="190" y="142" font-family="monospace" font-size="10.5" fill="var(--text3)">each side</text>'
+    + '</svg>';
+}
+
+function learnSvgPeckDrill(){
+  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img">'
+    + '<rect x="35" y="82" width="270" height="130" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<line x1="35" y1="82" x2="305" y2="82" stroke="var(--accent)"/>'
+    + '<line x1="85" y1="28" x2="270" y2="28" stroke="var(--text3)" stroke-dasharray="5 4"/>'
+    + '<text x="220" y="18" font-family="monospace" font-size="10.5" fill="var(--text3)">Q204 final retract</text>'
+    + '<line x1="150" y1="55" x2="190" y2="55" stroke="#f0a94a"/>'
+    + '<text x="198" y="59" font-family="monospace" font-size="11" fill="#f0a94a">Q200 +2</text>'
+    + '<path d="M170 55 L170 112 L184 92 L184 143 L198 112 L198 174 L212 143 L212 202" fill="none" stroke="var(--accent)" stroke-width="3"/>'
+    + '<path d="M207 192 L212 204 L217 192" fill="var(--accent)"/>'
+    + '<line x1="132" y1="112" x2="170" y2="112" stroke="#f0a94a" stroke-dasharray="3 3"/>'
+    + '<line x1="132" y1="143" x2="184" y2="143" stroke="#f0a94a" stroke-dasharray="3 3"/>'
+    + '<line x1="132" y1="174" x2="198" y2="174" stroke="#f0a94a" stroke-dasharray="3 3"/>'
+    + '<text x="47" y="146" font-family="monospace" font-size="11" fill="#f0a94a">Q202 pecks</text>'
+    + '<text x="47" y="162" font-family="monospace" font-size="10.5" fill="var(--text3)">down → chip-clear</text>'
+    + '<text x="47" y="176" font-family="monospace" font-size="10.5" fill="var(--text3)">retract → deeper</text>'
+    + '<line x1="225" y1="82" x2="225" y2="202" stroke="var(--text)"/>'
+    + '<text x="232" y="150" font-family="monospace" font-size="11" fill="var(--text)">Q201 total depth</text>'
+    + '<text x="36" y="76" font-family="monospace" font-size="10.5" fill="var(--text3)">Q203 surface Z</text>'
+    + '</svg>';
+}
+
+function learnSvgCounterboreClear(){
+  return '<svg class="learn-svg" viewBox="0 0 340 225" role="img">'
+    + '<defs><pattern id="lpHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--border)" stroke-width="2"/></pattern></defs>'
+    + '<path d="M25 55 H132 V105 H154 V205 H25 Z M315 55 H208 V105 H186 V205 H315 Z" fill="url(#lpHatch)" stroke="var(--accent)" stroke-width="1.5"/>'
+    + '<path d="M136 58 H204 V100 H190 V104 H150 V100 H136 Z" fill="rgba(139,147,161,.18)" stroke="var(--text3)" stroke-dasharray="4 3"/>'
+    + '<text x="170" y="25" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--text)">counterbore for screw head</text>'
+    + '<line x1="132" y1="42" x2="208" y2="42" stroke="#f0a94a"/>'
+    + '<line x1="132" y1="36" x2="132" y2="48" stroke="#f0a94a"/><line x1="208" y1="36" x2="208" y2="48" stroke="#f0a94a"/>'
+    + '<text x="170" y="37" text-anchor="middle" font-family="monospace" font-size="11" fill="#f0a94a">Q335 = Ø11</text>'
+    + '<line x1="224" y1="55" x2="224" y2="105" stroke="#f0a94a"/>'
+    + '<line x1="218" y1="55" x2="230" y2="55" stroke="#f0a94a"/><line x1="218" y1="105" x2="230" y2="105" stroke="#f0a94a"/>'
+    + '<text x="234" y="83" font-family="monospace" font-size="11" fill="#f0a94a">Q201 = −6</text>'
+    + '<line x1="154" y1="216" x2="186" y2="216" stroke="var(--text)"/>'
+    + '<line x1="154" y1="210" x2="154" y2="222" stroke="var(--text)"/><line x1="186" y1="210" x2="186" y2="222" stroke="var(--text)"/>'
+    + '<text x="170" y="207" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text)">Q342 = Ø6.6 THRU</text>'
+    + '<text x="35" y="72" font-family="monospace" font-size="10.5" fill="var(--text3)">material</text>'
+    + '</svg>';
+}
+
+function learnSvgThreadCycle(){
+  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img">'
+    + '<text x="78" y="18" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">PITCH SYNCHRONISATION</text>'
+    + '<path d="M55 38 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
+    + '<path d="M101 38 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
+    + '<line x1="119" y1="56" x2="119" y2="74" stroke="#f0a94a"/><line x1="113" y1="56" x2="125" y2="56" stroke="#f0a94a"/><line x1="113" y1="74" x2="125" y2="74" stroke="#f0a94a"/>'
+    + '<text x="128" y="69" font-family="monospace" font-size="11" fill="#f0a94a">Q239 pitch</text>'
+    + '<text x="78" y="159" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">1 turn = 1 pitch deeper</text>'
+    + '<line x1="170" y1="24" x2="170" y2="205" stroke="var(--border)"/>'
+    + '<text x="255" y="18" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">CHIP BREAKING</text>'
+    + '<path d="M220 40 L220 104 L236 96 L236 158 L252 150 L252 207" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
+    + '<path d="M247 197 L252 209 L257 197" fill="#5dcaa5"/>'
+    + '<line x1="206" y1="40" x2="206" y2="104" stroke="#f0a94a"/>'
+    + '<text x="180" y="75" font-family="monospace" font-size="11" fill="#f0a94a">Q257</text>'
+    + '<text x="180" y="89" font-family="monospace" font-size="10.5" fill="var(--text3)">4 mm down</text>'
+    + '<line x1="236" y1="96" x2="267" y2="96" stroke="#f0a94a"/>'
+    + '<text x="270" y="100" font-family="monospace" font-size="11" fill="#f0a94a">Q256</text>'
+    + '<text x="270" y="114" font-family="monospace" font-size="10.5" fill="var(--text3)">0.5 back</text>'
+    + '<text x="184" y="224" font-family="monospace" font-size="10.5" fill="var(--text3)">repeat until Q201 depth</text>'
+    + '</svg>';
+}
+
+function learnSvgLblFlow(){
+  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
+    + '<rect x="20" y="28" width="138" height="105" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
+    + '<text x="89" y="48" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">LBL 1 … LBL 0</text>'
+    + '<text x="34" y="70" font-family="monospace" font-size="10.5" fill="var(--text)">X30 Y30 M99</text>'
+    + '<text x="34" y="88" font-family="monospace" font-size="10.5" fill="var(--text)">X70 Y30 M99</text>'
+    + '<text x="34" y="116" font-family="monospace" font-size="10.5" fill="var(--text3)">1  runs where written</text>'
+    + '<rect x="198" y="28" width="122" height="52" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="259" y="59" text-anchor="middle" font-family="monospace" font-size="12" fill="#f0a94a">CALL LBL 1</text>'
+    + '<path d="M259 82 C259 155 105 165 89 136" fill="none" stroke="#f0a94a" stroke-width="2"/>'
+    + '<path d="M83 145 L89 133 L96 144" fill="#f0a94a"/>'
+    + '<text x="315" y="146" text-anchor="end" font-family="monospace" font-size="10.5" fill="var(--text3)">2  runs same body again</text>'
+    + '<text x="170" y="181" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">active tool/cycle changes · stored XY stays</text>'
+    + '</svg>';
+}
+
+function learnSvgPrecisionChain(){
+  return '<svg class="learn-svg" viewBox="0 0 340 205" role="img">'
+    + '<text x="55" y="20" text-anchor="middle" font-family="monospace" font-size="11" fill="#f0a94a">1  SPOT T3</text>'
+    + '<path d="M25 65 H85 L70 80 H40 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/><path d="M48 65 L55 76 L62 65" fill="none" stroke="#f0a94a" stroke-width="2"/>'
+    + '<text x="55" y="101" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">guides drill</text>'
+    + '<text x="170" y="20" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--accent)">2  DRILL T4</text>'
+    + '<path d="M130 65 H210 V155 H130 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/><rect x="154" y="65" width="32" height="90" fill="rgba(255,255,255,.04)" stroke="var(--accent)"/>'
+    + '<text x="170" y="176" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Ø6.8 through</text>'
+    + '<text x="285" y="20" text-anchor="middle" font-family="monospace" font-size="11" fill="#5dcaa5">3  REAM T6</text>'
+    + '<path d="M245 65 H325 V155 H245 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/><rect x="267" y="65" width="36" height="90" fill="rgba(255,255,255,.04)" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<path d="M267 65 H269 V155 H267 M301 65 H303 V155 H301" stroke="#f0a94a" stroke-width="2"/>'
+    + '<text x="285" y="176" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">last 0.2 → Ø7 H7</text>'
+    + '<path d="M92 112 H120 M218 112 H238" stroke="var(--text3)" stroke-width="2"/>'
+    + '<path d="M111 106 l10 6 l-10 6 M229 106 l10 6 l-10 6" fill="none" stroke="var(--text3)" stroke-width="2"/>'
+    + '<text x="170" y="199" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">same XY positions reused by LBL 1</text>'
+    + '</svg>';
+}
+
+function learnSvgChamferMethods(){
+  return '<svg class="learn-svg" viewBox="0 0 340 215" role="img">'
+    + '<text x="82" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">SMALL HOLE</text>'
+    + '<text x="82" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 200 · dip</text>'
+    + '<path d="M20 105 H60 L82 127 L104 105 H144 V195 H20 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<path d="M82 48 L52 105 L112 105 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
+    + '<line x1="82" y1="48" x2="82" y2="127" stroke="var(--accent)" stroke-width="2"/>'
+    + '<path d="M77 116 L82 128 L87 116" fill="var(--accent)"/>'
+    + '<text x="29" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">cone reaches rim</text>'
+    + '<line x1="170" y1="15" x2="170" y2="205" stroke="var(--border)"/>'
+    + '<text x="255" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="#5dcaa5">LARGE BORE</text>'
+    + '<text x="255" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 208 · orbit rim</text>'
+    + '<path d="M190 105 H220 L235 130 H275 L290 105 H320 V195 H190 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<ellipse cx="255" cy="101" rx="52" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
+    + '<path d="M301 93 l8 4 l-7 5" fill="none" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<path d="M280 57 L258 101 L302 101 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
+    + '<text x="205" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">Q342 = existing bore</text>'
+    + '<text x="170" y="211" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">choose by hole size relative to the countersink</text>'
+    + '</svg>';
+}
+
+function learnSvgFinalPasses(){
+  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
+    + '<rect x="18" y="28" width="132" height="108" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
+    + '<text x="84" y="49" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">PASS 1 · MILL</text>'
+    + '<text x="32" y="72" font-family="monospace" font-size="11" fill="var(--text)">T1</text>'
+    + '<text x="32" y="91" font-family="monospace" font-size="11" fill="var(--text)">Q1 = 0</text>'
+    + '<text x="32" y="112" font-family="monospace" font-size="10.5" fill="var(--text3)">LBL body runs</text>'
+    + '<text x="32" y="127" font-family="monospace" font-size="10.5" fill="var(--text3)">where defined</text>'
+    + '<path d="M158 82 H182" stroke="#f0a94a" stroke-width="2"/>'
+    + '<path d="M173 76 l10 6 l-10 6" fill="none" stroke="#f0a94a" stroke-width="2"/>'
+    + '<rect x="190" y="28" width="132" height="108" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="256" y="49" text-anchor="middle" font-family="monospace" font-size="12" fill="#f0a94a">PASS 2 · CHAMFER</text>'
+    + '<text x="204" y="72" font-family="monospace" font-size="11" fill="var(--text)">T5 DL−2 DR+2</text>'
+    + '<text x="204" y="91" font-family="monospace" font-size="11" fill="var(--text)">Q1 = +4</text>'
+    + '<text x="204" y="112" font-family="monospace" font-size="10.5" fill="var(--text3)">CALL LBL 1</text>'
+    + '<text x="204" y="127" font-family="monospace" font-size="10.5" fill="var(--text3)">same XY profile</text>'
+    + '<text x="170" y="160" text-anchor="middle" font-family="monospace" font-size="11" fill="#5dcaa5">one profile · two tools · one depth variable</text>'
+    + '<text x="170" y="178" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Q1 changes only the Z level</text>'
     + '</svg>';
 }
 
@@ -271,6 +501,7 @@ function learnSvgCorner(){
     + '<path d="M20 110 L85 110" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M115 80 L115 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M85 110 A30 30 0 0 0 115 80" stroke="var(--accent)" stroke-width="2.4" fill="none"/>'
+    + '<circle cx="85" cy="110" r="3" fill="var(--accent)"/><circle cx="115" cy="80" r="3" fill="var(--accent)"/>'
     + '<path d="M85 110 L115 110 L115 80" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" fill="none"/>'
     + '<line x1="115" y1="110" x2="94" y2="89" stroke="#f0a94a" stroke-width="1"/>'
     + '<text x="120" y="102" font-family="monospace" font-size="11" fill="#f0a94a">R</text>'
@@ -278,6 +509,7 @@ function learnSvgCorner(){
     + '<path d="M195 110 L252 110" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M280 82 L280 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M252 110 L280 82" stroke="#5dcaa5" stroke-width="2.4"/>'
+    + '<circle cx="252" cy="110" r="3" fill="#5dcaa5"/><circle cx="280" cy="82" r="3" fill="#5dcaa5"/>'
     + '<path d="M252 110 L280 110 L280 82" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" fill="none"/>'
     + '<text x="250" y="128" font-family="monospace" font-size="10" fill="var(--text3)">8</text>'
     + '<text x="286" y="100" font-family="monospace" font-size="10" fill="var(--text3)">8</text>'
@@ -345,6 +577,7 @@ function learnSvgPartProfile(){
   var g = '';
   // blank 100x100 (dashed)
   g += '<rect x="'+X(0)+'" y="'+Y(100)+'" width="'+(100*2.2)+'" height="'+(100*2.2)+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 3"/>';
+  g += '<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="3.5" fill="#f0a94a"/><text x="'+(X(0)-8)+'" y="'+(Y(0)-5)+'" text-anchor="end" font-family="monospace" font-size="9" fill="#f0a94a">datum 0,0</text>';
   // profile 90x90: R15 top-left (convex, sweep=1), 15x45 chamfer bottom-right
   var p = 'M '+X(5)+' '+Y(5)
         + ' L '+X(5)+' '+Y(80)
@@ -358,6 +591,8 @@ function learnSvgPartProfile(){
   g += dimH(5, 95, 268, '90', 264);
   g += dimV(5, 95, 38, '90', 30);
   g += dimH(0, 100, 286, '100 blank', 298);
+  g += '<text x="'+(X(5)+5)+'" y="'+(Y(5)-8)+'" font-family="monospace" font-size="9" fill="#f0a94a">X5 Y5</text>';
+  g += '<text x="'+(X(95)-5)+'" y="'+(Y(95)+14)+'" text-anchor="end" font-family="monospace" font-size="9" fill="#f0a94a">X95 Y95</text>';
   // R15 callout (inside, near the fillet)
   g += '<text x="'+(X(24))+'" y="'+(Y(84))+'" font-family="monospace" font-size="9.5" fill="var(--accent)">R15</text>';
   // chamfer callout with a leader line so it does not sit on the chamfer edge
@@ -379,10 +614,12 @@ function learnSvgPolar(){
     + '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R+34)+'" y2="'+cy+'" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="'+(cx+R+38)+'" y="'+(cy+4)+'" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
+    + '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="22" stroke="var(--text3)" stroke-width="1"/>'
+    + '<text x="'+(cx+7)+'" y="25" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
     + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<path d="M '+(cx-3)+' '+(cy+4)+' l -6 1 l 2 5" fill="none" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<text x="'+(cx-58)+'" y="'+(cy+30)+'" font-family="monospace" font-size="11" fill="var(--accent)">CC X+50 Y+40</text>'
+    + '<text x="20" y="160" font-family="monospace" font-size="11" fill="var(--accent)">CC X+50 Y+40</text>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+px+'" y2="'+py+'" stroke="#5dcaa5" stroke-width="2.2"/>'
     + '<circle cx="'+px+'" cy="'+py+'" r="4.5" fill="#5dcaa5"/>'
     + '<text x="'+(parseFloat(px)+10)+'" y="'+(parseFloat(py)-8)+'" font-family="monospace" font-size="11" fill="#5dcaa5">the hole</text>'
@@ -401,6 +638,8 @@ function learnSvgBoltCircle(){
   var g = '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R+30)+'" y2="'+cy+'" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="'+(cx+R+34)+'" y="'+(cy+4)+'" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
+    + '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="22" stroke="var(--text3)" stroke-width="1"/>'
+    + '<text x="'+(cx+7)+'" y="25" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
     + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<text x="'+(cx-58)+'" y="'+(cy+30)+'" font-family="monospace" font-size="11" fill="var(--accent)">CC X+50 Y+40</text>';
@@ -443,13 +682,13 @@ function learnSvgArcCC(){
     + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
     + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<path d="M '+(cx-3)+' '+(cy+4)+' l -6 1 l 2 5" fill="none" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<text x="'+cx+'" y="'+(cy+46)+'" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--accent)">CC X+35 Y+45</text>'
+    + '<text x="'+cx+'" y="'+(cy+46)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="var(--accent)">CC X+35 Y+45 · centre, no move</text>'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
     + '<circle cx="'+(cx-R)+'" cy="'+cy+'" r="4" fill="#f0a94a"/>'
     + '<text x="'+(cx-R-28)+'" y="'+(cy-10)+'" font-family="monospace" font-size="10" fill="#f0a94a">start</text>'
     + '<circle cx="'+(cx+R)+'" cy="'+cy+'" r="4.5" fill="#5dcaa5"/>'
     + '<text x="'+(cx+R-38)+'" y="'+(cy+22)+'" font-family="monospace" font-size="11" fill="#5dcaa5">C X+50 Y+45</text>'
-    + '<path d="M '+(cx+14)+' '+(cy-R+2)+' l 10 3 l -6 7" fill="none" stroke="#5dcaa5" stroke-width="1.6"/>'
+    + '<path d="M '+(cx+9)+' '+(cy-R+1)+' l 15 4 l -9 11" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
     + '<text x="'+(cx-4)+'" y="'+(cy-R-8)+'" font-family="monospace" font-size="11" fill="#5dcaa5">DR- (clockwise)</text>'
     + '</svg>';
 }
@@ -992,6 +1231,8 @@ function learnRender(){
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', L.title + ' diagram ' + (i+1));
   });
+  g += '<path d="M182 100 A32 32 0 0 0 134 72" fill="none" stroke="#f0a94a" stroke-width="1" opacity=".75"/>';
+  g += '<path d="M134 72 A32 32 0 0 0 134 128" fill="none" stroke="#f0a94a" stroke-width="1" opacity=".75"/>';
 
   // Mobile: pin the ACTIVE practice above the editor (Editor tab), so the
   // assignment is visible while typing. Slides stay on the Learn tab.

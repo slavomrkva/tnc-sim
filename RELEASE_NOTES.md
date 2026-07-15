@@ -10,6 +10,16 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.851 (web test)
+- Reviewed every Learn slide image in dark and light themes and redesigned the
+  unclear diagrams for safe motion, slots, arcs, corners, drilling, tapping,
+  counterboring, chamfering and the final profile.
+- Added missing visual explanations for label reuse, the spot-drill-ream
+  sequence, small-hole versus large-bore edge breaking, and the two final
+  machining passes.
+- Enlarged labels, added axes, datum/contact/tangent markers and separated
+  multi-stage operations so each diagram teaches one clear idea.
+
 ## v0.850 (web test)
 - Replaced the confusing final diagram in Lesson 7 with a dedicated RL
   compensation view showing the programmed X+50 wall, the X+45 tool-centre

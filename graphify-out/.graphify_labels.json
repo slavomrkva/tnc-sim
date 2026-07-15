@@ -157,10 +157,6 @@
   "155": ".getNormalMatrix",
   "156": "uo",
   "157": "zo",
-  "158": ".rotateX",
-  "159": ".rotateZ",
-  "160": ".scale",
-  "161": ".applyMatrix4",
   "162": ".multiply",
   "163": ".setFromCylindrical",
   "164": ".setFromSpherical"
