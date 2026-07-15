@@ -8,8 +8,8 @@
 
 ## Open bugs
 
-No open bugs after user verification of the current web and Android builds on
-2026-07-15. New reports go below this line and follow the template.
+No open web bugs after user verification of v0.847 on 2026-07-15. New reports
+go below this line and follow the template.
 
 <!-- Template for a new bug (copy below "Open bugs"):
 

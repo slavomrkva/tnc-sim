@@ -15,6 +15,47 @@ Newest first.
 
 ---
 
+## C14 — Revealed hints leaked into a newly opened lesson
+**Repo:** web `tnc-sim`; Android port prepared separately. **Resolved:** web
+v0.847. **Accepted:** 2026-07-15 after user testing.
+
+### Symptom and root cause
+After revealing hints, returning to the list and opening another lesson could
+show the previous task and hints. `learnOpenLesson()` changed the lesson index
+but left the global task, result, and hint state untouched.
+
+### Attempt and fix
+- Reset `LEARN.task`, `LEARN.lastResults`, and `LEARN.hint` whenever a lesson
+  card is newly opened. The existing task-to-task reset remains in place. The
+  user confirmed the v0.847 web preview works correctly.
+
+## C13 — Learn Hint did not scroll the desktop left panel fully down
+**Repo:** web `tnc-sim` only. **Resolved:** web v0.847. **Accepted:** 2026-07-15
+after user testing.
+
+### Symptom and root cause
+The v0.845 `scrollIntoView({block:'nearest'})` attempt made the last hint visible
+but did not keep the complete left Learn panel at its bottom. `learnRender()`
+replaced the `.lp-body` scroll owner on every hint reveal.
+
+### Attempt and fix
+- Replaced the nearest-row scroll with an exact `.lp-body.scrollTop =
+  .lp-body.scrollHeight` after rendering. It is guarded by `!_isMTab()`, so the
+  Android/mobile layout is untouched. The user accepted the desktop behavior.
+
+## C12 — Light-theme 3D table grid was too dark
+**Repo:** web `tnc-sim`; Android port prepared separately. **Resolved:** web
+v0.847. **Accepted:** 2026-07-15 after user visual testing.
+
+### Symptom and root cause
+The table grid used the same near-black blue-grey colors in both themes, so it
+looked too dark against the light scene.
+
+### Attempt and fix
+- Added neutral grey light-theme GridHelper colors while preserving the dark
+  palette, plus live buffer recoloring when the theme changes. The user
+  confirmed the v0.847 result.
+
 ## C10 — Cycle 209 explicit zero values were ignored
 **Repos:** web `tnc-sim` + Android `tnc-sim-android`.
 **Resolved:** web v0.835; Android 1.0.35. **Accepted:** 2026-07-15 after the user

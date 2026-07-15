@@ -10,6 +10,16 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.848
+- Added four ready-to-run demos: Chamfering, Rough & Finish, Thread Hole, and
+  Precise Hole.
+
+## v0.847 (web test)
+- The light-theme 3D table grid is now a softer neutral grey instead of nearly
+  black.
+- Learn (desktop): revealing a Hint now takes the left panel fully to the
+  bottom. Opening another lesson starts with its practice hints closed.
+
 ## v0.845 (web test)
 - Learn (desktop): the theory slide box now hugs its content instead of always
   reserving a tall fixed area, so short slides no longer leave empty space above

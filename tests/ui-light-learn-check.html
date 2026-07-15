@@ -1,0 +1,83 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>TNC Sim UI regression check</title>
+<body>WAIT</body>
+<iframe id="app" src="../index.html" style="width:1400px;height:900px"></iframe>
+<script>
+var frame = document.getElementById('app');
+frame.onload = function(){
+  setTimeout(function(){
+    try{
+      var w = frame.contentWindow;
+      var d = frame.contentDocument;
+      var demoNames = Array.from(w.DEMO_PROGRAMS, function(demo){ return demo.name; });
+      ['Chamfering', 'Rough & Finish', 'Thread Hole', 'Precise Hole'].forEach(function(name){
+        if(demoNames.indexOf(name) < 0) throw new Error('missing demo in UI library: ' + name);
+      });
+      w.loadDemo(demoNames.indexOf('Thread Hole'));
+      if(d.getElementById('code').value.indexOf('CYCL DEF 209') < 0){
+        throw new Error('Thread Hole demo did not load into the editor');
+      }
+      d.documentElement.setAttribute('data-theme', 'light');
+
+      var gridColors = w._gridColors();
+      if(gridColors[0] !== 0x858c96 || gridColors[1] !== 0xaab0b8){
+        throw new Error('light grid colors do not match the new grey palette');
+      }
+      var grid = new w.THREE.GridHelper(100, 10, 0, 0);
+      grid.userData.divisions = 10;
+      var colorVersion = grid.geometry.getAttribute('color').version;
+      w._applyGridTheme(grid);
+      if(grid.geometry.getAttribute('color').version <= colorVersion){
+        throw new Error('live grid recolor did not flag its color buffer');
+      }
+
+      var lesson = w.LESSONS.findIndex(function(L){
+        return L.tasks && L.tasks[0] && L.tasks[0].hints && L.tasks[0].hints.length;
+      });
+      var other = w.LESSONS.findIndex(function(L, i){ return i !== lesson && L.tasks && L.tasks.length; });
+      if(lesson < 0 || other < 0) throw new Error('test lessons not found');
+
+      var panel = d.getElementById('learnPanel');
+      panel.style.display = 'flex';
+      panel.style.height = '280px';
+      panel.style.minHeight = '280px';
+      panel.style.maxHeight = '280px';
+      w.LEARN.open = true;
+      w.LEARN.lesson = lesson;
+      w.LEARN.slide = w.LESSONS[lesson].slides.length - 1;
+      w.LEARN.task = 0;
+      w.LEARN.hint = 0;
+      w.LEARN.lastResults = null;
+      w.LEARN.view = 'lesson';
+      w.learnRender();
+      w.learnHint();
+
+      var body = panel.querySelector('.lp-body');
+      var bottomGap = body.scrollHeight - body.clientHeight - body.scrollTop;
+      if(bottomGap > 1) throw new Error('desktop Learn panel is not at bottom: gap=' + bottomGap);
+      if(!panel.querySelector('.lp-hint-row')) throw new Error('hint was not rendered');
+
+      var realIsMTab = w._isMTab;
+      w._isMTab = function(){ return true; };
+      w.LEARN.hint = 0;
+      w.learnRender();
+      w.learnHint();
+      body = panel.querySelector('.lp-body');
+      if(body.scrollTop !== 0) throw new Error('mobile Learn scroll was changed by desktop-only behavior');
+      w._isMTab = realIsMTab;
+
+      w.LEARN.lastResults = [{ok:false}];
+      w.learnOpenLesson(other);
+      if(w.LEARN.task !== -1 || w.LEARN.hint !== 0 || w.LEARN.lastResults !== null){
+        throw new Error('new lesson did not reset task/hint/result state');
+      }
+      if(panel.querySelector('.lp-hint-row')) throw new Error('old hint leaked into new lesson');
+
+      document.body.textContent = 'PASS: demos, light grid, desktop hint scroll, and new-lesson hint reset';
+    }catch(e){
+      document.body.textContent = 'FAIL: ' + e.message + '\n' + (e.stack || '');
+    }
+  }, 800);
+};
+</script>

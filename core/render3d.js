@@ -8,6 +8,26 @@ function _stockRGB(){ return document.documentElement.getAttribute('data-theme')
 
 function _stockHex(){ return document.documentElement.getAttribute('data-theme')==='light' ? 0x70747d : 0x9a9da6; }
 
+function _gridColors(){
+  return document.documentElement.getAttribute('data-theme')==='light'
+    ? [0x858c96, 0xaab0b8]
+    : [0x2a2f3a, 0x1c2026];
+}
+
+function _applyGridTheme(grid){
+  if(!grid || !grid.geometry) return;
+  var colors = _gridColors();
+  var attr = grid.geometry.getAttribute('color');
+  var divisions = grid.userData.divisions;
+  if(!attr || divisions===undefined) return;
+  var center = Math.floor(divisions/2);
+  for(var i=0;i<=divisions;i++){
+    var c = new THREE.Color(i===center ? colors[0] : colors[1]);
+    for(var j=0;j<4;j++) attr.setXYZ(i*4+j, c.r, c.g, c.b);
+  }
+  attr.needsUpdate = true;
+}
+
 function show3DError(msg){
   try{
     if(!view3dEl) return;
@@ -268,7 +288,10 @@ function buildScene(prog){
   // table grid at Z=min.z
   if(scene.userData.grid){ scene.remove(scene.userData.grid); }
   var gridSize = Math.max(w,d)*2;
-  var grid = new THREE.GridHelper(gridSize, Math.round(gridSize/10), 0x2a2f3a, 0x1c2026);
+  var gridDivisions = Math.round(gridSize/10);
+  var gridColors = _gridColors();
+  var grid = new THREE.GridHelper(gridSize, gridDivisions, gridColors[0], gridColors[1]);
+  grid.userData.divisions = gridDivisions;
   grid.rotation.x = Math.PI/2;
   grid.position.set(min.x+w/2, min.y+d/2, min.z);
   scene.add(grid);
