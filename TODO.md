@@ -45,8 +45,11 @@ read or operate with a keyboard.
   warm-up before Finish; result: a less repetitive, genuinely interactive intro.
 - Attempt 9 — removed the tutorial Goals status circles and widened the final
   score badge; result: neither card has text touching or crossing its outline.
+- Attempt 10 — replaced tutorial slide 2's narrow three-column layout with
+  full-width stacked Goals, Hint and Check rows; result: text has clear margins
+  from both side borders at the rendered slide size.
 ### Status
-Implemented through v0.856; keep open until the web preview is accepted, then move
+Implemented through v0.857; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

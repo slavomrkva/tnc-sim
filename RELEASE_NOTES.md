@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.857 (web test)
+- Rebuilt the tutorial's second diagram as three full-width horizontal cards so
+  Goals, Hint and Check text stays well clear of both side borders.
+
 ## v0.856 (web test)
 - Removed the overlapping status circles from the tutorial's Goals card and
   replaced the final circular result with a wider 2/2-goals panel.

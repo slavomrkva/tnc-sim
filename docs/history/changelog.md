@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.857 — full-width tutorial helper cards
+
+- Replaced the three narrow columns in tutorial slide 2 with three stacked,
+  full-width rows.
+- Split longer Check guidance into separate phrases with generous side margins.
+
 ## v0.856 — tutorial card spacing correction
 
 - Replaced the Goals card's outlined status dots with centred text rows.
