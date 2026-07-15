@@ -80,32 +80,34 @@ var TOOL_CUT_COLORS = [
 
 var LESSONS = [
 {
-  id:'L00', intro:true, title:'Start here — how a lesson works',
+  id:'L00', intro:true, title:'Start here — your first 2 minutes',
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p><b>Welcome!</b> Every lesson has the <b>same shape</b> — a little <b>theory</b> up here, then hands-on <b>practice</b> below in a real editor. Learn this one screen and you know them all; your workpiece even shows up in 3D as you type.</p>'; } },
+      + '<p><b>Welcome!</b> Every lesson follows the same short loop. Read one idea, try it in the real editor, check the visible goals, then improve or continue.</p>'
+      + learnSvgLearningLoop()
+      + '<p>The simulator updates while you type, so code and the 3D result stay connected.</p>'; } },
     { html:function(){ return ''
-      + '<p>Down in practice you always get three helpers:</p>'
-      + '<p>• <b>Goals</b> — the checklist of what is graded, shown from the start (grey, then green).<br>'
-      + '• <b>Hint</b> — stuck? up to three escalating nudges, and they cost you nothing.<br>'
-      + '• <b>Check</b> — grade your code whenever you like; it tells you which goal failed and why.</p>'; } },
+      + '<p>Practice never hides the rules. These three helpers are available on every task:</p>'
+      + learnSvgPracticeHelpers()
+      + '<p>Use <b>Check</b> early and often — a failed check is feedback, not a penalty.</p>'; } },
     { html:function(){ return ''
-      + '<p>Your <b>progress saves automatically</b>, so you can leave and come back. The <b>&#9776;</b> button returns to all lessons, and the arrows or dots flip these slides back and forth.</p>'
-      + '<p>Ready? Start the warm-up below — a quick guided tour points everything out.</p>'; } }
+      + '<p>Let’s make one tiny, safe edit: add a comment. The machine ignores comments, but they make programs easier for people to understand.</p>'
+      + learnSvgFirstWin()
+      + '<p>Your work and progress save automatically. <b>&#9776;</b> returns to all lessons. Start the warm-up below; a short five-step tour will point out the editor, goals, Hint and Check.</p>'; } }
   ],
   tasks:[
     {
-      prompt:'This line is the task — what you have to do. The goals below show exactly what counts.',
+      prompt:'Add one comment of your own before END PGM, then press Check.',
       hints:[
-        'A comment is a note for you, not the machine — the control skips it. It starts with a semicolon <code>;</code>.',
-        'Add a brand new line of your own. It must begin with <code>;</code>; everything after that is free text.',
-        'For example, type this as a new line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
+        'A comment is a note for people; the control skips it. Comments begin with a semicolon <code>;</code>.',
+        'Click the empty line above <code>END PGM</code>, type <code>;</code>, then add any short message.',
+        'Type this on the empty line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
       ],
       solRepl:['END PGM','; my first Heidenhain program\nEND PGM'],
       starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
       checks:[
-        {t:'has_comment', label:'You added a comment (text after ;)',
+        {t:'has_comment', label:'Your program contains a comment after ;',
          hint:'Add a line that starts with ; — e.g.  ; my first program'},
         {t:'begin_end', label:'Program still opens and closes correctly',
          hint:'Keep the BEGIN PGM / END PGM lines as they are.'}
@@ -265,10 +267,10 @@ var LESSONS = [
       + '<p>Coordinates are <b>modal</b> \u2014 write only what changes.</p>'; } },
     { html:function(){ return ''
       + learnSvgApproach()
-      + '<p>The safe pattern: rapid <b>high above</b> the part \u2192 rapid down to <b>+2 mm</b> above the surface \u2192 <b>feed</b> into the material. Never descend below the surface with FMAX.</p>'; } },
+      + '<p>The safe pattern: rapid <b>high above</b> the part \u2192 rapid down to <b>+2 mm</b> above the surface \u2192 <b>feed</b> into the material. Never rapid through stock or through space that has not been proven clear; a below-surface rapid is safe only in a known, already cleared path.</p>'; } },
     { html:function(){ return ''
       + '<p>Retracting straight <b>up</b> with FMAX is fine \u2014 the path above you is already cut:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\nL X+80 F300\nL Z+50 FMAX\nEND PGM D MM')
+      + learnSvgSafeRetract()
       + learnSnippet('L X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\nL X+80 F300\nL Z+50 FMAX'); } }
   ],
   tasks:[
@@ -329,7 +331,7 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>A feed move below the surface <b>cuts</b>. The D10 tool leaves a 10 mm wide slot along the path centre-line:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\nEND PGM D MM')
+      + learnSvgSlotWidth()
       + learnSnippet('L Z-2 F150\nL X+80 F300'); } },
     { html:function(){ return ''
       + '<p><b>Incremental</b> coordinates <code>IX/IY/IZ</code> move <b>relative to the current position</b> \u2014 ideal for steps and patterns:</p>'
@@ -409,7 +411,7 @@ var LESSONS = [
       + '<p>Here <code>DR-</code> (clockwise) goes over the top of the circle.</p>'; } },
     { html:function(){ return ''
       + '<p><b>CR</b> needs no centre \u2014 just the end point and the radius. The sign of R picks the arc: <code>R+</code> \u2264 180\u00b0, <code>R-</code> &gt; 180\u00b0:</p>'
-      + learnSvgArcCR()
+      + learnSvgArcCRCompare()
       + learnSnippet('CR X+80 Y+45 R+15 DR-'); } },
     { html:function(){ return ''
       + '<p>Arc blocks chain freely with straight blocks. In the practice you will mill a small closed shape from two arcs and two lines \u2014 follow the three steps and <b>run the simulation at the end</b> to see what you made.</p>'
@@ -463,9 +465,9 @@ var LESSONS = [
       sol:'L X+50 Y+10\nL Z+50 FMAX',
       starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
-        {t:'reach', cut:true, x:50, y:10, z:-2, label:'Shape closed at X+50 Y+10',
+        {t:'sequence', items:[/CR\s+X\+80\s+Y\+45[^\n]*/, /L\s+X\+50\s+Y\+10(?:\s|$)/], label:'Shape closed after the arcs at X+50 Y+10',
          hint:'L X+50 Y+10 \u2014 a plain straight block.'},
-        {t:'reach', rapid:true, x:50, y:10, z:50, label:'Retract with FMAX to Z+50',
+        {t:'sequence', items:[/CR\s+X\+80\s+Y\+45[^\n]*/, /L\s+X\+50\s+Y\+10(?:\s|$)/, /L\s+Z\+50\s+FMAX/], label:'Retract after closing with FMAX to Z+50',
          hint:'L Z+50 FMAX \u2014 straight up.'},
         {t:'no_rapid_below_top', label:'No rapid descending below the surface',
          hint:'Only the upward retract may be FMAX.'}
@@ -481,11 +483,11 @@ var LESSONS = [
       + '<p><b>RND</b> replaces a sharp corner with an arc of radius R; <b>CHF</b> cuts it off with a straight 45\u00b0-style chamfer. Both go on their <b>own block between two straight moves</b>.</p>'; } },
     { html:function(){ return ''
       + '<p>The rounding block just names the radius \u2014 the control computes the tangent arc itself:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\nRND R10\nL Y+60\nEND PGM D MM')
+      + learnSvgRndDetail()
       + learnSnippet('L X+70 F300\nRND R10\nL Y+60'); } },
     { html:function(){ return ''
       + '<p><b>CHF</b> works the same way \u2014 the number is the chamfer side length in mm:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\nCHF 8\nL Y+60\nEND PGM D MM')
+      + learnSvgChfDetail()
       + learnSnippet('L X+70 F300\nCHF 8\nL Y+60'); } }
   ],
   tasks:[
@@ -558,9 +560,9 @@ var LESSONS = [
       + learnSnippet('L X+50 Y-10 Z-2 FMAX R0\nL Y+0 RL F300\nL Y+80\nL Y+90 R0')
       + '<p><code>RL</code> = tool <b>left</b> of the path, <code>RR</code> = right \u2014 looking along the direction of motion.</p>'; } },
     { html:function(){ return ''
-      + '<p>Watch the offset: the tool centre (orange) runs 5 mm beside the programmed wall X+50 (T1 = D10, R5):</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 RL F300\nL Y+80\nL Y+90 R0\nEND PGM D MM')
-      + '<p>The wall X+50 comes out exactly on size \u2014 the control did the offset maths.</p>'; } }
+      + '<p>For motion in Y+, <code>RL</code> puts the tool centre on the <b>left</b> of the programmed contour. With T1 = D10 (R5), the centre runs at X+45 while the cutter edge touches the programmed wall X+50:</p>'
+      + learnSvgCompPath()
+      + '<p>You still program the required wall at X+50. The control calculates the 5 mm centre offset from the tool table.</p>'; } }
   ],
   tasks:[
     {
@@ -617,7 +619,7 @@ var LESSONS = [
   id:'L08', title:'Drilling \u2014 CYCL DEF 200 + M99',
   slides:[
     { html:function(){ return ''
-      + learnSvgDrill()
+      + learnSvgPeckDrill()
       + '<p>A <b>cycle</b> is a canned routine driven by Q parameters. Cycle <b>200</b> drills with pecking \u2014 define it once, call it at each hole.</p>'; } },
     { html:function(){ return ''
       + '<p>Depth <code>Q201</code> is <b>negative</b>, measured from the surface <code>Q203</code>:</p>'
@@ -646,7 +648,9 @@ var LESSONS = [
         {t:'uses', re:/Q202\s*=\s*\+?5\b/, label:'Peck Q202 = +5',
          hint:'Q202=+5 \u2014 the drill retracts after every 5 mm.'},
         {t:'uses', re:/Q200\s*=\s*\+?2\b/, label:'Clearance Q200 = +2',
-         hint:'Q200=+2 above the surface.'}
+         hint:'Q200=+2 above the surface.'},
+        {t:'cycle_param', num:200, q:'Q203', value:0, label:'Surface Q203 = +0',
+         hint:'Q203=+0 sets the workpiece surface at Z0.'}
       ]
     },
     {
@@ -694,6 +698,7 @@ var LESSONS = [
       + '<p>Here the body drills two holes \u2014 a reusable pattern.</p>'; } },
     { html:function(){ return ''
       + '<p><b>CALL LBL 1</b> runs the body again from anywhere \u2014 typically after changing the tool or the cycle. Same positions, no copy-pasting:</p>'
+      + learnSvgLblFlow()
       + learnSnippet('CYCL DEF 200      ; spot drill, shallow\n...\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\n\nCYCL DEF 200      ; drill, deep\n...\nCALL LBL 1        ; same holes again')
       + '<p>Change a hole position once \u2014 every call uses the new one.</p>'; } },
     { html:function(){ return ''
@@ -839,14 +844,14 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>Cycle <b>208</b> mills a round hole <b>bigger than the tool</b>: it spirals down helically, then widens in rings to the target diameter <code>Q335</code>:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nL X+50 Y+40 FMAX M99\nEND PGM D MM')
-      + '<p>One D10 tool \u2014 any diameter from D10 up.</p>'; } },
+      + learnSvgCycle208()
+      + '<p>The helix makes the first opening down to <code>Q201</code>. At the floor, finishing rings expand outward until the D10 tool produces the requested D30 bore.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Q335</b> — target pocket <b>diameter</b><br><b>Q334</b> — depth per helix <b>turn</b><br><b>Q342</b> — <b>pre-drilled</b> hole diameter (0 = solid)<br><b>Q351</b> — +1 climb, -1 conventional</p>'
       + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling'); } },
     { html:function(){ return ''
       + '<p>Typical use: a <b>counterbore</b> for a screw head in an existing \u00d86.6 hole \u2014 the head sinks flush:</p>'
-      + learnSvgCounterbore()
+      + learnSvgCounterboreClear()
       + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-6   ;head depth\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;head diameter\n  Q342=+6.6 ;the drilled hole\n  Q351=+1\nL X+50 Y+40 FMAX M99')
       + '<p>Called with <code>M99</code> at the hole centre, like every cycle.</p>'; } }
   ],
@@ -861,14 +866,20 @@ var LESSONS = [
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; define the cycle here\n\nM5\nM9\nEND PGM POCKET MM',
       sol:'CYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1',
       checks:[
-        {t:'uses', re:/CYCL\s+DEF\s+208\b/, label:'CYCL DEF 208 defined',
+        {t:'cycle_def', num:208, label:'CYCL DEF 208 defined',
          hint:'Start with the line: CYCL DEF 208'},
-        {t:'uses', re:/Q335\s*=\s*\+?30\b/, label:'Pocket diameter Q335 = +30',
+        {t:'cycle_param', num:208, q:'Q335', value:30, label:'Pocket diameter Q335 = +30',
          hint:'Q335 is the DIAMETER, not the radius.'},
-        {t:'uses', re:/Q201\s*=\s*-8\b/, label:'Depth Q201 = -8',
+        {t:'cycle_param', num:208, q:'Q201', value:-8, label:'Depth Q201 = -8',
          hint:'Depth is negative: Q201=-8.'},
-        {t:'uses', re:/Q334\s*=\s*\+?2\b/, label:'Helix infeed Q334 = +2',
-         hint:'Q334=+2 \u2014 2 mm deeper per turn.'}
+        {t:'cycle_param', num:208, q:'Q334', value:2, label:'Helix infeed Q334 = +2',
+         hint:'Q334=+2 \u2014 2 mm deeper per turn.'},
+        {t:'cycle_param', num:208, q:'Q200', value:2, label:'Clearance Q200 = +2',
+         hint:'Q200=+2 above the surface.'},
+        {t:'cycle_param', num:208, q:'Q203', value:0, label:'Surface Q203 = +0',
+         hint:'Q203=+0 sets the surface at Z0.'},
+        {t:'cycle_param', num:208, q:'Q351', value:1, label:'Climb milling Q351 = +1',
+         hint:'Q351=+1 selects climb milling.'}
       ]
     },
     {
@@ -912,12 +923,13 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p>A drill on a flat face <b>wanders</b> \u2014 a precise hole (like \u00d87 H7) starts with a <b>centre drill</b> making a small dimple, then the drill, then a <b>reamer</b> for the final size:</p>'
+      + learnSvgPrecisionChain()
       + learnSnippet('T3 CENTER_D6   ; spot ~2 mm\nT4 DRILL_D6_8  ; drill through\nT6 REAMER_7H7  ; ream to size')
-      + '<p>The drill is 6.8 \u2014 the reamer removes the last 0.2 mm and guarantees H7.</p>'; } },
+      + '<p>The drill is 6.8 \u2014 the reamer removes the last 0.2 mm and is used to finish the bore to the specified H7 tolerance. The result still depends on the tool, setup and cutting conditions.</p>'; } },
     { html:function(){ return ''
       + '<p>All three tools visit the <b>same positions</b> \u2014 exactly what LBL is for. One label, three calls:</p>'
       + learnSnippet('LBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\n; ...tool change + new cycle...\nCALL LBL 1')
-      + '<p>Tip from real programs: <code>TOOL DEF 4</code> after a tool call pre-stages the NEXT tool in the magazine, so the change is instant.</p>'; } },
+      + '<p>On machines that support tool preselection, <code>TOOL DEF 4</code> after a tool call can prepare the next tool and shorten the change. The exact behaviour depends on the machine tool builder.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Cycle 201</b> (reaming) moves gently: feed in, optional dwell, and \u2014 crucially \u2014 feeds <b>out</b> too (<code>Q208</code>), never rapid, so the reamer does not scratch the finished bore:</p>'
       + learnSnippet('CYCL DEF 201\n  Q200=+2   ;clearance\n  Q201=-21  ;depth\n  Q206=+80  ;feed in\n  Q211=+0   ;dwell\n  Q208=+500 ;feed OUT\n  Q203=+0   ;surface\n  Q204=+30  ;2nd clearance'); } }
@@ -969,14 +981,22 @@ var LESSONS = [
       starter:'BEGIN PGM HOLE7 MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 3 Z S3000 F120\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-2 ;depth\n  Q206=+120 ;plunge feed rate\n  Q202=+2 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 4 Z S2500 F150\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-24 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nCALL LBL 1\nTOOL CALL 6 Z S500 F80\n; >>> write here\n\nM5\nM9\nEND PGM HOLE7 MM',
       sol:'CYCL DEF 201\n  Q200=+2 ;set-up clearance\n  Q201=-21 ;depth\n  Q206=+80 ;plunge feed rate\n  Q211=+0 ;dwell at bottom\n  Q208=+500 ;retraction feed rate\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\nCALL LBL 1',
       checks:[
-        {t:'uses', re:/CYCL\s+DEF\s+201\b/, label:'Reaming cycle 201 defined',
+        {t:'cycle_def', num:201, after:/TOOL\s+CALL\s+6\b/, label:'Reaming cycle 201 defined after T6',
          hint:'Start with: CYCL DEF 201'},
-        {t:'uses', re:/Q208\s*=\s*\+?500\b/, label:'Retract feed Q208 = +500 (feed out, never rapid)',
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q201', value:-21, label:'Reaming depth Q201 = -21',
+         hint:'Q201=-21 belongs to the cycle 201 after TOOL CALL 6.'},
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q206', value:80, label:'Feed in Q206 = +80',
+         hint:'Q206=+80 is the reaming feed into the bore.'},
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q208', value:500, label:'Retract feed Q208 = +500 (feed out, never rapid)',
          hint:'Q208 protects the finished bore on the way out.'},
-        {t:'reach', cut:true, x:30, y:30, z:-21, tol:0.5, label:'Bore X+30 reamed to Z-21',
-         hint:'CALL LBL 1 after the cycle definition.'},
-        {t:'reach', cut:true, x:70, y:30, z:-21, tol:0.5, label:'Bore X+70 reamed to Z-21',
-         hint:'Same label, third time \u2014 that is the chain.'}
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q200', value:2, label:'Clearance Q200 = +2',
+         hint:'Q200=+2 belongs to the reaming cycle.'},
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q203', value:0, label:'Surface Q203 = +0',
+         hint:'Q203=+0 sets the real workpiece surface.'},
+        {t:'cycle_param', num:201, after:/TOOL\s+CALL\s+6\b/, q:'Q211', value:0, label:'Dwell Q211 = +0',
+         hint:'No dwell: Q211=+0.'},
+        {t:'order', a:/CYCL\s+DEF\s+201\b/, b:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs both positions after cycle 201',
+         hint:'Place CALL LBL 1 after the complete cycle 201 definition.'}
       ]
     }
   ]
@@ -986,7 +1006,7 @@ var LESSONS = [
   slides:[
     { html:function(){ return ''
       + '<p><b>Tapping</b> cuts a thread: the spindle and the feed are locked together by the <b>pitch</b> \u2014 one revolution = exactly one pitch deeper. Cycle <b>209</b> also breaks chips by backing off:</p>'
-      + learnSvgThread()
+      + learnSvgThreadCycle()
       + learnSnippet('CYCL DEF 209 TAPPING\n  Q200=+2    ;set-up clearance\n  Q201=-15   ;thread depth\n  Q239=+1.25 ;PITCH (M8 = 1.25)\n  Q203=+0    ;surface coordinate\n  Q204=+30   ;2nd set-up clearance\n  Q257=+4    ;depth for chip breaking\n  Q256=+0.5  ;retract for chip breaking')
       + '<p><code>Q257</code>: back off every 4 mm; <code>Q256</code>: by 0.5 mm.</p>'; } },
     { html:function(){ return ''
@@ -1009,12 +1029,22 @@ var LESSONS = [
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\n; define cycle 209 here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'CYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30',
       checks:[
-        {t:'uses', re:/CYCL\s+DEF\s+209\b/, label:'Tapping cycle 209 defined',
+        {t:'cycle_def', num:209, after:/TOOL\s+CALL\s+7\b/, label:'Tapping cycle 209 defined after T7',
          hint:'First line: CYCL DEF 209 Q257=+4 Q256=+0.5'},
-        {t:'uses', re:/Q239\s*=\s*\+?1\.25\b/, label:'Pitch Q239 = +1.25 (M8)',
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q239', value:1.25, label:'Pitch Q239 = +1.25 (M8)',
          hint:'The pitch of M8 is 1.25 mm.'},
-        {t:'uses', re:/Q201\s*=\s*-15\b/, label:'Thread depth Q201 = -15',
-         hint:'Depth is negative, like every cycle.'}
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q201', value:-15, label:'Thread depth Q201 = -15',
+         hint:'Depth is negative, like every cycle.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q257', value:4, label:'Chip-break depth Q257 = +4',
+         hint:'Q257=+4: back off after each 4 mm of tapping.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q256', value:0.5, label:'Chip-break retract Q256 = +0.5',
+         hint:'Q256=+0.5 sets the short chip-breaking retract.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q200', value:2, label:'Clearance Q200 = +2',
+         hint:'Q200=+2 above the surface.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q203', value:0, label:'Surface Q203 = +0',
+         hint:'Q203=+0 sets the surface at Z0.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q204', value:30, label:'2nd clearance Q204 = +30',
+         hint:'Q204=+30 is the final retract height.'}
       ]
     },
     {
@@ -1027,10 +1057,8 @@ var LESSONS = [
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'L X+30 Y+30 FMAX M99',
       checks:[
-        {t:'uses', re:/\bM99\b/, label:'Cycle called with M99',
-         hint:'L X+30 Y+30 FMAX M99'},
-        {t:'reach', cut:true, x:30, y:30, z:-15, tol:0.5, label:'Thread cut to Z-15 at X+30 Y+30',
-         hint:'The cycle pecks down with chip-breaking on the way.'}
+        {t:'order', a:/CYCL\s+DEF\s+209\b/, b:/L\s+X\+30\s+Y\+30[^\n]*\bM99\b/, label:'Cycle 209 called at X+30 Y+30 with M99',
+         hint:'L X+30 Y+30 FMAX M99 after the cycle 209 definition.'}
       ]
     },
     {
@@ -1043,12 +1071,8 @@ var LESSONS = [
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'CALL LBL 1',
       checks:[
-        {t:'uses', re:/CALL\s+LBL\s+1\b/, label:'Label reused for tapping',
-         hint:'CALL LBL 1 \u2014 the same positions, fourth tool.'},
-        {t:'reach', cut:true, x:30, y:30, z:-15, tol:0.5, label:'Thread at X+30 Y+30',
-         hint:'Both threads come from the one call.'},
-        {t:'reach', cut:true, x:70, y:30, z:-15, tol:0.5, label:'Thread at X+70 Y+30',
-         hint:'CALL LBL 1 runs every block in the label.'}
+        {t:'order', a:/CYCL\s+DEF\s+209\b/, b:/CALL\s+LBL\s+1\b/, label:'Label reused after cycle 209 for tapping',
+         hint:'CALL LBL 1 \u2014 the same two stored positions, now with cycle 209 active.'}
       ]
     }
   ]
@@ -1060,12 +1084,13 @@ var LESSONS = [
       + '<p>The <b>90\u00b0 countersink</b> (T5) breaks sharp edges. Its reference point is the <b>tip</b>, so in the table R \u2248 0. The trick to a 1 \u00d7 45\u00b0 chamfer:</p>'
       + learnSvgChamfer()
       + learnSnippet('TOOL CALL 5 Z S15000 F500 DL-2 DR+2')
-      + '<p><code>DR+2</code> shifts the <b>path</b> 2 mm away from the edge, <code>DL-2</code> drops the tip 2 mm \u2014 the 90\u00b0 cone then meets the edge at exactly 1 mm. Change both to 1 \u2192 0.5 mm chamfer.</p>'; } },
+      + '<p>In this simulator\u2019s configured T5 setup, <code>DR+2</code> shifts the <b>path</b> 2 mm away from the edge and <code>DL-2</code> lowers the reference point 2 mm, producing the shown 1 mm chamfer. On a real machine, verify the tool reference, measured geometry and compensation signs before machining.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Hole edges \u2014 two ways.</b> The fast way: let the 90\u00b0 countersink <b>dip in like a drill</b> with a plain <code>CYCL DEF 200</code>. Only works if the hole is <b>smaller than the countersink diameter</b>, so the cone reaches the rim:</p>'
+      + learnSvgChamferMethods()
       + learnSnippet('TOOL CALL 5 Z S2000 F2000 DL-2 DR+2\nCYCL DEF 200\n  Q201=-4   ;dip 4 mm from the tip\n  Q203=+2   ;surface +2 cancels DL-2\n  ...\nCALL LBL 1')
       + '<p><code>DL-2</code> drops the tip 2 mm and <code>Q203=+2</code> raises the surface by the same 2 mm \u2014 they cancel, so the 4 mm dip starts at the real top. The cone width at that depth sets the chamfer.</p>'
-      + '<p>For a <b>bigger hole</b> the cone can no longer reach the rim by dipping \u2014 then mill the edge with <code>CYCL DEF 208</code> and <code>Q342</code> = the existing hole diameter, so the cycle only rides the rim and never touches solid material:</p>'
+      + '<p>For a <b>bigger hole</b> the cone can no longer reach the rim by dipping \u2014 then mill the edge with <code>CYCL DEF 208</code> and set <code>Q342</code> to the existing hole diameter. That tells the cycle about the pre-machined opening and changes its path and plausibility checks:</p>'
       + learnSnippet('CYCL DEF 208\n  Q201=-1   ;just the edge\n  Q335=+7   ;target\n  Q342=+6.8 ;pre-drilled!\n  ...')
       + '<p>Drilling is quicker; milling is the choice once the bore is wider than the tool.</p>'; } },
     { html:function(){ return ''
@@ -1088,20 +1113,26 @@ var LESSONS = [
          hint:'TOOL CALL 5 Z S2000 F2000 DL-2 DR+2 \u2014 any feed/speed is fine.'},
         {t:'uses', re:/TOOL\s+CALL\s+5\s+Z[^\n]*DR\+2\b/, label:'\u2026and DR+2 \u2014 the pair makes the 1 mm chamfer',
          hint:'Both deltas on the same TOOL CALL block.'},
-        {t:'uses', re:/CYCL\s+DEF\s+200\b/, label:'Drilling cycle 200 defined for the countersink',
+        {t:'cycle_def', num:200, after:/TOOL\s+CALL\s+5\b/, label:'Drilling cycle 200 defined after T5',
          hint:'The countersink just dips into the hole like a drill.'},
-        {t:'uses', re:/Q203\s*=\s*\+?2\b/, label:'Q203=+2 cancels the DL-2 (surface raised 2 mm)',
+        {t:'cycle_param', num:200, after:/TOOL\s+CALL\s+5\b/, q:'Q203', value:2, label:'Q203=+2 belongs to the countersink cycle',
          hint:'Surface +2 and DL-2 cancel \u2014 the 4 mm depth then starts from the real top.'},
-        {t:'uses', re:/Q201\s*=\s*[+-]?4\b/, label:'Q201=-4 \u2014 4 mm dip from the tip',
+        {t:'cycle_param', num:200, after:/TOOL\s+CALL\s+5\b/, q:'Q201', value:-4, label:'Q201=-4 \u2014 4 mm dip from the tip',
          hint:'That 4 mm dip is what makes the chamfer with a 90\u00b0 cone.'},
-        {t:'uses', re:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs the chamfer at both holes',
+        {t:'cycle_param', num:200, after:/TOOL\s+CALL\s+5\b/, q:'Q200', value:2, label:'Clearance Q200 = +2',
+         hint:'Use Q200=+2 in the countersink cycle.'},
+        {t:'cycle_param', num:200, after:/TOOL\s+CALL\s+5\b/, q:'Q206', value:150, label:'Plunge feed Q206 = +150',
+         hint:'Use Q206=+150 in the countersink cycle.'},
+        {t:'cycle_param', num:200, after:/TOOL\s+CALL\s+5\b/, q:'Q211', value:0, label:'Dwell Q211 = +0',
+         hint:'No dwell: Q211=+0.'},
+        {t:'order', a:/TOOL\s+CALL\s+5\b/, b:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs the chamfer after T5',
          hint:'Reuse the same label as the drilling pass.'}
       ]
     },
     {
       prompt:'Deburr the milled hole (bigger than the tool): call T5 with DL-2 DR+2 (any feed/speed, e.g. S15000 F500), then write CYCL DEF 208 for the edge-break \u2014 Q201=-1 for a 1 mm chamfer and Q342 = the milled hole diameter \u2014 and CALL LBL 1',
       hints:[
-        "When the hole is wider than the tool, the cone cannot reach by dipping — mill the rim with <code>CYCL DEF 208</code> and <code>Q342</code> = the existing bore, so it only rides the edge (slide 2).",
+        "When the hole is wider than the tool, the cone cannot reach by dipping — mill the rim with <code>CYCL DEF 208</code> and tell the cycle the existing bore diameter with <code>Q342</code> (slide 2).",
         "Call <code>TOOL CALL 5 … DL-2 DR+2</code>, then <code>CYCL DEF 208</code> with <code>Q201=-1</code> and <code>Q342=+10</code> (the milled diameter), then <code>CALL LBL 1</code>.",
         "<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>a <code>CYCL DEF 208</code> block with <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code><br><code>CALL LBL 1</code>"
       ],
@@ -1112,13 +1143,17 @@ var LESSONS = [
          hint:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2 \u2014 any feed/speed is fine.'},
         {t:'uses', re:/TOOL\s+CALL\s+5\s+Z[^\n]*DR\+2\b/, label:'\u2026and DR+2 \u2014 the pair makes the 1 mm chamfer',
          hint:'Both deltas on the same TOOL CALL block.'},
-        {t:'uses', re:/CYCL\s+DEF\s+208\b/, label:'Deburring cycle 208 defined',
+        {t:'cycle_def', num:208, after:/TOOL\s+CALL\s+5\b/, label:'Deburring cycle 208 defined after T5',
          hint:'A second CYCL DEF 208, this time just for the edge break.'},
-        {t:'uses', re:/Q201\s*=\s*[+-]?1\b/, label:'Q201=-1 \u2014 the edge break is 1 mm deep',
+        {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q201', value:-1, label:'Q201=-1 \u2014 the edge break is 1 mm deep',
          hint:'Just the rim, not the full hole \u2014 Q201=-1.'},
-        {t:'uses', re:/Q342\s*=\s*\+?9\.9{1,3}\b|\bQ342\s*=\s*\+?10\b/, label:'Q342 = milled hole diameter (10 or 9.999)',
+        {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q342', value:10, tol:0.002, label:'Q342 = milled hole diameter (10 or 9.999)',
          hint:'Q342 must match the diameter the hole was milled to — use +10 or +9.999.'},
-        {t:'uses', re:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs the chamfer at the hole position',
+        {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q335', value:10, label:'Nominal diameter Q335 = +10',
+         hint:'Q335=+10 keeps the target diameter on the existing rim.'},
+        {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q351', value:1, label:'Climb milling Q351 = +1',
+         hint:'Use Q351=+1 for climb milling.'},
+        {t:'order', a:/TOOL\s+CALL\s+5\b/, b:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs the chamfer after T5',
          hint:'Reuse the same label as the milling pass.'}
       ]
     },
@@ -1158,6 +1193,7 @@ var LESSONS = [
       + '<p>Change the tool and one number \u2014 that is the whole job.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Milling pass:</b> call the mill, set the floor depth, and place the profile in <code>LBL 1</code> right after it. The label <b>runs where it is written</b>, so the mill cuts it once \u2014 Q1=0 shaves off all 5 mm:</p>'
+      + learnSvgFinalPasses()
       + learnSnippet('TOOL CALL 1 Z S3000 F500\nQ1 = +0\nLBL 1\n  ... profile ...\nLBL 0')
       + '<p><b>Chamfer pass:</b> below it, swap to the 90\u00b0 countersink with <code>DL-2 DR+2</code>, and this time <b>CALL</b> the same label. The top of the part is at Z+5, so <code>Q1=+4</code> dips the cone 1 mm below the surface \u2014 a clean edge break with no need to rewrite the profile:</p>'
       + learnSnippet('TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nQ1 = +4        ; 1 mm below the Z+5 top\nCALL LBL 1'); } }

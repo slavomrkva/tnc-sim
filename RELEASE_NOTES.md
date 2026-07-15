@@ -10,6 +10,72 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.858
+- Released the accepted complete Learn audit: stricter task checking, clearer
+  lesson and hint wording, redesigned diagrams and the shorter interactive
+  Start here tutorial.
+
+## v0.857 (web test)
+- Rebuilt the tutorial's second diagram as three full-width horizontal cards so
+  Goals, Hint and Check text stays well clear of both side borders.
+
+## v0.856 (web test)
+- Removed the overlapping status circles from the tutorial's Goals card and
+  replaced the final circular result with a wider 2/2-goals panel.
+
+## v0.855 (web test)
+- Rebuilt the Start here tutorial as a short visual two-minute introduction:
+  read, try, check and improve, with clear diagrams for Goals, Hint and Check.
+- Shortened the first-run interface tour from nine steps to the five actions a
+  student needs for their first task.
+- Made the warm-up genuinely interactive: add one comment, press Check, pass
+  both visible goals, then finish the tutorial.
+
+## v0.854 (web test)
+- Positioned the Lesson 14 Cycle 208 countersink inside the bore so its 45°
+  cutting flank sits exactly on the finished material edge, visually showing
+  the configured DL−2/DR+2 offset without extra labels.
+
+## v0.853 (web test)
+- Redrew Lesson 14's hole-edge diagram with a dimensioned 90° countersink,
+  45° flanks and the resulting chamfer visible in the hole section.
+- Fully separated the remaining tapping and DL/DR labels from dimension and
+  geometry lines in Lessons 13 and 14.
+
+## v0.852 (web test)
+- Corrected the countersink orientation in Lesson 14 so its wide cutting body
+  is above the tip and the tip points into the hole.
+- Repositioned diagram labels and guide lines in Lessons 7, 9, 11, 13 and 14
+  so no line runs through explanatory text.
+
+## v0.851 (web test)
+- Reviewed every Learn slide image in dark and light themes and redesigned the
+  unclear diagrams for safe motion, slots, arcs, corners, drilling, tapping,
+  counterboring, chamfering and the final profile.
+- Added missing visual explanations for label reuse, the spot-drill-ream
+  sequence, small-hole versus large-bore edge breaking, and the two final
+  machining passes.
+- Enlarged labels, added axes, datum/contact/tangent markers and separated
+  multi-stage operations so each diagram teaches one clear idea.
+
+## v0.850 (web test)
+- Replaced the confusing final diagram in Lesson 7 with a dedicated RL
+  compensation view showing the programmed X+50 wall, the X+45 tool-centre
+  path, and the R5 contact offset.
+- Replaced Lesson 11's tiny top-view spiral with a large side-view Cycle 208
+  diagram showing helical infeed, depth per turn, total depth, and widening
+  finishing rings.
+
+## v0.849 (web test)
+- Learn now grades executable Klartext instead of accepting answers hidden in
+  comments, and cycle tasks verify the requested parameters in the correct
+  tool/cycle sequence.
+- Fixed practice tasks that could pass before the student wrote anything, plus
+  incorrect acceptance of positive values where a negative depth was required.
+- Improved Learn keyboard accessibility, progress feedback, hint wording,
+  diagram labels, light-theme contrast, and several overly absolute machining
+  explanations.
+
 ## v0.848
 - Added four ready-to-run demos: Chamfering, Rough & Finish, Thread Hole, and
   Precise Hole.
