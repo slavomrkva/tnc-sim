@@ -15,6 +15,43 @@ Newest first.
 
 ---
 
+## C11 — Learn (desktop): wasted slide space and hints revealed off-screen
+**Repos:** web `tnc-sim` only (desktop layout; the Android app's mobile Learn
+layout already scrolls the active practice panel independently, see C5).
+**Resolved:** 2026-07-15 in web v0.845. **Verified:** headless Playwright
+check (1400×900 and 1400×700 viewports) confirmed the slide box now sizes to
+its content and each revealed hint lands fully inside the visible panel.
+
+### Symptom
+On desktop, the THEORY slide box (`.lp-slide-view`) always reserved a fixed
+390px, leaving a large empty gap under short slides. Pressing **Hint** in
+PRACTICE appended a new hint below the fold; the panel view jumped back to the
+top instead of following it, so the user had to manually scroll down to find
+the hint they just revealed.
+
+### Root cause
+`.lp-slide-view{height:390px;...}` (`web/styles.css`) was a fixed height
+regardless of content length. Separately, `learnRender()`
+(`core/learn-tutorial.js`) rebuilds `#learnPanel`'s entire `innerHTML` on every
+call — including a brand-new `.lp-body` element each time — so `.lp-body`'s
+`scrollTop` (the shared scroll container for slides + practice) always resets
+to 0. `learnHint()` never accounted for this, so a newly revealed hint had no
+way to end up visible unless it happened to fit within the reset-to-top view.
+
+### Fix
+- `.lp-slide-view` (both the desktop rule and the `@media(max-width:1024px),
+  (max-height:600px)` one) changed from a fixed `height` to `max-height`, so
+  the box hugs actual slide content and only scrolls internally past the cap.
+  Slide content is plain `<p>` text (`core/data-tables.js`) with no
+  height-100%/flex-centering that depended on the old fixed box.
+- `learnHint()` now scrolls the last `.lp-hint-row` inside `#learnPanel` into
+  view (`scrollIntoView({block:'nearest', behavior:'smooth'})`) right after
+  `learnRender()`, so the newly revealed hint ends up visible instead of
+  requiring a manual scroll.
+- Not ported to Android's `www/core/learn-tutorial.js` — desktop-only report;
+  Android's mobile Learn layout is a different bounded-flex arrangement (C5)
+  and wasn't part of this report.
+
 ## C7 — 3D stock updates stalled during machining
 **Repos:** web `tnc-sim`; Android port tracked separately until device testing.
 **Resolved:** 2026-07-14 in web v0.831. **Verified:** automated exact-geometry
