@@ -14,7 +14,7 @@ function learnSvgBlank(dx, dy, dz){
     + '<text x="291" y="82" font-family="monospace" font-size="10" fill="var(--text3)">Z+</text>'
     + '<line x1="285" y1="122" x2="331" y2="122" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="320" y="138" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
-    + '<text x="100" y="100" font-family="monospace" font-size="10" fill="var(--text3)">'+dx+' x '+dy+' x '+dz+' mm</text>'
+    + '<text x="145" y="143" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">'+dx+' x '+dy+' x '+dz+' mm</text>'
     + '</svg>';
 }
 
@@ -61,12 +61,12 @@ function learnSvgToolpath(code, labelIncr){
     }
   });
   var st=p.sub[0].from;
-  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'">'
+  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img">'
     + '<rect x="'+SX(bx0)+'" y="'+SY(by1)+'" width="'+((bx1-bx0)*sc).toFixed(1)+'" height="'+((by1-by0)*sc).toFixed(1)+'" fill="rgba(74,158,255,.06)" stroke="var(--border)"/>'
     + segs
     + labels
     + '<circle cx="'+SX(st.x)+'" cy="'+SY(st.y)+'" r="3" fill="#f0a94a"/>'
-    + '<text x="'+pad+'" y="12" font-family="monospace" font-size="9" fill="var(--text3)">top view &middot; dashed = FMAX &middot; orange = cutting</text>'
+    + '<text x="'+pad+'" y="12" font-family="monospace" font-size="9" fill="var(--text3)">top view &middot; dashed = FMAX &middot; teal = cutting &middot; orange = start</text>'
     + '</svg>';
 }
 
@@ -131,7 +131,8 @@ function learnSvgChamfer(){
   s+='<text x="26" y="'+(contactY+30)+'" font-family="monospace" font-size="9" fill="#f0a94a">contact point</text>';
   return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img">'
     + s
-    + '<text x="14" y="'+(H-3)+'" font-family="monospace" font-size="8.5" fill="var(--text3)">DR (horizontal) and DL (vertical) both run from the contact point to the tool tip</text>'
+    + '<text x="14" y="'+(H-17)+'" font-family="monospace" font-size="10" fill="var(--text3)">DR = horizontal; DL = vertical.</text>'
+    + '<text x="14" y="'+(H-4)+'" font-family="monospace" font-size="10" fill="var(--text3)">Both: contact point to tool tip.</text>'
     + '</svg>';
 }
 
@@ -354,7 +355,7 @@ function learnSvgBoltCircle(){
     + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<text x="'+(cx-58)+'" y="'+(cy+30)+'" font-family="monospace" font-size="11" fill="var(--accent)">CC X+50 Y+40</text>';
   // radius lines to each hole; PR label on the first
-  [[p0,'PA+0',8,4],[p120,'PA+120',-66,-8],[p240,'PA+240',-72,14]].forEach(function(h){
+  [[p0,'PA+0',10,20],[p120,'PA+120',-72,-10],[p240,'PA+240',-76,18]].forEach(function(h){
     g += '<line x1="'+cx+'" y1="'+cy+'" x2="'+h[0][0]+'" y2="'+h[0][1]+'" stroke="#5dcaa5" stroke-width="1.2" stroke-dasharray="2 3"/>'
       + '<circle cx="'+h[0][0]+'" cy="'+h[0][1]+'" r="5" fill="none" stroke="var(--text)" stroke-width="1.6"/>'
       + '<text x="'+(parseFloat(h[0][0])+h[2])+'" y="'+(parseFloat(h[0][1])+h[3])+'" font-family="monospace" font-size="10.5" fill="#f0a94a">'+h[1]+'</text>';
@@ -387,15 +388,15 @@ function learnSvgCounterbore(){
 
 function learnSvgArcCC(){
   var cx=120, cy=120, R=60;
-  return '<svg class="learn-svg" viewBox="0 0 340 175" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
     + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<path d="M '+(cx-3)+' '+(cy+4)+' l -6 1 l 2 5" fill="none" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<text x="'+(cx-58)+'" y="'+(cy+30)+'" font-family="monospace" font-size="11" fill="var(--accent)">CC X+35 Y+45</text>'
+    + '<text x="'+cx+'" y="'+(cy+46)+'" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--accent)">CC X+35 Y+45</text>'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
     + '<circle cx="'+(cx-R)+'" cy="'+cy+'" r="4" fill="#f0a94a"/>'
-    + '<text x="'+(cx-R-14)+'" y="'+(cy+20)+'" font-family="monospace" font-size="10" fill="#f0a94a">start</text>'
+    + '<text x="'+(cx-R-28)+'" y="'+(cy-10)+'" font-family="monospace" font-size="10" fill="#f0a94a">start</text>'
     + '<circle cx="'+(cx+R)+'" cy="'+cy+'" r="4.5" fill="#5dcaa5"/>'
     + '<text x="'+(cx+R-38)+'" y="'+(cy+22)+'" font-family="monospace" font-size="11" fill="#5dcaa5">C X+50 Y+45</text>'
     + '<path d="M '+(cx+14)+' '+(cy-R+2)+' l 10 3 l -6 7" fill="none" stroke="#5dcaa5" stroke-width="1.6"/>'
@@ -405,7 +406,7 @@ function learnSvgArcCC(){
 
 function learnSvgArcCR(){
   var cx=120, cy=120, R=60;
-  return '<svg class="learn-svg" viewBox="0 0 340 175" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*0.7071).toFixed(1)+'" y2="'+(cy-R*0.7071).toFixed(1)+'" stroke="#f0a94a" stroke-width="1.2" stroke-dasharray="4 3"/>'
     + '<text x="'+(cx+18)+'" y="'+(cy-26)+'" font-family="monospace" font-size="12" fill="#f0a94a">R+15</text>'
@@ -440,15 +441,47 @@ function learnSvgDrill(){
     + '</svg>';
 }
 
+/* Text checks grade executable Klartext only.  A student may explain an answer
+   in a comment, but a commented-out TOOL CALL/CYCL DEF must never earn a tick. */
+function _learnExecutableCode(code){
+  return String(code || '').split('\n').map(function(line){
+    var semi = line.indexOf(';');
+    return semi >= 0 ? line.slice(0, semi) : line;
+  }).join('\n');
+}
+
+function _learnCycleBlocks(code, num, after){
+  var startAt = 0;
+  if(after){
+    var am = after.exec(code);
+    after.lastIndex = 0;
+    if(!am) return [];
+    startAt = am.index + am[0].length;
+  }
+  var tail = code.slice(startAt), lines = tail.split('\n'), out = [];
+  for(var i=0; i<lines.length; i++){
+    if(!(new RegExp('^\\s*CYCL\\s+DEF\\s+' + num + '\\b', 'i')).test(lines[i])) continue;
+    var block = lines[i];
+    for(var j=i+1; j<lines.length; j++){
+      if(/^\s*Q\d+\s*=/.test(lines[j])) block += '\n' + lines[j];
+      else if(/^\s*$/.test(lines[j])) continue;
+      else break;
+    }
+    out.push(block);
+  }
+  return out;
+}
+
 function learnEvalChecks(code, task){
+  var execCode = _learnExecutableCode(code);
   var parsed = null, parseErr = null;
   try { parsed = parseProgram(code); } catch(e){ parseErr = e; }
   return task.checks.map(function(ch){
     var ok = false;
     try {
       if(ch.t === 'begin_end'){
-        var mB = code.match(/BEGIN\s+PGM\s+([A-Z0-9_.-]+)\s+MM/i);
-        var mE = code.match(/END\s+PGM\s+([A-Z0-9_.-]+)\s+MM/i);
+        var mB = execCode.match(/BEGIN\s+PGM\s+([A-Z0-9_.-]+)\s+MM/i);
+        var mE = execCode.match(/END\s+PGM\s+([A-Z0-9_.-]+)\s+MM/i);
         ok = !!(mB && mE && mB[1].toUpperCase() === mE[1].toUpperCase()
                 && (!ch.name || mB[1].toUpperCase() === ch.name));
       }
@@ -463,7 +496,7 @@ function learnEvalChecks(code, task){
       }
       else if(ch.t === 'toolcall'){
         var reTc = new RegExp('TOOL\\s+CALL\\s+' + ch.T + '\\s+Z([^\\n]*)', 'i');
-        var mTc = code.match(reTc);
+        var mTc = execCode.match(reTc);
         if(mTc){
           ok = true;
           if(ch.S !== undefined){ var mS = mTc[1].match(/\bS(\d+[.,]?\d*)/i); ok = ok && !!mS && Math.abs(parseFloat(mS[1].replace(',','.')) - ch.S) < 0.5; }
@@ -471,12 +504,32 @@ function learnEvalChecks(code, task){
         }
       }
       else if(ch.t === 'uses'){
-        ok = ch.re.test(code);
+        ok = ch.re.test(execCode);
+        ch.re.lastIndex = 0;
       }
       else if(ch.t === 'order'){
         // b must occur somewhere AFTER the first occurrence of a
-        var ia = code.search(ch.a);
-        ok = ia >= 0 && ch.b.test(code.slice(ia + 1));
+        var ia = execCode.search(ch.a);
+        ok = ia >= 0 && ch.b.test(execCode.slice(ia + 1));
+        ch.a.lastIndex = 0; ch.b.lastIndex = 0;
+      }
+      else if(ch.t === 'sequence'){
+        var rest = execCode;
+        ok = ch.items.every(function(re){
+          var sm = re.exec(rest); re.lastIndex = 0;
+          if(!sm) return false;
+          rest = rest.slice(sm.index + sm[0].length);
+          return true;
+        });
+      }
+      else if(ch.t === 'cycle_def'){
+        ok = _learnCycleBlocks(execCode, ch.num, ch.after).length > 0;
+      }
+      else if(ch.t === 'cycle_param'){
+        ok = _learnCycleBlocks(execCode, ch.num, ch.after).some(function(block){
+          var pm = (new RegExp('\\b' + ch.q + '\\s*=\\s*([+-]?\\d+(?:[.,]\\d+)?)\\b', 'i')).exec(block);
+          return !!pm && Math.abs(parseFloat(pm[1].replace(',','.')) - ch.value) <= (ch.tol || 1e-6);
+        });
       }
       else if(ch.t === 'reach'){
         // the path passes within tol of the given point (distance from point
@@ -759,7 +812,7 @@ function learnRender(){
   var title = L ? (L.intro ? L.title : ('Lesson ' + _learnNo(LEARN.lesson) + ' \u00b7 ' + L.title)) : 'Learn \u2014 Heidenhain basics';
   var head = '<div class="lp-head"><span style="font-size:15px;">&#127891;</span>'
     + '<span class="lp-title">' + title + '</span>'
-    + '<button class="lp-x" onclick="closeLearn()" title="Close Learn">&#10005;</button></div>';
+    + '<button class="lp-x" onclick="closeLearn()" title="Close Learn" aria-label="Close Learn">&#10005;</button></div>';
   var body = '';
 
   if(LEARN.view === 'list' || !L){
@@ -775,16 +828,19 @@ function learnRender(){
              : '<span class="li-st" style="color:var(--text3);">&#9675;</span>';
       if(Ls.intro){
         // highlighted, un-numbered "Start here" card that sits apart from the course
-        return '<div class="learn-li intro" onclick="learnOpenLesson('+i+')">'
+        return '<button type="button" class="learn-li intro" onclick="learnOpenLesson('+i+')">'
           + '<span class="li-num intro">&#9658;</span>'
-          + '<span class="li-t"><span class="li-eyebrow">START HERE</span>'+Ls.title+'</span>'+st+'</div>';
+          + '<span class="li-t"><span class="li-eyebrow">START HERE</span>'+Ls.title+'</span>'+st+'</button>';
       }
       num++;
-      return '<div class="learn-li" onclick="learnOpenLesson('+i+')">'
-        + '<span class="li-num">'+num+'</span><span class="li-t">'+Ls.title+'</span>'+st+'</div>';
+      return '<button type="button" class="learn-li" onclick="learnOpenLesson('+i+')">'
+        + '<span class="li-num">'+num+'</span><span class="li-t">'+Ls.title+'</span>'+st+'</button>';
     }).join('');
-    var more = '<div class="learn-li lock" style="cursor:default;"><span class="li-num">&#127942;</span><span class="li-t">That\u2019s the full course \u2014 pass the exam and you can write real programs. Ideas? Report a Bug / Suggestion below.</span><span class="li-st"></span></div>';
+    var realLessons = LESSONS.filter(function(x){ return !x.intro; });
+    var completeLessons = realLessons.filter(function(x){ return (prog[x.id]||0) >= x.tasks.length; }).length;
+    var more = '<div class="learn-li lock"><span class="li-num">&#127942;</span><span class="li-t">Finish the final integrated project to complete the course. Then try changing dimensions or repairing a deliberate mistake without opening the answer.</span><span class="li-st"></span></div>';
     body = '<p>Short lessons with small practice exercises solved in the <b>real editor</b> \u2014 the simulator checks your code. Progress is saved.</p>'
+      + '<div class="learn-summary" aria-live="polite"><b>'+completeLessons+'/'+realLessons.length+'</b> lessons complete</div>'
       + '<div class="learn-list">' + rows + more + '</div>'
       + '<div style="text-align:center;margin-top:14px;"><button class="lp-btn" style="font-size:11px;color:var(--text3);" onclick="learnResetProgress()">&#8634; Reset progress</button></div>';
     p.innerHTML = head + '<div class="lp-body">'+body+'</div>';
@@ -795,15 +851,15 @@ function learnRender(){
 
   /* \u2500\u2500 combined lesson view: slides pinned on top, practice below \u2500\u2500 */
   var dots = L.slides.map(function(_, i){
-    return '<i class="'+(i===LEARN.slide?'on':'')+'" onclick="LEARN.slide='+i+';learnRender();" style="cursor:pointer;"></i>';
+    return '<button type="button" class="'+(i===LEARN.slide?'on':'')+'" onclick="LEARN.slide='+i+';learnRender();" aria-label="Theory slide '+(i+1)+' of '+L.slides.length+'" aria-current="'+(i===LEARN.slide?'step':'false')+'"></button>';
   }).join('');
   var slides = '<div class="lp-slides">'
     + '<div class="lp-sec-cap">&#128214; THEORY</div>'
     + '<div class="lp-slides-nav">'
-    + '<button class="lp-btn lp-hamburger" onclick="learnBackToList()" title="All lessons">&#9776;</button>'
-    + '<button class="lp-btn" onclick="learnNav(-1)"'+(LEARN.slide===0?' disabled':'')+'>&#8249;</button>'
+    + '<button class="lp-btn lp-hamburger" onclick="learnBackToList()" title="All lessons" aria-label="All lessons">&#9776;</button>'
+    + '<button class="lp-btn" onclick="learnNav(-1)" aria-label="Previous theory slide"'+(LEARN.slide===0?' disabled':'')+'>&#8249;</button>'
     + '<div class="learn-prog" style="flex:1;margin:0;">'+dots+'</div>'
-    + '<button class="lp-btn" onclick="learnNav(1)"'+(LEARN.slide===L.slides.length-1?' disabled':'')+'>&#8250;</button>'
+    + '<button class="lp-btn" onclick="learnNav(1)" aria-label="Next theory slide"'+(LEARN.slide===L.slides.length-1?' disabled':'')+'>&#8250;</button>'
     + '<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+(LEARN.slide+1)+'/'+L.slides.length+'</span>'
     + '</div>'
     + '<div class="lp-slide-view">' + L.slides[LEARN.slide].html() + '</div>'
@@ -847,7 +903,7 @@ function learnRender(){
     // progressive hints, revealed one press at a time
     if(shown > 0){
       practice += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){
-        return '<div class="lp-hint-row"><span class="lp-hint-n">HINT '+(i+1)+'</span>'
+        return '<div class="lp-hint-row"><span class="lp-hint-n">'+(i===nHints-1?'ANSWER':'HINT '+(i+1))+'</span>'
           + '<div class="lp-hint-b">'+h+'</div></div>';
       }).join('') + '</div>';
     }
@@ -863,7 +919,7 @@ function learnRender(){
       + '<button class="lp-btn" onclick="learnStartTask('+LEARN.task+')" title="Reload starter code">Reset</button>'
       + (!allOk && nHints
           ? '<button class="lp-btn hint'+(shown>=nHints?' spent':'')+'" onclick="learnHint()"'
-            + (shown>=nHints?' disabled':'')+' title="Reveal one more hint">&#128161; Hint'
+            + (shown>=nHints?' disabled':'')+' title="Reveal one more hint">&#128161; '+(shown===nHints-1?'Show answer':'Hint')
             + (shown ? ' '+shown+'/'+nHints : '') + '</button>'
           : '')
       + (allOk
@@ -879,6 +935,13 @@ function learnRender(){
   }
 
   p.innerHTML = head + '<div class="lp-body">' + slides + practice + '</div>';
+
+  /* Inline lesson diagrams need a usable text alternative even when their
+     individual geometry is generated dynamically from the example program. */
+  Array.prototype.forEach.call(p.querySelectorAll('.learn-svg'), function(svg, i){
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', L.title + ' diagram ' + (i+1));
+  });
 
   // Mobile: pin the ACTIVE practice above the editor (Editor tab), so the
   // assignment is visible while typing. Slides stay on the Learn tab.

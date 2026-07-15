@@ -144,11 +144,6 @@
   "142": ".expandByObject",
   "143": ".setFromMatrixColumn",
   "144": "po",
-  "145": ".clear",
-  "146": "zo",
   "147": "Zc",
-  "148": ".multiply",
-  "149": ".setFromCylindrical",
-  "150": ".setFromSpherical",
   "151": "demo-programs.js"
 }

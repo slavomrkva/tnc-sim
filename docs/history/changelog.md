@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.849 — Learn correctness and accessibility audit
+
+- Made text-based Learn checks ignore comments and added scoped cycle/parameter
+  and sequence checks for cycles 200, 201, 208, and 209.
+- Added a Learn regression suite covering every official solution, every
+  starter, comment-only answers, and wrong-sign chamfer depths.
+- Fixed task-specific false positives and missing parameter checks in the arc,
+  drilling, pocket, reaming, tapping, and chamfering lessons.
+- Improved keyboard semantics, slide controls, diagram alternatives, progress
+  feedback, final-answer labeling, light-theme contrast, and crowded diagrams.
+- Clarified safety, H7 finishing, tool preselection, Q342, and DL/DR wording.
+
 ## v0.848 — machining demo library
 
 - Added four shared demo programs for chamfering, rough/finish contouring,

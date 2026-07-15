@@ -10,6 +10,16 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.849 (web test)
+- Learn now grades executable Klartext instead of accepting answers hidden in
+  comments, and cycle tasks verify the requested parameters in the correct
+  tool/cycle sequence.
+- Fixed practice tasks that could pass before the student wrote anything, plus
+  incorrect acceptance of positive values where a negative depth was required.
+- Improved Learn keyboard accessibility, progress feedback, hint wording,
+  diagram labels, light-theme contrast, and several overly absolute machining
+  explanations.
+
 ## v0.848
 - Added four ready-to-run demos: Chamfering, Rough & Finish, Thread Hole, and
   Precise Hole.

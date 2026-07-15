@@ -11,6 +11,24 @@
 No open web bugs after user verification of v0.847 on 2026-07-15. New reports
 go below this line and follow the template.
 
+## Learn audit fixes — awaiting web preview verification
+**Reported:** 2026-07-15. **Scope:** Learn grading, lesson text, diagrams and accessibility.
+### Symptom
+Some tasks could pass from starter code, comments or movements made by an older
+cycle. Several requested Q parameters were not checked, two negative depths
+accepted positive signs, and parts of the Learn UI/diagrams were difficult to
+read or operate with a keyboard.
+### Attempts
+- Attempt 1 — replaced raw-source grading with executable-code, scoped-cycle
+  and ordered-sequence checks; result: all 46 official solutions pass, all
+  starters fail, and comment-only/wrong-sign regressions are rejected.
+- Attempt 2 — improved control semantics, contrast, diagram labels and
+  machining wording; result: local SVG render inspection and regression suite
+  pass, pending user verification in the web preview.
+### Status
+Implemented in v0.849; keep open until the web preview is accepted, then move
+this evidence to `BUG_HISTORY.md`.
+
 <!-- Template for a new bug (copy below "Open bugs"):
 
 ## <short title> — <one-line symptom>
