@@ -1088,7 +1088,11 @@ function parseProgram(code){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
-      activeCycle={type:209, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q239:+(qm[239]||1.25), Q203:+(qm[203]||0), Q204:+(qm[204]||50), Q257:+(qm[257]||5), Q256:+(qm[256]||0.2), Q336:+(qm[336]||0)};
+      // Q256/Q257 defaults MUST use !==undefined (not ||): an explicit 0 is
+      // meaningful and falsy — Q256=0 means full retract out of the hole, and
+      // Q257=0 means a single pass (no chip breaking). `qm||default` would drop
+      // both back to their defaults. See NOTES rule #2. (Cycle 200 already does this.)
+      activeCycle={type:209, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q239:+(qm[239]!==undefined?qm[239]:1.25), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q257:+(qm[257]!==undefined?qm[257]:5), Q256:+(qm[256]!==undefined?qm[256]:0.2), Q336:+(qm[336]!==undefined?qm[336]:0)};
     }
     else if(line.indexOf('CYCL DEF 208')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it

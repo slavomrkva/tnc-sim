@@ -16,8 +16,14 @@ function _coachMarkSeen(){ try { localStorage.setItem('tnc_learn_coach', '1'); }
 
 /* The same logical target lives in a different element on mobile (the pinned
    practice strip above the editor) than on desktop (the Learn panel). Resolve
-   late — after learnRender() has rebuilt both. */
+   late — after learnRender() has rebuilt both.
+   closeLearn/backToList live only in #learnPanel's head/slides-nav — on mobile
+   that panel only exists on the Learn tab (the pinned practice strip on the
+   Editor tab never includes it), so those two keys always resolve there;
+   _coachPaint() switches the mobile tab before measuring so it's on screen. */
 function _coachTarget(key){
+  if(key === 'closeLearn') return document.querySelector('#learnPanel .lp-x');
+  if(key === 'backToList') return document.querySelector('#learnPanel .lp-hamburger');
   var mob = _isMTab && _isMTab();
   var root = mob ? document.getElementById('learnMobileBar') : document.getElementById('learnPanel');
   if(!root) return null;
@@ -26,7 +32,18 @@ function _coachTarget(key){
   if(key === 'goals')  return root.querySelector('.lp-goals');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
+  if(key === 'giveUp') return root.querySelector('.lp-exit');
+  if(key === 'solve')  return root.querySelector('.lp-solve');
   return null;
+}
+
+/* closeLearn/backToList need the mobile Learn tab active; every other step
+   needs the Editor tab (where the pinned practice strip / real editor live).
+   No-op on desktop, where both live in the same always-visible panel. */
+function _coachEnsureTabFor(key){
+  if(!(_isMTab && _isMTab()) || typeof mtabSwitch !== 'function') return;
+  var want = (key === 'closeLearn' || key === 'backToList') ? 'learn' : 'editor';
+  if(document.body.getAttribute('data-mtab') !== want) mtabSwitch(want);
 }
 
 function learnCoachMaybeStart(force){
@@ -39,6 +56,10 @@ function learnCoachMaybeStart(force){
 
 function learnCoachStart(){
   COACH.steps = [
+    { k:'closeLearn', t:'Leave Learn mode',
+      d:'Closes Learn entirely and returns to the plain editor. Your practice progress is saved automatically.' },
+    { k:'backToList', t:'Back to all lessons',
+      d:'Jumps back to the lesson list without leaving Learn mode \u2014 pick up any lesson from here.' },
     { k:'prompt', t:'The assignment',
       d:'What to achieve \u2014 one line. The theory above stays open; scroll back any time.' },
     { k:'editor', t:'You write here',
@@ -48,7 +69,11 @@ function learnCoachStart(){
     { k:'hint',   t:'Stuck? Take a hint',
       d:'Three steps: a nudge, the structure, then the answer. Free to use.' },
     { k:'check',  t:'Check your work',
-      d:'Press it any time. The simulator says which goal failed and why.' }
+      d:'Press it any time. The simulator says which goal failed and why.' },
+    { k:'giveUp', t:'Give up on this task',
+      d:'Leaves just this exercise and returns to the lesson list — Learn stays open, and your own code (if any) comes back exactly as you left it.' },
+    { k:'solve',  t:'Psst — a password button',
+      d:'Reveals the answer, but only if you already know the secret password. We’re not telling. 😉 This probably doesn’t concern you — using it still finishes the lesson, just with an orange tick instead of green.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;
@@ -77,6 +102,7 @@ function _coachPaint(){
   var ov = document.getElementById('learnCoach');
   if(!ov) return;
   var s = COACH.steps[COACH.step];
+  _coachEnsureTabFor(s.k);
   var el = _coachTarget(s.k);
   if(!el){ learnCoachNext(); return; }
 
@@ -133,6 +159,12 @@ function learnCoachEnd(){
   if(ov) ov.remove();
   window.removeEventListener('resize', _coachPaint);
   window.removeEventListener('scroll', _coachPaint, true);
+  // Ending (e.g. Skip) while a closeLearn/backToList step left the mobile tab
+  // on 'learn' would otherwise strand the user away from their code.
+  if(_isMTab && _isMTab() && typeof LEARN !== 'undefined' && LEARN.task >= 0
+     && typeof mtabSwitch === 'function' && document.body.getAttribute('data-mtab') !== 'editor'){
+    mtabSwitch('editor');
+  }
 }
 
 /* Replayable from the practice footer (and after a progress reset). */

@@ -314,6 +314,158 @@ release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
 ---
 
 ## Changelog  (newest first — add a line for every change)
+- v0.844 — Added two more steps to the end of the intro coach tour
+  (`core/learn-coach.js`): "Give up on this task" (the ✕ in `.lp-practice-btns`,
+  `learnExit()` — distinct from v0.843's panel-head ✕/`closeLearn()`: this one
+  leaves just the current exercise and returns to the lesson list, Learn stays
+  open) and "Psst — a password button" for the low-opacity `⋯` solve button
+  (`learnSolve()`), written with a wink rather than a plain description since
+  it's the intentionally-underplayed answer-reveal control — notes it still
+  finishes the lesson with an orange (assisted) tick instead of green. Gave
+  both buttons stable classes (`lp-exit`, `lp-solve` in
+  `core/learn-tutorial.js`) matching the existing `.lp-btn.hint`/`.lp-btn.chk`
+  pattern; `_coachTarget()` resolves them via the same mobile-bar/learnPanel
+  `root` as hint/check (no new tab-switching needed — `.lp-practice-btns` is
+  already inside that root on both platforms). Verified headless (Playwright,
+  mobile iPhone 13 + desktop): all 9 steps produced a non-zero spotlight rect,
+  ending correctly after "solve". All 5 existing regression suites still pass.
+  `core/learn-coach.js`/`core/learn-tutorial.js` diverge further from
+  Android's copy pending a deliberate port. Bumped service-worker cache
+  v19→v20. Web only.
+- v0.843 — Added two steps to the intro lesson's guided coach tour
+  (`core/learn-coach.js`): "Leave Learn mode" (the `.lp-x` ✕ in the panel
+  head, `closeLearn()`) and "Back to all lessons" (the hamburger in
+  `.lp-slides-nav`, `learnBackToList()` — given a new `.lp-hamburger` class in
+  `core/learn-tutorial.js` for a stable selector, matching the existing
+  `.lp-btn.hint`/`.lp-btn.chk` pattern), shown first before the existing
+  assignment/editor/goals/hint/check steps. Both controls live only in
+  `#learnPanel`, which on mobile only exists on the Learn tab — the pinned
+  practice strip the rest of the tour uses (`#learnMobileBar`) is Editor-tab
+  only and never contains them (confirmed via `learnStartTask()`'s existing
+  `mtabSwitch('editor')` call, and the `body[data-mtab=...] #learnPanel
+  {display:none}` / `.editor-panel` visibility rules in `web/styles.css`).
+  Added `_coachEnsureTabFor(key)`: on mobile, switches to the Learn tab for
+  these two steps and back to Editor for every other step (no-op on desktop,
+  where `#learnPanel` is always visible); `learnCoachEnd()` now also restores
+  the Editor tab if Skip happens mid-panel-step, so the user is never
+  stranded away from their code. `_coachTarget()` resolves the two new keys
+  directly against `#learnPanel .lp-x`/`.lp-hamburger` regardless of
+  platform. Verified headless (Playwright, mobile iPhone 13 viewport and
+  desktop): all 7 steps produced a non-zero spotlight rect; the mobile tab
+  correctly read 'learn' for the two new steps and 'editor' for the rest;
+  Skip while on step 0 (`closeLearn`) restored the Editor tab. All 5 existing
+  regression suites (`tests/*.test.js`) still pass.
+  `core/learn-coach.js`/`core/learn-tutorial.js` now diverge from Android's
+  copy pending a deliberate port. Bumped service-worker cache v18→v19. Web
+  only.
+- v0.842 — Follow-up to v0.841: the view switcher (`.view-tabs .tab` — 3D view
+  / XY toolpath / Tool Table) had the same uncapped-`flex:1` stretch on
+  tablet-width screens; confirmed headless it was 300px per tab at 900px
+  width (quality/speed were already fine — bounded by their v0.841-capped
+  parent container). Added `max-width:190px`, chosen just above the 130px
+  phone-width size so text ("XY toolpath") stays comfortable; verified 190px
+  at 900px and unchanged 130px at 390px. CSS-only. Bumped service-worker cache
+  v17→v18. Web only.
+- v0.841 — Capped the 3D-tab mobile toolbar buttons so they stop growing past
+  a sane size on tablet-width screens. `body[data-mtab="view"] .toolbar`'s
+  Run/Step/Stop (`flex:1 1 20%`), the quality-profile group and the speed
+  control (`flex:1 1 42%` each) had no `max-width`, so on the tablet end of
+  the `@media(max-width:1024px)` mobile layout (which applies well past phone
+  widths) they stretched edge-to-edge. Added `max-width:150px` to Run/Step/Stop
+  and `max-width:260px` to the quality group and speed control; phones stay
+  unaffected since their natural flex-basis width is already under the caps.
+  Verified headless (Playwright): at 900px width Run/Step/Stop went from
+  261px each to capped 150px and the quality group from 749px to 260px; at
+  390px (phone) widths were unchanged (91px / 239px, under both caps).
+  CSS-only. Bumped service-worker cache v16→v17. Web only.
+- v0.840 — Fixed near-invisible light-theme text in three dark floating
+  overlays: the Learn practice coach tour tooltip (`#learnCoach .coach-tip`,
+  first step titled "The assignment") and the 3D "TOOLS USED" legend
+  (`#toolLegend`; `#measureOverlay` shares the same root cause and was fixed
+  too). Root cause: these overlays keep a fixed dark background in both
+  themes (by design, since they float over the 3D stage/spotlight), but their
+  text used the global `var(--text)/--text2/--text3` tokens, which
+  `html[data-theme="light"]` redefines to dark colors for use on light
+  surfaces. A prior partial fix (`html[data-theme="light"] #toolLegend,
+  #measureOverlay{color:#e8ebf1 !important;...}`, `web/styles.css` ~line 138)
+  forces color on the container itself, but `updateToolLegend()`
+  (`core/view2d.js`) and `renderMeasureOverlay()` (`core/measure-tool.js`)
+  set `color:var(--text2)`/`var(--text3)` **inline on their child spans**,
+  which shadows the ancestor's forced `color` (inheritance doesn't reach an
+  element with its own explicit color, `!important` or not). Added
+  `#toolLegend`, `#measureOverlay`, `#learnCoach .coach-tip` to the existing
+  dark-chrome custom-property re-scope block (`web/styles.css` ~line 27) that
+  already gives header/toolbar/ctx-panel/etc. light-on-dark `--text*` values
+  in light theme — CSS custom properties (unlike plain `color`) are
+  re-resolved per `var()` use-site from the nearest ancestor definition, so
+  this reaches the inline/class-based `var(--text2)` children where the
+  container-level `!important` couldn't. Also replaced the always-dead
+  `var(--panel,#1b1f27)` in `.coach-tip` (`--panel` is never defined anywhere)
+  with the literal `#1b1f27` it always resolved to. Verified headless
+  (Playwright, WCAG contrast ratios against the actual background): before
+  the fix, the coach tooltip's "The assignment" title was 1.06:1 and tool
+  names in the legend were 1.61:1 (both effectively invisible); after, 13.83:1
+  and 8.57:1. Confirmed dark theme (unscoped) is byte-identical to before.
+  Web only (`web/styles.css`; the touched `core/` functions themselves were
+  not modified, so nothing new diverges from Android).
+- v0.839 — Fixed the field-editing panel (`.ctx-panel`) growing/jumping on
+  mobile when editing an F (feed) field on an L/C/CR block. The F field has 4
+  extra actions (insert Q ref, FMAX, FAUTO, skip) versus coord/num fields'
+  2 — as separate buttons (`renderFbar()`, `core/field-editing.js`) they
+  wrapped `.ctx-row2` to a 2nd line at mobile width (no `max-height` on
+  `.ctx-panel`), pushing Done down and growing the panel every time an F field
+  was opened. Collapsed the 4 feed actions into one native `<select class=
+  "fbar-feedmode">` dropdown (`applyFeedMode()` routes to the same existing
+  setters `toggleQField`/`applySug`/`setFieldVal` — no new state logic), added
+  `.fbar-feedmode` in `web/styles.css`. Verified headless (Playwright, iPhone
+  13 viewport): before the fix `.ctx-row2` was 374×69px (wrapped) and the
+  panel 108px tall with Done at the start of a new row; after, `.ctx-row2` is
+  374×36px (single line, no scroll overflow) and the panel is 75px tall with
+  Done staying on the same row. Confirmed the dropdown's FMAX/Skip/Insert-Q
+  options each still set `FM.fields[idx].val` exactly as the old buttons did.
+  `core/field-editing.js` now diverges from Android's copy pending a
+  deliberate port. Bumped service-worker cache v14→v15. Web only.
+- v0.838 — Hid the Tool Table's "Click ? Help above, then any column header, for
+  an explanation" hint on touch devices. `toggleKpHelp()` (`core/help-popups.js`)
+  skips desktop hover-help mode entirely on `pointer:coarse` and opens the full
+  reference modal instead, so tapping a column header there does nothing — the
+  hint described an interaction that cannot happen on mobile. Wrapped the
+  sentence in `<span class="tt-help-hint">` in `core/tool-table.js` (shared) and
+  added `@media(pointer:coarse){.tt-help-hint{display:none;}}` in
+  `web/styles.css` (web-only), matching the exact condition `toggleKpHelp()`
+  itself checks. `core/tool-table.js` now diverges from Android's copy pending a
+  deliberate port (same wrapper span + a touch-hide rule in the app's own
+  stylesheet). Bumped service-worker cache v13→v14. Web only.
+- v0.837 — Fixed the mobile status bar jumping height during simulation.
+  `#statusMsg` shows `Block N/M: <source line>` (`core/voxel-cutting.js`), whose
+  length varies per block (`M3` vs a long `CYCL DEF`/contour line); `.status-bar`
+  had `flex-wrap:wrap` with no line clamp on `#statusMsg`, so a long block wrapped
+  to 2 lines and a short one didn't, changing bar height every block. Scoped a
+  mobile-only fix (`@media(max-width:1024px), (max-height:600px)`): `.status-bar{
+  flex-wrap:nowrap}` and `#statusMsg{white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;min-width:0}` so the running block always renders on one
+  line, truncated with an ellipsis if needed — bar height is now constant.
+  CSS-only. Bumped service-worker cache v12→v13. Web only.
+- v0.836 — Reformatted the Complete Part demo's Cycle 209 (`index.html`) to the
+  standard Klartext layout used by every other cycle in the demo: `CYCL DEF 209
+  ;Title` on the first line, then each Q param on its own indented line in the
+  real Heidenhain order (…Q204, `Q257`, `Q256`, `Q336`). Previously `Q257=+11
+  Q256=+0` sat inline on the `CYCL DEF 209` line and both were missing from the
+  parameter block — the exact single-line inline form that hit the C10 falsy-`||`
+  parse bug. Cosmetic/source only: the v0.835 parser reads both forms identically,
+  so runtime output is unchanged. Bumped service-worker cache v11→v12. Web only.
+- v0.835 — Fixed Cycle 209 `Q256=0` (and `Q257=0`) being ignored when all Q
+  params are on a single `CYCL DEF 209` line. The inline parse read defaults with
+  `+(qm[256]||0.2)`; an explicit `0` is falsy so `||` substituted the default,
+  and the engine never received 0 — `Q256=0` (full retract out of the hole) ran
+  as the default in-hole break, and `Q257=0` (single pass) ran as 5. Converted
+  all Cycle 209 defaults to the `Q!==undefined?Q:default` pattern (matching Cycle
+  200 and NOTES rule #2). The `executeCycle` `chipFullRetract` branch was already
+  correct. The multi-line conversational form was unaffected (its per-line Q path
+  stores an explicit 0). Bumped service-worker cache v10→v11. Web only on
+  `claude/debug-effort-estimation-ivbkid`; shared `core/parser-engine.js`
+  intentionally diverges from Android pending web verification and a deliberate
+  port. New open bug C10 logged in `TODO.md`.
 - v0.834 — Corrected Cycle 208 solid-stock entry to a semicircle from the bore
   center followed by constant-radius helices, matching the documented cycle run.
 - v0.833 — Added the web-only C8/C9 test fix on

@@ -31,7 +31,10 @@ html[data-theme="light"] .view-tabs,
 html[data-theme="light"] .status-bar,
 html[data-theme="light"] .ctx-panel,
 html[data-theme="light"] .keypad,
-html[data-theme="light"] .mtab-bar{
+html[data-theme="light"] .mtab-bar,
+html[data-theme="light"] #toolLegend,
+html[data-theme="light"] #measureOverlay,
+html[data-theme="light"] #learnCoach .coach-tip{
   color:#e8ebf1;
   --surface:#3a414f; --surface2:#3a414f; --key-pale:#333b48;
   --border:#414956;
@@ -445,6 +448,7 @@ footer a:hover{text-decoration:underline;}
 .fbar-sug{display:none;}
 .fbar-fmax{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 8px;cursor:pointer;flex-shrink:0;}
 .fbar-fmax:hover{background:rgba(20,184,166,.1);}
+.fbar-feedmode{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 4px;cursor:pointer;flex-shrink:1;min-width:0;max-width:100px;}
 .fbar-sug button{font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;}
 .fbar-sug button:hover{background:var(--bg);color:var(--text);border-color:var(--accent3);}
 .fbar-sug button.max{border-color:var(--accent);color:var(--accent);}
@@ -477,6 +481,11 @@ footer a:hover{text-decoration:underline;}
   .ph-blocks{display:none;}
   .logo-sub{display:none;}
   .status-bar #posDisplay{display:none;}
+  /* Running-block text (core/voxel-cutting.js updateStatus) varies wildly in
+     length per source line; wrapping to 2 lines vs 1 made the bar jump height
+     between blocks. Force one line + ellipsis so the bar height stays fixed. */
+  .status-bar{flex-wrap:nowrap;}
+  .status-bar #statusMsg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
   :root{--editor-fs:13px;}
   /* compact editor chrome: no icons in panel-header buttons, less height */
   .ph-ico{display:none;}
@@ -487,18 +496,23 @@ footer a:hover{text-decoration:underline;}
   /* 3D tab: transport buttons fill row 1, quality + speed fill row 2 */
   body[data-mtab="view"] .canvas-panel{overflow:hidden;}
   body[data-mtab="view"] .toolbar{overflow:hidden;}
+  /* Capped so these keep growing proportionally on a phone but stop at a
+     sane button size instead of stretching edge-to-edge on tablet widths
+     (this layout applies up to 1024px, not just phones). */
   body[data-mtab="view"] .toolbar .btn-run,
   body[data-mtab="view"] .toolbar .btn-step,
-  body[data-mtab="view"] .toolbar .btn-stop{flex:1 1 20%;justify-content:center;height:34px;min-height:34px;padding:0 8px;font-size:11px;}
+  body[data-mtab="view"] .toolbar .btn-stop{flex:1 1 20%;max-width:150px;justify-content:center;height:34px;min-height:34px;padding:0 8px;font-size:11px;}
   body[data-mtab="view"] .toolbar .btn-reset{flex:0 1 auto;height:34px;min-height:34px;padding:0 10px;font-size:11px;}
-  body[data-mtab="view"] .toolbar > div:has(#qualityGroup){flex:1 1 42%;}
+  body[data-mtab="view"] .toolbar > div:has(#qualityGroup){flex:1 1 42%;max-width:260px;}
   body[data-mtab="view"] .toolbar #qualityGroup{display:flex;}
   body[data-mtab="view"] .toolbar #qualityGroup .btn-tog{flex:1;min-height:0;height:34px;padding:0 10px;display:flex;align-items:center;justify-content:center;}
-  body[data-mtab="view"] .toolbar .speed-ctrl{flex:1 1 42%;justify-content:space-between;height:36px;box-sizing:border-box;}
+  body[data-mtab="view"] .toolbar .speed-ctrl{flex:1 1 42%;max-width:260px;justify-content:space-between;height:36px;box-sizing:border-box;}
   body[data-mtab="view"] .toolbar .speed-btn{height:34px;padding:0 14px;display:flex;align-items:center;}
   body[data-mtab="view"] .toolbar .speed-val{display:flex;align-items:center;justify-content:center;}
-  /* view switcher tabs (3D / XY toolpath / Tool Table) share the width evenly */
-  body[data-mtab="view"] .view-tabs .tab{flex:1;text-align:center;padding-left:4px;padding-right:4px;}
+  /* view switcher tabs (3D / XY toolpath / Tool Table) share the width evenly,
+     capped so they don't stretch edge-to-edge on tablet widths (same issue as
+     the transport/quality/speed controls above). */
+  body[data-mtab="view"] .view-tabs .tab{flex:1;max-width:190px;text-align:center;padding-left:4px;padding-right:4px;}
   .panel-header{padding:5px 10px;}
   .ph-btn{padding:3px 9px !important;min-height:26px !important;}
   .ctx-panel:has(#_idleUndo) .btn{min-height:26px !important;padding:2px 8px !important;font-size:10px;}
@@ -520,6 +534,10 @@ footer a:hover{text-decoration:underline;}
   .fbar-nav{padding:9px 13px;font-size:14px;}
   .btn-group .btn-tog{padding:10px 12px;}
   .speed-val{min-width:52px;}
+  /* toggleKpHelp() (core/help-popups.js) skips hover-help mode on pointer:coarse
+     and opens the full reference modal instead, so tapping a column header does
+     nothing there — hide the hint that describes the desktop-only hover flow. */
+  .tt-help-hint{display:none;}
   .cycle-list-item{padding:14px 12px;}
 }
 /* ── Safe area insets — notch / home indicator (iOS & Android) */
@@ -712,7 +730,7 @@ footer a:hover{text-decoration:underline;}
 #learnCoach .coach-hole{position:fixed;border-radius:8px;pointer-events:none;
   box-shadow:0 0 0 9999px rgba(0,0,0,.66);outline:2px solid var(--accent);
   transition:left .2s,top .2s,width .2s,height .2s;}
-#learnCoach .coach-tip{position:fixed;background:var(--panel,#1b1f27);border:1px solid var(--accent);
+#learnCoach .coach-tip{position:fixed;background:#1b1f27;border:1px solid var(--accent);
   border-radius:10px;padding:12px 13px;box-shadow:0 12px 34px rgba(0,0,0,.5);}
 #learnCoach .coach-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text3);}
 #learnCoach .coach-t{font-size:14px;font-weight:600;color:var(--text);margin:3px 0 5px;}

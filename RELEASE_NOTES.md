@@ -10,6 +10,49 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.844 (web test)
+- The intro lesson's guided tour now also covers the "give up on this task" ✕
+  and gives the hidden password/solve button a playful explanation instead of
+  leaving it a mystery.
+
+## v0.843 (web test)
+- The intro lesson's guided tour now also points out the ✕ (leave Learn mode)
+  and the hamburger menu (back to the lesson list) before walking through the
+  assignment, editor, goals, hints and Check button.
+
+## v0.842 (web test)
+- Follow-up: the 3D / XY toolpath / Tool Table view switcher tabs are now also
+  capped on tablet-sized screens, matching the previous button-width fix.
+
+## v0.841 (web test)
+- Capped the width of the 3D view's Run/Step/Stop and quality/speed buttons on
+  tablet-sized screens, where they previously stretched edge-to-edge.
+
+## v0.840 (web test)
+- Fixed near-invisible text in light theme: the Learn practice tutorial's
+  guided-tour tooltip (starting with "The assignment") and the 3D view's
+  "TOOLS USED" / Measure panels now show properly readable light text on
+  their dark overlay backgrounds.
+
+## v0.839 (web test)
+- Fixed the mobile field editor panel jumping/growing when editing a feed (F)
+  value on an L/C/CR block. FMAX, FAUTO, Insert Q and Skip are now one compact
+  dropdown instead of 4 separate buttons that could wrap to a 2nd row.
+
+## v0.838 (web test)
+- Removed the Tool Table's "Click ? Help…" hint on phones/tablets, where that
+  hover-based help flow doesn't apply.
+
+## v0.837 (web test)
+- Fixed the mobile status bar jumping height while a program runs. The running
+  block description now stays on one line (truncated with … if long) instead of
+  wrapping and changing the bar's height between blocks.
+
+## v0.835 (web test)
+- Tapping Cycle 209 with `Q256=0` now correctly retracts the tool fully out of
+  the hole between chip-break steps (instead of ignoring the 0), and `Q257=0`
+  again means a single pass with no chip breaking.
+
 ## v0.834 (web test)
 - Cycle 208 now uses a semicircular entry from the bore center, followed by
   constant-radius helical passes; it no longer expands a helix from zero radius.
