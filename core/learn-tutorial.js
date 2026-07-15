@@ -82,7 +82,7 @@ function learnSvgChamfer(){
   var s='';
 
   // ---- workpiece with the 1x45 chamfered corner ----
-  s+='<path d="M24 '+Sy+' L'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+' L'+Ex+' '+(H-18)+' L24 '+(H-18)+' Z" fill="rgba(74,158,255,.12)" stroke="var(--border)"/>';
+  s+='<path d="M24 '+Sy+' L'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+' L'+Ex+' '+(H-50)+' L24 '+(H-50)+' Z" fill="rgba(74,158,255,.12)" stroke="var(--border)"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" fill="none"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/>';
   s+='<text x="'+(Ex-54)+'" y="'+(Sy+26)+'" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">finished 1 x 45°</text>';
@@ -204,19 +204,19 @@ function learnSvgApproach(){
 }
 
 function learnSvgComp(){
-  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
-    + '<path d="M80 130 L80 25" stroke="var(--text)" stroke-width="2"/>'
+  return '<svg class="learn-svg" viewBox="0 0 340 170" role="img">'
+    + '<path d="M80 105 L80 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M76 35 L80 22 L84 35" fill="none" stroke="var(--text)" stroke-width="2"/>'
     + '<text x="64" y="16" font-family="monospace" font-size="10" fill="var(--text)">motion</text>'
-    + '<circle cx="55" cy="75" r="20" fill="rgba(20,184,166,.15)" stroke="var(--accent)" stroke-width="1.6"/>'
-    + '<circle cx="55" cy="75" r="2" fill="var(--accent)"/>'
-    + '<text x="25" y="115" font-family="monospace" font-size="12" fill="var(--accent)">RL · LEFT</text>'
-    + '<path d="M230 130 L230 25" stroke="var(--text)" stroke-width="2"/>'
+    + '<circle cx="55" cy="65" r="20" fill="rgba(20,184,166,.15)" stroke="var(--accent)" stroke-width="1.6"/>'
+    + '<circle cx="55" cy="65" r="2" fill="var(--accent)"/>'
+    + '<text x="55" y="130" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">RL · LEFT</text>'
+    + '<path d="M230 105 L230 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M226 35 L230 22 L234 35" fill="none" stroke="var(--text)" stroke-width="2"/>'
-    + '<circle cx="255" cy="75" r="20" fill="rgba(93,202,165,.15)" stroke="#5dcaa5" stroke-width="1.6"/>'
-    + '<circle cx="255" cy="75" r="2" fill="#5dcaa5"/>'
-    + '<text x="244" y="115" font-family="monospace" font-size="12" fill="#5dcaa5">RIGHT · RR</text>'
-    + '<text x="170" y="145" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--text3)">LOOK ALONG THE DIRECTION OF MOTION</text>'
+    + '<circle cx="255" cy="65" r="20" fill="rgba(93,202,165,.15)" stroke="#5dcaa5" stroke-width="1.6"/>'
+    + '<circle cx="255" cy="65" r="2" fill="#5dcaa5"/>'
+    + '<text x="255" y="130" text-anchor="middle" font-family="monospace" font-size="12" fill="#5dcaa5">RIGHT · RR</text>'
+    + '<text x="170" y="160" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--text3)">LOOK ALONG THE DIRECTION OF MOTION</text>'
     + '</svg>';
 }
 
@@ -259,7 +259,7 @@ function learnSvgCycle208(){
     + '<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>'
     + '<circle cx="198" cy="48" r="5" fill="#f0a94a"/>'
     + '<text x="120" y="18" font-family="monospace" font-size="10" font-weight="600" fill="var(--accent)">1 · HELICAL PLUNGE</text>'
-    + '<text x="210" y="52" font-family="monospace" font-size="11" fill="#f0a94a">start at Q200 +2</text>'
+    + '<text x="210" y="31" font-family="monospace" font-size="11" fill="#f0a94a">start at Q200 +2</text>'
     + '<line x1="274" y1="55" x2="274" y2="164" stroke="#f0a94a" stroke-width="1.5" marker-end="url(#lpHelixArrow)"/>'
     + '<text x="282" y="112" font-family="monospace" font-size="11" fill="#f0a94a">Q201 -8</text>'
     + '<line x1="92" y1="75" x2="72" y2="106" stroke="var(--accent)" stroke-width="1"/>'
@@ -404,7 +404,8 @@ function learnSvgThreadCycle(){
     + '<path d="M55 38 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
     + '<path d="M101 38 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
     + '<line x1="119" y1="56" x2="119" y2="74" stroke="#f0a94a"/><line x1="113" y1="56" x2="125" y2="56" stroke="#f0a94a"/><line x1="113" y1="74" x2="125" y2="74" stroke="#f0a94a"/>'
-    + '<text x="128" y="69" font-family="monospace" font-size="11" fill="#f0a94a">Q239 pitch</text>'
+    + '<text x="128" y="64" font-family="monospace" font-size="10.5" fill="#f0a94a">Q239</text>'
+    + '<text x="128" y="78" font-family="monospace" font-size="10" fill="#f0a94a">pitch</text>'
     + '<text x="78" y="159" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">1 turn = 1 pitch deeper</text>'
     + '<line x1="170" y1="24" x2="170" y2="205" stroke="var(--border)"/>'
     + '<text x="255" y="18" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">CHIP BREAKING</text>'
@@ -427,11 +428,11 @@ function learnSvgLblFlow(){
     + '<text x="34" y="70" font-family="monospace" font-size="10.5" fill="var(--text)">X30 Y30 M99</text>'
     + '<text x="34" y="88" font-family="monospace" font-size="10.5" fill="var(--text)">X70 Y30 M99</text>'
     + '<text x="34" y="116" font-family="monospace" font-size="10.5" fill="var(--text3)">1  runs where written</text>'
-    + '<rect x="198" y="28" width="122" height="52" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
-    + '<text x="259" y="59" text-anchor="middle" font-family="monospace" font-size="12" fill="#f0a94a">CALL LBL 1</text>'
-    + '<path d="M259 82 C259 155 105 165 89 136" fill="none" stroke="#f0a94a" stroke-width="2"/>'
+    + '<rect x="198" y="28" width="122" height="66" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="259" y="54" text-anchor="middle" font-family="monospace" font-size="12" fill="#f0a94a">CALL LBL 1</text>'
+    + '<text x="259" y="76" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">2 · runs body again</text>'
+    + '<path d="M259 96 C259 155 105 165 89 136" fill="none" stroke="#f0a94a" stroke-width="2"/>'
     + '<path d="M83 145 L89 133 L96 144" fill="#f0a94a"/>'
-    + '<text x="315" y="146" text-anchor="end" font-family="monospace" font-size="10.5" fill="var(--text3)">2  runs same body again</text>'
     + '<text x="170" y="181" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">active tool/cycle changes · stored XY stays</text>'
     + '</svg>';
 }
@@ -459,7 +460,7 @@ function learnSvgChamferMethods(){
     + '<text x="82" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">SMALL HOLE</text>'
     + '<text x="82" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 200 · dip</text>'
     + '<path d="M20 105 H60 L82 127 L104 105 H144 V195 H20 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
-    + '<path d="M82 48 L52 105 L112 105 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
+    + '<path d="M52 48 H112 L82 127 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
     + '<line x1="82" y1="48" x2="82" y2="127" stroke="var(--accent)" stroke-width="2"/>'
     + '<path d="M77 116 L82 128 L87 116" fill="var(--accent)"/>'
     + '<text x="29" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">cone reaches rim</text>'
@@ -469,7 +470,7 @@ function learnSvgChamferMethods(){
     + '<path d="M190 105 H220 L235 130 H275 L290 105 H320 V195 H190 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
     + '<ellipse cx="255" cy="101" rx="52" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
     + '<path d="M301 93 l8 4 l-7 5" fill="none" stroke="#5dcaa5" stroke-width="2"/>'
-    + '<path d="M280 57 L258 101 L302 101 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
+    + '<path d="M233 57 H277 L255 101 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
     + '<text x="205" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">Q342 = existing bore</text>'
     + '<text x="170" y="211" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">choose by hole size relative to the countersink</text>'
     + '</svg>';

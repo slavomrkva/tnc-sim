@@ -31,8 +31,11 @@ read or operate with a keyboard.
 - Attempt 4 — audited all Learn slide images, redesigned the remaining generic
   or crowded diagrams, and added four missing visual explanations; result: all
   25 slide images render clearly in local dark- and light-theme contact sheets.
+- Attempt 5 — corrected the inverted Lesson 14 countersink and moved five
+  labels away from intersecting geometry; result: the reported Lessons 7, 9,
+  11, 13 and 14 render without lines crossing their text in both themes.
 ### Status
-Implemented through v0.851; keep open until the web preview is accepted, then move
+Implemented through v0.852; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

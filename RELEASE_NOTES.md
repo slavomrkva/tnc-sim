@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.852 (web test)
+- Corrected the countersink orientation in Lesson 14 so its wide cutting body
+  is above the tip and the tip points into the hole.
+- Repositioned diagram labels and guide lines in Lessons 7, 9, 11, 13 and 14
+  so no line runs through explanatory text.
+
 ## v0.851 (web test)
 - Reviewed every Learn slide image in dark and light themes and redesigned the
   unclear diagrams for safe motion, slots, arcs, corners, drilling, tapping,

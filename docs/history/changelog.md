@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.852 — Learn diagram collision corrections
+
+- Flipped both Lesson 14 countersink silhouettes to the physically correct
+  tip-down orientation.
+- Moved compensation, LBL reuse, Cycle 208, tapping and DL/DR annotations into
+  dedicated clear areas instead of letting geometry cross their text.
+- Re-rendered the affected slides in dark and light themes.
+
 ## v0.851 — complete Learn slide-image redesign
 
 - Audited and locally rendered every Learn SVG in both supported themes.
