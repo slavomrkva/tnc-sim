@@ -18,6 +18,9 @@ function toggleTheme(){
   try{ localStorage.setItem('tncSimTheme', next); }catch(e){}
   _applyThemeUI(next);
   if(typeof scene!=='undefined' && scene) scene.background = new THREE.Color(_scene3dBgColor());
+  if(typeof scene!=='undefined' && scene && scene.userData.grid && typeof _applyGridTheme==='function'){
+    _applyGridTheme(scene.userData.grid);
+  }
 }
 
 function openAboutPopup(){

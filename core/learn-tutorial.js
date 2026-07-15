@@ -612,7 +612,8 @@ function closeLearn(){
 }
 
 function learnOpenLesson(i){
-  LEARN.lesson = i; LEARN.slide = 0; LEARN.view = 'lesson';
+  LEARN.lesson = i; LEARN.slide = 0; LEARN.task = -1;
+  LEARN.lastResults = null; LEARN.hint = 0; LEARN.view = 'lesson';
   learnRender();
 }
 
@@ -677,14 +678,13 @@ function learnHint(){
   var n = (T.hints && T.hints.length) || 0;
   LEARN.hint = Math.min(n, (LEARN.hint||0) + 1);
   learnRender();
-  // learnRender() replaces #learnPanel's whole innerHTML (a new .lp-body each
-  // time), which resets its scroll to the top — so the just-revealed hint,
-  // appended below the slides, lands out of view. Scroll it into view instead
-  // of leaving the user to find and scroll down to it themselves.
-  var p = _lpEl();
-  var rows = p ? p.querySelectorAll('.lp-hint-row') : null;
-  var last = rows && rows[rows.length-1];
-  if(last) last.scrollIntoView({block:'nearest', behavior:'smooth'});
+  // Desktop only: learnRender() creates a new .lp-body at scrollTop 0. Keep the
+  // whole left Learn panel pinned to its true bottom after revealing a hint.
+  if(!_isMTab()){
+    var p = _lpEl();
+    var body = p ? p.querySelector('.lp-body') : null;
+    if(body) body.scrollTop = body.scrollHeight;
+  }
 }
 
 function learnCheck(){

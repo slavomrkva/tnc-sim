@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.847 — light grid and Learn hint state
+
+- Added neutral grey 3D table-grid colors for the light theme, including live
+  recoloring when the theme is toggled.
+- Made desktop Hint actions pin the left Learn scroll container to its bottom.
+- Reset the active task, results, and progressive hints when opening a lesson.
+
 ## v0.846 — documentation damage control
 
 - Closed C8–C10 after the user confirmed the current web and Android versions
