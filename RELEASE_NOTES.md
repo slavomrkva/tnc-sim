@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.848
+- Added four ready-to-run demos: Chamfering, Rough & Finish, Thread Hole, and
+  Precise Hole.
+
 ## v0.847 (web test)
 - The light-theme 3D table grid is now a softer neutral grey instead of nearly
   black.

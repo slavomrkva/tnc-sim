@@ -10,6 +10,14 @@ frame.onload = function(){
     try{
       var w = frame.contentWindow;
       var d = frame.contentDocument;
+      var demoNames = Array.from(w.DEMO_PROGRAMS, function(demo){ return demo.name; });
+      ['Chamfering', 'Rough & Finish', 'Thread Hole', 'Precise Hole'].forEach(function(name){
+        if(demoNames.indexOf(name) < 0) throw new Error('missing demo in UI library: ' + name);
+      });
+      w.loadDemo(demoNames.indexOf('Thread Hole'));
+      if(d.getElementById('code').value.indexOf('CYCL DEF 209') < 0){
+        throw new Error('Thread Hole demo did not load into the editor');
+      }
       d.documentElement.setAttribute('data-theme', 'light');
 
       var gridColors = w._gridColors();
@@ -66,7 +74,7 @@ frame.onload = function(){
       }
       if(panel.querySelector('.lp-hint-row')) throw new Error('old hint leaked into new lesson');
 
-      document.body.textContent = 'PASS: light grid, desktop hint scroll, and new-lesson hint reset';
+      document.body.textContent = 'PASS: demos, light grid, desktop hint scroll, and new-lesson hint reset';
     }catch(e){
       document.body.textContent = 'FAIL: ' + e.message + '\n' + (e.stack || '');
     }

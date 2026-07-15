@@ -115,8 +115,8 @@
     "semantic_hash": "65efdb0a17d8a4d392e05ff416f875c7"
   },
   "service-worker.js": {
-    "mtime": 1784119489.2700706,
-    "ast_hash": "2d392c839af9b5cc040a27e96d30c124",
+    "mtime": 1784120403.4736013,
+    "ast_hash": "33a8d626667f7f4391d7cd2d9d7aba35",
     "semantic_hash": ""
   },
   "tests/parser-radius-comp.test.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784119489.2690115,
-    "ast_hash": "25806bd0b179f54a6e8b490094db4a47",
+    "mtime": 1784120403.4725995,
+    "ast_hash": "682ba7ecc1d28ad56937e2882f1bc8e5",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "BUG_HISTORY.md": {
-    "mtime": 1784119307.818421,
-    "ast_hash": "540802a017f8d8b3db69da3e9fc87449",
+    "mtime": 1784120403.4756079,
+    "ast_hash": "c65f0fe0c73cfa618f78edf1aaf9cf2c",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -200,13 +200,13 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784119509.0325253,
-    "ast_hash": "50bbafc00f2c7a7e5622317cc70d2050",
+    "mtime": 1784120403.476608,
+    "ast_hash": "5e3c8b9faa7f30c06b84249cd7c69965",
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1784119509.0314977,
-    "ast_hash": "43a68771f5d7c0452589c92e2348d2df",
+    "mtime": 1784120403.4746082,
+    "ast_hash": "90ce42bd852d550389372c0130a8d485",
     "semantic_hash": ""
   },
   "docs/history/layout-and-renderer-rationale.md": {
@@ -215,8 +215,8 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1784119307.8849576,
-    "ast_hash": "e96674c895c0ee2461b7ecd9b47155bc",
+    "mtime": 1784120403.4713137,
+    "ast_hash": "f413864c07381cfddf20363a29b1f806",
     "semantic_hash": ""
   },
   "privacy.html": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784119509.0335238,
-    "ast_hash": "2ce9dd602e0c9397c83798d12566de65",
+    "mtime": 1784120403.4776096,
+    "ast_hash": "e7b4c6358d115d3c320bc44ddda686ad",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {
@@ -280,8 +280,18 @@
     "semantic_hash": ""
   },
   "tests/ui-light-learn-check.html": {
-    "mtime": 1784119627.997335,
-    "ast_hash": "1b547c07d3c8dc43b693a5ddb25cd938",
+    "mtime": 1784120547.6071262,
+    "ast_hash": "025478141d61faaeb93ce81f3f55da5a",
+    "semantic_hash": ""
+  },
+  "core/demo-programs.js": {
+    "mtime": 1784120307.2670114,
+    "ast_hash": "830b7dd1e91c583ccb545707905f325f",
+    "semantic_hash": ""
+  },
+  "tests/demo-programs.test.js": {
+    "mtime": 1784120329.7036326,
+    "ast_hash": "6e63ce07c70268cdd6a2f1c6d199b421",
     "semantic_hash": ""
   }
 }
