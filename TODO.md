@@ -34,8 +34,11 @@ read or operate with a keyboard.
 - Attempt 5 — corrected the inverted Lesson 14 countersink and moved five
   labels away from intersecting geometry; result: the reported Lessons 7, 9,
   11, 13 and 14 render without lines crossing their text in both themes.
+- Attempt 6 — rebuilt Lesson 14.2 with true 90° countersink geometry and visible
+  45° finished hole edges, then isolated the remaining 13.1 and 14.1 labels;
+  result: the reported geometry and text collisions are absent in both themes.
 ### Status
-Implemented through v0.852; keep open until the web preview is accepted, then move
+Implemented through v0.853; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

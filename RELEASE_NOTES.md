@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.853 (web test)
+- Redrew Lesson 14's hole-edge diagram with a dimensioned 90° countersink,
+  45° flanks and the resulting chamfer visible in the hole section.
+- Fully separated the remaining tapping and DL/DR labels from dimension and
+  geometry lines in Lessons 13 and 14.
+
 ## v0.852 (web test)
 - Corrected the countersink orientation in Lesson 14 so its wide cutting body
   is above the tip and the tip points into the hole.

@@ -73,7 +73,7 @@ function learnSvgToolpath(code, labelIncr){
 }
 
 function learnSvgChamfer(){
-  var W=340, H=240;
+  var W=340, H=260;
   var scale=13;              // px per mm
   var d=2*scale;             // DL and DR magnitude (2 mm) — EQUAL lengths
   var Sy=104;                // workpiece surface y
@@ -82,10 +82,9 @@ function learnSvgChamfer(){
   var s='';
 
   // ---- workpiece with the 1x45 chamfered corner ----
-  s+='<path d="M24 '+Sy+' L'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+' L'+Ex+' '+(H-50)+' L24 '+(H-50)+' Z" fill="rgba(74,158,255,.12)" stroke="var(--border)"/>';
+  s+='<path d="M24 '+Sy+' L'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+' L'+Ex+' 190 L24 190 Z" fill="rgba(74,158,255,.12)" stroke="var(--border)"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--text3)" stroke-width="1" stroke-dasharray="3 3" fill="none"/>';
   s+='<path d="M'+(Ex-ch)+' '+Sy+' L'+Ex+' '+(Sy+ch)+'" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/>';
-  s+='<text x="'+(Ex-54)+'" y="'+(Sy+26)+'" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">finished 1 x 45°</text>';
 
   // contact point = midpoint of the workpiece chamfer face
   var contactX=Ex-ch/2, contactY=Sy+ch/2;
@@ -131,11 +130,13 @@ function learnSvgChamfer(){
 
   // labels clear of lines
   s+='<text x="26" y="'+(Sy-9)+'" font-family="monospace" font-size="9" fill="var(--text3)">workpiece surface</text>';
-  s+='<text x="26" y="'+(contactY+30)+'" font-family="monospace" font-size="9" fill="#f0a94a">contact point</text>';
+  s+='<text x="26" y="142" font-family="monospace" font-size="9" fill="#f0a94a">orange = contact point</text>';
+  s+='<text x="26" y="161" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">finished chamfer</text>';
+  s+='<text x="26" y="177" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">1 x 45°</text>';
   return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img">'
     + s
-    + '<text x="14" y="'+(H-17)+'" font-family="monospace" font-size="10" fill="var(--text3)">DR = horizontal; DL = vertical.</text>'
-    + '<text x="14" y="'+(H-4)+'" font-family="monospace" font-size="10" fill="var(--text3)">Both: contact point to tool tip.</text>'
+    + '<text x="14" y="235" font-family="monospace" font-size="10" fill="var(--text3)">DR = horizontal; DL = vertical.</text>'
+    + '<text x="14" y="251" font-family="monospace" font-size="10" fill="var(--text3)">Both: contact point to tool tip.</text>'
     + '</svg>';
 }
 
@@ -412,8 +413,8 @@ function learnSvgThreadCycle(){
     + '<path d="M220 40 L220 104 L236 96 L236 158 L252 150 L252 207" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
     + '<path d="M247 197 L252 209 L257 197" fill="#5dcaa5"/>'
     + '<line x1="206" y1="40" x2="206" y2="104" stroke="#f0a94a"/>'
-    + '<text x="180" y="75" font-family="monospace" font-size="11" fill="#f0a94a">Q257</text>'
-    + '<text x="180" y="89" font-family="monospace" font-size="10.5" fill="var(--text3)">4 mm down</text>'
+    + '<text x="174" y="72" font-family="monospace" font-size="9.5" fill="#f0a94a">Q257</text>'
+    + '<text x="174" y="86" font-family="monospace" font-size="9.5" fill="var(--text3)">4 mm</text>'
     + '<line x1="236" y1="96" x2="267" y2="96" stroke="#f0a94a"/>'
     + '<text x="270" y="100" font-family="monospace" font-size="11" fill="#f0a94a">Q256</text>'
     + '<text x="270" y="114" font-family="monospace" font-size="10.5" fill="var(--text3)">0.5 back</text>'
@@ -456,23 +457,27 @@ function learnSvgPrecisionChain(){
 }
 
 function learnSvgChamferMethods(){
-  return '<svg class="learn-svg" viewBox="0 0 340 215" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img">'
     + '<text x="82" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">SMALL HOLE</text>'
     + '<text x="82" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 200 · dip</text>'
-    + '<path d="M20 105 H60 L82 127 L104 105 H144 V195 H20 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
-    + '<path d="M52 48 H112 L82 127 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
-    + '<line x1="82" y1="48" x2="82" y2="127" stroke="var(--accent)" stroke-width="2"/>'
-    + '<path d="M77 116 L82 128 L87 116" fill="var(--accent)"/>'
-    + '<text x="29" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">cone reaches rim</text>'
-    + '<line x1="170" y1="15" x2="170" y2="205" stroke="var(--border)"/>'
+    + '<path d="M20 105 H62 L72 115 V198 H20 Z M144 105 H102 L92 115 V198 H144 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<path d="M22 65 H142 L82 125 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)" stroke-width="1.3"/>'
+    + '<path d="M62 105 L72 115 M102 105 L92 115" fill="none" stroke="var(--accent)" stroke-width="3"/>'
+    + '<path d="M70 113 A17 17 0 0 1 94 113" fill="none" stroke="#f0a94a" stroke-width="1.4"/>'
+    + '<text x="82" y="107" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="#f0a94a">90°</text>'
+    + '<path d="M82 45 V94 M82 114 V125" stroke="var(--accent)" stroke-width="1.8"/>'
+    + '<path d="M77 114 L82 126 L87 114" fill="var(--accent)"/>'
+    + '<text x="82" y="222" text-anchor="middle" font-family="monospace" font-size="10" fill="var(--accent)">finished 1 x 45° edges</text>'
+    + '<line x1="170" y1="15" x2="170" y2="225" stroke="var(--border)"/>'
     + '<text x="255" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="#5dcaa5">LARGE BORE</text>'
     + '<text x="255" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 208 · orbit rim</text>'
-    + '<path d="M190 105 H220 L235 130 H275 L290 105 H320 V195 H190 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<path d="M190 105 H220 L235 120 V198 H190 Z M320 105 H290 L275 120 V198 H320 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
+    + '<path d="M220 105 L235 120 M290 105 L275 120" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
     + '<ellipse cx="255" cy="101" rx="52" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
     + '<path d="M301 93 l8 4 l-7 5" fill="none" stroke="#5dcaa5" stroke-width="2"/>'
-    + '<path d="M233 57 H277 L255 101 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)"/>'
-    + '<text x="205" y="151" font-family="monospace" font-size="10.5" fill="var(--text3)">Q342 = existing bore</text>'
-    + '<text x="170" y="211" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">choose by hole size relative to the countersink</text>'
+    + '<path d="M235 65 H335 L285 115 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)" stroke-width="1.3"/>'
+    + '<text x="285" y="99" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="#f0a94a">90°</text>'
+    + '<text x="255" y="222" text-anchor="middle" font-family="monospace" font-size="10" fill="#5dcaa5">same chamfer follows rim</text>'
     + '</svg>';
 }
 

@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.853 — accurate 90-degree countersink section
+
+- Rebuilt Lesson 14's second diagram as a section through real open holes,
+  showing a 90° included tool angle, 45° flanks and highlighted finished edges.
+- Kept the Cycle 208 panel's orbit while showing the same finished edge at the
+  bore rim.
+- Moved the last Lesson 13 and 14 labels into line-free regions.
+
 ## v0.852 — Learn diagram collision corrections
 
 - Flipped both Lesson 14 countersink silhouettes to the physically correct
