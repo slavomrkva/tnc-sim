@@ -37,8 +37,11 @@ read or operate with a keyboard.
 - Attempt 6 — rebuilt Lesson 14.2 with true 90° countersink geometry and visible
   45° finished hole edges, then isolated the remaining 13.1 and 14.1 labels;
   result: the reported geometry and text collisions are absent in both themes.
+- Attempt 7 — moved the Cycle 208 countersink into the bore until its right
+  cutting flank coincides exactly with the finished edge; result: the diagram
+  now visually communicates the DL−2/DR+2 tool position without extra labels.
 ### Status
-Implemented through v0.853; keep open until the web preview is accepted, then move
+Implemented through v0.854; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

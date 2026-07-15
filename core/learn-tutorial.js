@@ -475,8 +475,9 @@ function learnSvgChamferMethods(){
     + '<path d="M220 105 L235 120 M290 105 L275 120" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
     + '<ellipse cx="255" cy="101" rx="52" ry="18" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
     + '<path d="M301 93 l8 4 l-7 5" fill="none" stroke="#5dcaa5" stroke-width="2"/>'
-    + '<path d="M235 65 H335 L285 115 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)" stroke-width="1.3"/>'
-    + '<text x="285" y="99" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="#f0a94a">90°</text>'
+    + '<path d="M210 65 H330 L270 125 Z" fill="rgba(139,147,161,.12)" stroke="var(--text3)" stroke-width="1.3"/>'
+    + '<path d="M290 105 L275 120" fill="none" stroke="#f0a94a" stroke-width="3.2" stroke-linecap="round"/>'
+    + '<text x="270" y="99" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="600" fill="#f0a94a">90°</text>'
     + '<text x="255" y="222" text-anchor="middle" font-family="monospace" font-size="10" fill="#5dcaa5">same chamfer follows rim</text>'
     + '</svg>';
 }

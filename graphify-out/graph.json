@@ -1657,7 +1657,7 @@
       "label": "learnSvgFinalPasses()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L484",
+      "source_location": "L485",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgfinalpasses",
       "community": 6,
@@ -1668,7 +1668,7 @@
       "label": "learnSvgCorner()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L505",
+      "source_location": "L506",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgcorner",
       "community": 6,
@@ -1679,7 +1679,7 @@
       "label": "learnSvgDrawing()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L527",
+      "source_location": "L528",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgdrawing",
       "community": 6,
@@ -1690,7 +1690,7 @@
       "label": "learnSvgPartProfile()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L566",
+      "source_location": "L567",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgpartprofile",
       "community": 6,
@@ -1701,7 +1701,7 @@
       "label": "learnSvgPolar()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L613",
+      "source_location": "L614",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgpolar",
       "community": 6,
@@ -1712,7 +1712,7 @@
       "label": "learnSvgBoltCircle()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L640",
+      "source_location": "L641",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgboltcircle",
       "community": 6,
@@ -1723,7 +1723,7 @@
       "label": "learnSvgCounterbore()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L665",
+      "source_location": "L666",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgcounterbore",
       "community": 6,
@@ -1734,7 +1734,7 @@
       "label": "learnSvgArcCC()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L684",
+      "source_location": "L685",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgarccc",
       "community": 6,
@@ -1745,7 +1745,7 @@
       "label": "learnSvgArcCR()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L702",
+      "source_location": "L703",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgarccr",
       "community": 6,
@@ -1756,7 +1756,7 @@
       "label": "learnSvgDrill()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L719",
+      "source_location": "L720",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsvgdrill",
       "community": 6,
@@ -1767,7 +1767,7 @@
       "label": "_learnExecutableCode()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L741",
+      "source_location": "L742",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnexecutablecode",
       "community": 6,
@@ -1778,7 +1778,7 @@
       "label": "_learnCycleBlocks()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L748",
+      "source_location": "L749",
       "_origin": "ast",
       "id": "core_learn_tutorial_learncycleblocks",
       "community": 6,
@@ -1789,7 +1789,7 @@
       "label": "learnEvalChecks()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L770",
+      "source_location": "L771",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnevalchecks",
       "community": 6,
@@ -1800,7 +1800,7 @@
       "label": "learnProgress()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L898",
+      "source_location": "L899",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnprogress",
       "community": 6,
@@ -1811,7 +1811,7 @@
       "label": "learnSaveProgress()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L902",
+      "source_location": "L903",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsaveprogress",
       "community": 6,
@@ -1822,7 +1822,7 @@
       "label": "learnTaskDone()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L904",
+      "source_location": "L905",
       "_origin": "ast",
       "id": "core_learn_tutorial_learntaskdone",
       "community": 6,
@@ -1833,7 +1833,7 @@
       "label": "_lpEl()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L908",
+      "source_location": "L909",
       "_origin": "ast",
       "id": "core_learn_tutorial_lpel",
       "community": 6,
@@ -1844,7 +1844,7 @@
       "label": "learnUpdateBlank()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L910",
+      "source_location": "L911",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnupdateblank",
       "community": 6,
@@ -1855,7 +1855,7 @@
       "label": "openLearn()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L930",
+      "source_location": "L931",
       "_origin": "ast",
       "id": "core_learn_tutorial_openlearn",
       "community": 6,
@@ -1866,7 +1866,7 @@
       "label": "closeLearn()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L951",
+      "source_location": "L952",
       "_origin": "ast",
       "id": "core_learn_tutorial_closelearn",
       "community": 6,
@@ -1877,7 +1877,7 @@
       "label": "learnOpenLesson()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L962",
+      "source_location": "L963",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnopenlesson",
       "community": 6,
@@ -1888,7 +1888,7 @@
       "label": "learnNav()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L968",
+      "source_location": "L969",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnnav",
       "community": 6,
@@ -1899,7 +1899,7 @@
       "label": "learnBackToList()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L974",
+      "source_location": "L975",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnbacktolist",
       "community": 6,
@@ -1910,7 +1910,7 @@
       "label": "learnSolve()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L976",
+      "source_location": "L977",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnsolve",
       "community": 6,
@@ -1921,7 +1921,7 @@
       "label": "learnResetProgress()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L992",
+      "source_location": "L993",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnresetprogress",
       "community": 6,
@@ -1932,7 +1932,7 @@
       "label": "learnStartTask()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L999",
+      "source_location": "L1000",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnstarttask",
       "community": 6,
@@ -1943,7 +1943,7 @@
       "label": "learnHint()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1024",
+      "source_location": "L1025",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnhint",
       "community": 6,
@@ -1954,7 +1954,7 @@
       "label": "learnCheck()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1038",
+      "source_location": "L1039",
       "_origin": "ast",
       "id": "core_learn_tutorial_learncheck",
       "community": 6,
@@ -1965,7 +1965,7 @@
       "label": "learnFinishIntro()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1048",
+      "source_location": "L1049",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnfinishintro",
       "community": 6,
@@ -1976,7 +1976,7 @@
       "label": "learnFinishLesson()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1053",
+      "source_location": "L1054",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnfinishlesson",
       "community": 6,
@@ -1987,7 +1987,7 @@
       "label": "learnExit()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1068",
+      "source_location": "L1069",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnexit",
       "community": 6,
@@ -1998,7 +1998,7 @@
       "label": "_learnEndEditorInput()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1088",
+      "source_location": "L1089",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnendeditorinput",
       "community": 6,
@@ -2009,7 +2009,7 @@
       "label": "_learnNo()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1101",
+      "source_location": "L1102",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnno",
       "community": 6,
@@ -2020,7 +2020,7 @@
       "label": "learnRender()",
       "file_type": "code",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1103",
+      "source_location": "L1104",
       "_origin": "ast",
       "id": "core_learn_tutorial_learnrender",
       "community": 6,
@@ -5114,8 +5114,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ht",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": "ht()"
     },
     {
@@ -5818,8 +5818,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_extractbasis",
-      "community": 28,
-      "community_name": "Matrix3 Math Operations",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".extractbasis()"
     },
     {
@@ -5829,8 +5829,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_setfrommatrix4",
-      "community": 127,
-      "community_name": "uc",
+      "community": 28,
+      "community_name": "Matrix3 Math Operations",
       "norm_label": ".setfrommatrix4()"
     },
     {
@@ -5840,8 +5840,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_multiply",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 28,
+      "community_name": "Matrix3 Math Operations",
       "norm_label": ".multiply()"
     },
     {
@@ -5851,8 +5851,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_premultiply",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 28,
+      "community_name": "Matrix3 Math Operations",
       "norm_label": ".premultiply()"
     },
     {
@@ -5917,8 +5917,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_getnormalmatrix",
-      "community": 127,
-      "community_name": "uc",
+      "community": 28,
+      "community_name": "Matrix3 Math Operations",
       "norm_label": ".getnormalmatrix()"
     },
     {
@@ -6016,8 +6016,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yt_clone",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".clone()"
     },
     {
@@ -6115,8 +6115,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bt_dispose",
-      "community": 32,
-      "community_name": "2D Path Drawing",
+      "community": 57,
+      "community_name": "Curve Length Mapping",
       "norm_label": ".dispose()"
     },
     {
@@ -6126,8 +6126,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bt_transformuv",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".transformuv()"
     },
     {
@@ -6841,8 +6841,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_at_slerpflat",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": ".slerpflat()"
     },
     {
@@ -6852,8 +6852,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_at_multiplyquaternionsflat",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": ".multiplyquaternionsflat()"
     },
     {
@@ -6973,8 +6973,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_at_setfromunitvectors",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".setfromunitvectors()"
     },
     {
@@ -6984,8 +6984,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_at_angleto",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".angleto()"
     },
     {
@@ -7380,8 +7380,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_subvectors",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".subvectors()"
     },
     {
@@ -7391,8 +7391,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_multiply",
-      "community": 162,
-      "community_name": ".multiply",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".multiply()"
     },
     {
@@ -7413,8 +7413,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_multiplyvectors",
-      "community": 162,
-      "community_name": ".multiply",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".multiplyvectors()"
     },
     {
@@ -7457,8 +7457,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_applynormalmatrix",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".applynormalmatrix()"
     },
     {
@@ -7501,8 +7501,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_unproject",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".unproject()"
     },
     {
@@ -7655,8 +7655,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_dot",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".dot()"
     },
     {
@@ -7666,8 +7666,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_lengthsq",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".lengthsq()"
     },
     {
@@ -7743,8 +7743,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_cross",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".cross()"
     },
     {
@@ -7754,8 +7754,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_crossvectors",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".crossvectors()"
     },
     {
@@ -7765,8 +7765,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_projectonvector",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".projectonvector()"
     },
     {
@@ -7776,8 +7776,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_projectonplane",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".projectonplane()"
     },
     {
@@ -7787,8 +7787,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_reflect",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".reflect()"
     },
     {
@@ -7798,8 +7798,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_angleto",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".angleto()"
     },
     {
@@ -7842,8 +7842,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfromspherical",
-      "community": 164,
-      "community_name": ".setFromSpherical",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".setfromspherical()"
     },
     {
@@ -7853,8 +7853,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfromsphericalcoords",
-      "community": 164,
-      "community_name": ".setFromSpherical",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".setfromsphericalcoords()"
     },
     {
@@ -7864,8 +7864,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfromcylindrical",
-      "community": 163,
-      "community_name": ".setFromCylindrical",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".setfromcylindrical()"
     },
     {
@@ -7875,8 +7875,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfromcylindricalcoords",
-      "community": 163,
-      "community_name": ".setFromCylindrical",
+      "community": 12,
+      "community_name": "Vector3 Math Operations",
       "norm_label": ".setfromcylindricalcoords()"
     },
     {
@@ -7897,8 +7897,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfrommatrixscale",
-      "community": 153,
-      "community_name": ".setFromMatrixColumn",
+      "community": 92,
+      "community_name": "Cubic Bezier JSON",
       "norm_label": ".setfrommatrixscale()"
     },
     {
@@ -7908,8 +7908,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfrommatrixcolumn",
-      "community": 153,
-      "community_name": ".setFromMatrixColumn",
+      "community": 92,
+      "community_name": "Cubic Bezier JSON",
       "norm_label": ".setfrommatrixcolumn()"
     },
     {
@@ -7919,8 +7919,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_lt_setfrommatrix3column",
-      "community": 28,
-      "community_name": "Matrix3 Math Operations",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".setfrommatrix3column()"
     },
     {
@@ -8370,8 +8370,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jt_setfrompoints",
-      "community": 41,
-      "community_name": "Bounding Box Scene Update",
+      "community": 45,
+      "community_name": "Sphere Bounding Volume",
       "norm_label": ".setfrompoints()"
     },
     {
@@ -8601,8 +8601,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_re_at",
-      "community": 36,
-      "community_name": "Ray Geometry Intersection",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".at()"
     },
     {
@@ -8612,8 +8612,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_re_lookat",
-      "community": 36,
-      "community_name": "Ray Geometry Intersection",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".lookat()"
     },
     {
@@ -8634,8 +8634,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_re_closestpointtopoint",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".closestpointtopoint()"
     },
     {
@@ -8755,8 +8755,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_re_intersecttriangle",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".intersecttriangle()"
     },
     {
@@ -8843,8 +8843,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_clone",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".clone()"
     },
     {
@@ -8887,8 +8887,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_extractbasis",
-      "community": 153,
-      "community_name": ".setFromMatrixColumn",
+      "community": 92,
+      "community_name": "Cubic Bezier JSON",
       "norm_label": ".extractbasis()"
     },
     {
@@ -8909,8 +8909,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_extractrotation",
-      "community": 153,
-      "community_name": ".setFromMatrixColumn",
+      "community": 92,
+      "community_name": "Cubic Bezier JSON",
       "norm_label": ".extractrotation()"
     },
     {
@@ -8942,8 +8942,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_lookat",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".lookat()"
     },
     {
@@ -8953,8 +8953,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_multiply",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".multiply()"
     },
     {
@@ -8964,8 +8964,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_premultiply",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".premultiply()"
     },
     {
@@ -8975,8 +8975,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_multiplymatrices",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".multiplymatrices()"
     },
     {
@@ -8997,8 +8997,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_determinant",
-      "community": 5,
-      "community_name": "Matrix Transform Operations",
+      "community": 30,
+      "community_name": "Scene Object Traversal",
       "norm_label": ".determinant()"
     },
     {
@@ -9008,8 +9008,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_transpose",
-      "community": 127,
-      "community_name": "uc",
+      "community": 28,
+      "community_name": "Matrix3 Math Operations",
       "norm_label": ".transpose()"
     },
     {
@@ -9030,8 +9030,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_invert",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".invert()"
     },
     {
@@ -9063,8 +9063,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_maketranslation",
-      "community": 143,
-      "community_name": ".setFromMatrixColumn",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".maketranslation()"
     },
     {
@@ -9074,8 +9074,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_makerotationx",
-      "community": 132,
-      "community_name": "Do",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".makerotationx()"
     },
     {
@@ -9085,8 +9085,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_makerotationy",
-      "community": 134,
-      "community_name": ".rotateY",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".makerotationy()"
     },
     {
@@ -9096,8 +9096,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_makerotationz",
-      "community": 138,
-      "community_name": ".rotateZ",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".makerotationz()"
     },
     {
@@ -9118,8 +9118,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_se_makescale",
-      "community": 142,
-      "community_name": ".scale",
+      "community": 5,
+      "community_name": "Matrix Transform Operations",
       "norm_label": ".makescale()"
     },
     {
@@ -9239,8 +9239,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fe_x",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".x()"
     },
     {
@@ -9250,8 +9250,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fe_y",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".y()"
     },
     {
@@ -9261,8 +9261,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fe_z",
-      "community": 2,
-      "community_name": "Quaternion Math Operations",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".z()"
     },
     {
@@ -9316,8 +9316,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fe_setfromrotationmatrix",
-      "community": 2,
-      "community_name": "Quaternion Math Operations",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".setfromrotationmatrix()"
     },
     {
@@ -9459,8 +9459,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ge_enable",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".enable()"
     },
     {
@@ -9492,8 +9492,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ge_disable",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 71,
+      "community_name": "Raycaster Object Picking",
       "norm_label": ".disable()"
     },
     {
@@ -9569,8 +9569,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_applymatrix4",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".applymatrix4()"
     },
     {
@@ -9745,8 +9745,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_worldtolocal",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".worldtolocal()"
     },
     {
@@ -9756,8 +9756,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_lookat",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".lookat()"
     },
     {
@@ -9800,8 +9800,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_attach",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".attach()"
     },
     {
@@ -9844,8 +9844,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_getworldposition",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 95,
+      "community_name": "Object Clone JSON",
       "norm_label": ".getworldposition()"
     },
     {
@@ -9899,8 +9899,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_traverse",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": ".traverse()"
     },
     {
@@ -9932,8 +9932,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_updatematrix",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".updatematrix()"
     },
     {
@@ -9943,8 +9943,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_updatematrixworld",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".updatematrixworld()"
     },
     {
@@ -9954,8 +9954,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_updateworldmatrix",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".updateworldmatrix()"
     },
     {
@@ -9987,8 +9987,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ce_copy",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": ".copy()"
     },
     {
@@ -10108,8 +10108,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ne_distancetosphere",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".distancetosphere()"
     },
     {
@@ -10119,8 +10119,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ne_projectpoint",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".projectpoint()"
     },
     {
@@ -10130,8 +10130,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ne_intersectline",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".intersectline()"
     },
     {
@@ -10141,8 +10141,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ne_intersectsline",
-      "community": 17,
-      "community_name": "Frustum Plane Intersection",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".intersectsline()"
     },
     {
@@ -10229,8 +10229,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": "je"
     },
     {
@@ -10240,8 +10240,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_constructor",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".constructor()"
     },
     {
@@ -10251,8 +10251,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_getnormal",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".getnormal()"
     },
     {
@@ -10262,8 +10262,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_getbarycoord",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".getbarycoord()"
     },
     {
@@ -10273,8 +10273,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_containspoint",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".containspoint()"
     },
     {
@@ -10295,8 +10295,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_isfrontfacing",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".isfrontfacing()"
     },
     {
@@ -10328,8 +10328,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_clone",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".clone()"
     },
     {
@@ -10350,8 +10350,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_getarea",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".getarea()"
     },
     {
@@ -10361,8 +10361,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_getmidpoint",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 33,
+      "community_name": "Geometric Projection Utils",
       "norm_label": ".getmidpoint()"
     },
     {
@@ -10394,8 +10394,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_je_closestpointtopoint",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".closestpointtopoint()"
     },
     {
@@ -10757,8 +10757,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tn_addscalar",
-      "community": 30,
-      "community_name": "Scene Object Traversal",
+      "community": 8,
+      "community_name": "Color Parsing Utilities",
       "norm_label": ".addscalar()"
     },
     {
@@ -10779,8 +10779,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tn_multiply",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".multiply()"
     },
     {
@@ -10867,8 +10867,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tn_frombufferattribute",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".frombufferattribute()"
     },
     {
@@ -11043,8 +11043,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_sn_applymatrix3",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".applymatrix3()"
     },
     {
@@ -11252,8 +11252,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_an",
-      "community": 74,
-      "community_name": "World Transform Helpers",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "an"
     },
     {
@@ -11263,8 +11263,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_an_constructor",
-      "community": 74,
-      "community_name": "World Transform Helpers",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": ".constructor()"
     },
     {
@@ -11296,8 +11296,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ln",
-      "community": 74,
-      "community_name": "World Transform Helpers",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "ln"
     },
     {
@@ -11307,8 +11307,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ln_constructor",
-      "community": 74,
-      "community_name": "World Transform Helpers",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": ".constructor()"
     },
     {
@@ -11483,8 +11483,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yn",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "yn()"
     },
     {
@@ -11494,8 +11494,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_getindex",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".getindex()"
     },
     {
@@ -11516,8 +11516,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_getattribute",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".getattribute()"
     },
     {
@@ -11538,8 +11538,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_deleteattribute",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".deleteattribute()"
     },
     {
@@ -11549,8 +11549,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_hasattribute",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".hasattribute()"
     },
     {
@@ -11604,8 +11604,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_rotatex",
-      "community": 132,
-      "community_name": "Do",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".rotatex()"
     },
     {
@@ -11615,8 +11615,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_rotatey",
-      "community": 134,
-      "community_name": ".rotateY",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".rotatey()"
     },
     {
@@ -11626,8 +11626,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_rotatez",
-      "community": 138,
-      "community_name": ".rotateZ",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".rotatez()"
     },
     {
@@ -11637,8 +11637,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_translate",
-      "community": 143,
-      "community_name": ".setFromMatrixColumn",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".translate()"
     },
     {
@@ -11648,8 +11648,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_scale",
-      "community": 142,
-      "community_name": ".scale",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".scale()"
     },
     {
@@ -11659,8 +11659,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_lookat",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".lookat()"
     },
     {
@@ -11681,8 +11681,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_setfrompoints",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 25,
+      "community_name": "Buffer Geometry Construction",
       "norm_label": ".setfrompoints()"
     },
     {
@@ -11725,8 +11725,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_computetangents",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 25,
+      "community_name": "Buffer Geometry Construction",
       "norm_label": ".computetangents()"
     },
     {
@@ -11758,8 +11758,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_normalizenormals",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 25,
+      "community_name": "Buffer Geometry Construction",
       "norm_label": ".normalizenormals()"
     },
     {
@@ -11780,8 +11780,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": ".tojson()"
     },
     {
@@ -11791,8 +11791,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_en_clone",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".clone()"
     },
     {
@@ -11901,8 +11901,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xn",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "xn()"
     },
     {
@@ -11923,8 +11923,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jn_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 82,
+      "community_name": "Geometry Transform Setup",
       "norm_label": ".copy()"
     },
     {
@@ -11934,8 +11934,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jn_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 8,
+      "community_name": "Color Parsing Utilities",
       "norm_label": ".tojson()"
     },
     {
@@ -11967,8 +11967,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_qn_updatematrixworld",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 95,
+      "community_name": "Object Clone JSON",
       "norm_label": ".updatematrixworld()"
     },
     {
@@ -12000,8 +12000,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": "kn"
     },
     {
@@ -12022,8 +12022,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_copy",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".copy()"
     },
     {
@@ -12033,8 +12033,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_setfocallength",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".setfocallength()"
     },
     {
@@ -12044,8 +12044,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_getfocallength",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".getfocallength()"
     },
     {
@@ -12055,8 +12055,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_geteffectivefov",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".geteffectivefov()"
     },
     {
@@ -12066,8 +12066,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_getfilmwidth",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".getfilmwidth()"
     },
     {
@@ -12077,8 +12077,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_getfilmheight",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".getfilmheight()"
     },
     {
@@ -12088,8 +12088,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_setviewoffset",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".setviewoffset()"
     },
     {
@@ -12099,8 +12099,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_clearviewoffset",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".clearviewoffset()"
     },
     {
@@ -12110,8 +12110,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_updateprojectionmatrix",
-      "community": 91,
-      "community_name": "Arc Curve JSON",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".updateprojectionmatrix()"
     },
     {
@@ -12121,8 +12121,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kn_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".tojson()"
     },
     {
@@ -12132,8 +12132,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ti",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "ti"
     },
     {
@@ -12143,8 +12143,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ti_constructor",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".constructor()"
     },
     {
@@ -12154,8 +12154,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ti_update",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".update()"
     },
     {
@@ -12385,8 +12385,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_oi",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": "oi()"
     },
     {
@@ -12396,8 +12396,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_li",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "li()"
     },
     {
@@ -12429,8 +12429,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pi",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "pi()"
     },
     {
@@ -12440,8 +12440,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_mi",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": "mi()"
     },
     {
@@ -12462,8 +12462,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_gi",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": "gi()"
     },
     {
@@ -12528,8 +12528,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_si",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "si()"
     },
     {
@@ -12539,8 +12539,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_li_constructor",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -12638,8 +12638,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "nr()"
     },
     {
@@ -12649,8 +12649,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ir",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "ir()"
     },
     {
@@ -12660,8 +12660,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rr",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "rr()"
     },
     {
@@ -12671,8 +12671,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_sr",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "sr()"
     },
     {
@@ -12682,8 +12682,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ar",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "ar()"
     },
     {
@@ -12803,8 +12803,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_vr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "vr()"
     },
     {
@@ -12814,8 +12814,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "yr()"
     },
     {
@@ -12869,8 +12869,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "zr()"
     },
     {
@@ -12880,8 +12880,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": "kr()"
     },
     {
@@ -12891,8 +12891,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_qr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "qr()"
     },
     {
@@ -12902,8 +12902,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jr",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "jr()"
     },
     {
@@ -12913,8 +12913,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ts",
-      "community": 124,
-      "community_name": ".equals",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": "ts()"
     },
     {
@@ -12935,8 +12935,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ns",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "ns()"
     },
     {
@@ -12979,8 +12979,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_os",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "os()"
     },
     {
@@ -12990,8 +12990,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": "ls()"
     },
     {
@@ -13089,8 +13089,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ps",
-      "community": 2,
-      "community_name": "Quaternion Math Operations",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "ps()"
     },
     {
@@ -13100,8 +13100,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ms",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 122,
+      "community_name": "ac",
       "norm_label": "ms()"
     },
     {
@@ -13155,8 +13155,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ys",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": "ys"
     },
     {
@@ -13166,8 +13166,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ys_constructor",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".constructor()"
     },
     {
@@ -13177,8 +13177,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ys_gethandspace",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".gethandspace()"
     },
     {
@@ -13188,8 +13188,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ys_gettargetrayspace",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".gettargetrayspace()"
     },
     {
@@ -13199,8 +13199,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ys_getgripspace",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".getgripspace()"
     },
     {
@@ -13309,8 +13309,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ms_constructor",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 122,
+      "community_name": "ac",
       "norm_label": ".constructor()"
     },
     {
@@ -13320,8 +13320,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ms_clone",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 122,
+      "community_name": "ac",
       "norm_label": ".clone()"
     },
     {
@@ -13331,8 +13331,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ms_tojson",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 122,
+      "community_name": "ac",
       "norm_label": ".tojson()"
     },
     {
@@ -13375,8 +13375,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ts_constructor",
-      "community": 124,
-      "community_name": ".equals",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".constructor()"
     },
     {
@@ -13386,8 +13386,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ts_copy",
-      "community": 124,
-      "community_name": ".equals",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".copy()"
     },
     {
@@ -13397,8 +13397,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ts_tojson",
-      "community": 124,
-      "community_name": ".equals",
+      "community": 32,
+      "community_name": "2D Path Drawing",
       "norm_label": ".tojson()"
     },
     {
@@ -13507,8 +13507,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_constructor",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".constructor()"
     },
     {
@@ -13518,8 +13518,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_count",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".count()"
     },
     {
@@ -13529,8 +13529,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_array",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".array()"
     },
     {
@@ -13540,8 +13540,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_needsupdate",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".needsupdate()"
     },
     {
@@ -13584,8 +13584,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_setx",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".setx()"
     },
     {
@@ -13595,8 +13595,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_sety",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".sety()"
     },
     {
@@ -13606,8 +13606,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_setz",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".setz()"
     },
     {
@@ -13617,8 +13617,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_setw",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".setw()"
     },
     {
@@ -13672,8 +13672,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_setxy",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".setxy()"
     },
     {
@@ -13694,8 +13694,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_setxyzw",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".setxyzw()"
     },
     {
@@ -13705,8 +13705,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_clone",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".clone()"
     },
     {
@@ -13716,8 +13716,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ls_tojson",
-      "community": 80,
-      "community_name": "Line Segment Distance",
+      "community": 31,
+      "community_name": "Box3 Intersection Utils",
       "norm_label": ".tojson()"
     },
     {
@@ -13760,8 +13760,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_vs",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": "vs"
     },
     {
@@ -13782,8 +13782,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_vs_raycast",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".raycast()"
     },
     {
@@ -13793,8 +13793,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_vs_copy",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".copy()"
     },
     {
@@ -13804,8 +13804,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xs_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".copy()"
     },
     {
@@ -13815,8 +13815,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xs_addlevel",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".addlevel()"
     },
     {
@@ -13870,8 +13870,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xs_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".tojson()"
     },
     {
@@ -13980,8 +13980,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": "ia"
     },
     {
@@ -13991,8 +13991,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_constructor",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".constructor()"
     },
     {
@@ -14002,8 +14002,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_init",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".init()"
     },
     {
@@ -14013,8 +14013,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_calculateinverses",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".calculateinverses()"
     },
     {
@@ -14024,8 +14024,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_pose",
-      "community": 48,
-      "community_name": "Camera World Raycasting",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".pose()"
     },
     {
@@ -14035,8 +14035,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_update",
-      "community": 52,
-      "community_name": "Instanced Mesh Skeleton",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": ".update()"
     },
     {
@@ -14046,8 +14046,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_clone",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".clone()"
     },
     {
@@ -14068,8 +14068,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_dispose",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".dispose()"
     },
     {
@@ -14079,8 +14079,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_fromjson",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 93,
+      "community_name": "Quadratic Bezier JSON",
       "norm_label": ".fromjson()"
     },
     {
@@ -14090,8 +14090,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ia_tojson",
-      "community": 57,
-      "community_name": "Curve Length Mapping",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": ".tojson()"
     },
     {
@@ -14134,8 +14134,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_la_getcolorat",
-      "community": 56,
-      "community_name": "Instanced Geometry Parsing",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".getcolorat()"
     },
     {
@@ -14211,8 +14211,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ca",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "ca"
     },
     {
@@ -14222,8 +14222,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ca_constructor",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -14233,8 +14233,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ca_copy",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".copy()"
     },
     {
@@ -14244,8 +14244,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fa",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": "fa"
     },
     {
@@ -14266,8 +14266,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fa_copy",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 121,
+      "community_name": ".updateMatrices",
       "norm_label": ".copy()"
     },
     {
@@ -14277,8 +14277,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fa_computelinedistances",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".computelinedistances()"
     },
     {
@@ -14288,8 +14288,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fa_raycast",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".raycast()"
     },
     {
@@ -14299,8 +14299,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fa_updatemorphtargets",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".updatemorphtargets()"
     },
     {
@@ -14332,8 +14332,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ya_computelinedistances",
-      "community": 16,
-      "community_name": "Object Constructor Copies",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".computelinedistances()"
     },
     {
@@ -14563,8 +14563,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_na_constructor",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 25,
+      "community_name": "Buffer Geometry Construction",
       "norm_label": ".constructor()"
     },
     {
@@ -14596,8 +14596,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ga",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "ga"
     },
     {
@@ -14607,8 +14607,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ga_constructor",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 74,
+      "community_name": "World Transform Helpers",
       "norm_label": ".constructor()"
     },
     {
@@ -14816,8 +14816,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_po",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 123,
+      "community_name": "ds",
       "norm_label": "po"
     },
     {
@@ -14827,8 +14827,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_po_area",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 123,
+      "community_name": "ds",
       "norm_label": ".area()"
     },
     {
@@ -14838,8 +14838,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_po_isclockwise",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 123,
+      "community_name": "ds",
       "norm_label": ".isclockwise()"
     },
     {
@@ -14849,8 +14849,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_po_triangulateshape",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".triangulateshape()"
     },
     {
@@ -14860,8 +14860,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_mo",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "mo()"
     },
     {
@@ -14959,8 +14959,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_o",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "_o"
     },
     {
@@ -14970,8 +14970,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_o_constructor",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -15003,8 +15003,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bo",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "bo"
     },
     {
@@ -15036,8 +15036,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_mo_tojson",
-      "community": 108,
-      "community_name": "Copy Constructor Object",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".tojson()"
     },
     {
@@ -15069,8 +15069,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_eo_constructor",
-      "community": 16,
-      "community_name": "Object Constructor Copies",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".constructor()"
     },
     {
@@ -15124,8 +15124,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_co_constructor",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -15201,8 +15201,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bo_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": ".copy()"
     },
     {
@@ -15344,8 +15344,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wo_evaluate",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 68,
+      "community_name": "Interpolant Interval Sampling",
       "norm_label": ".evaluate()"
     },
     {
@@ -15487,8 +15487,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yo_tojson",
-      "community": 55,
-      "community_name": "Shape Curve Parameters",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".tojson()"
     },
     {
@@ -15630,8 +15630,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ko",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": "ko"
     },
     {
@@ -15641,8 +15641,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ko_constructor",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": ".constructor()"
     },
     {
@@ -15652,8 +15652,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ko_interpolate",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": ".interpolate_()"
     },
     {
@@ -15663,8 +15663,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_o_interpolantfactorymethodlinear",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 55,
+      "community_name": "Shape Curve Parameters",
       "norm_label": ".interpolantfactorymethodlinear()"
     },
     {
@@ -15729,8 +15729,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_tojson",
-      "community": 23,
-      "community_name": "Physics Constraint Binding",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".tojson()"
     },
     {
@@ -15740,8 +15740,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_createfrommorphtargetsequence",
-      "community": 23,
-      "community_name": "Physics Constraint Binding",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".createfrommorphtargetsequence()"
     },
     {
@@ -15762,8 +15762,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_createclipsfrommorphtargetsequences",
-      "community": 23,
-      "community_name": "Physics Constraint Binding",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".createclipsfrommorphtargetsequences()"
     },
     {
@@ -15773,8 +15773,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_parseanimation",
-      "community": 145,
-      "community_name": "Rl",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".parseanimation()"
     },
     {
@@ -15795,8 +15795,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_trim",
-      "community": 47,
-      "community_name": "Animation JSON Parsing",
+      "community": 0,
+      "community_name": "WebGL Shader Variables",
       "norm_label": ".trim()"
     },
     {
@@ -15828,8 +15828,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_clone",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 23,
+      "community_name": "Physics Constraint Binding",
       "norm_label": ".clone()"
     },
     {
@@ -15982,8 +15982,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_cl",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "cl"
     },
     {
@@ -15993,8 +15993,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_cl_constructor",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -16026,8 +16026,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_cl_setmimetype",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".setmimetype()"
     },
     {
@@ -16037,8 +16037,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hl",
-      "community": 126,
-      "community_name": "tc",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": "hl"
     },
     {
@@ -16048,8 +16048,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hl_constructor",
-      "community": 126,
-      "community_name": "tc",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".constructor()"
     },
     {
@@ -16059,8 +16059,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hl_load",
-      "community": 126,
-      "community_name": "tc",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".load()"
     },
     {
@@ -16103,8 +16103,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_dl",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 99,
+      "community_name": "Bounding Box Object",
       "norm_label": "dl"
     },
     {
@@ -16114,8 +16114,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_dl_constructor",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 99,
+      "community_name": "Bounding Box Object",
       "norm_label": ".constructor()"
     },
     {
@@ -16136,8 +16136,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pl",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": "pl"
     },
     {
@@ -16147,8 +16147,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pl_constructor",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": ".constructor()"
     },
     {
@@ -16290,8 +16290,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ml_gettangentat",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 100,
+      "community_name": "Matrix Clone Serialization",
       "norm_label": ".gettangentat()"
     },
     {
@@ -16301,8 +16301,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ml_computefrenetframes",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".computefrenetframes()"
     },
     {
@@ -16422,8 +16422,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_gl",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": "gl"
     },
     {
@@ -16433,8 +16433,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_gl_constructor",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".constructor()"
     },
     {
@@ -16477,8 +16477,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bl_getpoint",
-      "community": 82,
-      "community_name": "Geometry Transform Setup",
+      "community": 79,
+      "community_name": "Animation Weight Blending",
       "norm_label": ".getpoint()"
     },
     {
@@ -16488,8 +16488,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bl_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": ".copy()"
     },
     {
@@ -16499,8 +16499,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bl_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": ".tojson()"
     },
     {
@@ -16510,8 +16510,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bl_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".fromjson()"
     },
     {
@@ -16807,8 +16807,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_cl_getpoint",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".getpoint()"
     },
     {
@@ -16829,94 +16829,6 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_cl_tojson",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
-      "norm_label": ".tojson()"
-    },
-    {
-      "label": ".fromJSON()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_cl_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".fromjson()"
-    },
-    {
-      "label": ".getPoint()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_pl_getpoint",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".getpoint()"
-    },
-    {
-      "label": ".copy()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_pl_copy",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".copy()"
-    },
-    {
-      "label": ".toJSON()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_pl_tojson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".tojson()"
-    },
-    {
-      "label": ".fromJSON()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_pl_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".fromjson()"
-    },
-    {
-      "label": ".getPoint()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_dl_getpoint",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".getpoint()"
-    },
-    {
-      "label": ".copy()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_dl_copy",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
-      "norm_label": ".copy()"
-    },
-    {
-      "label": ".toJSON()",
-      "file_type": "code",
-      "source_file": "vendor/three.min.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "vendor_three_min_dl_tojson",
       "community": 42,
       "community_name": "Object JSON Serialization",
       "norm_label": ".tojson()"
@@ -16927,9 +16839,97 @@
       "source_file": "vendor/three.min.js",
       "source_location": "L6",
       "_origin": "ast",
+      "id": "vendor_three_min_cl_fromjson",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
+      "norm_label": ".fromjson()"
+    },
+    {
+      "label": ".getPoint()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_pl_getpoint",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
+      "norm_label": ".getpoint()"
+    },
+    {
+      "label": ".copy()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_pl_copy",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
+      "norm_label": ".copy()"
+    },
+    {
+      "label": ".toJSON()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_pl_tojson",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
+      "norm_label": ".tojson()"
+    },
+    {
+      "label": ".fromJSON()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_pl_fromjson",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
+      "norm_label": ".fromjson()"
+    },
+    {
+      "label": ".getPoint()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_dl_getpoint",
+      "community": 99,
+      "community_name": "Bounding Box Object",
+      "norm_label": ".getpoint()"
+    },
+    {
+      "label": ".copy()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_dl_copy",
+      "community": 99,
+      "community_name": "Bounding Box Object",
+      "norm_label": ".copy()"
+    },
+    {
+      "label": ".toJSON()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "vendor_three_min_dl_tojson",
+      "community": 99,
+      "community_name": "Bounding Box Object",
+      "norm_label": ".tojson()"
+    },
+    {
+      "label": ".fromJSON()",
+      "file_type": "code",
+      "source_file": "vendor/three.min.js",
+      "source_location": "L6",
+      "_origin": "ast",
       "id": "vendor_three_min_dl_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 99,
+      "community_name": "Bounding Box Object",
       "norm_label": ".fromjson()"
     },
     {
@@ -17016,8 +17016,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_getpoints",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".getpoints()"
     },
     {
@@ -17038,8 +17038,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nl_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": ".fromjson()"
     },
     {
@@ -17159,8 +17159,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": "zl"
     },
     {
@@ -17170,8 +17170,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_constructor",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".constructor()"
     },
     {
@@ -17181,8 +17181,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_getpointsholes",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".getpointsholes()"
     },
     {
@@ -17192,8 +17192,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_extractpoints",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".extractpoints()"
     },
     {
@@ -17203,8 +17203,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_copy",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".copy()"
     },
     {
@@ -17214,8 +17214,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_tojson",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".tojson()"
     },
     {
@@ -17225,8 +17225,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_fromjson",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".fromjson()"
     },
     {
@@ -17269,8 +17269,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kl_constructor",
-      "community": 22,
-      "community_name": "Scene Object Quaternion",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": ".constructor()"
     },
     {
@@ -17302,8 +17302,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kl_updatematrices",
-      "community": 40,
-      "community_name": "JSON Scene Parser",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".updatematrices()"
     },
     {
@@ -17346,8 +17346,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kl_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": ".copy()"
     },
     {
@@ -17412,8 +17412,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wl",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": "wl"
     },
     {
@@ -17423,8 +17423,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wl_constructor",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".constructor()"
     },
     {
@@ -17434,8 +17434,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wl_power",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".power()"
     },
     {
@@ -17445,8 +17445,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wl_dispose",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".dispose()"
     },
     {
@@ -17456,8 +17456,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wl_copy",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 80,
+      "community_name": "Line Segment Distance",
       "norm_label": ".copy()"
     },
     {
@@ -17467,8 +17467,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yl",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": "yl"
     },
     {
@@ -17478,8 +17478,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yl_constructor",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".constructor()"
     },
     {
@@ -17489,8 +17489,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yl_updatematrices",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".updatematrices()"
     },
     {
@@ -17500,8 +17500,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_power",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".power()"
     },
     {
@@ -17511,8 +17511,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_zl_dispose",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 52,
+      "community_name": "Instanced Mesh Skeleton",
       "norm_label": ".dispose()"
     },
     {
@@ -17588,8 +17588,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jl_tojson",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 27,
+      "community_name": "Camera Projection Update",
       "norm_label": ".tojson()"
     },
     {
@@ -17643,8 +17643,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tc",
-      "community": 123,
-      "community_name": "ds",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": "tc"
     },
     {
@@ -17654,8 +17654,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tc_constructor",
-      "community": 123,
-      "community_name": "ds",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".constructor()"
     },
     {
@@ -17665,8 +17665,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tc_copy",
-      "community": 123,
-      "community_name": "ds",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".copy()"
     },
     {
@@ -17676,8 +17676,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tc_tojson",
-      "community": 123,
-      "community_name": "ds",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".tojson()"
     },
     {
@@ -17830,8 +17830,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ec_fromarray",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": ".fromarray()"
     },
     {
@@ -17841,8 +17841,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ec_toarray",
-      "community": 42,
-      "community_name": "Object JSON Serialization",
+      "community": 56,
+      "community_name": "Instanced Geometry Parsing",
       "norm_label": ".toarray()"
     },
     {
@@ -17896,8 +17896,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_fromjson",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": ".fromjson()"
     },
     {
@@ -17918,8 +17918,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ic",
-      "community": 7,
-      "community_name": "Audio Clock Input",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": "ic"
     },
     {
@@ -17962,8 +17962,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ic_settextures",
-      "community": 0,
-      "community_name": "WebGL Shader Variables",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".settextures()"
     },
     {
@@ -17973,8 +17973,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rc",
-      "community": 128,
-      "community_name": "TNC Sim web",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": "rc"
     },
     {
@@ -17984,8 +17984,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rc_decodetext",
-      "community": 128,
-      "community_name": "TNC Sim web",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".decodetext()"
     },
     {
@@ -17995,8 +17995,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rc_extracturlbase",
-      "community": 128,
-      "community_name": "TNC Sim web",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".extracturlbase()"
     },
     {
@@ -18061,8 +18061,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ac",
-      "community": 122,
-      "community_name": "ac",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": "ac"
     },
     {
@@ -18072,8 +18072,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ac_constructor",
-      "community": 122,
-      "community_name": "ac",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".constructor()"
     },
     {
@@ -18083,8 +18083,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ac_copy",
-      "community": 122,
-      "community_name": "ac",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".copy()"
     },
     {
@@ -18094,8 +18094,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ac_tojson",
-      "community": 122,
-      "community_name": "ac",
+      "community": 42,
+      "community_name": "Object JSON Serialization",
       "norm_label": ".tojson()"
     },
     {
@@ -18270,8 +18270,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_dc_toshapes",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".toshapes()"
     },
     {
@@ -18281,8 +18281,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pc",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": "pc"
     },
     {
@@ -18292,8 +18292,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pc_constructor",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".constructor()"
     },
     {
@@ -18303,8 +18303,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_pc_generateshapes",
-      "community": 88,
-      "community_name": "Curve Tangent JSON",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".generateshapes()"
     },
     {
@@ -18765,8 +18765,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ic_getfrequencydata",
-      "community": 7,
-      "community_name": "Audio Clock Input",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".getfrequencydata()"
     },
     {
@@ -18776,8 +18776,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_ic_getaveragefrequency",
-      "community": 7,
-      "community_name": "Audio Clock Input",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": ".getaveragefrequency()"
     },
     {
@@ -18787,8 +18787,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_accumulate",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": ".accumulate()"
     },
     {
@@ -18798,8 +18798,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_accumulateadditive",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 68,
+      "community_name": "Interpolant Interval Sampling",
       "norm_label": ".accumulateadditive()"
     },
     {
@@ -18809,8 +18809,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_apply",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".apply()"
     },
     {
@@ -18820,8 +18820,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_saveoriginalstate",
-      "community": 39,
-      "community_name": "Quaternion Interpolation",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": ".saveoriginalstate()"
     },
     {
@@ -18886,8 +18886,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_slerp",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": "._slerp()"
     },
     {
@@ -18897,8 +18897,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_nc_slerpadditive",
-      "community": 99,
-      "community_name": "Bounding Box Object",
+      "community": 39,
+      "community_name": "Quaternion Interpolation",
       "norm_label": "._slerpadditive()"
     },
     {
@@ -18952,8 +18952,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jc_create",
-      "community": 11,
-      "community_name": "Skeleton Bone Binding",
+      "community": 24,
+      "community_name": "Animation Memory Manager",
       "norm_label": ".create()"
     },
     {
@@ -19194,8 +19194,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jc_getvalue_unbound",
-      "community": 39,
-      "community_name": "Quaternion Interpolation",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": "._getvalue_unbound()"
     },
     {
@@ -19238,8 +19238,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_constructor",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "constructor()"
     },
     {
@@ -19249,8 +19249,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_getvalue",
-      "community": 39,
-      "community_name": "Quaternion Interpolation",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": "getvalue()"
     },
     {
@@ -19271,8 +19271,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bind",
-      "community": 39,
-      "community_name": "Quaternion Interpolation",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": "bind()"
     },
     {
@@ -19348,8 +19348,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_qc_subscribe",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".subscribe_()"
     },
     {
@@ -19359,8 +19359,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_qc_unsubscribe",
-      "community": 133,
-      "community_name": "Rs",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".unsubscribe_()"
     },
     {
@@ -19447,8 +19447,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_seteffectiveweight",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 19,
+      "community_name": "Animation Action Crossfade",
       "norm_label": ".seteffectiveweight()"
     },
     {
@@ -19513,8 +19513,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_stopfading",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 19,
+      "community_name": "Animation Action Crossfade",
       "norm_label": ".stopfading()"
     },
     {
@@ -19634,8 +19634,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_update",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 68,
+      "community_name": "Interpolant Interval Sampling",
       "norm_label": "._update()"
     },
     {
@@ -19645,8 +19645,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_updateweight",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 68,
+      "community_name": "Interpolant Interval Sampling",
       "norm_label": "._updateweight()"
     },
     {
@@ -19656,8 +19656,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_updatetimescale",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 68,
+      "community_name": "Interpolant Interval Sampling",
       "norm_label": "._updatetimescale()"
     },
     {
@@ -19667,8 +19667,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_updatetime",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 19,
+      "community_name": "Animation Action Crossfade",
       "norm_label": "._updatetime()"
     },
     {
@@ -19678,8 +19678,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_xc_setendings",
-      "community": 93,
-      "community_name": "Quadratic Bezier JSON",
+      "community": 19,
+      "community_name": "Animation Action Crossfade",
       "norm_label": "._setendings()"
     },
     {
@@ -19755,8 +19755,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yc_addinactiveaction",
-      "community": 24,
-      "community_name": "Animation Memory Manager",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "._addinactiveaction()"
     },
     {
@@ -19766,8 +19766,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yc_removeinactiveaction",
-      "community": 24,
-      "community_name": "Animation Memory Manager",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "._removeinactiveaction()"
     },
     {
@@ -19909,8 +19909,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yc_update",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 91,
+      "community_name": "Arc Curve JSON",
       "norm_label": ".update()"
     },
     {
@@ -19920,8 +19920,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yc_settime",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 24,
+      "community_name": "Animation Memory Manager",
       "norm_label": ".settime()"
     },
     {
@@ -20019,8 +20019,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_jc_clone",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": ".clone()"
     },
     {
@@ -20294,8 +20294,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_eh_getparameter",
-      "community": 90,
-      "community_name": "Buffer Attribute Cache",
+      "community": 48,
+      "community_name": "Camera World Raycasting",
       "norm_label": ".getparameter()"
     },
     {
@@ -20382,8 +20382,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": "rh"
     },
     {
@@ -20393,8 +20393,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_constructor",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".constructor()"
     },
     {
@@ -20404,8 +20404,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_set",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".set()"
     },
     {
@@ -20415,8 +20415,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_copy",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".copy()"
     },
     {
@@ -20437,8 +20437,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_delta",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".delta()"
     },
     {
@@ -20448,8 +20448,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_distancesq",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".distancesq()"
     },
     {
@@ -20492,8 +20492,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_closestpointtopoint",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".closestpointtopoint()"
     },
     {
@@ -20525,8 +20525,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_rh_clone",
-      "community": 79,
-      "community_name": "Animation Weight Blending",
+      "community": 36,
+      "community_name": "Ray Geometry Intersection",
       "norm_label": ".clone()"
     },
     {
@@ -20558,8 +20558,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hh",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": "hh"
     },
     {
@@ -20569,8 +20569,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hh_constructor",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -20580,8 +20580,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_hh_updatematrixworld",
-      "community": 34,
-      "community_name": "Raycaster Object Intersection",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": ".updatematrixworld()"
     },
     {
@@ -20602,8 +20602,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fh",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "fh"
     },
     {
@@ -20613,8 +20613,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_fh_constructor",
-      "community": 25,
-      "community_name": "Buffer Geometry Construction",
+      "community": 89,
+      "community_name": "Spaced Curve Points",
       "norm_label": ".constructor()"
     },
     {
@@ -20624,8 +20624,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_wh",
-      "community": 86,
-      "community_name": "Line Geometry Index",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "wh()"
     },
     {
@@ -20723,8 +20723,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_qh",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 38,
+      "community_name": "PMREM Cubemap Processing",
       "norm_label": "qh()"
     },
     {
@@ -20745,8 +20745,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_yh",
-      "community": 89,
-      "community_name": "Spaced Curve Points",
+      "community": 25,
+      "community_name": "Buffer Geometry Construction",
       "norm_label": "yh()"
     },
     {
@@ -20778,8 +20778,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_kh",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 38,
+      "community_name": "PMREM Cubemap Processing",
       "norm_label": "kh()"
     },
     {
@@ -20789,8 +20789,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_h",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 38,
+      "community_name": "PMREM Cubemap Processing",
       "norm_label": "$h()"
     },
     {
@@ -20800,8 +20800,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_tu",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 38,
+      "community_name": "PMREM Cubemap Processing",
       "norm_label": "tu()"
     },
     {
@@ -20833,8 +20833,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_setdirection",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "setdirection()"
     },
     {
@@ -20844,8 +20844,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_setlength",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "setlength()"
     },
     {
@@ -21009,8 +21009,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_clone",
-      "community": 121,
-      "community_name": ".updateMatrices",
+      "community": 40,
+      "community_name": "JSON Scene Parser",
       "norm_label": "clone()"
     },
     {
@@ -21031,8 +21031,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_parseshapes",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": "parseshapes()"
     },
     {
@@ -21042,8 +21042,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_parseskeletons",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": "parseskeletons()"
     },
     {
@@ -21053,8 +21053,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_parsegeometries",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 10,
+      "community_name": "Buffer Attribute UV Transform",
       "norm_label": "parsegeometries()"
     },
     {
@@ -21064,8 +21064,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_parsematerials",
-      "community": 0,
-      "community_name": "WebGL Shader Variables",
+      "community": 64,
+      "community_name": "HTTP Asset Loader",
       "norm_label": "parsematerials()"
     },
     {
@@ -21097,8 +21097,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_parsetextures",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 86,
+      "community_name": "Line Geometry Index",
       "norm_label": "parsetextures()"
     },
     {
@@ -21119,8 +21119,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_bindskeletons",
-      "community": 64,
-      "community_name": "HTTP Asset Loader",
+      "community": 47,
+      "community_name": "Animation JSON Parsing",
       "norm_label": "bindskeletons()"
     },
     {
@@ -21174,8 +21174,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_compilecubemapshader",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "compilecubemapshader()"
     },
     {
@@ -21185,8 +21185,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_compileequirectangularshader",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "compileequirectangularshader()"
     },
     {
@@ -21229,8 +21229,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_compilematerial",
-      "community": 10,
-      "community_name": "Buffer Attribute UV Transform",
+      "community": 1,
+      "community_name": "Three.js Material Compilation",
       "norm_label": "_compilematerial()"
     },
     {
@@ -21405,8 +21405,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "vendor_three_min_setfromcamera",
-      "community": 33,
-      "community_name": "Geometric Projection Utils",
+      "community": 90,
+      "community_name": "Buffer Attribute Cache",
       "norm_label": "setfromcamera()"
     },
     {
@@ -22565,10 +22565,21 @@
       "norm_label": "tnc sim \u2014 release notes"
     },
     {
-      "label": "v0.853 (web test)",
+      "label": "v0.854 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L13",
+      "_origin": "ast",
+      "id": "release_notes_v0_854_web_test",
+      "community": 58,
+      "community_name": "Path Curve Points",
+      "norm_label": "v0.854 (web test)"
+    },
+    {
+      "label": "v0.853 (web test)",
+      "file_type": "document",
+      "source_file": "RELEASE_NOTES.md",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "release_notes_v0_853_web_test",
       "community": 58,
@@ -22579,7 +22590,7 @@
       "label": "v0.852 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L19",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "release_notes_v0_852_web_test",
       "community": 58,
@@ -22590,7 +22601,7 @@
       "label": "v0.851 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L25",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "release_notes_v0_851_web_test",
       "community": 58,
@@ -22601,7 +22612,7 @@
       "label": "v0.850 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L35",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "release_notes_v0_850_web_test",
       "community": 58,
@@ -22612,7 +22623,7 @@
       "label": "v0.849 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L43",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "release_notes_v0_849_web_test",
       "community": 58,
@@ -22623,7 +22634,7 @@
       "label": "v0.848",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L53",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "release_notes_v0_848",
       "community": 58,
@@ -22634,7 +22645,7 @@
       "label": "v0.847 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L57",
+      "source_location": "L62",
       "_origin": "ast",
       "id": "release_notes_v0_847_web_test",
       "community": 58,
@@ -22645,7 +22656,7 @@
       "label": "v0.845 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L63",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "release_notes_v0_845_web_test",
       "community": 58,
@@ -22656,7 +22667,7 @@
       "label": "v0.844 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L69",
+      "source_location": "L74",
       "_origin": "ast",
       "id": "release_notes_v0_844_web_test",
       "community": 58,
@@ -22667,7 +22678,7 @@
       "label": "v0.843 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L74",
+      "source_location": "L79",
       "_origin": "ast",
       "id": "release_notes_v0_843_web_test",
       "community": 58,
@@ -22678,7 +22689,7 @@
       "label": "v0.842 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L79",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "release_notes_v0_842_web_test",
       "community": 58,
@@ -22689,7 +22700,7 @@
       "label": "v0.841 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L83",
+      "source_location": "L88",
       "_origin": "ast",
       "id": "release_notes_v0_841_web_test",
       "community": 58,
@@ -22700,7 +22711,7 @@
       "label": "v0.840 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L87",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "release_notes_v0_840_web_test",
       "community": 58,
@@ -22711,7 +22722,7 @@
       "label": "v0.839 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L93",
+      "source_location": "L98",
       "_origin": "ast",
       "id": "release_notes_v0_839_web_test",
       "community": 58,
@@ -22722,7 +22733,7 @@
       "label": "v0.838 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L98",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "release_notes_v0_838_web_test",
       "community": 58,
@@ -22733,7 +22744,7 @@
       "label": "v0.837 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L102",
+      "source_location": "L107",
       "_origin": "ast",
       "id": "release_notes_v0_837_web_test",
       "community": 58,
@@ -22744,7 +22755,7 @@
       "label": "v0.835 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L107",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "release_notes_v0_835_web_test",
       "community": 58,
@@ -22755,7 +22766,7 @@
       "label": "v0.834 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L112",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "release_notes_v0_834_web_test",
       "community": 58,
@@ -22766,7 +22777,7 @@
       "label": "v0.833 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L116",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "release_notes_v0_833_web_test",
       "community": 58,
@@ -22777,7 +22788,7 @@
       "label": "v0.832 (Learn test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L121",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "release_notes_v0_832_learn_test",
       "community": 58,
@@ -22788,7 +22799,7 @@
       "label": "v0.831",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L127",
+      "source_location": "L132",
       "_origin": "ast",
       "id": "release_notes_v0_831",
       "community": 58,
@@ -22799,7 +22810,7 @@
       "label": "v0.830 (web performance test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L134",
+      "source_location": "L139",
       "_origin": "ast",
       "id": "release_notes_v0_830_web_performance_test",
       "community": 58,
@@ -22810,7 +22821,7 @@
       "label": "v0.828 (mobile web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L139",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "release_notes_v0_828_mobile_web_test",
       "community": 58,
@@ -22821,7 +22832,7 @@
       "label": "v0.827 (mobile web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L143",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "release_notes_v0_827_mobile_web_test",
       "community": 58,
@@ -22832,7 +22843,7 @@
       "label": "v0.826 (web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L148",
+      "source_location": "L153",
       "_origin": "ast",
       "id": "release_notes_v0_826_web_test",
       "community": 58,
@@ -22843,7 +22854,7 @@
       "label": "v0.825 (mobile web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L153",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "release_notes_v0_825_mobile_web_test",
       "community": 58,
@@ -22854,7 +22865,7 @@
       "label": "v0.822",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L157",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "release_notes_v0_822",
       "community": 58,
@@ -22865,7 +22876,7 @@
       "label": "v0.819 (mobile web test)",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L161",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "release_notes_v0_819_mobile_web_test",
       "community": 58,
@@ -22876,7 +22887,7 @@
       "label": "v0.812",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L166",
+      "source_location": "L171",
       "_origin": "ast",
       "id": "release_notes_v0_812",
       "community": 58,
@@ -22887,7 +22898,7 @@
       "label": "v0.810",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L170",
+      "source_location": "L175",
       "_origin": "ast",
       "id": "release_notes_v0_810",
       "community": 58,
@@ -22898,7 +22909,7 @@
       "label": "v0.809",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L176",
+      "source_location": "L181",
       "_origin": "ast",
       "id": "release_notes_v0_809",
       "community": 58,
@@ -22909,7 +22920,7 @@
       "label": "v0.806",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L181",
+      "source_location": "L186",
       "_origin": "ast",
       "id": "release_notes_v0_806",
       "community": 58,
@@ -22920,7 +22931,7 @@
       "label": "v0.804",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L185",
+      "source_location": "L190",
       "_origin": "ast",
       "id": "release_notes_v0_804",
       "community": 58,
@@ -22931,7 +22942,7 @@
       "label": "v0.803",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L189",
+      "source_location": "L194",
       "_origin": "ast",
       "id": "release_notes_v0_803",
       "community": 58,
@@ -22942,7 +22953,7 @@
       "label": "v0.802",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L193",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "release_notes_v0_802",
       "community": 58,
@@ -22953,7 +22964,7 @@
       "label": "v0.801",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L197",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "release_notes_v0_801",
       "community": 58,
@@ -23030,7 +23041,7 @@
       "label": "Status",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L40",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "todo_status",
       "community": 73,
@@ -23041,7 +23052,7 @@
       "label": "<short title> \u2014 <one-line symptom>",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L46",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "todo_short_title_one_line_symptom",
       "community": 73,
@@ -23052,9 +23063,9 @@
       "label": "Symptom",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L48",
+      "source_location": "L51",
       "_origin": "ast",
-      "id": "todo_symptom_48",
+      "id": "todo_symptom_51",
       "community": 73,
       "community_name": "Object Clone Serialize",
       "norm_label": "symptom"
@@ -23063,9 +23074,9 @@
       "label": "Attempts",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L50",
+      "source_location": "L53",
       "_origin": "ast",
-      "id": "todo_attempts_50",
+      "id": "todo_attempts_53",
       "community": 73,
       "community_name": "Object Clone Serialize",
       "norm_label": "attempts"
@@ -23074,9 +23085,9 @@
       "label": "Status",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L53",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "todo_status_53",
+      "id": "todo_status_56",
       "community": 73,
       "community_name": "Object Clone Serialize",
       "norm_label": "status"
@@ -23104,10 +23115,21 @@
       "norm_label": "tnc sim web \u2014 technical changelog"
     },
     {
-      "label": "v0.853 \u2014 accurate 90-degree countersink section",
+      "label": "v0.854 \u2014 Cycle 208 countersink contact position",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
       "source_location": "L10",
+      "_origin": "ast",
+      "id": "docs_history_changelog_v0_854_cycle_208_countersink_contact_position",
+      "community": 54,
+      "community_name": "XR Controller Session",
+      "norm_label": "v0.854 \u2014 cycle 208 countersink contact position"
+    },
+    {
+      "label": "v0.853 \u2014 accurate 90-degree countersink section",
+      "file_type": "document",
+      "source_file": "docs/history/changelog.md",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_853_accurate_90_degree_countersink_section",
       "community": 54,
@@ -23118,7 +23140,7 @@
       "label": "v0.852 \u2014 Learn diagram collision corrections",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L18",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_852_learn_diagram_collision_corrections",
       "community": 54,
@@ -23129,7 +23151,7 @@
       "label": "v0.851 \u2014 complete Learn slide-image redesign",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L26",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_851_complete_learn_slide_image_redesign",
       "community": 54,
@@ -23140,7 +23162,7 @@
       "label": "v0.850 \u2014 clearer compensation and Cycle 208 diagrams",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L37",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_850_clearer_compensation_and_cycle_208_diagrams",
       "community": 54,
@@ -23151,7 +23173,7 @@
       "label": "v0.849 \u2014 Learn correctness and accessibility audit",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L44",
+      "source_location": "L50",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_849_learn_correctness_and_accessibility_audit",
       "community": 54,
@@ -23162,7 +23184,7 @@
       "label": "v0.848 \u2014 machining demo library",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L56",
+      "source_location": "L62",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_848_machining_demo_library",
       "community": 54,
@@ -23173,7 +23195,7 @@
       "label": "v0.847 \u2014 light grid and Learn hint state",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L63",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_847_light_grid_and_learn_hint_state",
       "community": 54,
@@ -23184,7 +23206,7 @@
       "label": "v0.846 \u2014 documentation damage control",
       "file_type": "document",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L70",
+      "source_location": "L76",
       "_origin": "ast",
       "id": "docs_history_changelog_v0_846_documentation_damage_control",
       "community": 54,
@@ -25862,7 +25884,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L951",
+      "source_location": "L952",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_closelearn",
@@ -25872,7 +25894,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L974",
+      "source_location": "L975",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnbacktolist",
@@ -25882,7 +25904,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1038",
+      "source_location": "L1039",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learncheck",
@@ -25892,7 +25914,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L748",
+      "source_location": "L749",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learncycleblocks",
@@ -25902,7 +25924,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1088",
+      "source_location": "L1089",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnendeditorinput",
@@ -25912,7 +25934,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L770",
+      "source_location": "L771",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnevalchecks",
@@ -25922,7 +25944,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L741",
+      "source_location": "L742",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnexecutablecode",
@@ -25932,7 +25954,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1068",
+      "source_location": "L1069",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnexit",
@@ -25942,7 +25964,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1048",
+      "source_location": "L1049",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnfinishintro",
@@ -25952,7 +25974,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1053",
+      "source_location": "L1054",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnfinishlesson",
@@ -25962,7 +25984,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1024",
+      "source_location": "L1025",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnhint",
@@ -25972,7 +25994,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L968",
+      "source_location": "L969",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnnav",
@@ -25982,7 +26004,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1101",
+      "source_location": "L1102",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnno",
@@ -25992,7 +26014,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L962",
+      "source_location": "L963",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnopenlesson",
@@ -26002,7 +26024,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L898",
+      "source_location": "L899",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnprogress",
@@ -26012,7 +26034,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1103",
+      "source_location": "L1104",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnrender",
@@ -26022,7 +26044,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L992",
+      "source_location": "L993",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnresetprogress",
@@ -26032,7 +26054,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L902",
+      "source_location": "L903",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsaveprogress",
@@ -26052,7 +26074,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L976",
+      "source_location": "L977",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsolve",
@@ -26062,7 +26084,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L999",
+      "source_location": "L1000",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnstarttask",
@@ -26082,7 +26104,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L684",
+      "source_location": "L685",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgarccc",
@@ -26092,7 +26114,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L702",
+      "source_location": "L703",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgarccr",
@@ -26122,7 +26144,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L640",
+      "source_location": "L641",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgboltcircle",
@@ -26182,7 +26204,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L505",
+      "source_location": "L506",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgcorner",
@@ -26192,7 +26214,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L665",
+      "source_location": "L666",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgcounterbore",
@@ -26222,7 +26244,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L527",
+      "source_location": "L528",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgdrawing",
@@ -26232,7 +26254,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L719",
+      "source_location": "L720",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgdrill",
@@ -26242,7 +26264,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L484",
+      "source_location": "L485",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgfinalpasses",
@@ -26262,7 +26284,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L566",
+      "source_location": "L567",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgpartprofile",
@@ -26282,7 +26304,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L613",
+      "source_location": "L614",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnsvgpolar",
@@ -26372,7 +26394,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L904",
+      "source_location": "L905",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learntaskdone",
@@ -26382,7 +26404,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L910",
+      "source_location": "L911",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_learnupdateblank",
@@ -26392,7 +26414,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L908",
+      "source_location": "L909",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_lpel",
@@ -26402,7 +26424,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L930",
+      "source_location": "L931",
       "weight": 1.0,
       "source": "core_learn_tutorial",
       "target": "core_learn_tutorial_openlearn",
@@ -26413,7 +26435,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L771",
+      "source_location": "L772",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnevalchecks",
       "target": "core_learn_tutorial_learnexecutablecode",
@@ -26424,7 +26446,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L821",
+      "source_location": "L822",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnevalchecks",
       "target": "core_learn_tutorial_learncycleblocks",
@@ -26435,7 +26457,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1041",
+      "source_location": "L1042",
       "weight": 1.0,
       "source": "core_learn_tutorial_learncheck",
       "target": "core_learn_tutorial_learnevalchecks",
@@ -26446,219 +26468,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1114",
+      "source_location": "L1115",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnrender",
       "target": "core_learn_tutorial_learnprogress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L988",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnsolve",
-      "target": "core_learn_tutorial_learnprogress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L905",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learntaskdone",
-      "target": "core_learn_tutorial_learnprogress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L988",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnsolve",
-      "target": "core_learn_tutorial_learnsaveprogress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L905",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learntaskdone",
-      "target": "core_learn_tutorial_learnsaveprogress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1042",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learncheck",
-      "target": "core_learn_tutorial_learntaskdone",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1049",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnfinishintro",
-      "target": "core_learn_tutorial_learntaskdone",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L955",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_closelearn",
-      "target": "core_learn_tutorial_lpel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1032",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnhint",
-      "target": "core_learn_tutorial_lpel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1104",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnrender",
-      "target": "core_learn_tutorial_lpel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L946",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_openlearn",
-      "target": "core_learn_tutorial_lpel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1078",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnexit",
-      "target": "core_learn_tutorial_learnupdateblank",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1062",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnfinishlesson",
-      "target": "core_learn_tutorial_learnupdateblank",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L948",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_openlearn",
-      "target": "core_learn_tutorial_learnupdateblank",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L931",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_openlearn",
-      "target": "core_learn_tutorial_learnendeditorinput",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L945",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_openlearn",
-      "target": "core_learn_tutorial_learnrender",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L953",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_closelearn",
-      "target": "core_learn_tutorial_learnexit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L965",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnopenlesson",
-      "target": "core_learn_tutorial_learnrender",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L971",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnnav",
-      "target": "core_learn_tutorial_learnrender",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L974",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnbacktolist",
-      "target": "core_learn_tutorial_learnrender",
       "confidence_score": 1.0
     },
     {
@@ -26669,7 +26482,7 @@
       "source_location": "L989",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnsolve",
-      "target": "core_learn_tutorial_learncheck",
+      "target": "core_learn_tutorial_learnprogress",
       "confidence_score": 1.0
     },
     {
@@ -26677,10 +26490,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L996",
+      "source_location": "L906",
       "weight": 1.0,
-      "source": "core_learn_tutorial_learnresetprogress",
-      "target": "core_learn_tutorial_learnrender",
+      "source": "core_learn_tutorial_learntaskdone",
+      "target": "core_learn_tutorial_learnprogress",
       "confidence_score": 1.0
     },
     {
@@ -26688,10 +26501,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1005",
+      "source_location": "L989",
       "weight": 1.0,
-      "source": "core_learn_tutorial_learnstarttask",
-      "target": "core_learn_tutorial_learnendeditorinput",
+      "source": "core_learn_tutorial_learnsolve",
+      "target": "core_learn_tutorial_learnsaveprogress",
       "confidence_score": 1.0
     },
     {
@@ -26699,21 +26512,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1015",
+      "source_location": "L906",
       "weight": 1.0,
-      "source": "core_learn_tutorial_learnstarttask",
-      "target": "core_learn_tutorial_learnrender",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "core/learn-tutorial.js",
-      "source_location": "L1028",
-      "weight": 1.0,
-      "source": "core_learn_tutorial_learnhint",
-      "target": "core_learn_tutorial_learnrender",
+      "source": "core_learn_tutorial_learntaskdone",
+      "target": "core_learn_tutorial_learnsaveprogress",
       "confidence_score": 1.0
     },
     {
@@ -26724,7 +26526,7 @@
       "source_location": "L1043",
       "weight": 1.0,
       "source": "core_learn_tutorial_learncheck",
-      "target": "core_learn_tutorial_learnrender",
+      "target": "core_learn_tutorial_learntaskdone",
       "confidence_score": 1.0
     },
     {
@@ -26735,6 +26537,226 @@
       "source_location": "L1050",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnfinishintro",
+      "target": "core_learn_tutorial_learntaskdone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L956",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_closelearn",
+      "target": "core_learn_tutorial_lpel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1033",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnhint",
+      "target": "core_learn_tutorial_lpel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1105",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnrender",
+      "target": "core_learn_tutorial_lpel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L947",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_openlearn",
+      "target": "core_learn_tutorial_lpel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1079",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnexit",
+      "target": "core_learn_tutorial_learnupdateblank",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1063",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnfinishlesson",
+      "target": "core_learn_tutorial_learnupdateblank",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L949",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_openlearn",
+      "target": "core_learn_tutorial_learnupdateblank",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L932",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_openlearn",
+      "target": "core_learn_tutorial_learnendeditorinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L946",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_openlearn",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L954",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_closelearn",
+      "target": "core_learn_tutorial_learnexit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L966",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnopenlesson",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L972",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnnav",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L975",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnbacktolist",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L990",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnsolve",
+      "target": "core_learn_tutorial_learncheck",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L997",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnresetprogress",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1006",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnstarttask",
+      "target": "core_learn_tutorial_learnendeditorinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1016",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnstarttask",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1029",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnhint",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1044",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learncheck",
+      "target": "core_learn_tutorial_learnrender",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "core/learn-tutorial.js",
+      "source_location": "L1051",
+      "weight": 1.0,
+      "source": "core_learn_tutorial_learnfinishintro",
       "target": "core_learn_tutorial_learnfinishlesson",
       "confidence_score": 1.0
     },
@@ -26743,7 +26765,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1054",
+      "source_location": "L1055",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnfinishlesson",
       "target": "core_learn_tutorial_learnendeditorinput",
@@ -26754,7 +26776,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1061",
+      "source_location": "L1062",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnfinishlesson",
       "target": "core_learn_tutorial_learnrender",
@@ -26765,7 +26787,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1069",
+      "source_location": "L1070",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnexit",
       "target": "core_learn_tutorial_learnendeditorinput",
@@ -26776,7 +26798,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1077",
+      "source_location": "L1078",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnexit",
       "target": "core_learn_tutorial_learnrender",
@@ -26787,7 +26809,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "core/learn-tutorial.js",
-      "source_location": "L1107",
+      "source_location": "L1108",
       "weight": 1.0,
       "source": "core_learn_tutorial_learnrender",
       "target": "core_learn_tutorial_learnno",
@@ -65010,7 +65032,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L197",
+      "source_location": "L202",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_801",
@@ -65020,7 +65042,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L193",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_802",
@@ -65030,7 +65052,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L189",
+      "source_location": "L194",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_803",
@@ -65040,7 +65062,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L185",
+      "source_location": "L190",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_804",
@@ -65050,7 +65072,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L181",
+      "source_location": "L186",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_806",
@@ -65060,7 +65082,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L176",
+      "source_location": "L181",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_809",
@@ -65070,7 +65092,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L170",
+      "source_location": "L175",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_810",
@@ -65080,7 +65102,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L166",
+      "source_location": "L171",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_812",
@@ -65090,7 +65112,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L161",
+      "source_location": "L166",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_819_mobile_web_test",
@@ -65100,7 +65122,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L157",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_822",
@@ -65110,7 +65132,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L153",
+      "source_location": "L158",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_825_mobile_web_test",
@@ -65120,7 +65142,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L148",
+      "source_location": "L153",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_826_web_test",
@@ -65130,7 +65152,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L143",
+      "source_location": "L148",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_827_mobile_web_test",
@@ -65140,7 +65162,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L139",
+      "source_location": "L144",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_828_mobile_web_test",
@@ -65150,7 +65172,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L134",
+      "source_location": "L139",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_830_web_performance_test",
@@ -65160,7 +65182,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L127",
+      "source_location": "L132",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_831",
@@ -65170,7 +65192,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L121",
+      "source_location": "L126",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_832_learn_test",
@@ -65180,7 +65202,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L116",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_833_web_test",
@@ -65190,7 +65212,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L112",
+      "source_location": "L117",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_834_web_test",
@@ -65200,7 +65222,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L107",
+      "source_location": "L112",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_835_web_test",
@@ -65210,7 +65232,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L102",
+      "source_location": "L107",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_837_web_test",
@@ -65220,7 +65242,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L98",
+      "source_location": "L103",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_838_web_test",
@@ -65230,7 +65252,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L93",
+      "source_location": "L98",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_839_web_test",
@@ -65240,7 +65262,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L87",
+      "source_location": "L92",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_840_web_test",
@@ -65250,7 +65272,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L83",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_841_web_test",
@@ -65260,7 +65282,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L79",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_842_web_test",
@@ -65270,7 +65292,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L74",
+      "source_location": "L79",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_843_web_test",
@@ -65280,7 +65302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L69",
+      "source_location": "L74",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_844_web_test",
@@ -65290,7 +65312,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L63",
+      "source_location": "L68",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_845_web_test",
@@ -65300,7 +65322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L57",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_847_web_test",
@@ -65310,7 +65332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L53",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_848",
@@ -65320,7 +65342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L43",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_849_web_test",
@@ -65330,7 +65352,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L35",
+      "source_location": "L40",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_850_web_test",
@@ -65340,7 +65362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L25",
+      "source_location": "L30",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_851_web_test",
@@ -65350,7 +65372,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L19",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_852_web_test",
@@ -65360,10 +65382,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L13",
+      "source_location": "L18",
       "weight": 1.0,
       "source": "release_notes_tnc_sim_release_notes",
       "target": "release_notes_v0_853_web_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "RELEASE_NOTES.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "release_notes_tnc_sim_release_notes",
+      "target": "release_notes_v0_854_web_test",
       "confidence_score": 1.0
     },
     {
@@ -65400,7 +65432,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "TODO.md",
-      "source_location": "L46",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "todo_todo_known_open_items",
       "target": "todo_short_title_one_line_symptom",
@@ -65420,7 +65452,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "TODO.md",
-      "source_location": "L40",
+      "source_location": "L43",
       "weight": 1.0,
       "source": "todo_learn_audit_fixes_awaiting_web_preview_verification",
       "target": "todo_status",
@@ -65440,30 +65472,30 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "TODO.md",
-      "source_location": "L50",
-      "weight": 1.0,
-      "source": "todo_short_title_one_line_symptom",
-      "target": "todo_attempts_50",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "TODO.md",
       "source_location": "L53",
       "weight": 1.0,
       "source": "todo_short_title_one_line_symptom",
-      "target": "todo_status_53",
+      "target": "todo_attempts_53",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "TODO.md",
-      "source_location": "L48",
+      "source_location": "L56",
       "weight": 1.0,
       "source": "todo_short_title_one_line_symptom",
-      "target": "todo_symptom_48",
+      "target": "todo_status_56",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "todo_short_title_one_line_symptom",
+      "target": "todo_symptom_51",
       "confidence_score": 1.0
     },
     {
@@ -65480,7 +65512,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L70",
+      "source_location": "L76",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_846_documentation_damage_control",
@@ -65490,7 +65522,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L63",
+      "source_location": "L69",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_847_light_grid_and_learn_hint_state",
@@ -65500,7 +65532,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L56",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_848_machining_demo_library",
@@ -65510,7 +65542,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L44",
+      "source_location": "L50",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_849_learn_correctness_and_accessibility_audit",
@@ -65520,7 +65552,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L37",
+      "source_location": "L43",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_850_clearer_compensation_and_cycle_208_diagrams",
@@ -65530,7 +65562,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L26",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_851_complete_learn_slide_image_redesign",
@@ -65540,7 +65572,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L18",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_852_learn_diagram_collision_corrections",
@@ -65550,10 +65582,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/history/changelog.md",
-      "source_location": "L10",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
       "target": "docs_history_changelog_v0_853_accurate_90_degree_countersink_section",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/history/changelog.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "docs_history_changelog_tnc_sim_web_technical_changelog",
+      "target": "docs_history_changelog_v0_854_cycle_208_countersink_contact_position",
       "confidence_score": 1.0
     },
     {
@@ -65838,5 +65880,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0ebea9c7b0775976a9bbf026704f71893f3f6a67"
+  "built_at_commit": "42f37ad949dca43f099c2272cb71c537c6355e9d"
 }

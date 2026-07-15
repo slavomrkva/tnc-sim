@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.854 (web test)
+- Positioned the Lesson 14 Cycle 208 countersink inside the bore so its 45°
+  cutting flank sits exactly on the finished material edge, visually showing
+  the configured DL−2/DR+2 offset without extra labels.
+
 ## v0.853 (web test)
 - Redrew Lesson 14's hole-edge diagram with a dimensioned 90° countersink,
   45° flanks and the resulting chamfer visible in the hole section.

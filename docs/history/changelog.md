@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.854 — Cycle 208 countersink contact position
+
+- Shifted the Lesson 14 Cycle 208 tool down and into the bore so its right 45°
+  flank coincides with the highlighted finished edge.
+- Kept the offset visual rather than adding DL/DR labels to the diagram.
+
 ## v0.853 — accurate 90-degree countersink section
 
 - Rebuilt Lesson 14's second diagram as a section through real open holes,
