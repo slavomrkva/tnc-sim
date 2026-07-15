@@ -15,6 +15,62 @@ Newest first.
 
 ---
 
+## C10 — Cycle 209 explicit zero values were ignored
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved:** web v0.835; Android 1.0.35. **Accepted:** 2026-07-15 after the user
+confirmed the current web and Android versions work correctly.
+
+### Symptom and cause
+In a single-line `CYCL DEF 209`, `Q256=0` should fully retract between
+chip-break steps and `Q257=0` should disable chip breaking. Defaults were read
+with `qm[n] || default`, so valid zero values were replaced as falsy. The
+execution branch was correct but never received zero.
+
+### Attempts and fix
+- The multi-line conversational form already preserved zero, isolating the bug
+  to the inline parser.
+- v0.835 changed Cycle 209 defaults to
+  `Q !== undefined ? Q : default`, matching Cycle 200 and the durable zero-value
+  rule. Automated tests passed; the fix was later deliberately ported to Android
+  1.0.35 and accepted in the current builds.
+
+## C9 — Short drilling/tapping retracts appeared to teleport
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved:** web v0.833; Android 1.0.33. **Accepted:** 2026-07-15.
+
+### Symptom and cause
+Short Cycle 200/209 reversals could complete inside one display frame, so the
+tool appeared instantly at the retract height even though parser inspection
+proved the correct segments and feeds existed. Cycle 200 had to remain FMAX;
+Cycle 209 had to remain synchronized at pitch × spindle speed.
+
+### Attempts and fix
+- Parser instrumentation ruled out missing segments and incorrect motion types.
+- Only cycle-internal retract/return segments are marked `ensureVisible` and a
+  sub-frame marked move is held at its midpoint for one render. Ordinary rapid
+  and short arc moves are unchanged. Regression coverage preserves the distinct
+  Cycle 200 and Cycle 209 feeds; the Android port and current builds were
+  accepted by the user.
+
+## C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed
+**Repos:** web `tnc-sim` + Android `tnc-sim-android`.
+**Resolved:** web v0.833/v0.834; Android 1.0.33. **Accepted:** 2026-07-15.
+
+### Symptom and cause
+Cycle 208 `Q206 FAUTO` followed a later modal contour feed instead of the active
+`TOOL CALL` feed, and helix depth calculation excluded the Q200 safety travel,
+allowing an uneven final step. Solid-stock entry also expanded from zero radius
+instead of entering the constant-radius helix smoothly.
+
+### Attempts and fix
+- Instrumentation showed `lastDefinedFeed` being overwritten by `L ... F2000`
+  after `TOOL CALL F3500`.
+- The parser now keeps `toolCallFeed` separate, calculates revolutions over the
+  full safeZ-to-depthZ travel, and uses a semicircular center lead-in followed
+  by constant-radius helices. Automated regression verifies F3500, the complete
+  11-revolution path, and at most 2 mm per revolution. The user accepted the
+  current web and Android behavior.
+
 ## C11 — Learn (desktop): wasted slide space and hints revealed off-screen
 **Repos:** web `tnc-sim` only (desktop layout; the Android app's mobile Learn
 layout already scrolls the active practice panel independently, see C5).

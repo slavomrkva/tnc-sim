@@ -1,742 +1,85 @@
-# TNC Sim — project notes & map
+# TNC Sim web — current project contract
 
-> **READ THIS FIRST if you are an AI assistant (or a developer) editing this
-> project in a fresh session without prior context.** This file is the memory of
-> the project. It explains how things work and which non-obvious rules must not
-> be broken. **Whenever you make a change, you MUST update this file** (add a line
-> to the Changelog at the bottom, and update any section your change affects) and
-> **bump `APP_VERSION`** — see "Versioning" below. Keep entries short.
->
-> **Also: if the change is user-visible or otherwise important, add a short
-> user-facing line to `RELEASE_NOTES.md`** under the current `APP_VERSION`.
-> `NOTES.md` Changelog = detailed technical log; `RELEASE_NOTES.md` = the short
-> history a user would care about. Purely internal tweaks go only in NOTES.md.
->
-> **If you discover a new non-obvious pitfall, a bug caused by a subtle behaviour,
-> or something that could easily be broken by a future edit, ADD IT as a new
-> numbered rule under "NON-OBVIOUS RULES" below.** These rules are how the project
-> protects itself across sessions that have no shared memory — growing this list
-> is expected and encouraged. Prefer adding a short, specific rule over assuming
-> the next editor will "just know".
+This is the concise, current operating map. Historical detail through v0.845
+is preserved in
+[`docs/history/project-notes-through-v0.845.md`](docs/history/project-notes-through-v0.845.md),
+and the continuing technical log lives in
+[`docs/history/changelog.md`](docs/history/changelog.md). Do not copy those
+histories back here.
 
----
+## Product and source layout
 
-## What this is
-A free browser-based **Heidenhain TNC (Klartext) CNC simulator**. `index.html`
-is the HTML shell; it loads classic JS/CSS modules from `core/` and `web/` with
-no framework or build step. Hosted on **Cloudflare Pages**, repo
-`slavomrkva/tnc-sim`, live at **tncsim.org**, and installable as a PWA. The
-separate Android app is a Capacitor product in `tnc-sim-android`.
+TNC Sim is a static browser/PWA Heidenhain Klartext simulator hosted at
+tncsim.org. `index.html` is the shell; classic scripts and CSS load directly
+from `core/` and `web/` with no framework, bundler, imports, or build step.
 
-## Files in the repo
-- `index.html` — the HTML shell + markup. The JS/CSS previously inline in it
-  now live in `core/` and `web/` (see "Module map" below), loaded via plain
-  `<script src defer>` / `<link rel=stylesheet>` tags, in the order listed.
-- `core/*.js` — shared engine/UI logic, normally kept byte-for-byte identical to
-  the Android app's `www/core/*.js`. The v0.830 web performance test temporarily
-  diverges `voxel-cutting.js`, `render3d.js`, and `measure-tool.js` pending
-  browser acceptance and an intentional Android port. See "Module map".
-- `web/*.js`, `web/styles.css` — web-specific code (genuinely diverged from
-  android, or web-only). See "Module map".
-- `manifest.json` — PWA manifest (name, icons, colors, standalone).
-- `service-worker.js` — offline cache, "stale-while-revalidate" (offline use +
-  auto-update from GitHub on next launch).
-- `icon-192.png`, `icon-512.png` — app icons (teal tile + coordinate grid + centre point).
-- `feature-graphic.png` — 1024×500 Play Store banner.
-- `privacy.html` — privacy policy (served at /privacy.html).
-- `.well-known/assetlinks.json` — TWA verification (makes the Android app open
-  without a browser address bar). Do not remove.
-- `NOTES.md` — this file.
+- `core/` contains currently shared parser, simulation, editor, tool-table,
+  Learn, and mobile-tab logic. It is the reference when deliberately porting a
+  shared change to Android's `www/core/`.
+- `web/` contains browser-specific layout, keyboard, panels, styles, and boot
+  code. `web/app.js` owns `APP_VERSION` and order-sensitive startup IIFEs.
+- `vendor/` contains Three.js r128 and OrbitControls for offline use.
+- `service-worker.js` is web-only. Never copy it into the Capacitor app.
+- The Android repository is independent; nothing synchronizes automatically.
 
-## No build / no tooling
-Plain vanilla JS. Do NOT introduce frameworks, bundlers, or npm build steps.
-No `import`/`export` — classic global-scope scripts loaded via
-`<script src="..." defer>` tags in `index.html`, in the order they appear.
-Edit any file directly; test by opening `index.html` in a browser (or via a
-local static server — some browsers won't fetch module scripts over `file://`).
+Detailed module-split history is in the archived project notes linked above.
 
-## Module map (core/ vs web/) — read this before editing
-`index.html`'s inline `<script>`/`<style>` content was mechanically split
-(2026-07-12 refactor, no functionality changed) into:
-- **`core/*.js`** (20 files) — shared with the Android app's `www/core/*.js`
-  (264 of 268 top-level functions + 5 shared data tables were mechanically
-  verified identical at the module split). The v0.830 web test temporarily
-  changes three files listed above; port them deliberately after acceptance.
-  Includes **the CYCL parser / radius-comp engine**
-  (`core/parser-engine.js`: `parseProgram`, `validateProgram`,
-  `applyRadiusComp`, `offsetRun`, `rebuildRunSegments`, `commitSeg`,
-  `buildToolMesh`, `triggerRefine`, `updateATC`, `resetState`), the voxel
-  cutting engine (`core/voxel-cutting.js`), 3D rendering
-  (`core/render3d.js`), and — notably — **the entire Learn-mode tutorial
-  system** (`core/learn-tutorial.js`, 35 functions) and mobile tab-switching
-  (`core/mobile-tabs.js`) are now shared with the app too. Other core files:
-  `data-tables.js` (`CYCLES`, `Q_FEED_PARAMS`, `Q_FAUTO_PARAMS`,
-  `TOOL_CUT_COLORS`, `LESSONS` — must load first, others reference these at
-  call time so their own order doesn't matter), `tool-table.js`,
-  `editor-core.js`, `field-editing.js`, `view2d.js`, `measure-tool.js`,
-  `klartext-syntax.js`, `block-form-panel.js`, `qparam-panel.js`,
-  `mcode-panel.js`, `cycle-picker.js`, `bug-report.js`, `help-popups.js`,
-  `theme-toast.js`, `sim-controls.js`.
-  If you edit one of these files, you diverge it from the app unless you
-  also hand-port the change to `tnc-sim-android`'s `www/core/` (or that repo
-  runs `./sync-core.sh` afterwards — one-way, web → android, manual only,
-  see that script's header).
-- **`web/*.js`** (4 files) — only 4 functions are genuinely diverged between
-  the two repos, all in the "forced mobile layout" category:
-  - `layout.js`: `_isMTab()` (real `matchMedia('(max-width:1024px)')`
-    breakpoint check here; android hardcodes `true`), `showKpHelp` (has the
-    real desktop-positioning `window.innerWidth > 1024` branches; android
-    replaces them with `false`), plus an `isMob()`/`grow()` textarea-autogrow
-    IIFE (`isMob()` has the same breakpoint-vs-hardcoded-true divergence as
-    `_isMTab`, `grow()` itself is identical).
-  - `panels.js`: `renderIdlePanel`/`updateLineNums` — android added a
-    `#_idleBlocks` block-count span to its idle toolbar that this repo
-    doesn't have; the two functions are a linked pair, kept together.
-  - `keyboard.js`: the `visualViewport`/`kbd-open` keyboard-handling IIFE.
-    **Materially different from android's**, not just a constant swap — this
-    repo runs a continuous `requestAnimationFrame` loop comparing
-    `window.innerHeight - (vv.height + vv.offsetTop)`; android instead
-    tracks a re-synced baseline (`window.innerHeight` doesn't diverge from
-    `visualViewport.height` inside android's Capacitor WebView the way it
-    does in a real mobile browser — see the app repo's NOTES.md rule #7).
-  - `styles.css` — the full `<style>` block (680 lines; android's is 47
-    lines longer — onboarding-tour CSS + extra `kbd-open` selectors).
-  - `app.js` — everything that was top-level (non-function) code in the
-    original inline script, in original relative order: DOM refs, the
-    `APP_VERSION`/version-badge IIFE, the bug-report `window.onerror` hook,
-    panel-resize-handle IIFE, view-hint IIFE, the boot sequence
-    (`init3D()`/`loop()` kickoff), SW registration. **Order-sensitive** —
-    e.g. the version-badge IIFE reads `APP_VERSION` assigned a few lines
-    above it, in the same file; don't reorder chunks without checking
-    what references what. Small **immediately-executing** anonymous blocks
-    like these were deliberately *not* factored into `core/` even though
-    their code is byte-identical to android's copy — extracting them into a
-    `core/` file that loads before `app.js` would run them before
-    `APP_VERSION` (etc.) is assigned. They're harmlessly duplicated between
-    `web/app.js` and the app repo's `android/app.js` instead of shared.
+## Versioning and deploy
 
-Web is a strict subset by name at the top level — every one of web's 268
-top-level functions also exists in the Android app (by name); the app has no
-extra named functions beyond that anymore (Learn mode and mobile tabs used to
-be app-only; not anymore, see above).
+- `APP_VERSION` in `web/app.js` is the only app-version source. Stay in the
+  permanent `0.80x` sequence and increment by `0.001` on every push.
+- Record every push briefly in `docs/history/changelog.md`. Update this file
+  only when a current contract changes. Add `RELEASE_NOTES.md` only for a
+  meaningful user-visible change.
+- When runtime assets change, keep the service-worker cache version and
+  precache list synchronized.
+- Push to GitHub; Cloudflare Pages deploys automatically. For a shipped web
+  milestone, create `web-v<APP_VERSION>`. Do not add APK/AAB artifacts here.
 
-### A real gotcha hit during the split
-When extracting a `function name(){...}` block, stop exactly at its closing
-`}` — do not grab trailing same-line content. `}/* next thing's doc comment
-*/` on one line caused a doc-comment to get half-moved with the preceding
-function during an early attempt, silently breaking a *different* function's
-syntax elsewhere. The page loaded with **zero console errors** and just
-failed to boot (blank/empty UI) — browsers don't always surface a deferred
-external script's top-level `SyntaxError` the way you'd expect. If a page
-looks blank with no console errors after moving code between files, fetch
-the suspect file and try `new Function(src)` to catch a swallowed syntax
-error.
+## Current non-obvious invariants
 
----
+1. **LBL fall-through:** `LBL n ... LBL 0` executes where defined; `CALL LBL n`
+   executes it again. Do not combine both accidentally in lessons or demos.
+2. **Zero is a valid Q value:** use `Q !== undefined ? Q : default`, never
+   `Q || default` for cycle parameters.
+3. **Voxel detail and budgets:** Low/Default/High are 100/150/200 with
+   1/0.7/0.5 mm caps; Refine is 300/400/500 with 0.5/0.4/0.3 mm caps. Keep web
+   guards at 24M live and 64M Refine voxels.
+4. **Responsive layout:** single-column mode is
+   `(max-width:1024px), (max-height:600px)`. Use `_isMTab()`; do not introduce a
+   width-only variant. See
+   [`docs/history/layout-and-renderer-rationale.md`](docs/history/layout-and-renderer-rationale.md).
+5. **Mobile WebGL:** keep defensive renderer creation, context-loss handling,
+   and the touch-device avoidance of unconditional `high-performance`.
+6. **Trademark:** preserve the independent/not-affiliated HEIDENHAIN notice.
+7. **Offline contract:** core features must not depend on external runtime
+   services.
+8. **Service worker:** register only outside Capacitor and never bundle it in
+   Android.
+9. **Vendored Three.js:** update both vendor files, service-worker precache, and
+   the deliberate Android copy together when upgrading.
+10. **Renderer resize:** `loop()` must keep calling `resizeToDisplay()`; window
+    `resize` alone misses splitter and container changes. See the layout history.
+11. **Bug lifecycle:** new/open bugs live in `TODO.md`; every attempt is logged
+    there. On acceptance, move symptom, cause, attempts, and verification to
+    `BUG_HISTORY.md` in the same change. Mirror cross-repo bugs.
+12. **Chunked Marching Cubes:** dirty bounds require the one-cell XY dependency
+    halo; Measure raycasting stays recursive while the live mesh is a group.
+13. **Cycle feeds and visibility:** cycle `FAUTO` uses the active `TOOL CALL`
+    feed. Cycle 200 retracts stay FMAX; Cycle 209 stays pitch×RPM. Only marked
+    cycle-internal sub-frame reversals get the held midpoint render.
 
-## Versioning  (single source of truth)
-`APP_VERSION` is defined once, near the top of `web/app.js` (search for
-`var APP_VERSION`). It auto-feeds the header badge, the About popup, and the
-bug-report info. **Never hard-code the version anywhere else.**
+Add a numbered rule only for a durable invariant that is not already covered.
+Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
+the technical log belong in `docs/history/`.
 
-**Web stays in the `0.80x` series — `0.801`, `0.802`, `0.803`… — do not jump to
-`0.9` for a bigger feature; just keep incrementing the third digit.** This is
-a deliberate, permanent convention (paired with the Android app's separate
-`1.0.x` series — see that repo's NOTES.md) so the two numbering schemes never
-collide or get confused with each other.
+## Testing before push
 
-**Every single push must bump `APP_VERSION` by +0.001 — no exceptions, no
-"this one's too small to count".** This is how you (or an AI session with no
-memory of prior work) can visually confirm on tncsim.org that a given push
-actually went live — check the About popup / footer badge against the commit
-you expect.
-
----
-
-## Architecture map (which module each thing lives in — see "Module map" above for file paths)
-- **Parser** (`core/parser-engine.js`) — `parseProgram(code)` turns Klartext into
-  motion segments (`sub`). Helpers: `expandLblLines` (LBL/CALL expansion),
-  `resolveQLine`/`resolveQLineExpr` (Q-variable substitution), `applyRadiusComp`
-  (RL/RR/R0 tool-radius offset).
-- **Cycles** (`core/parser-engine.js`, `core/data-tables.js`) — cycle definitions
-  live in the `CYCLES` table; CYCL DEF 200 (drill), 201 (ream), 208 (bore/
-  circular pocket), 209 (tapping), etc. are handled inside `parseProgram`.
-- **Voxel cutting / 3D** (`core/voxel-cutting.js`, `core/render3d.js`) —
-  `vxCut(...)` removes material from a voxel grid; `buildScene(prog)` builds
-  the Three.js scene; `init3D()` sets up the renderer; `loop()` (per-side,
-  `web/app.js` calls it, defined in `core/sim-controls.js`) is the render
-  loop. The v0.830 web test divides the live workpiece into 32×32-cell XY
-  chunks and rebuilds only chunks touched by a cut. Three.js is vendored in
-  `vendor/`; `THREE_OK` flags availability.
-- **Tool table** (`core/tool-table.js`) — `toolLibrary` array. Tools have TYPE
-  (MILL / DRILL / COUNTERSINK) with distinct cutting behaviour. Countersink R
-  is ~0.001 (tip).
-- **Learn mode** (`core/learn-tutorial.js`, `LESSONS` in `core/data-tables.js`)
-  — `LESSONS` array (each: `id`, `title`, `slides[]`, `tasks[]`). `learnRender`,
-  `learnCheck` (validates the user's program against a task's `checks[]`),
-  `learnStartTask`, `learnSolve` (password fill), progress via `localStorage`
-  key `tnc_learn`. **Now shared with the Android app** (was app-only before
-  the 2026-07-12 module split).
-- **Mobile** (`core/mobile-tabs.js` for the shared switching logic;
-  `web/layout.js` for the diverged `_isMTab()` breakpoint check) — bottom tab
-  bar (Editor / 3D / Learn); keyboard handling via `visualViewport`
-  (`html.kbd-open`, `web/keyboard.js` — diverged from android's version, see
-  "Module map").
-
----
-
-## NON-OBVIOUS RULES — do not break these
-<!-- Add a new numbered rule here whenever a new critical pitfall is found. -->
-
-
-### 1. LBL runs where it is written (fall-through!)
-`expandLblLines` inlines a `LBL n … LBL 0` body **at its definition location** —
-so the body executes once by fall-through even with NO `CALL LBL n`. A `CALL LBL n`
-runs the body an **extra** time. Therefore the reuse pattern is:
-define the profile in `LBL 1` right after the FIRST tool (it runs via fall-through),
-then for the SECOND tool use `CALL LBL 1`. Putting `CALL LBL 1` **and** a
-fall-through definition makes the tool cut **twice**. (This bit the parametric-
-contour lesson; keep it in mind for any LBL-based lesson or demo.)
-
-### 2. Q-value fallbacks must treat 0 as valid
-When reading cycle params, use `Q!==undefined ? Q : default`, NOT `Q || default`.
-E.g. `Q202=+0` (full-depth peck) is valid; `Q||5` would wrongly become 5.
-
-### 3. Voxel cell size limits detail
-The live 3D grid has three profiles: Low 100 / up to 1 mm, Default 150 / up to
-0.7 mm, and High 200 / up to 0.5 mm. Refine uses 300/400/500 with cell caps of
-0.5/0.4/0.3 mm. Details finer than a cell still won't show. Keep the web memory
-guards at 24 million live and 64 million Refine voxels.
-
-### 4. Layout breakpoint: single-column when width ≤1024px OR height ≤600px
-Use the full CSS/JS condition
-`(max-width:1024px), (max-height:600px)` (an OR) for every layout check, or use
-`_isMTab()`. It prevents cramped tablet 3D views and a collapsed editor on short
-landscape/foldable windows. Do not introduce a width-only variant: mixed rules
-create a broken hybrid layout. Android deliberately forces single-column always.
-
-Read `docs/history/layout-and-renderer-rationale.md` only when changing this
-breakpoint or mobile tabs; it preserves the detailed failure modes and rationale.
-
-### 5. WebGL / 3D can fail on some phones (esp. Xiaomi/HyperOS)
-Renderer creation is wrapped defensively (tiered options; no `high-performance`
-on touch devices — it makes some GPUs kill the context). Context loss is handled:
-`webglcontextlost`/`webglcontextrestored` + `glContextLost` guard in `loop()` +
-`show3DError()` fallback message. Don't re-add `powerPreference:'high-performance'`
-unconditionally. If 3D still fails on a device, the next lever is a smaller voxel
-grid on mobile.
-
-### 6. Copyright / trademark
-Keep the "not affiliated with HEIDENHAIN GmbH" line in About and the store
-listing. "Heidenhain" is a trademark; the project is independent.
-
-### 7. Artifacts / storage
-The web app must keep working offline via the service worker. Don't add hard
-dependencies on external runtime services for core features (editor, 3D, lessons
-all run client-side).
-
-### 8. Service worker: web only, never in the Capacitor app
-SW registration in `index.html` is gated with `!window.Capacitor`. The Android
-app (repo `tnc-sim-android`) bundles its own copy of the files — a SW-cached
-old `index.html` would keep being served after an app update and mask it. Keep
-the gate; never copy `service-worker.js` into the app's `www/`.
-
-### 9. Three.js is vendored in `vendor/` — keep SW precache in sync
-Three.js r128 + OrbitControls live in `vendor/` (no CDN dependency — required
-for offline 3D on the web and inside the Android app bundle; also rule #7).
-`index.html` references them with *relative* paths (`vendor/three.min.js`) so
-they also work when the file is opened via `file://` and inside Capacitor.
-If you ever upgrade Three.js: replace both files in `vendor/`, keep the
-`PRECACHE_URLS` list in `service-worker.js` in sync, bump `CACHE_VERSION`,
-and sync `vendor/` into the Android repo's `www/` as well.
-
-### 10. Resize the 3D renderer from the render loop, not only on window 'resize'
-`loop()` calls `resizeToDisplay()` every frame; it is a cheap no-op until the
-container changes. Keep that check: a window `resize` listener misses splitter
-drags, mobile tabs, and orientation/container changes, which otherwise stretch
-the renderer buffer and camera aspect.
-
-Read `docs/history/layout-and-renderer-rationale.md` only when changing the
-renderer-resize path; it preserves the CSS-sizing and idle-render rationale.
-
-### 11. Bug lifecycle: TODO.md while open (log every attempt), BUG_HISTORY.md when fixed
-Every discovered bug MUST be tracked in files, not carried only in one session's
-memory:
-1. **On discovery** → add an entry under "Open bugs" in `TODO.md`.
-2. **On every fix attempt** → append what was tried and its result to that TODO
-   entry *as it happens*. The failed attempts are the point — they stop the next
-   memory-less session from re-trying a known dead end (mobile keyboard / layout
-   bugs are real-device/real-browser-timing territory and eat time when attempts
-   aren't all captured in one place).
-3. **When fixed** → move the whole entry out of `TODO.md` into `BUG_HISTORY.md`
-   (symptom + root cause + all attempts + final state) and delete it from
-   `TODO.md`.
-Do this in the SAME commit as the code change so the docs never drift from the
-tree. The Android repo (`tnc-sim-android`) keeps its own `TODO.md` +
-`BUG_HISTORY.md`; when a bug spans both, cross-reference the other repo.
-
-### 12. Chunked Marching Cubes needs a one-cell dirty halo
-The live voxel mesh is divided into half-open XY cell ranges. Changing one grid
-vertex affects the Marching Cubes cell at that index and the cell immediately
-before it on both X and Y. Keep `vxMarkDirtyBounds()`'s one-cell halo or cuts on
-a 32-cell chunk boundary will leave stale triangles/a visible seam. Measurement
-raycasting must remain recursive because `VX.mesh` is now a `THREE.Group` of
-chunk meshes until the final refined mesh replaces it.
-
-### 13. Cycle FAUTO feed and short retract visibility are separate concerns
-`Q206 FAUTO` in the supported cycles uses the feed from the current `TOOL CALL`,
-not a later modal F programmed on an L/C contour block. Keep `toolCallFeed`
-separate from `lastDefinedFeed`. Cycle 200 chip-release moves are FMAX; Cycle
-209 chip-break moves remain synchronized at pitch × spindle RPM. The latter
-must never be changed to FMAX merely to make it look faster. Short
-cycle-internal reversals carry `ensureVisible`; `advance()` gives only those
-moves one midpoint render when they would otherwise finish inside one frame.
-
----
-
-## Deploy flow
-Edit `index.html` -> commit -> push to GitHub -> Cloudflare Pages auto-deploys ->
-service worker updates web users on their next launch. The Android app
-(Capacitor, repo `tnc-sim-android`) bundles its own copy of `index.html` and
-does NOT auto-update — shipping web changes to the app requires a manual
-sync + rebuild + Play Console release there (see that repo's NOTES.md).
-
-For a shipped web milestone, create the Git tag `web-v<APP_VERSION>`. The web
-release is source-only; do not add Android `.aab`/`.apk` artifacts to this repo.
-
-## Testing checklist before pushing
-- JS parses (no syntax error). Quick check: load in a browser, console clean.
-- If you changed a lesson: its `sol` passes all its `checks`, and it does not cut
-  twice (see rule #1).
-- If you changed cutting logic: sanity-check a drill/bore/chamfer program in 3D.
-- If you changed layout/CSS: check both desktop and a narrow (phone) width.
-
----
-
-## Changelog  (newest first — add a line for every change)
-- v0.845 — Learn (desktop) fixes, see `BUG_HISTORY.md` C11:
-  `.lp-slide-view` (`web/styles.css`) changed from a fixed `height:390px` to
-  `max-height:390px` (and `max-height:300px` in its narrow/short-viewport
-  media query) so the THEORY box sizes to actual slide content instead of
-  always reserving the full height. `learnHint()` (`core/learn-tutorial.js`)
-  now scrolls the newly revealed `.lp-hint-row` into view after `learnRender()`
-  rebuilds `#learnPanel` (which always resets `.lp-body`'s scroll to the top,
-  since it's a brand-new element on every render). Verified headless
-  (Playwright, 1400×900 and 1400×700): slide box height now tracks
-  `scrollHeight`, and each hint lands fully inside `.lp-body`'s visible area.
-  Web only — not ported to Android's mobile Learn layout, which already has
-  its own bounded-scroll arrangement (C5). Bumped service-worker cache
-  v20→v21.
-- v0.844 — Added two more steps to the end of the intro coach tour
-  (`core/learn-coach.js`): "Give up on this task" (the ✕ in `.lp-practice-btns`,
-  `learnExit()` — distinct from v0.843's panel-head ✕/`closeLearn()`: this one
-  leaves just the current exercise and returns to the lesson list, Learn stays
-  open) and "Psst — a password button" for the low-opacity `⋯` solve button
-  (`learnSolve()`), written with a wink rather than a plain description since
-  it's the intentionally-underplayed answer-reveal control — notes it still
-  finishes the lesson with an orange (assisted) tick instead of green. Gave
-  both buttons stable classes (`lp-exit`, `lp-solve` in
-  `core/learn-tutorial.js`) matching the existing `.lp-btn.hint`/`.lp-btn.chk`
-  pattern; `_coachTarget()` resolves them via the same mobile-bar/learnPanel
-  `root` as hint/check (no new tab-switching needed — `.lp-practice-btns` is
-  already inside that root on both platforms). Verified headless (Playwright,
-  mobile iPhone 13 + desktop): all 9 steps produced a non-zero spotlight rect,
-  ending correctly after "solve". All 5 existing regression suites still pass.
-  `core/learn-coach.js`/`core/learn-tutorial.js` diverge further from
-  Android's copy pending a deliberate port. Bumped service-worker cache
-  v19→v20. Web only.
-- v0.843 — Added two steps to the intro lesson's guided coach tour
-  (`core/learn-coach.js`): "Leave Learn mode" (the `.lp-x` ✕ in the panel
-  head, `closeLearn()`) and "Back to all lessons" (the hamburger in
-  `.lp-slides-nav`, `learnBackToList()` — given a new `.lp-hamburger` class in
-  `core/learn-tutorial.js` for a stable selector, matching the existing
-  `.lp-btn.hint`/`.lp-btn.chk` pattern), shown first before the existing
-  assignment/editor/goals/hint/check steps. Both controls live only in
-  `#learnPanel`, which on mobile only exists on the Learn tab — the pinned
-  practice strip the rest of the tour uses (`#learnMobileBar`) is Editor-tab
-  only and never contains them (confirmed via `learnStartTask()`'s existing
-  `mtabSwitch('editor')` call, and the `body[data-mtab=...] #learnPanel
-  {display:none}` / `.editor-panel` visibility rules in `web/styles.css`).
-  Added `_coachEnsureTabFor(key)`: on mobile, switches to the Learn tab for
-  these two steps and back to Editor for every other step (no-op on desktop,
-  where `#learnPanel` is always visible); `learnCoachEnd()` now also restores
-  the Editor tab if Skip happens mid-panel-step, so the user is never
-  stranded away from their code. `_coachTarget()` resolves the two new keys
-  directly against `#learnPanel .lp-x`/`.lp-hamburger` regardless of
-  platform. Verified headless (Playwright, mobile iPhone 13 viewport and
-  desktop): all 7 steps produced a non-zero spotlight rect; the mobile tab
-  correctly read 'learn' for the two new steps and 'editor' for the rest;
-  Skip while on step 0 (`closeLearn`) restored the Editor tab. All 5 existing
-  regression suites (`tests/*.test.js`) still pass.
-  `core/learn-coach.js`/`core/learn-tutorial.js` now diverge from Android's
-  copy pending a deliberate port. Bumped service-worker cache v18→v19. Web
-  only.
-- v0.842 — Follow-up to v0.841: the view switcher (`.view-tabs .tab` — 3D view
-  / XY toolpath / Tool Table) had the same uncapped-`flex:1` stretch on
-  tablet-width screens; confirmed headless it was 300px per tab at 900px
-  width (quality/speed were already fine — bounded by their v0.841-capped
-  parent container). Added `max-width:190px`, chosen just above the 130px
-  phone-width size so text ("XY toolpath") stays comfortable; verified 190px
-  at 900px and unchanged 130px at 390px. CSS-only. Bumped service-worker cache
-  v17→v18. Web only.
-- v0.841 — Capped the 3D-tab mobile toolbar buttons so they stop growing past
-  a sane size on tablet-width screens. `body[data-mtab="view"] .toolbar`'s
-  Run/Step/Stop (`flex:1 1 20%`), the quality-profile group and the speed
-  control (`flex:1 1 42%` each) had no `max-width`, so on the tablet end of
-  the `@media(max-width:1024px)` mobile layout (which applies well past phone
-  widths) they stretched edge-to-edge. Added `max-width:150px` to Run/Step/Stop
-  and `max-width:260px` to the quality group and speed control; phones stay
-  unaffected since their natural flex-basis width is already under the caps.
-  Verified headless (Playwright): at 900px width Run/Step/Stop went from
-  261px each to capped 150px and the quality group from 749px to 260px; at
-  390px (phone) widths were unchanged (91px / 239px, under both caps).
-  CSS-only. Bumped service-worker cache v16→v17. Web only.
-- v0.840 — Fixed near-invisible light-theme text in three dark floating
-  overlays: the Learn practice coach tour tooltip (`#learnCoach .coach-tip`,
-  first step titled "The assignment") and the 3D "TOOLS USED" legend
-  (`#toolLegend`; `#measureOverlay` shares the same root cause and was fixed
-  too). Root cause: these overlays keep a fixed dark background in both
-  themes (by design, since they float over the 3D stage/spotlight), but their
-  text used the global `var(--text)/--text2/--text3` tokens, which
-  `html[data-theme="light"]` redefines to dark colors for use on light
-  surfaces. A prior partial fix (`html[data-theme="light"] #toolLegend,
-  #measureOverlay{color:#e8ebf1 !important;...}`, `web/styles.css` ~line 138)
-  forces color on the container itself, but `updateToolLegend()`
-  (`core/view2d.js`) and `renderMeasureOverlay()` (`core/measure-tool.js`)
-  set `color:var(--text2)`/`var(--text3)` **inline on their child spans**,
-  which shadows the ancestor's forced `color` (inheritance doesn't reach an
-  element with its own explicit color, `!important` or not). Added
-  `#toolLegend`, `#measureOverlay`, `#learnCoach .coach-tip` to the existing
-  dark-chrome custom-property re-scope block (`web/styles.css` ~line 27) that
-  already gives header/toolbar/ctx-panel/etc. light-on-dark `--text*` values
-  in light theme — CSS custom properties (unlike plain `color`) are
-  re-resolved per `var()` use-site from the nearest ancestor definition, so
-  this reaches the inline/class-based `var(--text2)` children where the
-  container-level `!important` couldn't. Also replaced the always-dead
-  `var(--panel,#1b1f27)` in `.coach-tip` (`--panel` is never defined anywhere)
-  with the literal `#1b1f27` it always resolved to. Verified headless
-  (Playwright, WCAG contrast ratios against the actual background): before
-  the fix, the coach tooltip's "The assignment" title was 1.06:1 and tool
-  names in the legend were 1.61:1 (both effectively invisible); after, 13.83:1
-  and 8.57:1. Confirmed dark theme (unscoped) is byte-identical to before.
-  Web only (`web/styles.css`; the touched `core/` functions themselves were
-  not modified, so nothing new diverges from Android).
-- v0.839 — Fixed the field-editing panel (`.ctx-panel`) growing/jumping on
-  mobile when editing an F (feed) field on an L/C/CR block. The F field has 4
-  extra actions (insert Q ref, FMAX, FAUTO, skip) versus coord/num fields'
-  2 — as separate buttons (`renderFbar()`, `core/field-editing.js`) they
-  wrapped `.ctx-row2` to a 2nd line at mobile width (no `max-height` on
-  `.ctx-panel`), pushing Done down and growing the panel every time an F field
-  was opened. Collapsed the 4 feed actions into one native `<select class=
-  "fbar-feedmode">` dropdown (`applyFeedMode()` routes to the same existing
-  setters `toggleQField`/`applySug`/`setFieldVal` — no new state logic), added
-  `.fbar-feedmode` in `web/styles.css`. Verified headless (Playwright, iPhone
-  13 viewport): before the fix `.ctx-row2` was 374×69px (wrapped) and the
-  panel 108px tall with Done at the start of a new row; after, `.ctx-row2` is
-  374×36px (single line, no scroll overflow) and the panel is 75px tall with
-  Done staying on the same row. Confirmed the dropdown's FMAX/Skip/Insert-Q
-  options each still set `FM.fields[idx].val` exactly as the old buttons did.
-  `core/field-editing.js` now diverges from Android's copy pending a
-  deliberate port. Bumped service-worker cache v14→v15. Web only.
-- v0.838 — Hid the Tool Table's "Click ? Help above, then any column header, for
-  an explanation" hint on touch devices. `toggleKpHelp()` (`core/help-popups.js`)
-  skips desktop hover-help mode entirely on `pointer:coarse` and opens the full
-  reference modal instead, so tapping a column header there does nothing — the
-  hint described an interaction that cannot happen on mobile. Wrapped the
-  sentence in `<span class="tt-help-hint">` in `core/tool-table.js` (shared) and
-  added `@media(pointer:coarse){.tt-help-hint{display:none;}}` in
-  `web/styles.css` (web-only), matching the exact condition `toggleKpHelp()`
-  itself checks. `core/tool-table.js` now diverges from Android's copy pending a
-  deliberate port (same wrapper span + a touch-hide rule in the app's own
-  stylesheet). Bumped service-worker cache v13→v14. Web only.
-- v0.837 — Fixed the mobile status bar jumping height during simulation.
-  `#statusMsg` shows `Block N/M: <source line>` (`core/voxel-cutting.js`), whose
-  length varies per block (`M3` vs a long `CYCL DEF`/contour line); `.status-bar`
-  had `flex-wrap:wrap` with no line clamp on `#statusMsg`, so a long block wrapped
-  to 2 lines and a short one didn't, changing bar height every block. Scoped a
-  mobile-only fix (`@media(max-width:1024px), (max-height:600px)`): `.status-bar{
-  flex-wrap:nowrap}` and `#statusMsg{white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis;min-width:0}` so the running block always renders on one
-  line, truncated with an ellipsis if needed — bar height is now constant.
-  CSS-only. Bumped service-worker cache v12→v13. Web only.
-- v0.836 — Reformatted the Complete Part demo's Cycle 209 (`index.html`) to the
-  standard Klartext layout used by every other cycle in the demo: `CYCL DEF 209
-  ;Title` on the first line, then each Q param on its own indented line in the
-  real Heidenhain order (…Q204, `Q257`, `Q256`, `Q336`). Previously `Q257=+11
-  Q256=+0` sat inline on the `CYCL DEF 209` line and both were missing from the
-  parameter block — the exact single-line inline form that hit the C10 falsy-`||`
-  parse bug. Cosmetic/source only: the v0.835 parser reads both forms identically,
-  so runtime output is unchanged. Bumped service-worker cache v11→v12. Web only.
-- v0.835 — Fixed Cycle 209 `Q256=0` (and `Q257=0`) being ignored when all Q
-  params are on a single `CYCL DEF 209` line. The inline parse read defaults with
-  `+(qm[256]||0.2)`; an explicit `0` is falsy so `||` substituted the default,
-  and the engine never received 0 — `Q256=0` (full retract out of the hole) ran
-  as the default in-hole break, and `Q257=0` (single pass) ran as 5. Converted
-  all Cycle 209 defaults to the `Q!==undefined?Q:default` pattern (matching Cycle
-  200 and NOTES rule #2). The `executeCycle` `chipFullRetract` branch was already
-  correct. The multi-line conversational form was unaffected (its per-line Q path
-  stores an explicit 0). Bumped service-worker cache v10→v11. Web only on
-  `claude/debug-effort-estimation-ivbkid`; shared `core/parser-engine.js`
-  intentionally diverges from Android pending web verification and a deliberate
-  port. New open bug C10 logged in `TODO.md`.
-- v0.834 — Corrected Cycle 208 solid-stock entry to a semicircle from the bore
-  center followed by constant-radius helices, matching the documented cycle run.
-- v0.833 — Added the web-only C8/C9 test fix on
-  `agent/fix-cycle-feed-retract-motion`. The Complete Part demo now uses Q334=2.
-  Cycle FAUTO keeps the current TOOL CALL feed even after later modal feed
-  changes; Cycle 208 includes Q200 in its helix travel so every revolution
-  respects Q334. Short cycle retract/return moves get one visible midpoint
-  frame instead of teleporting, while Cycle 200 remains FMAX and Cycle 209
-  remains synchronized to pitch × RPM. Added `tests/parser-cycles.test.js` and
-  bumped the service-worker cache v8→v9. Awaiting web verification before merge
-  or Android port.
-- v0.832 — Ported only the accepted Learn improvements from
-  `preview/learn-practice-onboarding` onto the optimized v0.831 `main`: a
-  highlighted Start here orientation lesson, replayable guided practice coach,
-  goals visible before grading, progressive three-level hints for every task,
-  and a consistent return to the lesson list after Finish. The old preview
-  branch was not merged; the chunked voxel renderer and quality profiles remain
-  unchanged. Added `core/learn-coach.js` to the classic-script load order and
-  bumped the service-worker cache to v8.
-- v0.831 — Accepted and merged the chunked voxel update after successful user
-  testing, moved C7 from `TODO.md` to `BUG_HISTORY.md`, and introduced three
-  explicit quality profiles. Low is 100 voxels / 1 mm, the new recommended
-  Default is 150 / 0.7 mm, and High is 200 / 0.5 mm; their Refine targets are
-  300/400/500 with 0.5/0.4/0.3 mm caps. Added a profile wiring regression and
-  bumped the service-worker cache v6→v7.
-- v0.830 — Added the web-only chunked voxel-meshing performance test. The live
-  stock is split into 32×32-cell XY chunks; each cut tracks its actually changed
-  grid bounds plus the one-cell Marching Cubes dependency halo, then rebuilds
-  and uploads only intersecting chunk geometries. Reused corner/value buffers,
-  hoisted the edge table, colored triangles during generation, and removed the
-  redundant `computeVertexNormals()` pass without changing Default/High cell
-  resolution. Made Measure raycasting recursive and generalized mesh disposal
-  so chunk groups, reset and final Refine remain compatible. New regression
-  coverage proved 20,844 triangles/normals/colors identical to a full mesh and
-  verified boundary invalidation plus selective geometry replacement; a Node
-  Default-grid microbenchmark measured an approximately 11× local scan speedup.
-  Cache v5→v6. Awaiting real-browser/device verification; Android intentionally
-  remains unchanged pending acceptance.
-- v0.829 — Closed C5 after the accepted web fix was ported to Android 1.0.30.
-  Moved the bounded-editor symptom, root cause, mobile verification and final
-  cross-repo state from `TODO.md` to `BUG_HISTORY.md`. No new runtime behaviour;
-  this commit prepares the tested branch for merge.
-- v0.828 — Follow-up for the mobile BLKFORM toggle: the Measure overlay no
-  longer uses the same fixed top-right position as the canvas buttons. It now
-  measures the complete, possibly wrapped button row and opens 6px below it;
-  at 390×844 the controls ended at Y=230 and the overlay began at Y=236 with
-  no intersection. BLKFORM now forces an immediate WebGL repaint after a tap,
-  and turning it off while Measure is active closes the overlay, disables
-  Measure, and hides the stock. Bumped the web service-worker cache v4→v5 so
-  the new handler/layout cannot remain paired with stale runtime assets.
-  Verified locally and against the published v0.827 handler with no console
-  errors. Web-only; Android remains unchanged.
-- v0.827 — Added the web-only `BLKFORM OFF/ON` view toggle beside Measure and
-  Path. It hides the 3D voxel/block/edges and the 2D workpiece footprint while
-  toolpath animation, cutting, and collision checks continue internally; ON
-  restores the current machined mesh even mid-run. A single visibility state
-  is re-applied after scene builds, voxel resets/rebuilds, high-resolution
-  refine, and Learn blank updates so hidden stock cannot reappear by itself.
-  Measure is disabled while stock is hidden, and the toggle is disabled for a
-  program that has no actual stock. Verified at 390×844 while running (OFF,
-  continued voxel updates, ON) and with a no-BLK program, with no console
-  errors. Web test branch only; Android is unchanged and shared `core/` files
-  intentionally diverge pending acceptance/port.
-- v0.826 — Fixed the light-theme field editor contrast by giving `--bg` a
-  dark value inside `.ctx-panel`, so TOOL CALL tool names and all other shared
-  interactive field values no longer render light-on-light. Added intentional
-  toolpath-only simulation: no BLK FORM, or a complete box BLK FORM whose six
-  coordinates are all zero, sets `prog.hasStock=false`; validation accepts it,
-  3D/2D omit the workpiece and voxel/refine pipeline, and the viewers frame the
-  programmed motion. Added parser regression tests for absent, all-zero, and
-  valid BLK FORM. Browser-tested all three cases plus the light-mode TOOL CALL
-  panel with no console errors. Web-only test branch for now: the changed
-  shared `core/` files intentionally diverge from Android until this behaviour
-  is accepted and ported.
-- v0.825 — Added the web-only C5 test fix on
-  `fix/c5-bounded-editor-viewport`: the mobile Editor is now a fixed flex
-  column and only the program textarea scrolls, so text has real vertical
-  boundaries below Path functions/context/practice controls and above the
-  bottom tabs instead of passing behind sticky overlays. Removed mobile
-  textarea auto-grow and the obsolete sticky-height variables; the existing
-  textarea/line-number/highlight scroll synchronization is used again.
-  `kbd-open` removes the hidden bottom-tab reservation while the existing rule
-  hides the practice strip. Verified locally at 390×844 (normal, scrolled,
-  practice, and L-field panel) plus 1280×800 desktop. C5 remains open pending
-  real-phone web verification; Android is intentionally unchanged.
-- v0.824 — Closed C2 after the user confirmed the Android 1.0.27 port as well
-  as the already-verified web fix. Moved the full repro, root cause, rejected
-  partial approaches, final continuity fix, commits, and regression/build
-  evidence from `TODO.md` to `BUG_HISTORY.md`. No new parser runtime change.
-- v0.823 — Closed C3 and C4 from user verification in the current app. C3 is
-  no longer observed after C1 stabilised focus/selection; no separate RND/CHF
-  change was needed. C4's current block-placement behaviour is accepted as
-  matching the intended workflow even though it may not literally implement
-  every sentence of the original wording. Moved both entries to
-  `BUG_HISTORY.md`; no insertion runtime change.
-- v0.822 — Accepted the v0.821 C2 fix after real mobile-web verification and
-  prepared the identical parser/test port for Android 1.0.27. Removed the
-  temporary web-only shared-core exception. C2 stays open until the Android
-  build is verified on device; no parser change beyond the tested v0.821 code.
-- v0.821 — Added the web-only C2 test fix on `fix/c2-r0-pure-z`. A pure-Z R0
-  cancellation now keeps the tool at the last compensated physical XY through
-  the retract and any following Z/state-only segments; the first later XY move
-  leads out to its nominal target. Added regression checks for RL/RR, ordinary
-  lateral R0, repeated Z moves, later XY lead-out, and the full reported
-  RND/CHF contour. Awaiting visual verification before merge or Android port.
-- v0.820 — Closed C1 after successful real-device web and Android verification:
-  moved the complete symptom/root-cause/attempt history from `TODO.md` to
-  `BUG_HISTORY.md` and removed the temporary shared-core port exception. Added
-  a code-path analysis of C2: the R0 boundary rewrites only the next segment's
-  start, making a nominal pure-Z cancellation diagonal from the compensated XY
-  point. No C2 runtime change yet.
-- v0.819 — Added the mobile-web C1 focus/scroll test fix on branch
-  `debug/c1-mobile-focus`: one scroll-safe hidden-input focus instead of
-  repeated delayed focus and scroll restoration, explicit edit-session cleanup
-  before Learn changes the program, and hysteresis plus a baseline fallback for
-  the web keyboard state. Added `?mobileDebug=1` to exercise the mobile JS path
-  in a desktop test browser. Local forced-mobile interaction checks confirmed
-  that `Done` and entering Learn release the hidden input without a delayed
-  refocus; no JS console errors. Real-phone verification still required before
-  merge or Android port.
-- v0.818 — Defined root Markdown as a small navigation layer: update existing
-  sections, archive durable background in its existing topic, and add a root
-  file only for a new current contract. No runtime change.
-- v0.817 — Added the explicit documentation rule: preserve durable context in
-  `docs/history/` with a root link when simplifying; never discard it. No
-  runtime change.
-- v0.816 — Preserved detailed layout and renderer rationale in
-  `docs/history/layout-and-renderer-rationale.md` and linked it from concise
-  current rules, so it is loaded only for relevant changes. No runtime change.
-- v0.815 — Documentation-only cleanup: added concise session routing, corrected
-  the modular architecture description, condensed duplicate layout/renderer
-  detail, and documented web release tagging. No runtime change.
-- v0.814 — Added five newly reported cross-repo open bugs C1–C5 to `TODO.md`:
-  editor focus/scroll jumping, incorrect RL/RR exit motion, RND/CHF insertion at
-  program start, block-insertion rules, and the editor text area extending behind
-  control panels. Includes C2's repro program.
-- v0.813 — Process/docs: added `BUG_HISTORY.md` (archive of resolved bugs with
-  root cause + every attempt, incl. the failed ones) and `TODO.md` (open bugs +
-  the lifecycle workflow), and NOTES rule #11 formalizing the **bug lifecycle**
-  (discovered → TODO with every attempt → on fix move to BUG_HISTORY.md, same
-  commit). Seeded `BUG_HISTORY.md` with the Learn dead-space fix and the
-  reverted web mobile-keyboard tab-bar attempts. Mirrors the same workflow set
-  up in `tnc-sim-android`. No runtime code change.
-- v0.812 — Fixed dead near-black empty space at the bottom of the **Learn tab**
-  in the single-column (mobile/narrow) layout. Root cause: unlike the Editor and
-  3D tabs, the Learn tab had no full-height flex layout — it relied on default
-  block flow plus an arbitrary `body[data-mtab="learn"] #learnPanel
-  .lp-body{max-height:calc(100svh - 220px)}` cap (`web/styles.css`), so
-  `#learnPanel` ended at its content height and everything below it down to the
-  tab bar was bare page background (`--bg`). Gave the Learn tab the same
-  full-height flex treatment as the 3D tab (`height:100svh` flex column;
-  `.sim-container`/`.sim-main` flex:1; `#learnPanel` flex:1) and replaced the
-  `max-height` cap with `max-height:none;flex:1` so `.lp-body` fills to just
-  above the tab bar. Verified headless (Playwright, 390×844): the dead gap
-  between the panel and the tab bar went from 71px to 0. CSS-only. Mirrored into
-  `tnc-sim-android` (`www/android/styles.css`, `APP_VERSION 1.0.16`).
-- v0.811 — Cleaned up comment spacing in the "Angle Mill" demo program
-  (`DEMO_PROGRAMS` in `web/app.js`): several inline `;` comments had huge,
-  inconsistent runs of padding spaces (up to 32) left over from an attempt to
-  column-align them that never actually lined up. Normalized to a single space
-  before `;`, matching the convention already used in the default "Complete
-  Part" demo. Purely cosmetic — reformatted-only, no code/logic lines touched;
-  verified the reformatted program still parses with zero errors/warnings and
-  runs to completion with the same Z-ramp values as before. `Q1 = Q1+0,5774`'s
-  decimal **comma** was deliberately left as-is: `parseProgram()` normalizes
-  `\d,\d` → `\d.\d` globally at the top of the function
-  (`core/parser-engine.js` line ~447) before any Q-expression is evaluated, so
-  the comma is not a bug — confirmed by instrumenting `evalQExpr` during a real
-  parse (values step 10 → 10.5774 → 11.1548 … correctly). `web/app.js` only
-  (not `core/`) — mirrored by hand into `tnc-sim-android`'s `www/android/app.js`
-  (`APP_VERSION 1.0.13`) since `DEMO_PROGRAMS` is duplicated verbatim between
-  the two repos' `app.js` files.
-- v0.810 — Fixed scrolling being broken in landscape on large phones / foldables
-  (and in any short browser window). Root cause: when the viewport is wide
-  enough to clear the 1024px breakpoint but too **short** (e.g. a phone/foldable
-  in landscape, ~1180×400), the desktop editor-beside-3D layout's fixed chrome
-  (keypad + toolbar + ctx-panel + status-bar ≈ 480px) exceeded the editor-panel
-  height and collapsed the code `.editor-wrap`/textarea to ~0px — the program
-  became invisible and the page can't scroll in the desktop layout, so scrolling
-  appeared dead. Made the mobile single-column tabbed layout trigger on **height
-  too** — `@media(max-width:1024px)` → `@media(max-width:1024px),
-  (max-height:600px)` across all ~9 layout blocks, and the matching
-  `matchMedia(...)` in `_isMTab()`/`isMob()`, plus `showKpHelp`'s two
-  `innerWidth > 1024` popup checks → `!_isMTab()`. Below 600px tall the app now
-  uses the full-width single-column layout (which scrolls correctly). Verified
-  headless with real touch input across phone/tablet/desktop in both
-  orientations: the previously-collapsed 1180×390 case now shows the scrollable
-  single-column editor; tablet-landscape (1180×820) and desktop stay
-  side-by-side. Web-only (the Android app is always single-column). See rule #4.
-- v0.809 — Fixed the 3D model changing aspect ratio (stretching) while the
-  browser window is being resized. Root cause: the render `loop()`
-  (`core/sim-controls.js`) repaints every frame but only re-synced the renderer
-  buffer + `camera.aspect` on the window `resize` event; the canvas is
-  CSS-stretched to `100%x100%` of its container while `renderer.setSize(w,h,
-  false)` leaves the inline style alone, so every intermediate frame of a live
-  window drag (and every editor/3D splitter drag, which fires no window resize
-  at all) stretched the stale buffer to the new box. Added `resizeToDisplay()`
-  (`core/view2d.js`), a cheap per-frame "resize-on-render" check called at the
-  top of `loop()` that resyncs only when the container size actually changed.
-  Verified in a headless browser: a container resized without a resize event
-  went from a 37% horizontal stretch (buffer aspect 1.374 vs container 1.0) to
-  1:1. `core/` change — mirrored byte-for-byte into `tnc-sim-android`
-  (`APP_VERSION 1.0.12`). See rule #10.
-- v0.808 — Pure structural refactor, no functionality changed: split
-  `index.html`'s inline `<script>`/`<style>` into `core/*.js` (20 files,
-  byte-for-byte identical to the Android app's `www/core/*.js` — mechanically
-  verified by extracting every function by name from both repos and diffing,
-  not eyeballed) and `web/*.js` + `web/styles.css` (5 files: only 4 functions
-  are genuinely diverged from android, all in the forced-mobile-layout
-  category). Notably, Learn mode and mobile-tab switching are now `core/` —
-  the Android app had fully absorbed web's version by the time of this
-  refactor (an earlier attempt at this same refactor was done against a
-  stale, ~30-commit-old local checkout and had to be discarded and redone
-  against the real `origin/main`). Added `NOTES.md` "Module map" section.
-  Verified via per-function diff against the pre-refactor file (zero drift)
-  and a full functional pass in browser (Editor, Run/3D sim, Learn mode,
-  view switching, theme toggle) — all working, zero console errors. Mirrors
-  the same split done in `tnc-sim-android` in the same session; see that
-  repo's `sync-core.sh` for the one-way (web→android) manual core/ sync tool.
-- v0.807 — Formalized versioning: web stays in the `0.80x` series permanently
-  (paired with the Android app's separate `1.0.x` series — never confuse the
-  two), and every single push must bump `APP_VERSION`, with no "too small to
-  count" exceptions. Documented in this section and CLAUDE.md.
-- v0.806 — Reworked the light theme into a high-contrast scheme: dark chrome
-  (header/toolbars/panels = #1b1f27) over a light content area (#eef0f3), with a
-  pure-white editor. Implemented by re-scoping the CSS vars (`--surface`,
-  `--text`, `--border`…) inside the chrome containers so descendants flip to
-  light-on-dark automatically, plus explicit filled backgrounds for every
-  button/segment/tab/badge (contrast rule). 3D stage bg → #c7cdd8 (light var +
-  `_scene3dBgColor()` 0xc7cdd8). Q-params now info-blue (#1558d4). [branch:
-  light-theme-rework]
-- v0.805 — Added a browser favicon (`favicon.ico` 16/32/48 + `favicon-32.png`)
-  generated from the app icon; `<link rel="icon">` tags in `<head>`, and both
-  precached by the service worker (cache bumped to v4). Previously the tab had
-  no icon (default /favicon.ico 404'd).
-- v0.804 — Raised the layout breakpoint 700→1024px so tablets (and narrow
-  laptop windows) use the single-column tabbed layout instead of the cramped
-  editor-beside-3D — the 3D simulation now gets full width on tablets. Changed
-  the 9 `@media(max-width:700px)` blocks, the `matchMedia` calls in
-  `_isMTab()`/`isMob()`, and two `innerWidth > 700` popup checks. See rule #4.
-- v0.803 — Vendored Three.js r128 + OrbitControls into `vendor/` and switched
-  `index.html` to relative local script paths (was jsDelivr CDN). Removes the
-  external runtime dependency (rule #7), makes 3D work offline in the Android
-  app bundle from first launch, and simplifies SW caching (v3: precaches
-  `/vendor/*` instead of CDN URLs). See rule #9.
-- v0.802 — Actually implemented `APP_VERSION` single-sourcing in `index.html`
-  (v0.801 documented it but the code still had hard-coded "v0.8" strings);
-  About popup now shows the version at the bottom. Service worker v2: precache
-  the two Three.js CDN files and accept opaque responses (offline 3D was
-  broken — CDN scripts were never cached), ignoreSearch on navigations,
-  scheme guard. SW registration gated with `!window.Capacitor` (rule #8).
-  Deploy-flow section updated for the Capacitor app (no auto-update).
-- v0.801 — Added NOTES.md project map. Version now single-sourced from
-  `APP_VERSION` (feeds header badge, About, bug report). Fixed mobile layout to
-  survive "Desktop site" (pointer:coarse + max-device-width clause). Hardened
-  WebGL init + context-loss recovery for Xiaomi/HyperOS. Reworked lesson
-  "Parametric contour" (one profile, Q-depth, mill then chamfer). Removed old
-  "Final project" and "Final exam" lessons (now 15 lessons). Cutting fixes for
-  CYCL 200/208 (pre-drilled holes, deburring, Q=0 handling). Mobile keyboard UX
-  (hide practice panel when keyboard open; blur editor on task switch). SEO +
-  manifest updated for lessons & mobile.
+- Confirm changed JavaScript parses and the browser console is clean.
+- For parser/cutting changes, run the relevant Node regression and a 3D sanity
+  program.
+- For Learn changes, ensure the solution passes its checks and LBL content does
+  not run twice.
+- For CSS/layout changes, check desktop plus a narrow or short viewport.
+- Verify the intended diff, bump `APP_VERSION`, update the technical changelog,
+  and keep `origin/main` current after acceptance.
