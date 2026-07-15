@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.856 (web test)
+- Removed the overlapping status circles from the tutorial's Goals card and
+  replaced the final circular result with a wider 2/2-goals panel.
+
 ## v0.855 (web test)
 - Rebuilt the Start here tutorial as a short visual two-minute introduction:
   read, try, check and improve, with clear diagrams for Goals, Hint and Check.

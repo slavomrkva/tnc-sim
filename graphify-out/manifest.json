@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "core/learn-tutorial.js": {
-    "mtime": 1784142795.615568,
-    "ast_hash": "de9ae4723a018a49eeb7b5b250776f67",
+    "mtime": 1784147234.381311,
+    "ast_hash": "c3d8e726873baf6934b36a76ca3d31d0",
     "semantic_hash": ""
   },
   "core/mcode-panel.js": {
@@ -115,8 +115,8 @@
     "semantic_hash": "65efdb0a17d8a4d392e05ff416f875c7"
   },
   "service-worker.js": {
-    "mtime": 1784142832.711692,
-    "ast_hash": "4f477db1039e5bbefb31ec0a9b031f51",
+    "mtime": 1784147278.0864315,
+    "ast_hash": "73c31dc64f651c6389c04d823c31e73d",
     "semantic_hash": ""
   },
   "tests/parser-radius-comp.test.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784142832.7106917,
-    "ast_hash": "fd371130982179bbf3c3445103c0687b",
+    "mtime": 1784147278.0854278,
+    "ast_hash": "fb77a4de69ac6dd5b13c9dff3516b95c",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -200,13 +200,13 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784142832.7126973,
-    "ast_hash": "ef4d4c42870b4860f10e5061f56d2895",
+    "mtime": 1784147278.087429,
+    "ast_hash": "3a60b91101d1355cfa93aca1a5c9f02c",
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1784142832.7146974,
-    "ast_hash": "9f6eadeb0b46867ac2fc8ddfa9f88108",
+    "mtime": 1784147278.0898035,
+    "ast_hash": "6a0e990a2b25d5f325412077e4fa49b7",
     "semantic_hash": ""
   },
   "docs/history/layout-and-renderer-rationale.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784142832.713697,
-    "ast_hash": "46698236dbcf0ffdabf63f6b65a9bc4d",
+    "mtime": 1784147278.0884504,
+    "ast_hash": "f8c342813a736f2900d4c69027a52564",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {

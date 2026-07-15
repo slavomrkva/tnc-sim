@@ -43,8 +43,10 @@ read or operate with a keyboard.
 - Attempt 8 — rebuilt the Start here tutorial around a four-step visual learning
   loop, shortened its coach to five essential controls and required the checked
   warm-up before Finish; result: a less repetitive, genuinely interactive intro.
+- Attempt 9 — removed the tutorial Goals status circles and widened the final
+  score badge; result: neither card has text touching or crossing its outline.
 ### Status
-Implemented through v0.855; keep open until the web preview is accepted, then move
+Implemented through v0.856; keep open until the web preview is accepted, then move
 this evidence to `BUG_HISTORY.md`.
 
 <!-- Template for a new bug (copy below "Open bugs"):

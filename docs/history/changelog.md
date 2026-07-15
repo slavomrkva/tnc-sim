@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.856 — tutorial card spacing correction
+
+- Replaced the Goals card's outlined status dots with centred text rows.
+- Replaced the final circular score badge with a wider rounded rectangle so
+  the check mark and 2/2 label remain clear at narrow rendered widths.
+
 ## v0.855 — shorter interactive Start here tutorial
 
 - Replaced the intro lesson's three dense text slides with three focused visual
