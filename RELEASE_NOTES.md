@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.866 (web test)
+- The desktop F-field menu now opens downward below the selected feed value.
+
+## v0.865 (web test)
+- Fixed the desktop F-field menu so its options stay open until selected.
+- The 3D simulation now shows the LBL currently invoked by `CALL LBL`.
+
 ## v0.864 (web test)
 - Reworked the first Start here lesson into three concise orientation slides,
   with a visual preview of Hint 1–3 and an ungraded editor walkthrough.

@@ -449,6 +449,12 @@ footer a:hover{text-decoration:underline;}
 .fbar-fmax{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 8px;cursor:pointer;flex-shrink:0;}
 .fbar-fmax:hover{background:rgba(20,184,166,.1);}
 .fbar-feedmode{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:4px 4px;cursor:pointer;flex-shrink:1;min-width:0;max-width:100px;}
+.fbar-feedmenu-wrap{position:relative;flex-shrink:0;}
+.fbar-feedmode-btn{min-width:58px;max-width:none;}
+.fbar-feedmenu{display:none;position:absolute;right:0;top:calc(100% + 5px);z-index:100;min-width:118px;padding:4px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;box-shadow:0 5px 18px rgba(0,0,0,.32);}
+.fbar-feedmenu.open{display:flex;flex-direction:column;gap:2px;}
+.fbar-feedmenu button{font-family:var(--mono);font-size:11px;text-align:left;padding:6px 8px;border:0;border-radius:4px;background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
+.fbar-feedmenu button:hover,.fbar-feedmenu button:focus-visible{background:var(--bg);color:var(--text);outline:none;}
 .fbar-sug button{font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;}
 .fbar-sug button:hover{background:var(--bg);color:var(--text);border-color:var(--accent3);}
 .fbar-sug button.max{border-color:var(--accent);color:var(--accent);}

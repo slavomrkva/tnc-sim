@@ -2,6 +2,40 @@
 
 function _qpPanelOpen(){ return !!document.getElementById('qpFbarVal'); }
 
+// The compact native select remains on touch layouts, where it keeps the F
+// field on one row. Desktop uses a regular click-to-open menu instead: native
+// selects can close as soon as the mouse button is released in this panel.
+var _feedMenuOpen=false;
+
+function closeFeedMenu(){
+  var menu=document.getElementById('feedModeMenu');
+  var button=document.getElementById('feedModeButton');
+  if(menu) menu.classList.remove('open');
+  if(button) button.setAttribute('aria-expanded','false');
+  _feedMenuOpen=false;
+}
+
+function toggleFeedMenu(e){
+  if(e) e.stopPropagation();
+  var menu=document.getElementById('feedModeMenu');
+  var button=document.getElementById('feedModeButton');
+  if(!menu || !button) return;
+  _feedMenuOpen=!_feedMenuOpen;
+  menu.classList.toggle('open',_feedMenuOpen);
+  button.setAttribute('aria-expanded',_feedMenuOpen?'true':'false');
+}
+
+function chooseFeedMode(v){
+  closeFeedMenu();
+  applyFeedMode(v);
+}
+
+document.addEventListener('click', function(e){
+  if(!_feedMenuOpen) return;
+  var wrap=e.target.closest ? e.target.closest('.fbar-feedmenu-wrap') : null;
+  if(!wrap) closeFeedMenu();
+});
+
 function _qpFocusMobile(){
   if(!isMobile()) return;
   var mi=document.getElementById('mobileInput');
@@ -287,13 +321,25 @@ function renderFbar(){
       // and don’t wrap). Collapse them into one native dropdown instead.
       var qSel = /Q/i.test(String(f.val||''));
       var curSel = f.val===null?'SKIP':(f.val==='MAX'?'MAX':(f.val==='AUTO'?'AUTO':(qSel?'Q':'')));
-      html+='<select class="fbar-feedmode" onchange="applyFeedMode(this.value)" title="Feed options">';
-      html+='<option value=""'+(curSel===''?' selected':'')+'>⋯</option>';
-      html+='<option value="MAX"'+(curSel==='MAX'?' selected':'')+'>FMAX</option>';
-      html+='<option value="AUTO"'+(curSel==='AUTO'?' selected':'')+'>FAUTO</option>';
-      html+='<option value="Q"'+(curSel==='Q'?' selected':'')+'>'+(qSel?'Remove Q':'Insert Q')+'</option>';
-      if(f.opt) html+='<option value="SKIP"'+(curSel==='SKIP'?' selected':'')+'>Skip (—)</option>';
-      html+='</select>';
+      if(isMobile()){
+        html+='<select class="fbar-feedmode" onchange="applyFeedMode(this.value)" title="Feed options">';
+        html+='<option value=""'+(curSel===''?' selected':'')+'>⋯</option>';
+        html+='<option value="MAX"'+(curSel==='MAX'?' selected':'')+'>FMAX</option>';
+        html+='<option value="AUTO"'+(curSel==='AUTO'?' selected':'')+'>FAUTO</option>';
+        html+='<option value="Q"'+(curSel==='Q'?' selected':'')+'>'+(qSel?'Remove Q':'Insert Q')+'</option>';
+        if(f.opt) html+='<option value="SKIP"'+(curSel==='SKIP'?' selected':'')+'>Skip (—)</option>';
+        html+='</select>';
+      } else {
+        var feedLabel=curSel==='MAX'?'FMAX':(curSel==='AUTO'?'FAUTO':(curSel==='Q'?'Q':(curSel==='SKIP'?'—':'⋯')));
+        html+='<div class="fbar-feedmenu-wrap">';
+        html+='<button type="button" class="fbar-feedmode fbar-feedmode-btn" id="feedModeButton" onclick="toggleFeedMenu(event)" aria-haspopup="menu" aria-expanded="false" title="Feed options">'+feedLabel+' ▾</button>';
+        html+='<div class="fbar-feedmenu" id="feedModeMenu" role="menu">';
+        html+='<button type="button" role="menuitem" onclick="chooseFeedMode(\'MAX\')">FMAX</button>';
+        html+='<button type="button" role="menuitem" onclick="chooseFeedMode(\'AUTO\')">FAUTO</button>';
+        html+='<button type="button" role="menuitem" onclick="chooseFeedMode(\'Q\')">'+(qSel?'Remove Q':'Insert Q')+'</button>';
+        if(f.opt) html+='<button type="button" role="menuitem" onclick="chooseFeedMode(\'SKIP\')">Skip (—)</button>';
+        html+='</div></div>';
+      }
     } else {
       // Q parameter reference button (coord/num fields)
       if(f.type==='coord'||f.type==='num'){
