@@ -87,9 +87,12 @@ var LESSONS = [
       + '<p><b>Every lesson works the same way:</b></p>'
       + learnSvgLearningLoop(); } },
     { html:function(){ return ''
-      + '<p>Add one comment above <code>END PGM</code>, then press <b>Check</b>.</p>'
-      + learnSvgFirstWin()
-      + '<p>Start the warm-up below. Your progress saves automatically.</p>'; } }
+      + '<p><b>HINT</b></p>'
+      + '<p>Each press reveals one more level of help:</p>'
+      + '<p><b>1 ·</b> a small nudge<br>'
+      + '<b>2 ·</b> the steps to follow<br>'
+      + '<b>3 ·</b> a complete example</p>'
+      + '<p>Hints are free. They never change or reset your code.</p>'; } }
   ],
   tasks:[
     {

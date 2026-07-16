@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.860 — direct Hint slide
+
+- Removed the second tutorial diagram and its extra warm-up wording.
+- Made the slide solely explain the three progressive Hint levels and their
+  non-destructive behavior.
+
 ## v0.859 — shorter Start here lesson
 
 - Replaced three explanation-heavy tutorial slides with two direct slides:

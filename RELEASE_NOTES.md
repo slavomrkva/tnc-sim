@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.860 (web test)
+- Replaced the second Start here diagram with a direct explanation of the three
+  progressive Hint levels and confirmed that hints never reset student code.
+
 ## v0.859 (web test)
 - Replaced the Start here lesson's three detailed slides with two direct,
   simpler visuals. The existing five-step guided tour is unchanged.

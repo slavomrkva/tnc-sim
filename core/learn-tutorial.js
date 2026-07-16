@@ -19,17 +19,6 @@ function learnSvgLearningLoop(){
   return '<svg class="learn-svg" viewBox="0 0 340 86" role="img" aria-label="Read the task, edit the code, then check">'+g+'</svg>';
 }
 
-function learnSvgFirstWin(){
-  return '<svg class="learn-svg" viewBox="0 0 340 90" role="img" aria-label="Add a comment and press Check">'
-    + '<rect x="12" y="18" width="190" height="54" rx="8" fill="rgba(74,158,255,.07)" stroke="var(--border)"/>'
-    + '<text x="107" y="50" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#f0a94a">; my first program</text>'
-    + '<path d="M212 45 H238" stroke="var(--text3)" stroke-width="2"/><path d="M230 39 l9 6 l-9 6" fill="none" stroke="var(--text3)" stroke-width="2"/>'
-    + '<rect x="246" y="18" width="82" height="54" rx="9" fill="rgba(93,202,165,.10)" stroke="#5dcaa5" stroke-width="1.5"/>'
-    + '<text x="287" y="42" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#5dcaa5">CHECK</text>'
-    + '<text x="287" y="61" text-anchor="middle" font-family="monospace" font-size="17" font-weight="700" fill="#5dcaa5">✓</text>'
-    + '</svg>';
-}
-
 function learnSvgBlank(dx, dy, dz){
   return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
     + '<path d="M60 110 L170 110 L230 80 L120 80 Z" fill="rgba(74,158,255,.10)" stroke="var(--accent)" stroke-width="1"/>'
