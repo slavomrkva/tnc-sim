@@ -1,4 +1,4 @@
-// data-tables -- verified byte-for-byte identical between web and android repos.
+// data-tables -- web implementation; Android port intentionally deferred until acceptance.
 
 var CYCLES = [
   {
@@ -14,6 +14,7 @@ var CYCLES = [
       {q:'Q203', def:'+0',    name:'Surface coordinate',   unit:'mm',      desc:'Absolute Z coordinate of workpiece surface'},
       {q:'Q204', def:'+50',   name:'2nd safety clearance', unit:'mm',      desc:'Incremental Z height for final retract after cycle'},
       {q:'Q211', def:'+0',    name:'Dwell time at depth',  unit:'s',       desc:'Seconds to dwell at bottom of hole'},
+      {q:'Q395', def:'+0',    name:'Depth reference',      unit:'',        desc:'0 = tool tip, 1 = cylindrical part (uses tool T-ANGLE)'},
     ]
   },
   {
@@ -41,14 +42,15 @@ var CYCLES = [
       {q:'Q203', def:'+0',    name:'Surface coordinate',   unit:'mm',      desc:'Absolute Z coordinate of workpiece surface'},
       {q:'Q204', def:'+50',   name:'2nd safety clearance', unit:'mm',      desc:'Incremental Z height for final retract after cycle'},
       {q:'Q257', def:'+5',    name:'Depth per chip break', unit:'mm',      desc:'Infeed between each chip-breaking retract — 0 = single pass'},
-      {q:'Q256', def:'+0.2',  name:'Chip break retract',   unit:'mm',      desc:'Distance to retract for chip breaking (stays in hole)'},
+      {q:'Q256', def:'+0.2',  name:'Chip break retract',   unit:'× pitch', desc:'Retract for chip breaking as a MULTIPLE of the pitch Q239 (retract = Q256 × Q239); 0 = full retract out of the hole'},
       {q:'Q336', def:'+0',    name:'Spindle angle',        unit:'deg',     desc:'Spindle orientation angle at positioning (0 = ignored)'},
+      {q:'Q403', def:'+1',    name:'Retraction factor',    unit:'×',       desc:'Multiplier for spindle speed and synchronized feed during retraction'},
     ]
   },
   {
     num: 208,
-    name: 'Circular Pocket Milling',
-    desc: 'Mills a circular pocket to depth with helical infeed.',
+    name: 'Bore Milling',
+    desc: 'Helically mills a bore to depth (solid or pre-drilled), one effective-radius path.',
     params: [
       {q:'Q200', def:'+2',    name:'Safety clearance',    unit:'mm',      desc:'Distance above surface for rapid approach'},
       {q:'Q201', def:'-20',   name:'Depth',               unit:'mm',      desc:'Machining depth — negative value (e.g. -20)'},
@@ -58,7 +60,7 @@ var CYCLES = [
       {q:'Q204', def:'+50',   name:'2nd safety clearance',unit:'mm',      desc:'Z height for final retract'},
       {q:'Q335', def:'+10',   name:'Nominal diameter',    unit:'mm',      desc:'Target bore diameter'},
       {q:'Q342', def:'+0',    name:'Pre-drilled dia.',    unit:'mm',      desc:'Existing hole diameter — 0 if solid material'},
-      {q:'Q351', def:'+1',    name:'Milling mode',         unit:'',        desc:'Climb milling (+1 fixed)'},
+      {q:'Q351', def:'+1',    name:'Milling mode',         unit:'',        desc:'+1 or 0 = climb (down) milling, -1 = conventional (up) milling; spindle direction is taken into account'},
     ]
   }
 ];
@@ -1005,8 +1007,8 @@ var LESSONS = [
     { html:function(){ return ''
       + '<p><b>Tapping</b> cuts a thread: the spindle and the feed are locked together by the <b>pitch</b> \u2014 one revolution = exactly one pitch deeper. Cycle <b>209</b> also breaks chips by backing off:</p>'
       + learnSvgThreadCycle()
-      + learnSnippet('CYCL DEF 209 TAPPING\n  Q200=+2    ;set-up clearance\n  Q201=-15   ;thread depth\n  Q239=+1.25 ;PITCH (M8 = 1.25)\n  Q203=+0    ;surface coordinate\n  Q204=+30   ;2nd set-up clearance\n  Q257=+4    ;depth for chip breaking\n  Q256=+0.5  ;retract for chip breaking')
-      + '<p><code>Q257</code>: back off every 4 mm; <code>Q256</code>: by 0.5 mm.</p>'; } },
+      + learnSnippet('CYCL DEF 209 TAPPING\n  Q200=+2    ;set-up clearance\n  Q201=-15   ;thread depth\n  Q239=+1.25 ;PITCH (M8 = 1.25)\n  Q203=+0    ;surface coordinate\n  Q204=+30   ;2nd set-up clearance\n  Q257=+4    ;depth for chip breaking\n  Q256=+0.5  ;retract = 0.5 x pitch\n  Q336=+0    ;spindle orientation\n  Q403=+1    ;retraction speed factor')
+      + '<p><code>Q257</code>: chip break every 4 mm. <code>Q256=0.5</code> retracts by 0.5 × pitch (= 0.625 mm here); 0 means a full retract. <code>Q403</code> scales synchronized retract speed/feed.</p>'; } },
     { html:function(){ return ''
       + '<p>Before tapping you must <b>pre-drill</b> the core hole. Rule of thumb: <b>drill \u00d8 = thread size \u2212 pitch</b>.</p>'
       + '<p>So an <b>M8</b> thread (pitch 1.25) needs a <b>\u00d86.8</b> core hole (8 \u2212 1.25 \u2248 6.75, rounded to the standard 6.8 drill) \u2014 exactly the holes from the last lesson. Tap = T7:</p>'
@@ -1018,14 +1020,14 @@ var LESSONS = [
   ],
   tasks:[
     {
-      prompt:'Define the tapping cycle: CYCL DEF 209 with depth per chip break = +4, retract for chip breaking = +0.5, then set-up clearance = +2, thread depth = -15, thread pitch = +1.25, surface coordinate = +0, 2nd set-up clearance = +30',
+      prompt:'Define the tapping cycle: CYCL DEF 209 with depth per chip break = +4, retract factor = +0.5, set-up clearance = +2, thread depth = -15, thread pitch = +1.25, surface = +0, 2nd clearance = +30, orientation = 0 and retract speed factor = 1',
       hints:[
         "Tapping cuts a thread — <code>CYCL DEF 209</code>. The spindle syncs to the <b>pitch</b>, so the pitch sets the feed, not F.",
         "Key values: <code>Q201</code>=-15 thread depth, <code>Q239</code>=1.25 pitch, <code>Q257</code>=4 chip-break, <code>Q200</code>=2.",
         "Type the <code>CYCL DEF 209 Q257=+4 Q256=+0.5</code> block from the slide, with <code>Q201=-15</code>, <code>Q239=+1.25</code>, <code>Q200=+2</code>."
       ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\n; define cycle 209 here\n\nM5\nM9\nEND PGM TAP MM',
-      sol:'CYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30',
+      sol:'CYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30\n  Q336=+0 ;spindle orientation\n  Q403=+1 ;retraction factor',
       checks:[
         {t:'cycle_def', num:209, after:/TOOL\s+CALL\s+7\b/, label:'Tapping cycle 209 defined after T7',
          hint:'First line: CYCL DEF 209 Q257=+4 Q256=+0.5'},
@@ -1042,7 +1044,11 @@ var LESSONS = [
         {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q203', value:0, label:'Surface Q203 = +0',
          hint:'Q203=+0 sets the surface at Z0.'},
         {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q204', value:30, label:'2nd clearance Q204 = +30',
-         hint:'Q204=+30 is the final retract height.'}
+          hint:'Q204=+30 is the final retract height.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q336', value:0, label:'Spindle orientation Q336 = 0',
+          hint:'Q336=+0 leaves the orientation at zero.'},
+        {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q403', value:1, label:'Retraction factor Q403 = +1',
+          hint:'Q403=+1 keeps synchronized retract speed equal to the tapping speed.'}
       ]
     },
     {

@@ -1,4 +1,4 @@
-// parser-engine -- verified byte-for-byte identical between web and android repos.
+// parser-engine -- web implementation; Android port intentionally deferred until acceptance.
 
 function expandLblLines(lines){
   var lblDefs={};
@@ -66,6 +66,47 @@ function evalQExpr(expr, qVars){
   catch(e){ return 0; }
 }
 
+// Validate the same deliberately small Q-expression language that evalQExpr
+// executes.  evalQExpr keeps its historic numeric fallback for parser
+// robustness, but the editor must never present a malformed/undefined
+// expression as valid code and then silently simulate it as zero.
+function inspectQExpr(expr, qVars){
+  expr=String(expr||'').trim();
+  if(!expr) return {ok:false,msg:'Q expression is empty'};
+  var undefinedQs=[];
+  expr.replace(/Q(\d+)/gi,function(m,n){
+    if(qVars[parseInt(n)]===undefined && undefinedQs.indexOf('Q'+parseInt(n))<0)
+      undefinedQs.push('Q'+parseInt(n));
+    return m;
+  });
+  if(undefinedQs.length) return {ok:false,msg:undefinedQs.join(', ')+' has no value assigned'};
+  // Reject names/tokens that the evaluator does not implement.  This also
+  // prevents Function() from seeing arbitrary JavaScript identifiers.
+  var identifiers=expr.match(/[A-Z_]+/gi)||[];
+  var allowed={Q:true,SQRT:true,SIN:true,COS:true,TAN:true,ASIN:true,ACOS:true,ATAN:true,ABS:true,INT:true,FRAC:true};
+  for(var ai=0;ai<identifiers.length;ai++){
+    var id=identifiers[ai].toUpperCase();
+    if(!allowed[id]) return {ok:false,msg:'Unsupported token "'+identifiers[ai]+'" in Q expression'};
+  }
+  if(/[^0-9Q+\-*/().\sA-Z_]/i.test(expr)) return {ok:false,msg:'Invalid character in Q expression'};
+  var value=evalQExpr(expr,qVars);
+  if(!isFinite(value)) return {ok:false,msg:'Q expression does not produce a finite number'};
+  // evalQExpr returns 0 on a syntax exception, so independently compile the
+  // resolved expression to distinguish a real zero from a swallowed failure.
+  var probe=expr.replace(/Q(\d+)/gi,function(m,n){return '('+qVars[parseInt(n)]+')';})
+    .replace(/SQRT\s*\(/gi,'Math.sqrt(').replace(/SIN\s*\(/gi,'Math.sin(')
+    .replace(/COS\s*\(/gi,'Math.cos(').replace(/TAN\s*\(/gi,'Math.tan(')
+    .replace(/ASIN\s*\(/gi,'Math.asin(').replace(/ACOS\s*\(/gi,'Math.acos(')
+    .replace(/ATAN\s*\(/gi,'Math.atan(').replace(/ABS\s*\(/gi,'Math.abs(')
+    .replace(/INT\s*\(/gi,'Math.trunc(')
+    .replace(/FRAC\s*\(([^)]+)\)/gi,function(m,v){return '('+v+'-Math.trunc('+v+'))';});
+  try {
+    var compiled=Function('"use strict"; return ('+probe+');')();
+    if(typeof compiled!=='number'||!isFinite(compiled)) return {ok:false,msg:'Q expression does not produce a finite number'};
+  } catch(e){ return {ok:false,msg:'Malformed Q expression'}; }
+  return {ok:true,value:value};
+}
+
 function resolveQLine(line, qVars){
   // Don't resolve the LHS of a Q assignment (Q1 = ...)
   var assignMatch = line.match(/^(Q\d+\s*=\s*)(.*)/i);
@@ -89,18 +130,25 @@ function resolveQLineExpr(line, qVars){
   });
 }
 
-function checkRadiusVsTool(r, lineIdx, lines){
-  if(r < TOOL_R){
-    var _li = lineIdx;
-    return {line:lineIdx, sev:'err',
-      msg:'Radius '+r+'mm < tool radius '+TOOL_R+'mm (\u00d8'+(TOOL_R*2)+'mm) \u2014 cannot be machined',
-      fix:function(lines){
-        lines[_li] = lines[_li].replace(/R[+\-]?(\d+\.?\d*)/, function(){ return 'R+'+TOOL_R.toFixed(1); });
-        return _li;
-      }
-    };
-  }
-  return null;
+// Cycle Q-parameter access that respects an explicit zero (NOTES rule #2).
+// `Q || default` silently drops a meaningful 0 (e.g. Q201=0 depth, Q204=0 2nd
+// clearance); this helper only falls back when the parameter is genuinely
+// absent. Kept tiny and side-effect free, and used only where the meaning of
+// zero and of the default both match the Heidenhain documentation.
+function cycleQ(cy, num, def){
+  var v = cy ? cy['Q'+num] : undefined;
+  return (v !== undefined && v !== null) ? v : def;
+}
+
+// Effective radius compensation, exactly like the real control:
+//   R(table) + DR(table) + DR(TOOL CALL)
+// This single value drives BOTH the final wall path and the radial stepover in
+// cycles, so a programmed DR can never make the two disagree. The physical
+// voxel tool shape (vxCut) still uses table geometry only — a programmed DR is
+// a path allowance, it must not inflate the mesh.
+function effectiveCompRadius(tool, drPgm){
+  if(!tool) return TOOL_R;
+  return (tool.R || 0) + (tool.DR || 0) + (drPgm || 0);
 }
 
 // Parser tests and lightweight embeds can load this module without the full
@@ -120,18 +168,27 @@ function validateProgram(code){
   // with its block number, e.g. "12 TOOL CALL 5 Z S2000". Strip it so all the
   // startsWith-style keyword checks below (BEGIN PGM, LBL, CYCL DEF, ...) work
   // the same whether the program was typed fresh or imported from a machine.
+  code = code.replace(/(\d),(\d)/g,'$1.$2');
   code = code.replace(/^[ \t]*\d+[ \t]+/gm, '');
   var lines = code.split('\n');
   var probs = [];
+  function rejectUnknownTokens(tokens,start,allowed,line){
+    for(var ti=start;ti<tokens.length;ti++){
+      var accepted=false;
+      for(var pi=0;pi<allowed.length;pi++) if(allowed[pi].test(tokens[ti])){accepted=true;break;}
+      if(!accepted) probs.push({line:line,sev:'err',msg:'Unsupported token "'+tokens[ti]+'" in this block'});
+    }
+  }
   if(lines.length > 2000)
     probs.push({line:2000,sev:'err',msg:'Program exceeds 2000 lines ('+lines.length+' lines) \u2014 simulator limit'});
 
   var hasBegin=false, hasEnd=false, hasBlk1=false, hasBlk2=false;
+  var beginCount=0, endCount=0, seenEnd=false;
   var beginName='', endName='';
   var blkMin1={x:null,y:null,z:null};
   var blkMax1={x:null,y:null,z:null};
   var _cylPending=false, _cylZ0_val=0; // cylinder blank size check state
-  var lastCC=false, ccLine=-1;
+  var lastCC=false, ccLine=-1, valCCX=null, valCCY=null;
   var valRcState='';
   var valRcLine=-1;
   var lastRcWasArc=false;
@@ -141,12 +198,15 @@ function validateProgram(code){
   var valToolNum=0;
   var valZ=null;
   var valSurfZ=null;
-  var valLastX=null, valLastY=null; // tracks XY position for the zero-displacement RL/RR check below
+  var valLastX=null, valLastY=null; // tracks XY position for geometry and compensation checks
+  var valHasXYTangent=false;
   var valSpindleOn=false;
+  var valSpindleS=0;
   var valToolCallPendingSpindle=false;
   var qVarsVal={};
   var valCycleQ={};
   var valCycleLine=-1;
+  var valCycleNum=0;
   var valInCycle=false;
   var blk1Line=-1;
   var activeCycleDef=false;
@@ -154,18 +214,50 @@ function validateProgram(code){
   var hasCycleDef=false;
   var pendingCC=true;
 
-  // Collect defined LBL numbers
+  // Validate LBL structure on the original source. expandLblLines deliberately
+  // removes LBL/CALL blocks, so doing this later made all label diagnostics
+  // unreachable and missing labels were silently expanded to nothing.
   var definedLbls={}, duplicateLbls={};
   for(var _li2=0;_li2<lines.length;_li2++){
     var _lu=lines[_li2].trim().toUpperCase().replace(/;.*$/,'').trim();
     var _lm=_lu.match(/^LBL\s+(\d+)/);
     if(_lm && _lm[1]!=='0'){
-      if(definedLbls[_lm[1]]) duplicateLbls[_lm[1]]=_li2;
+      if(definedLbls[_lm[1]]){
+        duplicateLbls[_lm[1]]=_li2;
+        probs.push({line:_li2,sev:'err',msg:'Label number allocated twice \u2014 LBL '+_lm[1]});
+      }
       definedLbls[_lm[1]]=_li2+1;
+    }
+  }
+  for(var _li3=0;_li3<lines.length;_li3++){
+    var _callU=lines[_li3].trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim();
+    var _callM=_callU.match(/^CALL\s+LBL\s+(\d+)(?:\s+REP\s+([+-]?\d+))?\s*$/);
+    if(/^CALL\s+LBL\b/.test(_callU) && !_callM)
+      probs.push({line:_li3,sev:'err',msg:'Faulty block \u2014 expected: CALL LBL <no.> [REP <count>]'});
+    else if(_callM){
+      if(!definedLbls[_callM[1]]) probs.push({line:_li3,sev:'err',msg:'Label number not allocated \u2014 LBL '+_callM[1]+' missing'});
+      if(_callM[2]!==undefined&&parseInt(_callM[2])<1) probs.push({line:_li3,sev:'err',msg:'REP must be at least 1'});
     }
   }
 
   var expandedVal = expandLblLines(lines);
+
+  // RND/CHF is a modifier between two contour moves in the implemented
+  // parser.  Orphaned or trailing modifiers used to disappear without any
+  // diagnostic, which is never an acceptable simulation result.
+  var _meaningful=[];
+  for(var _si=0;_si<expandedVal.length;_si++){
+    var _su=expandedVal[_si].text.trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim();
+    if(_su) _meaningful.push({u:_su,line:expandedVal[_si].srcLine});
+  }
+  for(var _sj=0;_sj<_meaningful.length;_sj++){
+    if(/^(RND|CHF)\b/.test(_meaningful[_sj].u)){
+      var _prevU=_sj>0?_meaningful[_sj-1].u:'';
+      var _nextU=_sj+1<_meaningful.length?_meaningful[_sj+1].u:'';
+      if(!/^(L|LP)\b/.test(_prevU)||!/^(L|LP)\b/.test(_nextU))
+        probs.push({line:_meaningful[_sj].line,sev:'err',msg:_meaningful[_sj].u.split(/\s+/)[0]+' must be programmed between two supported contour moves'});
+    }
+  }
 
   for(var i=0;i<expandedVal.length;i++){
     var raw=expandedVal[i].text.trim();
@@ -177,13 +269,20 @@ function validateProgram(code){
     // Strip FN 0–4 prefix (FN 0 assign, FN 1 add, FN 2 sub, FN 3 mult, FN 4 div)
     if(/^FN\s*[0-4]\s*:/i.test(u)) u = u.replace(/^FN\s*[0-4]\s*:/i,'').trim();
 
+    if(!hasBegin&&u.indexOf('BEGIN PGM')!==0)
+      probs.push({line:srcI,sev:'err',msg:'Program block appears before BEGIN PGM'});
+    if(seenEnd&&u.indexOf('END PGM')!==0)
+      probs.push({line:srcI,sev:'err',msg:'Program block appears after END PGM'});
+
     // Q100-199 read-only check
     var _qValAssign = u.match(/^(Q\d+)\s*=\s*(.+)/);
     if(_qValAssign && !valInCycle){
       var _qNum2=parseInt(_qValAssign[1].slice(1));
       if(_qNum2>=100&&_qNum2<=199) probs.push({line:srcI,sev:'warn',msg:_qValAssign[1]+' is in the reserved range Q100\u2013Q199 (measurement results \u2014 read-only)'});
       var _qNum = parseInt(_qValAssign[1].slice(1));
-      qVarsVal[_qNum] = evalQExpr(_qValAssign[2], qVarsVal);
+      var _qInspection=inspectQExpr(_qValAssign[2],qVarsVal);
+      if(!_qInspection.ok) probs.push({line:srcI,sev:'err',msg:_qValAssign[1]+': '+_qInspection.msg});
+      else qVarsVal[_qNum] = _qInspection.value;
       continue;
     }
     if(Object.keys(qVarsVal).length > 0) u = resolveQLine(u, qVarsVal);
@@ -195,32 +294,62 @@ function validateProgram(code){
     }
 
     var toks=u.split(/\s+/);
+    if(/^(L|C|CR|CT|LP|CP)\b/.test(u)){
+      for(var _mfi=1;_mfi<toks.length;_mfi++){
+        var _mf=toks[_mfi].match(/^F\+?(\d+(?:\.\d+)?)$/);
+        if(_mf&&parseFloat(_mf[1])<=0) probs.push({line:srcI,sev:'err',msg:'Feed must be greater than 0'});
+      }
+    }
 
     // Cycle Q block exit — validate collected params
-    if(valInCycle && !/^Q\d+/.test(u) && u.indexOf('CYCL')<0){
+    // Cycle Q block exit — validate collected params. The block ends at the
+    // first line that is not a Q-parameter continuation (CYCL CALL, an L/M
+    // block, END PGM or the next CYCL DEF). The previous `indexOf('CYCL')<0`
+    // guard also matched `CYCL CALL` and any program NAME containing "CYCL",
+    // so a cycle followed immediately by CYCL CALL was never validated.
+    if(valInCycle && !/^Q\d+/.test(u)){
       valInCycle=false;
-      var _cQ200=valCycleQ['Q200'],_cQ201=valCycleQ['Q201'],_cQ204=valCycleQ['Q204'],_cQ202=valCycleQ['Q202'];
-      if(_cQ200!==undefined&&typeof _cQ200==='number'&&_cQ200<0) probs.push({line:valCycleLine,sev:'warn',msg:'Q200 safety clearance must be >= 0 (got '+_cQ200+')'});
+      var _cQ200=valCycleQ['Q200'],_cQ201=valCycleQ['Q201'],_cQ204=valCycleQ['Q204'];
+      if(_cQ200!==undefined&&typeof _cQ200==='number'&&_cQ200<0) probs.push({line:valCycleLine,sev:'err',msg:'Q200 safety clearance must be >= 0 (got '+_cQ200+')'});
+      if(_cQ204!==undefined&&typeof _cQ204==='number'&&_cQ204<0) probs.push({line:valCycleLine,sev:'err',msg:'Q204 safety clearance must be >= 0 (got '+_cQ204+')'});
       if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201===0) probs.push({line:valCycleLine,sev:'warn',msg:'Q201 = 0: cycle will not execute'});
-      if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201>0) probs.push({line:valCycleLine,sev:'warn',msg:'Q201 should be negative (depth below surface), got +'+_cQ201});
-      if(_cQ204!==undefined&&_cQ200!==undefined&&typeof _cQ204==='number'&&typeof _cQ200==='number'&&_cQ204<_cQ200) probs.push({line:valCycleLine,sev:'warn',msg:'Q204 ('+_cQ204+') should be \u2265 Q200 ('+_cQ200+')'});
+      if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201>0) probs.push({line:valCycleLine,sev:'err',msg:'Q201 depth must be negative (below surface), got +'+_cQ201+' — the cycle will not cut'});
+      var _qNumBad=function(q, pred){ return typeof valCycleQ[q]==='number' && pred(valCycleQ[q]); };
+      if(valCycleNum===200){
+        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q202',function(v){return v<0;})||_qNumBad('Q210',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q206 must be > 0 and Q202/Q210/Q211 must be >= 0'});
+        if(_qNumBad('Q395',function(v){return v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q395 must be 0 or 1'});
+      } else if(valCycleNum===201){
+        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q208',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 201: Q206 must be > 0 and Q208/Q211 must be >= 0'});
+      } else if(valCycleNum===208){
+        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q334',function(v){return v<0;})||_qNumBad('Q335',function(v){return v<=0;})||_qNumBad('Q342',function(v){return v<0;})||_qNumBad('Q351',function(v){return v!==-1&&v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: invalid feed, diameter, pre-drill, infeed, or Q351 sign'});
+      } else if(valCycleNum===209){
+        if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})||_qNumBad('Q336',function(v){return v< -360||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, orientation, or retraction factor'});
+      }
       // Note: Q202 > |Q201| is OK — means single pass (no pecking)
     }
 
     // ── BEGIN PGM ──
     if(u.indexOf('BEGIN PGM')===0){
-      hasBegin=true;
+      hasBegin=true; beginCount++;
+      if(beginCount>1) probs.push({line:srcI,sev:'err',msg:'BEGIN PGM may only appear once'});
+      if(seenEnd) probs.push({line:srcI,sev:'err',msg:'BEGIN PGM may not appear after END PGM'});
       if(!/^BEGIN PGM \S+ (MM|INCH)$/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: BEGIN PGM <name> MM'});
-      else beginName=toks[2];
+      else {
+        beginName=toks[2];
+        if(/\sINCH$/.test(u)) probs.push({line:srcI,sev:'err',msg:'INCH programs are not supported by the simulator \u2014 use MM'});
+      }
 
     // ── END PGM ──
     } else if(u.indexOf('END PGM')===0){
-      hasEnd=true;
+      hasEnd=true; endCount++; seenEnd=true;
+      if(!hasBegin) probs.push({line:srcI,sev:'err',msg:'END PGM appears before BEGIN PGM'});
+      if(endCount>1) probs.push({line:srcI,sev:'err',msg:'END PGM may only appear once'});
       if(!/^END PGM \S+ (MM|INCH)$/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: END PGM <name> MM'});
       else {
         endName=toks[2];
+        if(/\sINCH$/.test(u)) probs.push({line:srcI,sev:'err',msg:'INCH programs are not supported by the simulator \u2014 use MM'});
         if(beginName && endName && beginName!==endName)
           probs.push({line:srcI,sev:'err',msg:'PGM name mismatch: END PGM "'+endName+'" \u2260 BEGIN PGM "'+beginName+'"'});
       }
@@ -242,6 +371,9 @@ function validateProgram(code){
       if(_cylPending){
         // This 0.2 line is the cylinder's radius (X) and top Z — check diameter & height, not box sides.
         var _crl=u.match(/X([+-]?\d+\.?\d*)/), _cz1l=u.match(/Z([+-]?\d+\.?\d*)/);
+        if(!_crl||!_cz1l) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER 0.2 incomplete \u2014 define radius X and top Z'});
+        if(_crl&&parseFloat(_crl[1])<=0) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER radius X must be greater than 0'});
+        if(_cz1l&&parseFloat(_cz1l[1])<=_cylZ0_val) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER top Z must be greater than bottom Z'});
         if(_crl){ var _dia=Math.abs(parseFloat(_crl[1]))*2; if(_dia>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder diameter ('+_dia.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
         if(_cz1l){ var _ch=Math.abs(parseFloat(_cz1l[1])-_cylZ0_val); if(_ch>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder height ('+_ch.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
         _cylPending=false;
@@ -264,9 +396,14 @@ function validateProgram(code){
 
     } else if(u.indexOf('BLK FORM CYLINDER')===0){
       // Cylinder header: 0.1-style line holds center + Z0. Radius/height checked on the next 0.2 line.
-      var _czl=u.match(/Z([+-]?\d+\.?\d*)/); _cylZ0_val = _czl?parseFloat(_czl[1]):0; _cylPending=true;
+      hasBlk1=true;
+      var _czl=u.match(/Z([+-]?\d+\.?\d*)/);
+      if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!_czl)
+        probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER incomplete \u2014 define center X, Y and bottom Z'});
+      _cylZ0_val = _czl?parseFloat(_czl[1]):0; _cylPending=true;
 
     } else if(u.indexOf('BLK FORM')===0){
+      probs.push({line:srcI,sev:'err',msg:'This BLK FORM variant is not supported (supported: 0.1/0.2 box and CYLINDER)'});
       // other BLK FORM variants — no size check needed
 
     // ── TOOL CALL ──
@@ -277,7 +414,14 @@ function validateProgram(code){
         probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' active \u2014 program R0 before TOOL CALL'});
       if(!/\bS\d+/.test(u))
         probs.push({line:srcI,sev:'warn',msg:'Spindle speed S missing in TOOL CALL'});
+      if(/\bS[+-]/.test(u)||/\bS0(?:\D|$)/.test(u))
+        probs.push({line:srcI,sev:'err',msg:'TOOL CALL spindle speed S must be a positive number'});
+      var _toolF=u.match(/\bF([+-]?\d+(?:\.\d+)?)/);
+      if(_toolF&&parseFloat(_toolF[1])<=0) probs.push({line:srcI,sev:'err',msg:'TOOL CALL feed F must be greater than 0'});
+      rejectUnknownTokens(toks,3,[/^Z$/, /^S[+-]?\d+(?:\.\d+)?$/, /^F[+-]?\d+(?:\.\d+)?$/, /^DL[+-]?\d+(?:\.\d+)?$/, /^DR[+-]?\d+(?:\.\d+)?$/],srcI);
       hasToolCall=true; toolCallLine=srcI;
+      valSpindleS=0;
+      var _valSm=u.match(/\bS(\d+)/); if(_valSm) valSpindleS=parseInt(_valSm[1]);
       valToolCallPendingSpindle=true;
       var _tm=u.match(/TOOL CALL (\d+)/);
       if(_tm){
@@ -291,52 +435,92 @@ function validateProgram(code){
 
     // ── TOOL DEF ──
     } else if(u.indexOf('TOOL DEF')===0){
-      if(!/^TOOL DEF \d+/.test(u))
+      if(!/^TOOL DEF \d+$/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: TOOL DEF <no.>'});
 
     // ── CC ──
     } else if(toks[0]==='CC'){
+      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/],srcI);
       if(!/X[+-]?\d/.test(u)&&!/Y[+-]?\d/.test(u))
-        probs.push({line:srcI,sev:'warn',msg:'CC block without coordinates'});
+        probs.push({line:srcI,sev:'err',msg:'CC block without coordinates'});
+      var _ccxm=u.match(/X([+-]?\d+\.?\d*)/), _ccym=u.match(/Y([+-]?\d+\.?\d*)/);
+      if(_ccxm) valCCX=parseFloat(_ccxm[1]);
+      if(_ccym) valCCY=parseFloat(_ccym[1]);
       lastCC=true; ccLine=srcI; pendingCC=true;
 
     // ── C arc ──
     } else if(/^C(\s|$)/.test(u)){
+      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Circle center undefined \u2014 program CC first'});
       if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
       if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
       pendingCC=false; lastRcWasArc=true;
-      var _crm=u.match(/(?:^|\s)R([+-]?\d+\.?\d*)/);
-      if(_crm&&valRcState&&valRcState!==''&&valRcState!=='R0'){ var _rChk=checkRadiusVsTool(Math.abs(parseFloat(_crm[1])),srcI,lines); if(_rChk) probs.push(_rChk); }
+      var _cex=u.match(/X([+-]?\d+\.?\d*)/), _cey=u.match(/Y([+-]?\d+\.?\d*)/);
+      if(!_cex&&!_cey) probs.push({line:srcI,sev:'err',msg:'C block has no end point'});
+      var _cEndX=_cex?parseFloat(_cex[1]):valLastX, _cEndY=_cey?parseFloat(_cey[1]):valLastY;
+      if(valLastX!==null&&valLastY!==null&&valCCX!==null&&valCCY!==null&&_cEndX!==null&&_cEndY!==null){
+        var _cStartR=Math.hypot(valLastX-valCCX,valLastY-valCCY);
+        var _cEndR=Math.hypot(_cEndX-valCCX,_cEndY-valCCY);
+        if(_cStartR<1e-9||Math.abs(_cStartR-_cEndR)>1e-4)
+          probs.push({line:srcI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC'});
+      }
+      if(_cEndX!==null) valLastX=_cEndX; if(_cEndY!==null) valLastY=_cEndY;
+      valHasXYTangent=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── CR ──
     } else if(toks[0]==='CR'){
+      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^R[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
       if(!/(?:^|\s)R[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Circle radius R missing'});
       if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
       if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
       var _crRm=u.match(/(?:^|\s)R[+-]?(\d+\.?\d*)/);
-      if(_crRm){ var _crChk=checkRadiusVsTool(parseFloat(_crRm[1]),srcI,lines); if(_crChk) probs.push(_crChk); }
+      var _crex=u.match(/X([+-]?\d+\.?\d*)/), _crey=u.match(/Y([+-]?\d+\.?\d*)/);
+      if(!_crex&&!_crey) probs.push({line:srcI,sev:'err',msg:'CR block has no end point'});
+      var _crEndX=_crex?parseFloat(_crex[1]):valLastX, _crEndY=_crey?parseFloat(_crey[1]):valLastY;
+      if(_crRm&&valLastX!==null&&valLastY!==null&&_crEndX!==null&&_crEndY!==null){
+        var _crChord=Math.hypot(_crEndX-valLastX,_crEndY-valLastY), _crRadius=parseFloat(_crRm[1]);
+        if(_crRadius<=0||_crChord<1e-9||_crChord>2*_crRadius+1e-6)
+          probs.push({line:srcI,sev:'err',msg:'CR geometry is impossible \u2014 end-point chord must be greater than 0 and no longer than 2R'});
+      }
+      if(_crEndX!==null) valLastX=_crEndX; if(_crEndY!==null) valLastY=_crEndY;
+      valHasXYTangent=true;
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── CT ──
     } else if(toks[0]==='CT'){
+      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
       if(!/X[+-]?\d/.test(u)&&!/Y[+-]?\d/.test(u))
         probs.push({line:srcI,sev:'warn',msg:'CT block without end point'});
       if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
+      if(!valHasXYTangent) probs.push({line:srcI,sev:'err',msg:'CT requires a preceding XY contour move to define the tangent'});
+      var _ctex=u.match(/X([+-]?\d+\.?\d*)/), _ctey=u.match(/Y([+-]?\d+\.?\d*)/);
+      if(_ctex) valLastX=parseFloat(_ctex[1]); if(_ctey) valLastY=parseFloat(_ctey[1]);
+      valHasXYTangent=true;
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── LP / CP ──
     } else if(toks[0]==='LP'){
+      rejectUnknownTokens(toks,1,[/^PR[+-]?\d+(?:\.\d+)?$/, /^PA[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/],srcI);
+      if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before LP'});
       if(!/PR[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar radius PR missing'});
       if(!/PA[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar angle PA missing'});
+      var _vpr=u.match(/PR([+-]?\d+\.?\d*)/), _vpa=u.match(/PA([+-]?\d+\.?\d*)/);
+      if(_vpr&&_vpa&&valCCX!==null&&valCCY!==null){
+        var _vpaRad=parseFloat(_vpa[1])*Math.PI/180;
+        valLastX=valCCX+parseFloat(_vpr[1])*Math.cos(_vpaRad);
+        valLastY=valCCY+parseFloat(_vpr[1])*Math.sin(_vpaRad);
+        valHasXYTangent=true;
+      }
       if(firstMoveLine<0) firstMoveLine=srcI;
     } else if(toks[0]==='CP'){
+      rejectUnknownTokens(toks,1,[/^PA[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before CP'});
       if(!/PA[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar angle PA missing'});
       if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
       if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
@@ -346,9 +530,30 @@ function validateProgram(code){
 
     // ── L ──
     } else if(toks[0]==='L'){
-      var hasAxis=/I?[XYZABC][+-]?\d/.test(u);
+      var hasAxis=/I?[XYZ][+-]?\d/.test(u);
       var hasF=/\bF/.test(u);
       var _li=srcI;
+      if(/(?:^|\s)I?[ABC](?=[+\-\d\s]|$)/.test(u))
+        probs.push({line:srcI,sev:'err',msg:'Rotary axes A/B/C are not supported by the simulator'});
+      var _lTokens=u.split(/\s+/);
+      rejectUnknownTokens(_lTokens,1,[/^I?[XYZ][+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/, /^I?[ABC].*$/],srcI);
+      for(var _lti=1;_lti<_lTokens.length;_lti++){
+        var _lt=_lTokens[_lti];
+        if(/^I?[XYZABC]/.test(_lt)&&!/^I?[XYZ][+-]?\d+(?:\.\d+)?$/.test(_lt))
+          probs.push({line:srcI,sev:'err',msg:'Malformed or unsupported coordinate token "'+_lt+'"'});
+      }
+      var _feedToken=null;
+      for(var _fti=1;_fti<_lTokens.length;_fti++) if(/^F/.test(_lTokens[_fti])) _feedToken=_lTokens[_fti];
+      if(_feedToken&&_feedToken!=='FMAX'&&_feedToken!=='FAUTO'){
+        var _feedStrict=_feedToken.match(/^F\+?(\d+(?:\.\d+)?)$/);
+        if(!_feedStrict||parseFloat(_feedStrict[1])<=0) probs.push({line:srcI,sev:'err',msg:'Feed must be FMAX, FAUTO, or a number greater than 0'});
+      }
+      var _embeddedMs=u.match(/(?:^|\s)M\d+/g)||[];
+      for(var _emi=0;_emi<_embeddedMs.length;_emi++){
+        var _em=parseInt(_embeddedMs[_emi].match(/M(\d+)/)[1]);
+        if(_em!==89&&_em!==99) probs.push({line:srcI,sev:'err',msg:'M'+_em+' is not supported inside an L block'});
+        else if(!hasCycleDef) probs.push({line:srcI,sev:'err',msg:'M'+_em+' without a defined cycle \u2014 CYCL DEF missing'});
+      }
       // Z depth vs LCUTS check
       var _zm2=u.match(/\bZ([+-]?\d+\.?\d*)/);
       if(_zm2){ var _nz=parseFloat(_zm2[1]); if(valSurfZ!==null && _nz<valSurfZ) valZ=_nz; }
@@ -383,6 +588,8 @@ function validateProgram(code){
       var _oldVX4=valLastX, _oldVY4=valLastY;
       var _newVX4 = _xm4 ? (_isIX4 && valLastX!==null ? valLastX+parseFloat(_xm4[1]) : parseFloat(_xm4[1])) : valLastX;
       var _newVY4 = _ym4 ? (_isIY4 && valLastY!==null ? valLastY+parseFloat(_ym4[1]) : parseFloat(_ym4[1])) : valLastY;
+      if(_oldVX4!==null&&_oldVY4!==null&&_newVX4!==null&&_newVY4!==null&&
+         Math.hypot(_newVX4-_oldVX4,_newVY4-_oldVY4)>1e-9) valHasXYTangent=true;
       if((valRcState==='RL'||valRcState==='RR') && _oldVX4!==null && _oldVY4!==null && _newVX4!==null && _newVY4!==null){
         if(Math.abs(_newVX4-_oldVX4)<1e-6 && Math.abs(_newVY4-_oldVY4)<1e-6)
           probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' on a pure Z move \u2014 comp needs XY motion'});
@@ -398,46 +605,70 @@ function validateProgram(code){
 
     // ── RND ──
     } else if(toks[0]==='RND'){
-      if(!/R\d/.test(u)) probs.push({line:srcI,sev:'warn',msg:'Rounding radius R missing'});
+      if(!/^RND\s+R\+?\d+(?:\.\d+)?$/.test(u)) probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: RND R<positive radius>'});
       else{
         var _rndRm=u.match(/R[+-]?(\d+\.?\d*)/);
         if(_rndRm){
-          if(valRcState==='RL'||valRcState==='RR'){ var _rndChk=checkRadiusVsTool(parseFloat(_rndRm[1]),srcI,lines); if(_rndChk) probs.push(_rndChk); }
           if(parseFloat(_rndRm[1])<=0) probs.push({line:srcI,sev:'err',msg:'Rounding radius must be greater than 0'});
         }
       }
 
     // ── CHF ──
     } else if(toks[0]==='CHF'){
-      var _chfm=u.match(/(\d+\.?\d*)/);
-      if(!_chfm||parseFloat(_chfm[1])<=0) probs.push({line:srcI,sev:'warn',msg:'Chamfer length must be greater than 0'});
+      var _chfm=u.match(/^CHF\s+\+?(\d+(?:\.\d+)?)$/);
+      if(!_chfm||parseFloat(_chfm[1])<=0) probs.push({line:srcI,sev:'err',msg:'Chamfer length must be greater than 0'});
 
     // ── CYCL DEF ──
     } else if(u.indexOf('CYCL DEF')===0){
       var _cnum=u.match(/CYCL\s+DEF\s+(\d+)/);
-      if(_cnum && ['200','201','208','209'].indexOf(_cnum[1])<0) probs.push({line:srcI,sev:'warn',msg:'CYCL DEF '+_cnum[1]+' is not supported by the simulator and will be ignored (supported: 200, 201, 208, 209)'});
+      var _supportedCycle=_cnum&&['200','201','208','209'].indexOf(_cnum[1])>=0;
+      if(!_cnum) probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: CYCL DEF <number>'});
+      else if(!_supportedCycle) probs.push({line:srcI,sev:'err',msg:'CYCL DEF '+_cnum[1]+' is not supported by the simulator (supported: 200, 201, 208, 209)'});
       var _qd=u.match(/Q200\s*=\s*([+-]?[\d.]+)/); if(_qd&&parseFloat(_qd[1])<0) probs.push({line:srcI,sev:'warn',msg:'Q200 (safety clearance) must be >= 0'});
-      var _qd2=u.match(/Q201\s*=\s*([+-]?[\d.]+)/); if(_qd2&&parseFloat(_qd2[1])>0) probs.push({line:srcI,sev:'warn',msg:'Q201 (depth) should be negative (below surface)'});
-      var _qd3=u.match(/Q335\s*=\s*([+-]?[\d.]+)/); if(_qd3&&parseFloat(_qd3[1])<TOOL_R*2) probs.push({line:srcI,sev:'err',msg:'Q335 bore diameter ('+_qd3[1]+'mm) is smaller than tool diameter ('+(TOOL_R*2)+'mm)'});
+      var _qd2=u.match(/Q201\s*=\s*([+-]?[\d.]+)/); if(_qd2&&parseFloat(_qd2[1])>0) probs.push({line:srcI,sev:'err',msg:'Q201 depth must be negative (below surface) — the cycle will not cut'});
+      var _qd3=u.match(/Q335\s*=\s*([+-]?[\d.]+)/); if(_qd3&&parseFloat(_qd3[1])<=0) probs.push({line:srcI,sev:'err',msg:'Q335 bore diameter must be greater than 0'});
       var _qd4=u.match(/Q206\s*=\s*(\d+)/); if(_qd4&&parseFloat(_qd4[1])===0) probs.push({line:srcI,sev:'err',msg:'Q206 feed rate may not be 0'});
-      hasCycleDef=true; lastCycleLine=srcI; activeCycleDef=true;
-      valCycleQ={}; valCycleLine=srcI; valInCycle=true;
+      hasCycleDef=!!_supportedCycle; lastCycleLine=srcI; activeCycleDef=!!_supportedCycle;
+      valCycleQ={}; valCycleLine=srcI; valCycleNum=_cnum?parseInt(_cnum[1]):0; valInCycle=true;
+      var _inlineQRe=/Q(\d+)\s*=\s*(.*?)(?=\s+Q\d+\s*=|$)/ig, _inlineQm;
+      while((_inlineQm=_inlineQRe.exec(u))){
+        var _inlineExpr=_inlineQm[2].trim();
+        if(/^FAUTO$/i.test(_inlineExpr)) valCycleQ['Q'+_inlineQm[1]]='FAUTO';
+        else if(/^FMAX$/i.test(_inlineExpr)) probs.push({line:srcI,sev:'err',msg:'FMAX is not supported as a cycle Q value'});
+        else {
+          var _inlineInspection=inspectQExpr(_inlineExpr,qVarsVal);
+          if(!_inlineInspection.ok) probs.push({line:srcI,sev:'err',msg:'Q'+_inlineQm[1]+': '+_inlineInspection.msg});
+          else valCycleQ['Q'+_inlineQm[1]]=_inlineInspection.value;
+        }
+      }
 
     // ── Q inside CYCL DEF ──
     } else if(/^\s*Q\d+/.test(u) && valInCycle){
-      var qpm=u.match(/Q(\d+)\s*=?\s*([+-]?[\d.]+|FAUTO|FMAX)/i);
-      if(qpm){ valCycleQ['Q'+qpm[1]]=/FAUTO/i.test(qpm[2])?'FAUTO':parseFloat(qpm[2]); }
+      var qpm=u.match(/^Q(\d+)\s*(?:=\s*)?(.+)$/i);
+      if(!qpm) probs.push({line:srcI,sev:'err',msg:'Faulty cycle parameter \u2014 expected: Q<number>=<value>'});
+      else if(/^FAUTO$/i.test(qpm[2].trim())) valCycleQ['Q'+qpm[1]]='FAUTO';
+      else if(/^FMAX$/i.test(qpm[2].trim())) probs.push({line:srcI,sev:'err',msg:'FMAX is not supported as a cycle Q value'});
+      else {
+        var _cycleInspection=inspectQExpr(qpm[2],qVarsVal);
+        if(!_cycleInspection.ok) probs.push({line:srcI,sev:'err',msg:'Q'+qpm[1]+': '+_cycleInspection.msg});
+        else valCycleQ['Q'+qpm[1]]=_cycleInspection.value;
+      }
 
     // ── CYCL CALL ──
     } else if(u.indexOf('CYCL CALL')===0){
+      if(u!=='CYCL CALL') probs.push({line:srcI,sev:'err',msg:'Unsupported tokens after CYCL CALL'});
       if(!hasCycleDef) probs.push({line:srcI,sev:'err',msg:'No cycle defined \u2014 CYCL DEF missing before CYCL CALL'});
       if(valRcState==='RL'||valRcState==='RR')
         probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' active \u2014 program R0 before CYCL CALL'});
+      if(valCycleNum===209 && !(valSpindleS>0))
+        probs.push({line:srcI,sev:'err',msg:'CYCL 209 requires a positive S on the current TOOL CALL'});
 
     // ── M functions ──
     } else if(/^M\d+/.test(u)){
       var mnum=parseInt(u.match(/^M(\d+)/)[1]);
-      if(mnum===99&&!hasCycleDef) probs.push({line:srcI,sev:'err',msg:'M99 without a defined cycle \u2014 CYCL DEF missing'});
+      var _supportedStandaloneM=[0,2,3,4,5,7,8,9,13,14,30];
+      if(!/^M\d+\s*$/.test(u)) probs.push({line:srcI,sev:'err',msg:'Unsupported tokens after standalone M function'});
+      if(_supportedStandaloneM.indexOf(mnum)<0) probs.push({line:srcI,sev:'err',msg:'Standalone M'+mnum+' is not supported by the simulator'});
       if(mnum===3||mnum===4||mnum===13||mnum===14) valSpindleOn=true;
       if(mnum===5) valSpindleOn=false;
 
@@ -452,6 +683,8 @@ function validateProgram(code){
         var _ln=u.match(/^LBL\s+(\d+)/);
         if(_ln&&_ln[1]!=='0'&&duplicateLbls[_ln[1]]) probs.push({line:srcI,sev:'err',msg:'Label number allocated twice \u2014 LBL '+_ln[1]});
       }
+    } else {
+      probs.push({line:srcI,sev:'err',msg:'Block is not supported by the simulator: '+u});
     }
   }
 
@@ -462,9 +695,19 @@ function validateProgram(code){
   // No BLK FORM is a supported toolpath-only mode. Warn only when the box
   // definition is genuinely half-finished.
   if(hasBlk1!==hasBlk2) probs.push({line:0,sev:'warn',msg:'BLK FORM incomplete'});
+  if(_cylPending) probs.push({line:lines.length-1,sev:'err',msg:'BLK FORM CYLINDER is missing its 0.2 radius/top block'});
   if(valRcState==='RL'||valRcState==='RR') probs.push({line:valRcLine,sev:'err',msg:'Radius comp. '+valRcState+' still active at END PGM \u2014 cancel with R0'});
 
   return probs;
+}
+
+// Keep diagnostics produced only while constructing the real toolpath (for
+// example a geometrically unfit compensated corner) on the parse result.  The
+// optional legacy global is mirrored for the existing VM regression harnesses;
+// browser UI code reads result.problems and never depends on that global.
+function pushParseProblem(list, problem){
+  if(list) list.push(problem);
+  if(typeof probs !== 'undefined' && probs !== list) probs.push(problem);
 }
 
 function parseProgram(code){
@@ -475,6 +718,7 @@ function parseProgram(code){
   
   toolCallList = []; // reset TOOL CALL list for GOTO dropdown
   var lines = code.split('\n');
+  var parseProblems = [];
   var blkMin = {x:0,y:0,z:0};
   var blkMax = {x:100,y:80,z:40};
   var blkCyl = null; // {cx, cy, r, zMin, zMax} if cylindrical blank
@@ -499,12 +743,18 @@ function parseProgram(code){
   // until cancelled by M99 (which itself calls the cycle one last time).
   var modalCycleCall = false;
   var toolNum = 1;
-  var spindleS = 0; // spindle speed from TOOL CALL S...
+  var spindleS = 0; // spindle speed from the CURRENT TOOL CALL S...
   var spindleOn = false;  // M3/M4 = true, M5 = false
+  var spindleDir = 0;     // +1=M3/M13, -1=M4/M14, 0=stopped/not selected
+  var activeThreadHand = 0; // +1 right-hand, -1 left-hand during CYCL 209
   var coolantOn = false;  // M7/M8 = true, M9 = false
   var qVars = {};         // Q parameter values {1:50, 2:30, ...}
   var pendingDefTool = 0; // tool number from TOOL DEF
   var activeCycle = null; // current radius compensation: '', 'RL', 'RR', 'R0'
+  // TOOL CALL is illegal while RL/RR is active. Once encountered, suppress
+  // subsequent compensated motion until an explicit R0 instead of silently
+  // drawing a plausible nominal path with the new tool.
+  var radiusCompBlocked = false;
   // True only while still inside a CYCL DEF's own multi-line Q-parameter
   // continuation block (the Q200=.../Q201=... lines right after CYCL DEF).
   // Without this, activeCycle (which is never reset to null after the cycle
@@ -572,12 +822,28 @@ function parseProgram(code){
 
   function pushSeg(to, rapid, srcLine, rc, safeRetract, ensureVisible){
     var from = {x:pos.x,y:pos.y,z:pos.z};
+    if((rc||'') === 'R0') radiusCompBlocked = false;
+    if(radiusCompBlocked){
+      pos = {x:to.x,y:to.y,z:to.z};
+      return;
+    }
     var dx=to.x-from.x, dy=to.y-from.y, dz=to.z-from.z;
     var len = Math.sqrt(dx*dx+dy*dy+dz*dz);
     if(len > 1e-6){
-      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, dlPgm:curDLpgm, drPgm:curDRpgm});
+      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, dlPgm:curDLpgm, drPgm:curDRpgm});
     }
     pos = {x:to.x,y:to.y,z:to.z};
+  }
+
+  function pushCycleEvent(kind, value, srcLine, rc, phase){
+    sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z},
+      rapid:true, feed:feed, spindleS:spindleS, spindleOn:spindleOn,
+      spindleDir:spindleDir, coolantOn:coolantOn, len:0.001,
+      blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum,
+      dlPgm:curDLpgm, drPgm:curDRpgm, cycleEvent:kind,
+      cyclePhase:phase||'',
+      dwellSeconds:kind==='dwell'?Math.max(0, Number(value)||0):0,
+      eventValue:value});
   }
 
   // --- expand LBL/CALL LBL (shared helper) ---
@@ -587,6 +853,34 @@ function parseProgram(code){
   var pendingMoves=[];
 
   function executeCycle(cy, srcLine, rc){
+    if(radiusCompBlocked) return;
+    // ── Shared numeric & safety extraction for all four supported cycles ──
+    // Zero is a valid Q value (NOTES rule #2): read Q200/Q203/Q204 clearances
+    // and Q201 depth uniformly, never folding an explicit 0 into a default.
+    var surfZ  = cycleQ(cy, 203, 0);
+    var q200   = cycleQ(cy, 200, 2);
+    var q204   = cycleQ(cy, 204, 50);
+    var q201   = cycleQ(cy, 201, cy.type===200 ? -20 : -10);
+    var safeZ  = surfZ + q200;
+    var safe2Z = surfZ + q204;
+    if(q200 < 0 || q204 < 0){
+      pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL '+cy.type+': Q200 and Q204 safety clearances must be >= 0 — no cycle path generated'});
+      return;
+    }
+    // A2: a positive programmed depth drives the tool the wrong way on a real
+    // control (actual behavior depends on machine parameter displayDepthErr).
+    // The safe simulator baseline is a validation error and NO cutting path —
+    // never a silent sign flip (no Math.abs, no depth = -depth).
+    if(typeof q201 === 'number' && q201 > 0){
+      pushParseProblem(parseProblems, {line:srcLine, sev:'err',
+        msg:'CYCL '+cy.type+': Q201 depth must be negative (below surface); got +'+q201+' — no cutting path generated'});
+      return;
+    }
+    // HEIDENHAIN: Q201=0 means the cycle is not executed. Do not even emit
+    // approach/retract feed segments that could be mistaken for a cycle run.
+    if(q201 === 0) return;
+    var depth  = q201;            // <= 0  (A1: exactly 0 => no sub-surface motion)
+    var depthZ = surfZ + depth;
     if(cy.type===200){
       /*
        * CYCL DEF 200 — Drilling (Heidenhain)
@@ -599,14 +893,33 @@ function parseProgram(code){
        * Q204 = 2nd safety clearance (incremental above Q203 — final retract)
        * Q211 = dwell time at bottom of hole (s)
        */
-      var surfZ  = cy.Q203 !== undefined ? cy.Q203 : 0;
-      var safeZ  = surfZ + Math.abs(cy.Q200 || 2);
-      var safe2Z = surfZ + Math.abs(cy.Q204 || 50);
-      var depth  = cy.Q201 !== undefined ? cy.Q201 : -20;
-      if(depth > 0) depth = -depth;
-      var depthZ = surfZ + depth;
-      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 !== undefined ? cy.Q206 : 150);
-      var peck   = (cy.Q202 !== undefined && cy.Q202 > 0) ? cy.Q202 : Math.abs(depth);
+      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : cycleQ(cy, 206, 150);
+      if(!(pFeed > 0) || cycleQ(cy, 202, 0) < 0 || cycleQ(cy, 210, 0) < 0 || cycleQ(cy, 211, 0) < 0){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 200: Q206 must be > 0 and Q202/Q210/Q211 must be >= 0 — no cutting path generated'});
+        return;
+      }
+      var dwellTop = Math.max(0, cycleQ(cy, 210, 0));
+      var dwellDepth = Math.max(0, cycleQ(cy, 211, 0));
+      // Q395=1 defines Q201 at the cylindrical part of a pointed drill. The
+      // tool tip therefore travels deeper by the drill-point length.
+      var depthRef = cycleQ(cy, 395, 0);
+      if(depthRef !== 0 && depthRef !== 1){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 200: Q395 depth reference must be 0 or 1 — no cutting path generated'});
+        return;
+      }
+      if(depthRef === 1){
+        var _drillTool = getToolByNum(toolNum);
+        var _tipAngle = _drillTool ? Number(_drillTool.T_ANGLE) : 0;
+        if(_tipAngle > 0 && _tipAngle < 180){
+          var _physicalR = Math.max(0, Number(_drillTool.R)||0);
+          depth -= _physicalR / Math.tan(_tipAngle*Math.PI/360);
+          depthZ = surfZ + depth;
+        } else {
+          pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 200: Q395=1 requires a valid tool-table T-ANGLE (0...180 deg) — no cutting path generated'});
+          return;
+        }
+      }
+      var peck = (cy.Q202 !== undefined && cy.Q202 > 0) ? cy.Q202 : Math.abs(depth);
       if(peck >= Math.abs(depth)) peck = Math.abs(depth); // single pass
 
       var oldFeed = feed;
@@ -626,15 +939,17 @@ function parseProgram(code){
 
         // Drill down to next peck depth
         pushSeg({x:cx2, y:cy2a, z:targetZ}, false, srcLine, rc);
+        if(dwellDepth > 0) pushCycleEvent('dwell', dwellDepth, srcLine, rc, 'depth');
         pecked = nextPeck;
 
         if(pecked < Math.abs(depth) - 1e-6){
           // Not final depth — retract to safeZ for chip removal
           feed = 9999;
           pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true, true);
-          // Rapid back down into the pre-drilled hole to 0.2mm above the last
-          // peck depth (Heidenhain advanced stop distance), NOT above the surface
-          pushSeg({x:cx2, y:cy2a, z:surfZ - pecked + 0.2}, true, srcLine, rc, true, true);
+          if(dwellTop > 0) pushCycleEvent('dwell', dwellTop, srcLine, rc, 'top');
+          // Rapid back into the pre-drilled hole to Q200 above the previous
+          // infeed depth (advanced stop distance), capped at the safe plane.
+          pushSeg({x:cx2, y:cy2a, z:Math.min(safeZ, surfZ - pecked + q200)}, true, srcLine, rc, true, true);
           feed = pFeed;
         }
       }
@@ -643,8 +958,11 @@ function parseProgram(code){
       feed = 9999;
       pushSeg({x:cx2, y:cy2a, z:safeZ}, true, srcLine, rc, true, true);
 
-      // 4. Retract to 2nd safety clearance (rapid)
-      pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
+      // 4. Retract to 2nd safety clearance (rapid) — only when it is actually
+      //    HIGHER than the first clearance. A3: an explicit Q204=0 (or any value
+      //    that lands at/below safeZ) must never trigger a default nor a final
+      //    rapid back DOWN toward the part.
+      if(safe2Z > safeZ + 1e-6) pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
 
       feed = oldFeed;
     }
@@ -652,174 +970,107 @@ function parseProgram(code){
       /*
        * CYCL DEF 208 — Bore Milling (Heidenhain)
        *
-       * Real Heidenhain strategy:
-       * 1. Rapid to safeZ above center
-       * 2. For each radial ring (innermost to outermost):
-       *    a. Move to ring start position
-       *    b. Helical descent: each revolution descends Q334 in Z
-       *       (Q334=0 → full depth in one helical revolution)
-       *    c. Finishing circle at full depth
-       * 3. The radial rings step by TOOL_R (50% overlap) from center to mR
-       *    so the entire bore area is covered — no material left at center
-       * 4. Retract
+       * Path model (matches the real control):
+       *  - The whole cycle path is driven by ONE effective compensation radius
+       *    effR = R(table) + DR(table) + DR(TOOL CALL). It drives BOTH the final
+       *    wall path AND the radial stepover, so a programmed DR can never make
+       *    the two disagree (A4). The physical voxel shape in vxCut stays
+       *    table-only, so DR never inflates the mesh.
+       *  - Each radial ring is entered from the bore centre on a semicircle at
+       *    safeZ, descends as a constant-radius helix (<= Q334 per turn),
+       *    finishes with a full circle at depth, then returns to the centre at
+       *    working depth and only THEN retracts vertically at the centre (A5).
        */
-      var surfZ  = cy.Q203 !== undefined ? cy.Q203 : 0;
-      var safeZ  = surfZ + Math.abs(cy.Q200 || 0);
-      var depth  = cy.Q201 || -10;
-      if(depth > 0) depth = -Math.abs(depth);
-      var depthZ = surfZ + depth;
-      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 || 150);
+      var pFeed  = (cy.Q206==='FAUTO') ? toolCallFeed : cycleQ(cy, 206, 150);
+      if(!(pFeed > 0) || cycleQ(cy, 334, 0) < 0){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q206 must be > 0 and Q334 must be >= 0 — no cutting path generated'});
+        return;
+      }
       var rFeed  = 9999;
-      // Q334=0 retains the existing single-revolution behavior. A positive
-      // value is the maximum Z descent per complete 360-degree helix.
-      var zStep  = cy.Q334 > 0 ? cy.Q334 : Number.POSITIVE_INFINITY;
-      var boreDia = cy.Q335 || TOOL_R * 4;
-      var preDia  = cy.Q342 || 0;
-      var dir     = (cy.Q351 === -1) ? -1 : 1; // +1=CCW (climb), -1=CW (conventional)
+      // Q334 = max Z descent per full 360° helix (0 → whole depth in one turn).
+      var zStep  = (cy.Q334 !== undefined && cy.Q334 > 0) ? cy.Q334 : Number.POSITIVE_INFINITY;
+      var q351 = cycleQ(cy, 351, 1);
+      if(q351 !== -1 && q351 !== 0 && q351 !== 1){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q351 must be -1, 0, or +1 — no cutting path generated'});
+        return;
+      }
+      // Q351 selects climb/conventional milling. M4 reverses the physical
+      // spindle direction, so the XY helix direction must reverse as well.
+      var dir = (q351 === -1 ? -1 : 1) * (spindleDir === -1 ? -1 : 1);
       var cx2 = pos.x, cy2 = pos.y;
-      var N_arc = 32; // segments per revolution
+      var N_arc = 32;               // segments per revolution
       var oldFeed = feed;
 
-      // mR = tool center radius at bore wall.
-      // Real TNC doesn't know the tool shape — the cycle ALWAYS uses R+DR for the path.
-      // For countersinks (tip-reference R≈0), the operator programs DR/DL in TOOL CALL
-      // (e.g. DR+2 DL-2 for a 90° cone) so the cycle math works out — same as real machine.
+      // Effective compensation radius (path only — see effectiveCompRadius).
       var _ct208 = getToolByNum(toolNum);
-      // Compensation radius for the helix path: R + DR(table) + DR(TOOL CALL),
-      // additive per Heidenhain. The cone/tool SHAPE in vxCut stays table-only.
-      var _cycleR = _ct208 ? (_ct208.R + (_ct208.DR||0) + curDRpgm) : TOOL_R;
-      _cycleR = Math.max(0.001, _cycleR);
-      // Stepover radius = PHYSICAL tool radius (R + table DR only). TOOL CALL DR
-      // is a path allowance — it shifts the final wall path but does NOT make the
-      // tool cover more material per ring. A tiny tool (R≈0.001, e.g. a chamfer
-      // tool without matching pre-drill) therefore needs a huge number of rings —
-      // exactly like the real machine.
-      var _stepR = _ct208 ? Math.max(0.001, _ct208.R + (_ct208.DR||0)) : Math.max(0.001, TOOL_R);
-      var mR = Math.max(0.001, boreDia/2 - _cycleR);
-      // sR = tool center radius at pre-drilled edge (0 if solid or tool covers it)
-      var sR = preDia > 0 ? Math.max(0, preDia/2 - _cycleR) : 0;
-
-      // Build list of radial rings from inside out, step = _stepR (physical tool).
-      // All rings are clamped to mR — the path must never exceed the target wall.
-      // NOTE: with a tiny tool radius this generates MANY rings and the simulation
-      // runs correspondingly long — same as the real machine would.
-      var radii = [];
-      if(preDia <= 0){
-        // solid — handle separately below
+      var effR = effectiveCompRadius(_ct208, curDRpgm);
+      var maxPlungeAngle = _ct208 ? Number(_ct208.ANGLE)||0 : 0;
+      var cornerR208 = _ct208 ? Math.max(0, (Number(_ct208.R2)||0) + (Number(_ct208.DR2)||0)) : 0;
+      // A non-positive effective radius is an invalid tool/allowance combination
+      // — validate explicitly instead of clamping it up to some minimum.
+      if(!(effR > 0)){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err',
+          msg:'CYCL 208: effective tool radius (R+DR) is '+effR.toFixed(3)+'mm — must be > 0'});
+        feed = oldFeed;
       } else {
-        // Pre-drilled: start where material begins (or at the innermost ring the
-        // tool can ride), never beyond mR. If the tool covers the pre-drilled
-        // hole entirely (sR=0), a single pass at mR finishes the bore.
-        var rStart = Math.min(Math.max(sR, _stepR), mR);
-        var _ringCount = Math.max(0, Math.ceil((mR - rStart) / _stepR));
-        if(_ringCount > 5000){
-          // Absurd config (e.g. R=0.001 with no DR): cap to keep the browser alive,
-          // but warn — real machine would run for hours or refuse.
-          if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_stepR.toFixed(3)+'mm needs '+_ringCount+' passes for D'+boreDia+' (pre-drilled D'+preDia+') — capped at 5000. Real machine would run extremely long. Check R/DR.'});
-          _ringCount = 5000;
+        var boreDia = cycleQ(cy, 335, 0);
+        var preDia  = cycleQ(cy, 342, 0);
+        var boreR   = boreDia / 2;
+        var mR      = boreR - effR;            // outermost wall-path radius
+        var _tol    = Math.max(1e-4, effR * 1e-3);
+        var _geomEps = 1e-6;
+        var totalZ  = Math.abs(depthZ - safeZ);
+
+        if(!(boreDia > 0)){
+          pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q335 nominal diameter must be > 0 — no cutting path generated'});
+          feed = oldFeed;
+          return;
         }
-        for(var ri0 = 0; ri0 < _ringCount; ri0++){
-          radii.push(Math.min(rStart + ri0 * _stepR, mR));
+        if(preDia < 0 || preDia > boreDia + _geomEps){
+          pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q342 pre-drilled diameter must be between 0 and Q335 — no cutting path generated'});
+          feed = oldFeed;
+          return;
         }
-        if(radii.length===0 || radii[radii.length-1] < mR - 0.0005) radii.push(mR);
-      }
-
-      // ── 1. Rapid to safeZ above center ─────────────────────────────
-      feed = rFeed;
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2,z:safeZ},
-        rapid:true, feed:rFeed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn,
-        len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001,
-        blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, safeRetract:true});
-      pos={x:cx2, y:cy2, z:safeZ};
-
-      feed = pFeed;
-      // Q334 is the maximum Z infeed per complete helix. The helix starts at
-      // safeZ, so Q200 is part of the traversed Z distance as well as Q201.
-      var totalZ = Math.abs(depthZ - safeZ);
-
-      if(preDia <= 0){
-        // ── Q342=0: Solid material ──────────────────────────────────────
-        // Each ring from center outward does a FULL helical descent safeZ→depthZ.
-        // Ring r=0: ramp outward while descending (no straight plunge).
-        // Rings r=_stepR, 2*_stepR, ..., mR: helical descent then finishing circle.
-        // This ensures all material is removed at ALL Z levels, not just at depthZ.
-        // The center ramp and every ring are clamped to mR — never beyond the wall.
-        var _rampR = Math.min(_stepR, mR); // center ramp target
-
-        // Build ring list: start from 2*_stepR (center ramp covers 0.._stepR)
-        var solidRings = [];
-        var _solidCount = Math.ceil(mR / _stepR);
-        if(_solidCount > 5000){
-          if(typeof probs !== 'undefined') probs.push({line:srcLine, sev:'warn', msg:'CYCL 208: tool radius '+_stepR.toFixed(3)+'mm needs '+_solidCount+' passes for solid D'+boreDia+' — capped at 5000. Real machine would run extremely long. Check R/DR.'});
-          _solidCount = 5000;
+        if(mR < -_geomEps){
+          pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: effective tool diameter exceeds Q335 nominal diameter — no cutting path generated'});
+          feed = oldFeed;
+          return;
         }
-        for(var ri0b = 1; ri0b <= _solidCount; ri0b++){
-          var _r3 = Math.min(ri0b * _stepR, mR);
-          solidRings.push(_r3);
-          if(_r3 >= mR) break;
+        // Older TNC 640 documentation limits solid machining without Q342 when
+        // the nominal diameter exceeds twice the tool diameter. The 2021
+        // baseline documents repeated radial paths, so simulate them but expose
+        // the version-dependent restriction instead of silently claiming it is
+        // accepted by every control generation.
+        if(preDia === 0 && boreDia > 4*effR + _tol){
+          pushParseProblem(parseProblems, {line:srcLine, sev:'warn', msg:'CYCL 208: Q342=0 with Q335 greater than twice the effective tool diameter is control-version dependent (older TNC 640 manuals reject it)'});
         }
-        // Ensure mR is always the last ring
-        if(solidRings.length===0 || solidRings[solidRings.length-1] < mR - 0.001) solidRings.push(mR);
 
-        for(var ri3=0; ri3<solidRings.length; ri3++){
-          var curR3 = solidRings[ri3];
-
-          if(curR3 <= 0){
-            // Center: ramp from r=0 to _rampR while descending safeZ→depthZ
-            var numRevs3 = Math.max(1, Math.ceil(totalZ / zStep));
-            var nRamp = numRevs3 * N_arc;
-            for(var si=1; si<=nRamp; si++){
-              var frac3 = si / nRamp;
-              var rAt3 = _rampR * frac3;
-              var zAt3 = safeZ + (depthZ - safeZ) * frac3;
-              var a3 = dir * 2*Math.PI * si/N_arc;
-              pushSeg({x:cx2+rAt3*Math.cos(a3), y:cy2+rAt3*Math.sin(a3), z:zAt3}, false, srcLine, rc);
-            }
-            // Finishing circle at _rampR, depthZ
-            for(var k=1; k<=N_arc; k++){
-              var a3 = dir*2*Math.PI*k/N_arc;
-              pushSeg({x:cx2+_rampR*Math.cos(a3), y:cy2+_rampR*Math.sin(a3), z:depthZ}, false, srcLine, rc);
-            }
-          } else {
-            // Cycle 208 enters every constant-radius helix from the bore center
-            // on a semicircle; it must not descend in an expanding r=0 spiral.
-            for(var ap3=1; ap3<=N_arc/2; ap3++){
-              var aa3 = Math.PI + dir*Math.PI*ap3/(N_arc/2);
-              pushSeg({x:cx2+curR3/2+(curR3/2)*Math.cos(aa3), y:cy2+(curR3/2)*Math.sin(aa3), z:safeZ}, false, srcLine, rc);
-            }
-            var numRevs3 = Math.max(1, Math.ceil(totalZ / zStep));
-            var zPerRev3 = totalZ / numRevs3;
-            var zCur3 = safeZ;
-            for(var rev3=0; rev3<numRevs3; rev3++){
-              var zEnd3 = (rev3===numRevs3-1) ? depthZ : (safeZ-(rev3+1)*zPerRev3);
-              for(var k=1; k<=N_arc; k++){
-                var a3 = dir*2*Math.PI*k/N_arc;
-                var zAt3 = zCur3 + (zEnd3-zCur3)*k/N_arc;
-                pushSeg({x:cx2+curR3*Math.cos(a3), y:cy2+curR3*Math.sin(a3), z:zAt3}, false, srcLine, rc);
-              }
-              zCur3 = zEnd3;
-            }
-            // Finishing circle at full depth
-            for(var k=1; k<=N_arc; k++){
-              var a3 = dir*2*Math.PI*k/N_arc;
-              pushSeg({x:cx2+curR3*Math.cos(a3), y:cy2+curR3*Math.sin(a3), z:depthZ}, false, srcLine, rc);
-            }
-            pushSeg({x:cx2+curR3, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
+        // One constant-radius helix ring: semicircle entry from the centre →
+        // helix to depth → finishing circle → return to centre at depth →
+        // vertical retract at the centre (A5). Leaves pos centred at safeZ.
+        var boreRing = function(curR){
+          feed = pFeed;
+          // Tool-table ANGLE limits Q334. DR2 reduces the usable radial cutting
+          // width and therefore tightens the permissible plunge without using
+          // an arbitrary minimum radius.
+          var ringStep = zStep;
+          var radialWidthForAngle = effR-cornerR208;
+          if(maxPlungeAngle > 0 && maxPlungeAngle < 90){
+            var plungeRadius = curR * radialWidthForAngle / effR;
+            var angleStep = 2*Math.PI*plungeRadius*Math.tan(maxPlungeAngle*Math.PI/180);
+            if(angleStep > 0) ringStep = Math.min(ringStep, angleStep);
           }
-        }
-
-      } else {
-        // ── Q342>0: Pre-drilled — helical descent at each radial ring ──
-        // Tool moves to ring radius, then helically descends (no straight plunge)
-        for(var ri=0; ri<radii.length; ri++){
-          var curR = radii[ri];
-          if(curR <= 0) continue; // skip center if accidentally added
-
-          // Rapid to approach point on ring at safeZ
-          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc, true);
-
-          // Helical descent: Q334 = Z drop per full revolution (360°)
-          var numRevs = Math.max(1, Math.ceil(totalZ / zStep));
+          var numRevs = Math.max(1, Math.ceil(totalZ / ringStep));
+          if(numRevs > 2000){
+            pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: '+numRevs+' helix revolutions exceed the supported safety limit — check ANGLE/DR2/Q334'});
+            return false;
+          }
+          // semicircle entry from centre to (cx2+curR, cy2) at safeZ
+          for(var ap=1; ap<=N_arc/2; ap++){
+            var aa = Math.PI + dir*Math.PI*ap/(N_arc/2);
+            pushSeg({x:cx2 + curR/2 + (curR/2)*Math.cos(aa), y:cy2 + (curR/2)*Math.sin(aa), z:safeZ}, false, srcLine, rc);
+          }
+          // constant-radius helical descent (<= Q334 per revolution)
           var zPerRev = totalZ / numRevs;
           var zCur = safeZ;
           for(var rev=0; rev<numRevs; rev++){
@@ -827,28 +1078,74 @@ function parseProgram(code){
             for(var k=1; k<=N_arc; k++){
               var a = dir * 2*Math.PI * k/N_arc;
               var zAt = zCur + (zEnd - zCur) * k/N_arc;
-              pushSeg({x:cx2+curR*Math.cos(a), y:cy2+curR*Math.sin(a), z:zAt}, false, srcLine, rc);
+              pushSeg({x:cx2 + curR*Math.cos(a), y:cy2 + curR*Math.sin(a), z:zAt}, false, srcLine, rc);
             }
             zCur = zEnd;
           }
-
-          // Finishing circle at full depth
+          // finishing circle at full depth
           for(var k=1; k<=N_arc; k++){
             var a = dir * 2*Math.PI * k/N_arc;
-            pushSeg({x:cx2+curR*Math.cos(a), y:cy2+curR*Math.sin(a), z:depthZ}, false, srcLine, rc);
+            pushSeg({x:cx2 + curR*Math.cos(a), y:cy2 + curR*Math.sin(a), z:depthZ}, false, srcLine, rc);
           }
+          // A5: return XY to the centre at working depth, THEN a vertical
+          // retract at the centre (rapid, held for a visible frame).
+          pushSeg({x:cx2, y:cy2, z:depthZ}, false, srcLine, rc);
+          pushSeg({x:cx2, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
+          return true;
+        };
 
-          // Retract to safeZ before next ring
-          pushSeg({x:cx2 + curR, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
+        // ── 1. Rapid to safeZ above centre ─────────────────────────────
+        feed = rFeed;
+        sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2,z:safeZ},
+          rapid:true, feed:rFeed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn,
+          len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001,
+          blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, safeRetract:true});
+        pos={x:cx2, y:cy2, z:safeZ};
+
+        if(Math.abs(mR) <= _geomEps){
+          // Direct plunge is valid only when Q335 matches the effective tool
+          // diameter and the Tool Table marks center-cutting teeth (RCUTS).
+          if(!(_ct208 && Number(_ct208.RCUTS)>0)){
+            pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: direct boring requires RCUTS > 0 (center-cutting tool) — no cutting path generated'});
+            feed = oldFeed;
+            return;
+          }
+          feed = pFeed;
+          pushSeg({x:cx2, y:cy2, z:depthZ}, false, srcLine, rc);
+          pushSeg({x:cx2, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
+        } else {
+          // Build evenly spaced rings from the innermost workable radius out to
+          // the wall. Stepover = effR; the range is divided into equal steps so
+          // there is never a near-zero final pass (Phase 2 pt 4).
+          var radialStep = effR-cornerR208;
+          if(!(radialStep > _tol)){
+            pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: effective corner radius DR2 leaves no supported radial cutting width — full-radius overlap is not modeled; no cutting path generated'});
+            feed = oldFeed;
+            return;
+          }
+          var innerStart = (preDia > 0) ? Math.max(0, Math.min(mR, preDia/2 - effR)) : 0;
+          var range = mR - innerStart;
+          var nSteps = range <= _tol ? 1 : Math.max(1, Math.ceil(range / radialStep));
+          // Hard guard against an unbounded pass count. With a correct effR this
+          // never triggers; it is a safety net, not a substitute for geometry.
+          if(nSteps > 2000){
+            pushParseProblem(parseProblems, {line:srcLine, sev:'err',
+              msg:'CYCL 208: '+nSteps+' radial passes for Ø'+boreDia+' with effective radius '+effR.toFixed(3)+'mm — aborted (check R/DR/Q335)'});
+            nSteps = 0;
+          }
+          var step = range / Math.max(1, nSteps);
+          for(var i=1; i<=nSteps; i++){
+            if(!boreRing(range <= _tol ? mR : innerStart + i*step)) break; // innermost first
+          }
         }
+
+        // ── Final 2nd clearance ─────────────────────────────────────────
+        // pos is already centred at safeZ. A3/A5: only rise to the 2nd
+        // clearance when it is actually higher, never a rapid back down.
+        if(safe2Z > safeZ + 1e-6){ feed = rFeed; pushSeg({x:cx2, y:cy2, z:safe2Z}, true, srcLine, rc); }
+
+        feed = oldFeed;
       }
-
-      // ── Final retract ───────────────────────────────────────────────
-      feed = rFeed;
-      pushSeg({x:cx2, y:cy2, z:safeZ}, true, srcLine, rc);
-      pushSeg({x:cx2, y:cy2, z:surfZ + Math.abs(cy.Q204 || 50)}, true, srcLine, rc);
-
-      feed = oldFeed;
     }
     else if(cy.type===201){
       /*
@@ -870,14 +1167,12 @@ function parseProgram(code){
        *
        * Workpiece shape: clean cylindrical hole at tool radius, smooth walls
        */
-      var surfZ  = cy.Q203 !== undefined ? cy.Q203 : 0;
-      var safeZ  = surfZ + Math.abs(cy.Q200 || 2);
-      var safe2Z = surfZ + Math.abs(cy.Q204 || 50);
-      var depth  = cy.Q201 || -10;
-      if(depth > 0) depth = -depth;
-      var depthZ = surfZ + depth;
-      var reamF  = (cy.Q206==='FAUTO') ? toolCallFeed : (cy.Q206 || 100);
-      var retF   = cy.Q208 > 0 ? cy.Q208 : reamF;
+      var reamF  = (cy.Q206==='FAUTO') ? toolCallFeed : cycleQ(cy, 206, 100);
+      var retF   = (cy.Q208 !== undefined && cy.Q208 > 0) ? cy.Q208 : reamF;
+      if(!(reamF > 0) || cycleQ(cy, 208, 0) < 0 || cycleQ(cy, 211, 0) < 0){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 201: Q206 must be > 0 and Q208/Q211 must be >= 0 — no cutting path generated'});
+        return;
+      }
       var cx2 = pos.x, cy2a = pos.y;
       var oldFeed = feed;
 
@@ -889,12 +1184,15 @@ function parseProgram(code){
       feed = reamF;
       pushSeg({x:cx2, y:cy2a, z:depthZ}, false, srcLine, rc);
 
+      var reamDwell = Math.max(0, cycleQ(cy, 211, 0));
+      if(reamDwell > 0) pushCycleEvent('dwell', reamDwell, srcLine, rc, 'depth');
+
       // 3. Retract at Q208 — a synchronized FEED move (smooth reamer exit), never FMAX
       feed = retF;
       pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
 
-      // 4. Rapid to 2nd safety clearance
-      pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
+      // 4. Rapid to 2nd safety clearance — only when higher than safeZ (A3).
+      if(safe2Z > safeZ + 1e-6) pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
 
       feed = oldFeed;
     }
@@ -909,7 +1207,8 @@ function parseProgram(code){
        * Q257 = infeed depth per chip-break cycle (incr, 0 = single pass, no chip breaking)
        * Q256 = retract factor for chip breaking: TNC retracts by Q256 × Q239 (pitch).
        *        Q256 = 0 → full retract out of the hole to set-up clearance (Q200)
-       * Q336 = spindle orientation angle (0 for simulation)
+       * Q336 = spindle orientation angle (represented as an explicit cycle event)
+       * Q403 = synchronized retract speed/feed factor
        *
        * Cycle run (per Heidenhain manual):
        * 1. Rapid to safeZ (set-up clearance)
@@ -920,32 +1219,76 @@ function parseProgram(code){
        * 5. Retract out of hole to safeZ at synchronized feed
        * 6. FMAX to 2nd set-up clearance (Q204)
        *
-       * Feed calculation: F = pitch × RPM — if spindleS=0 use lastDefinedFeed as fallback
+       * Feed calculation: F = |pitch| × RPM; missing current S rejects the cycle
        * Workpiece: cylindrical hole at tool radius (thread profile not modeled in voxel sim)
        */
-      var surfZ  = cy.Q203 !== undefined ? cy.Q203 : 0;
-      var safeZ  = surfZ + Math.abs(cy.Q200 || 2);
-      var safe2Z = surfZ + Math.abs(cy.Q204 || 50);
-      var depth  = cy.Q201 || -10;
-      if(depth > 0) depth = -depth;
-      var depthZ = surfZ + depth;
-      var pitch  = Math.abs(cy.Q239 || 1.25);
-      // Feed = pitch × RPM; fallback to the current TOOL CALL feed if RPM is unknown
-      var tapFeed = pitch > 0 && spindleS > 0 ? pitch * spindleS : toolCallFeed;
-      var chipDepth = cy.Q257 > 0 ? cy.Q257 : Math.abs(depth); // depth per chip-break step
-      // Q256=0: full retract to safeZ; Q256>0: retract by pitch*Q256
-      var chipFullRetract = (cy.Q256 === 0);
-      var chipRetract = chipFullRetract ? 0 : Math.abs(pitch * cy.Q256);
-      if(!chipFullRetract && chipRetract < 0.001) chipRetract = 0.2; // fallback
+      // Q239 sign encodes thread hand (+ right / − left). Feed uses the pitch
+      // magnitude; synchronized infeed/retract segments retain thread hand and
+      // the corresponding forward/reverse spindle direction explicitly.
+      var pitchSigned = cycleQ(cy, 239, 1.25);
+      var pitch  = Math.abs(pitchSigned);
+      if(!(pitch > 0) || pitch > 99.9999){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q239 thread pitch must be non-zero — no tapping path generated'});
+        return;
+      }
+      // S belongs to the current TOOL CALL. A stale speed from a previous tool
+      // must never make an otherwise invalid tapping cycle look synchronized.
+      if(!(spindleS > 0)){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: current TOOL CALL has no positive spindle speed S — no tapping path generated'});
+        return;
+      }
+      var tapFeed = pitch * spindleS;
+      var retractFactor = cycleQ(cy, 403, 1);
+      if(retractFactor < 0.0001 || retractFactor > 10){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q403 retraction factor must be within 0.0001...10 — no tapping path generated'});
+        return;
+      }
+      var retractFeed = tapFeed * retractFactor;
+      var orientation = cycleQ(cy, 336, 0);
+      if(!isFinite(orientation) || orientation < -360 || orientation > 360){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q336 spindle orientation must be within -360...+360 degrees — no tapping path generated'});
+        return;
+      }
+      var tapTool = getToolByNum(toolNum);
+      var tablePitch = tapTool ? Math.abs(Number(tapTool.PITCH)||0) : 0;
+      if(tablePitch > 0 && Math.abs(tablePitch-pitch) > Math.max(1e-4, pitch*1e-3)){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: |Q239| ('+pitch+'mm) does not match tool-table PITCH ('+tablePitch+'mm) — no tapping path generated'});
+        return;
+      }
+      var q257 = cycleQ(cy, 257, 0);
+      if(q257 < 0){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q257 chip-break depth must be >= 0 — no tapping path generated'});
+        return;
+      }
+      var chipDepth = q257 > 0 ? q257 : Math.abs(depth); // depth per chip-break step
+      // Q256 is a MULTIPLE of the pitch (Q256 × Q239), NOT a distance in mm.
+      // Q256=0 → full retract out of the hole to Q200; Q256>0 → stay in the hole.
+      var q256 = cycleQ(cy, 256, 0.2);
+      if(q256 < 0){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q256 retract factor must be >= 0 — no tapping path generated'});
+        return;
+      }
+      var chipFullRetract = (q256 === 0);
+      var chipRetract = chipFullRetract ? 0 : Math.abs(pitch * q256);
+      if(!chipFullRetract && chipRetract < 0.001) chipRetract = pitch; // guard: at least one pitch
       var cx2 = pos.x, cy2a = pos.y;
       var oldFeed = feed;
+      var oldSpindleOn = spindleOn;
+      var oldSpindleDir = spindleDir;
+      var oldSpindleS = spindleS;
+      var threadDir = pitchSigned > 0 ? 1 : -1;
+      activeThreadHand = threadDir;
 
       // 1. Rapid to safeZ
       sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
       pos={x:cx2,y:cy2a,z:safeZ};
+      if(orientation !== 0) pushCycleEvent('spindle-orientation', orientation, srcLine, rc, 'positioning');
 
       // 2. Chip-break tapping loop
       feed = tapFeed;
+      spindleOn = true;
+      spindleDir = threadDir;
+      spindleS = oldSpindleS;
       var tapped = 0;
       var totalDepth = Math.abs(depth);
       while(tapped < totalDepth - 1e-6){
@@ -959,23 +1302,46 @@ function parseProgram(code){
         if(tapped < totalDepth - 1e-6){
           if(chipFullRetract){
             // Q256=0: full retract to safeZ (synchronized feed — spindle reverses, tool follows thread)
+            feed = retractFeed;
+            spindleDir = -threadDir;
+            spindleS = oldSpindleS*retractFactor;
             pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
             // Re-tap down to just above last depth (synchronized feed — tool follows existing thread)
+            feed = tapFeed;
+            spindleDir = threadDir;
+            spindleS = oldSpindleS;
             pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
           } else {
             // Q256>0: retract by pitch*Q256, stays in hole (synchronized feed)
             var breakZ = targetZ + chipRetract;
+            feed = retractFeed;
+            spindleDir = -threadDir;
+            spindleS = oldSpindleS*retractFactor;
             pushSeg({x:cx2, y:cy2a, z:breakZ}, false, srcLine, rc, true, true);
+            feed = tapFeed;
+            spindleDir = threadDir;
+            spindleS = oldSpindleS;
             pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
           }
         }
       }
 
       // 3. Full retract to safeZ — synchronized feed (spindle reverses, tool follows thread out)
+      feed = retractFeed;
+      spindleDir = -threadDir;
+      spindleS = oldSpindleS*retractFactor;
       pushSeg({x:cx2, y:cy2a, z:safeZ}, false, srcLine, rc, true, true);
 
-      // 4. Rapid to 2nd safety clearance (tool is out of the hole — FMAX allowed)
-      pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
+      // 4. Rapid to 2nd safety clearance (tool is out of the hole — FMAX allowed),
+      //    only when it is actually higher than safeZ (A3).
+      spindleOn = oldSpindleOn;
+      spindleDir = oldSpindleDir;
+      spindleS = oldSpindleS;
+      activeThreadHand = 0;
+      if(safe2Z > safeZ + 1e-6){
+        feed = 9999;
+        pushSeg({x:cx2, y:cy2a, z:safe2Z}, true, srcLine, rc, true);
+      }
 
       feed = oldFeed;
     }
@@ -991,7 +1357,13 @@ function parseProgram(code){
       var mod=mv.modifier;
       // set pos to stored from position
       pos={x:mv.from.x, y:mv.from.y, z:mv.from.z};
-      if(!mod || mi+1>=pendingMoves.length){
+      if(mod && mi+1>=pendingMoves.length){
+        pushParseProblem(parseProblems,{line:mod.line!=null?mod.line:mv.srcLine,sev:'err',msg:mod.type+' has no following contour move \u2014 modifier ignored'});
+        pushSeg(mv.target, mv.rapid, mv.srcLine, mv.rc);
+        if(mv.m99 && activeCycle) executeCycle(activeCycle, mv.srcLine, mv.rc);
+        continue;
+      }
+      if(!mod){
         pushSeg(mv.target, mv.rapid, mv.srcLine, mv.rc);
         if(mv.m99 && activeCycle) executeCycle(activeCycle, mv.srcLine, mv.rc);
         continue;
@@ -1009,7 +1381,13 @@ function parseProgram(code){
       var dot=Math.max(-1,Math.min(1,u_in.x*u_out.x+u_in.y*u_out.y));
       var halfAngle=Math.acos(dot)/2;
       if(halfAngle<1e-4){ pushSeg(corner, mv.rapid, mv.srcLine, mv.rc); continue; }
-      var dist=Math.min(r/Math.tan(halfAngle), in_l*0.9, out_l*0.9);
+      var requestedDist=mod.type==='CHF'?r:r/Math.tan(halfAngle);
+      if(!(requestedDist>0)||requestedDist>=in_l-1e-6||requestedDist>=out_l-1e-6){
+        pushParseProblem(parseProblems,{line:mod.line!=null?mod.line:mv.srcLine,sev:'err',msg:mod.type+' does not fit between the adjacent contour moves \u2014 modifier ignored'});
+        pushSeg(corner,mv.rapid,mv.srcLine,mv.rc);
+        continue;
+      }
+      var dist=requestedDist;
       var p1={x:corner.x-u_in.x*dist, y:corner.y-u_in.y*dist, z:corner.z};
       var p2={x:corner.x+u_out.x*dist, y:corner.y+u_out.y*dist, z:corner.z};
       pushSeg(p1, mv.rapid, mv.srcLine, mv.rc);
@@ -1080,7 +1458,9 @@ function parseProgram(code){
         activeCycle['Q'+_qNum] = _qVal;
         // Basic sanity: Q200 must be >0, Q201 must be <=0
         if(_qNum===200 && typeof _qVal==='number' && _qVal<=0) console.warn('Q200 safety clearance should be positive, got '+_qVal);
-        if(_qNum===201 && typeof _qVal==='number' && _qVal>0){ activeCycle['Q201']=-_qVal; } // auto-negate
+        // A2: never silently negate a positive Q201. A positive depth is a
+        // programming error; executeCycle validates it and refuses to cut.
+        if(_qNum===201 && typeof _qVal==='number' && _qVal>0) console.warn('Q201 depth should be negative (below surface), got +'+_qVal);
       } else {
         qVars[_qNum] = evalQExpr(_qExpr, qVars);
       }
@@ -1096,13 +1476,15 @@ function parseProgram(code){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
-      activeCycle={type:200, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-20), Q206:+(qm[206]!==undefined?qm[206]:150), Q202:+(qm[202]!==undefined?qm[202]:0), Q210:+(qm[210]!==undefined?qm[210]:0), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q211:+(qm[211]!==undefined?qm[211]:0)};
+      activeCycle={type:200, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-20), Q206:+(qm[206]!==undefined?qm[206]:150), Q202:+(qm[202]!==undefined?qm[202]:0), Q210:+(qm[210]!==undefined?qm[210]:0), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q211:+(qm[211]!==undefined?qm[211]:0), Q395:+(qm[395]!==undefined?qm[395]:0)};
     }
     else if(line.indexOf('CYCL DEF 201')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
-      activeCycle={type:201, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q206:+(qm[206]||80), Q211:+(qm[211]||0), Q208:+(qm[208]||0), Q203:+(qm[203]||0), Q204:+(qm[204]||50)};
+      // Zero is a valid Q value (NOTES rule #2): keep an explicit 0 for depth,
+      // clearances and feeds instead of folding it into a default.
+      activeCycle={type:201, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q206:+(qm[206]!==undefined?qm[206]:80), Q211:+(qm[211]!==undefined?qm[211]:0), Q208:+(qm[208]!==undefined?qm[208]:0), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50)};
     }
     else if(line.indexOf('CYCL DEF 209')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
@@ -1112,14 +1494,16 @@ function parseProgram(code){
       // meaningful and falsy — Q256=0 means full retract out of the hole, and
       // Q257=0 means a single pass (no chip breaking). `qm||default` would drop
       // both back to their defaults. See NOTES rule #2. (Cycle 200 already does this.)
-      activeCycle={type:209, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q239:+(qm[239]!==undefined?qm[239]:1.25), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q257:+(qm[257]!==undefined?qm[257]:5), Q256:+(qm[256]!==undefined?qm[256]:0.2), Q336:+(qm[336]!==undefined?qm[336]:0)};
+      activeCycle={type:209, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q239:+(qm[239]!==undefined?qm[239]:1.25), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q257:+(qm[257]!==undefined?qm[257]:5), Q256:+(qm[256]!==undefined?qm[256]:0.2), Q336:+(qm[336]!==undefined?qm[336]:0), Q403:+(qm[403]!==undefined?qm[403]:1)};
     }
     else if(line.indexOf('CYCL DEF 208')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
       // parse Q params
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
-      activeCycle={type:208, Q200:+(qm[200]||2), Q201:+(qm[201]||-10), Q206:+(qm[206]||150), Q203:+(qm[203]||0), Q204:+(qm[204]||50), Q334:+(qm[334]||0), Q335:+(qm[335]||10), Q342:+(qm[342]||0), Q351:+(qm[351]||1)};
+      // Zero is a valid Q value (NOTES rule #2): an explicit Q201=0 must stay 0
+      // (no cut), and Q334=0 keeps its documented single-revolution meaning.
+      activeCycle={type:208, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q206:+(qm[206]!==undefined?qm[206]:150), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q334:+(qm[334]!==undefined?qm[334]:0), Q335:+(qm[335]!==undefined?qm[335]:10), Q342:+(qm[342]!==undefined?qm[342]:0), Q351:+(qm[351]!==undefined?qm[351]:1)};
     }
     else if(/^CYCL\s+DEF\s+\d+/.test(line)){
       // Unsupported cycle number (e.g. 7 datum shift, 203, 220 patterns...):
@@ -1128,7 +1512,7 @@ function parseProgram(code){
       flushPending();
       activeCycle = null;
       var _unsup = line.match(/^CYCL\s+DEF\s+(\d+)/);
-      if(typeof probs !== 'undefined') probs.push({line:srcLineI, sev:'warn', msg:'CYCL DEF '+_unsup[1]+' is not supported by the simulator — cycle ignored (supported: 200, 201, 208, 209)'});
+      pushParseProblem(parseProblems, {line:srcLineI, sev:'warn', msg:'CYCL DEF '+_unsup[1]+' is not supported by the simulator — cycle ignored (supported: 200, 201, 208, 209)'});
       console.warn('CYCL DEF '+_unsup[1]+' not supported — ignored');
     }
     else if(line.indexOf('CYCL CALL')===0){
@@ -1144,7 +1528,8 @@ function parseProgram(code){
     }
     else if(line.indexOf('TOOL CALL')===0){
       flushPending(); pendingDefTool=0;
-      spindleOn=false; coolantOn=false;
+      var _toolCallUnderComp = (rcState==='RL' || rcState==='RR');
+      spindleOn=false; spindleDir=0; spindleS=0; coolantOn=false;
       var tn=line.match(/TOOL CALL (\d+)/);
       var requestedToolNum=tn ? parseInt(tn[1]) : toolNum;
       var resolvedTool=resolveParserToolCall(requestedToolNum);
@@ -1163,9 +1548,12 @@ function parseProgram(code){
       // (and length compensation), the physical tool stays the same.
       curDLpgm = tdl ? parseFloat(tdl[1].replace(',', '.')) : 0;
       curDRpgm = tdr ? parseFloat(tdr[1].replace(',', '.')) : 0;
-      // TOOL CALL cancels an active radius compensation — the new contour must
-      // re-arm RL/RR itself.
-      rcState = '';
+      if(_toolCallUnderComp){
+        radiusCompBlocked = true;
+        pushParseProblem(parseProblems, {line:srcLineI, sev:'err', msg:'TOOL CALL is not permitted while '+rcState+' is active — compensated motion suppressed until R0'});
+      } else {
+        rcState = '';
+      }
       var tObj=getToolByNum(toolNum);
       if(tObj){
         // kept only for UI/status display of the last programmed deltas —
@@ -1178,9 +1566,9 @@ function parseProgram(code){
         TOOL_R = tObj.R + _drTabR + curDRpgm;
       }
     }
-    else if(/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); spindleOn=true; coolantOn=true; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
-        else if(/^M3\b/.test(line)||/^M4\b/.test(line)){ flushPending(); spindleOn=true;  sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
-    else if(/^M5\b/.test(line)){ flushPending(); spindleOn=false; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:false,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
+    else if(/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); spindleOn=true; spindleDir=/^M14\b/.test(line)?-1:1; coolantOn=true; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,spindleDir:spindleDir,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
+        else if(/^M3\b/.test(line)||/^M4\b/.test(line)){ flushPending(); spindleOn=true; spindleDir=/^M4\b/.test(line)?-1:1; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,spindleDir:spindleDir,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
+    else if(/^M5\b/.test(line)){ flushPending(); spindleOn=false; spindleDir=0; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:false,spindleDir:0,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
     else if(/^M7\b/.test(line)||/^M8\b/.test(line)||/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); coolantOn=true;  sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:spindleOn,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
     else if(/^M9\b/.test(line)){ flushPending(); coolantOn=false; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:spindleOn,coolantOn:false,toolNum:toolNum,isMseg:true}); blockIndex++; }
     else if(/^M0\b/.test(line)||/^M2\b/.test(line)||/^M30\b/.test(line)){
@@ -1203,6 +1591,11 @@ function parseProgram(code){
       if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       if(ccx!==null && ccy!==null){
         var R = Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
+        var _cEndRadius=Math.sqrt((endX-ccx)*(endX-ccx)+(endY-ccy)*(endY-ccy));
+        if(R<1e-9||Math.abs(R-_cEndRadius)>1e-4){
+          pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC \u2014 arc rejected'});
+          continue;
+        }
         // NOTE: radius compensation applied later by applyRadiusComp (polyline offset)
         R = Math.max(R, 0.1);
         var a0 = Math.atan2(pos.y-ccy, pos.x-ccx);
@@ -1213,19 +1606,20 @@ function parseProgram(code){
         var N = Math.max(8, Math.ceil(Math.abs(sweep)/(Math.PI/32)));
         for(var k=1;k<=N;k++){
           var a = a0 + sweep*(k/N);
-          pushSeg({x:ccx+R*Math.cos(a), y:ccy+R*Math.sin(a), z:pos.z}, false, i, rcState);
+          pushSeg({x:ccx+R*Math.cos(a), y:ccy+R*Math.sin(a), z:pos.z}, false, srcLineI, rcState);
         }
         // If the programmed end point does not lie exactly on the circle around
         // CC (radius taken from the START point), land on the programmed end
         // anyway — otherwise pos drifts and subsequent incremental moves shift.
-        if(Math.abs(pos.x-endX)>1e-6||Math.abs(pos.y-endY)>1e-6) pushSeg({x:endX,y:endY,z:pos.z},false,i,rcState);
-      }
+        if(Math.abs(pos.x-endX)>1e-6||Math.abs(pos.y-endY)>1e-6) pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
+      } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Circle center undefined \u2014 C block rejected'});
     }
     else if(line.indexOf('LP')===0){
       // LP PR+30 PA+45 F500 — linear polar move
       blockIndex++;
       var pr=line.match(/PR([+-]?\d+\.?\d*)/), pa=line.match(/PA([+-]?\d+\.?\d*)/);
       var fm=line.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
+      if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 LP block rejected'});
       if(pr && pa && ccx!==null && ccy!==null){
         var rad=parseFloat(pr[1]), ang=parseFloat(pa[1])*Math.PI/180;
         var tx=ccx+rad*Math.cos(ang), ty=ccy+rad*Math.sin(ang);
@@ -1246,6 +1640,7 @@ function parseProgram(code){
       var pa2=line.match(/PA([+-]?\d+\.?\d*)/);
       var fm2=line.match(/\bF\+?(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
       var dr2=line.indexOf('DR-')>=0 ? -1 : 1;
+      if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 CP block rejected'});
       if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       if(pa2 && ccx!==null && ccy!==null){
         var a0cp=Math.atan2(pos.y-ccy, pos.x-ccx);
@@ -1255,7 +1650,7 @@ function parseProgram(code){
         Rcp = Math.max(Rcp, 0.1); // RC applied later by applyRadiusComp
         var sw; if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
         var N=Math.max(8,Math.ceil(Math.abs(sw)/(Math.PI/32)));
-        for(var k=1;k<=N;k++){var a=a0cp+sw*(k/N);pushSeg({x:ccx+Rcp*Math.cos(a),y:ccy+Rcp*Math.sin(a),z:pos.z},false,i,rcState);}
+        for(var k=1;k<=N;k++){var a=a0cp+sw*(k/N);pushSeg({x:ccx+Rcp*Math.cos(a),y:ccy+Rcp*Math.sin(a),z:pos.z},false,srcLineI,rcState);}
       }
     }
     else if(/^CR(\s|$)/.test(line)){
@@ -1294,12 +1689,12 @@ function parseProgram(code){
           var N=Math.max(8,Math.ceil(Math.abs(sweep)/(Math.PI/32)));
           for(var k=1;k<=N;k++){
             var a=a0+sweep*(k/N);
-            pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,i,rcState);
+            pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,srcLineI,rcState);
           }
           // guard against float drift: land exactly on the programmed end point
-          if(Math.abs(pos.x-endX)>1e-9||Math.abs(pos.y-endY)>1e-9) pushSeg({x:endX,y:endY,z:pos.z},false,i,rcState);
-        }
-      }
+          if(Math.abs(pos.x-endX)>1e-9||Math.abs(pos.y-endY)>1e-9) pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
+        } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR geometry is impossible \u2014 arc rejected'});
+      } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR radius R is missing \u2014 arc rejected'});
     }
     else if(/^CT(\s|$)/.test(line)){
       // CT — tangential arc (tangent to previous move)
@@ -1312,12 +1707,16 @@ function parseProgram(code){
       if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       // compute tangent from the last segment that actually moved in XY —
       // a preceding Z-only plunge or retract must not reset the tangent
-      var tanX=0, tanY=1;
+      var tanX=0, tanY=1, _hasTangent=false;
       for(var lsi=sub.length-1; lsi>=0; lsi--){
         var ls=sub[lsi];
         var ldx=ls.to.x-ls.from.x, ldy=ls.to.y-ls.from.y;
         var ll=Math.sqrt(ldx*ldx+ldy*ldy);
-        if(ll>1e-6){ tanX=ldx/ll; tanY=ldy/ll; break; }
+        if(ll>1e-6){ tanX=ldx/ll; tanY=ldy/ll; _hasTangent=true; break; }
+      }
+      if(!_hasTangent){
+        pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CT requires a preceding XY contour move to define the tangent \u2014 arc rejected'});
+        continue;
       }
       var dx=endX-pos.x, dy=endY-pos.y;
       // center perpendicular to tangent, passing through pos
@@ -1336,10 +1735,10 @@ function parseProgram(code){
         var N=Math.max(8,Math.ceil(Math.abs(sweep)/(Math.PI/32)));
         for(var k=1;k<=N;k++){
           var a=a0+sweep*(k/N);
-          pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,i,rcState);
+          pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,srcLineI,rcState);
         }
       } else {
-        pushSeg({x:endX,y:endY,z:pos.z},false,i,rcState);
+        pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
       }
     }
     else if(line.indexOf('L ')===0 || line==='L'){
@@ -1368,11 +1767,13 @@ function parseProgram(code){
     }
     else if(line.indexOf('RND')===0){
       var rm=line.match(/R(\d+\.?\d*)/);
-      if(rm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'RND',r:parseFloat(rm[1])};
+      if(rm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'RND',r:parseFloat(rm[1]),line:srcLineI};
+      else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'RND has no preceding supported contour move \u2014 modifier ignored'});
     }
     else if(line.indexOf('CHF')===0){
       var cm=line.match(/(\d+\.?\d*)/);
-      if(cm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'CHF',r:parseFloat(cm[1])};
+      if(cm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'CHF',r:parseFloat(cm[1]),line:srcLineI};
+      else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CHF has no preceding supported contour move \u2014 modifier ignored'});
     }
   }
 
@@ -1385,7 +1786,7 @@ function parseProgram(code){
   // Process each contiguous run of RC-active segments. Within a run,
   // offset the polyline perpendicular by TOOL_R (left=RL, right=RR),
   // mitre at corners, and insert rounding arcs at convex outer corners.
-  applyRadiusComp(sub);
+  applyRadiusComp(sub, parseProblems);
 
   // In toolpath-only mode, frame the viewers around the actual motion instead
   // of the unused default workpiece dimensions.
@@ -1403,11 +1804,12 @@ function parseProgram(code){
     viewMax={x:mx.x+pad,y:mx.y+pad,z:mx.z+pad};
   }
 
-  return {blkMin:blkMin, blkMax:blkMax, blkCyl:blkCyl, hasStock:hasStock, viewMin:viewMin, viewMax:viewMax, sub:sub, totalBlocks:blockIndex, start:{x:blkMin.x,y:blkMax.y,z:blkMax.z+50}};
+  return {blkMin:blkMin, blkMax:blkMax, blkCyl:blkCyl, hasStock:hasStock, viewMin:viewMin, viewMax:viewMax, sub:sub, problems:parseProblems, totalBlocks:blockIndex, start:{x:blkMin.x,y:blkMax.y,z:blkMax.z+50}};
 }
 
-function applyRadiusComp(sub){
+function applyRadiusComp(sub, parseProblems){
   offsetRun._gouged = {}; // reset gouge-warning dedupe for this parse
+  offsetRun._badRadius = {}; // reset non-positive-radius dedupe for this parse
   var i=0;
   while(i<sub.length){
     // Skip non-RC segments
@@ -1419,13 +1821,13 @@ function applyRadiusComp(sub){
     // Run is sub[i..j-1]
     var prevSeg = (i>0) ? sub[i-1] : null;
     var nextSeg = (j<sub.length) ? sub[j] : null;
-    var newLen = offsetRun(sub, i, j-1, side, prevSeg, nextSeg);
+    var newLen = offsetRun(sub, i, j-1, side, prevSeg, nextSeg, parseProblems);
     // offsetRun returns the new number of segments in the run
     i = i + (newLen||0);
   }
 }
 
-function offsetRun(sub, a, b, side, prevSeg, nextSeg){
+function offsetRun(sub, a, b, side, prevSeg, nextSeg, parseProblems){
   // Build vertex list from the run: V0=seg[a].from, V1=seg[a].to=seg[a+1].from, ...
   // Offset = the tool's reference-point radius R + DR (per-run tool, not global).
   // This positions the tool CENTER; the physical tool shape (cone/ball/flat) in
@@ -1449,9 +1851,25 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
     // uses R + table-DR only, so a positive programmed DR leaves real stock.
     var _drTab = (_runTool.DR||0);
     var _drPgm = (sub[a].drPgm||0);
-    TR = Math.max(0.05, _runTool.R + _drTab + _drPgm);
+    // R1: the offset is the ACTUAL effective radius R+DR — no hidden 0.05 mm
+    // floor. A 0.001 mm effective tool offsets the path by 0.001 mm.
+    TR = _runTool.R + _drTab + _drPgm;
   } else {
     TR = TOOL_R;
+  }
+  // A non-positive effective radius cannot offset a contour. Report it and
+  // remove the invalid compensated run rather than cutting the nominal path.
+  if(!(TR > 0)){
+    var _erLine = (sub[a] && sub[a].srcLine!=null) ? sub[a].srcLine : 0;
+    if(!offsetRun._badRadius) offsetRun._badRadius = {};
+    if(!offsetRun._badRadius[_erLine]){
+      offsetRun._badRadius[_erLine] = true;
+      var _erMsg = 'Radius compensation active with a non-positive effective tool radius (R+DR = '+TR.toFixed(3)+'mm) — compensated cutting run rejected.';
+      pushParseProblem(parseProblems, {line:_erLine, sev:'err', msg:_erMsg});
+      console.warn('Line '+(_erLine+1)+': '+_erMsg);
+    }
+    sub.splice(a, b-a+1);
+    return 0;
   }
   var sgn = (side==='RR') ? -1 : 1; // RL: left normal (+), RR: right normal (-)
   var verts=[]; 
@@ -1470,9 +1888,32 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
     edges.push({ux:ux, uy:uy, nx:-uy*sgn, ny:ux*sgn, L:L});
   }
 
+  // The parser tessellates every C/RND/CR/CT primitive into many short line
+  // segments, all carrying the source line of the original primitive.  Gouge
+  // checks must therefore reason about that whole primitive, not treat the
+  // first 2 mm chord of a large arc as an independent short contour edge.
+  // Otherwise a perfectly valid L -> large C transition is rejected solely
+  // because the display tessellation is fine-grained (Complete Part exposed
+  // this with its 25 mm entry arc).
+  var edgeGroup=[], primitiveGroups=[];
+  var _lastGroup=-1, _lastGroupSrc=null, _lastGroupEdge=-2;
+  for(var eg=0;eg<edges.length;eg++){
+    if(!edges[eg]){ edgeGroup[eg]=-1; continue; }
+    var _egSrc=sub[a+eg].srcLine;
+    if(_lastGroup<0 || _egSrc!==_lastGroupSrc || eg!==_lastGroupEdge+1){
+      _lastGroup=primitiveGroups.length;
+      primitiveGroups.push({srcLine:_egSrc, len:0, startConsume:0, endConsume:0, cornerLine:_egSrc});
+    }
+    edgeGroup[eg]=_lastGroup;
+    primitiveGroups[_lastGroup].len+=edges[eg].L;
+    _lastGroupSrc=_egSrc;
+    _lastGroupEdge=eg;
+  }
+
   // Offset each vertex; build new point list (may insert corner arcs)
   var out=[]; // {x,y,z}
   var outSeg=[]; // parallel array: which ORIGINAL sub[] index each out[] point's metadata (rapid/feed/...) should come from
+  var invalidRun=false;
   // find first/last valid edge
   var firstE=-1, lastE=-1;
   for(var e2=0;e2<edges.length;e2++){ if(edges[e2]){ if(firstE<0) firstE=e2; lastE=e2; } }
@@ -1511,23 +1952,33 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
         var mx=bx/bl, my=by/bl;
         var cosHalf = mx*ein.nx + my*ein.ny; // = cos(half turn angle)
         // ── Gouge detection (real TNC: "tool radius too large" error) ──────
-        // At a concave corner the offset consumes TR*tan(turn/2) of path from
-        // EACH adjacent edge. If that exceeds half of either edge, the tool
-        // does not fit into the feature. The same per-vertex criterion also
-        // catches tessellated inner ARCS / RND fillets with radius < TR
-        // (each tessellation vertex consumes ~TR*dTheta/2 of a ~Rarc*dTheta
-        // chord), so no separate arc check is needed.
+        // At a concave corner the offset consumes TR*tan(turn/2) from each
+        // adjacent programmed primitive.  Accumulate that consumption at the
+        // primitive boundaries; the tool does not fit when the two ends use
+        // all of the available primitive length.  Vertices inside one
+        // tessellated arc are handled separately by a curvature-radius check.
         if(!isConvex){
           var _sinHalf = Math.sqrt(Math.max(0, 1 - cosHalf*cosHalf));
           var _consume = (cosHalf > 1e-6) ? TR * (_sinHalf/cosHalf) : TR*1e6;
-          if(_consume > ein.L*0.5 + 1e-6 || _consume > eout.L*0.5 + 1e-6){
-            var _gLine = sub[Math.min(a + Math.max(0, v-1), b)].srcLine;
-            if(!offsetRun._gouged) offsetRun._gouged = {};
-            if(!offsetRun._gouged[_gLine]){
-              offsetRun._gouged[_gLine] = true;
-              var _gMsg = 'Inner corner/radius is smaller than the compensation radius ('+TR.toFixed(3)+'mm) — a real TNC would abort with a "tool radius too large" error; the simulated path gouges the contour here.';
-              if(typeof probs !== 'undefined') probs.push({line:_gLine, sev:'warn', msg:_gMsg});
-              console.warn('Line '+(_gLine+1)+': '+_gMsg);
+          var _inGroup=edgeGroup[pe], _outGroup=edgeGroup[ne];
+          if(_inGroup>=0 && _outGroup>=0 && _inGroup!==_outGroup){
+            primitiveGroups[_inGroup].endConsume=Math.max(primitiveGroups[_inGroup].endConsume,_consume);
+            primitiveGroups[_outGroup].startConsume=Math.max(primitiveGroups[_outGroup].startConsume,_consume);
+            primitiveGroups[_inGroup].cornerLine=sub[a+pe].srcLine;
+            primitiveGroups[_outGroup].cornerLine=sub[a+ne].srcLine;
+          } else if(_inGroup>=0 && _inGroup===_outGroup && ne===pe+1){
+            // Three consecutive points belonging to the same source primitive
+            // describe its local curvature.  This reliably rejects a genuine
+            // inner arc/fillet whose radius is smaller than the effective tool
+            // radius without confusing chord length with feature size.
+            var _pa=verts[pe], _pb=verts[pe+1], _pc=verts[ne+1];
+            var _ab=Math.hypot(_pb.x-_pa.x,_pb.y-_pa.y);
+            var _bc=Math.hypot(_pc.x-_pb.x,_pc.y-_pb.y);
+            var _ca=Math.hypot(_pa.x-_pc.x,_pa.y-_pc.y);
+            var _twiceArea=Math.abs((_pb.x-_pa.x)*(_pc.y-_pa.y)-(_pb.y-_pa.y)*(_pc.x-_pa.x));
+            if(_twiceArea>1e-9){
+              var _curveR=(_ab*_bc*_ca)/(2*_twiceArea);
+              if(_curveR + 1e-6 < TR){ invalidRun=true; }
             }
           }
         }
@@ -1535,8 +1986,9 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
           // Near-tangent junction (arc/straight tangency): use incoming normal exactly
           // Avoids bisector approximation error at RND arc entry/exit points
           out.push({x:verts[v].x+ein.nx*TR, y:verts[v].y+ein.ny*TR, z:verts[v].z}); outSeg.push(_segTag);
-        } else if(isConvex && cosHalf < 0.9239){
-          // Convex outer corner > 45°: insert rounding arc of radius TR centered at V
+        } else if(isConvex){
+          // Every non-tangent convex outer corner gets the control-style
+          // transitional arc; shallow corners must not silently become mitres.
           var pA={x:verts[v].x+ein.nx*TR,  y:verts[v].y+ein.ny*TR};
           var pB={x:verts[v].x+eout.nx*TR, y:verts[v].y+eout.ny*TR};
           var aA=Math.atan2(pA.y-verts[v].y, pA.x-verts[v].x);
@@ -1558,6 +2010,31 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg){
     } else {
       out.push({x:verts[v].x, y:verts[v].y, z:verts[v].z}); outSeg.push(_segTag);
     }
+  }
+
+  // A straight/arc primitive may be bounded by inner corners at both ends.
+  // Reject only when their required tangential distances overlap (or leave no
+  // usable length). Equality is deliberately treated as non-fitting: there is
+  // no finite contour interval left between the two compensated transitions.
+  for(var pg=0;pg<primitiveGroups.length;pg++){
+    var _prim=primitiveGroups[pg];
+    if(_prim.startConsume+_prim.endConsume >= _prim.len-1e-6 &&
+       _prim.startConsume+_prim.endConsume>1e-9){
+      invalidRun=true;
+    }
+  }
+
+  if(invalidRun){
+    var _gLine=(sub[a]&&sub[a].srcLine!=null)?sub[a].srcLine:0;
+    if(!offsetRun._gouged) offsetRun._gouged = {};
+    if(!offsetRun._gouged[_gLine]){
+      offsetRun._gouged[_gLine]=true;
+      var _gMsg='Inner corner/radius is smaller than the compensation radius ('+TR.toFixed(3)+'mm) — compensated cutting run rejected (tool radius too large).';
+      pushParseProblem(parseProblems, {line:_gLine,sev:'err',msg:_gMsg});
+      console.warn('Line '+(_gLine+1)+': '+_gMsg);
+    }
+    sub.splice(a, b-a+1);
+    return 0;
   }
 
   // Rewrite the run's segments to follow the offset point list.
@@ -1627,6 +2104,7 @@ function rebuildRunSegments(sub, a, b, out, outSeg){
     newSegs.push({
       from:{x:f.x,y:f.y,z:f.z}, to:{x:t.x,y:t.y,z:t.z},
       rapid:meta.rapid, feed:meta.feed, spindleS:meta.spindleS, spindleOn:meta.spindleOn,
+      spindleDir:meta.spindleDir, threadHand:meta.threadHand||0,
       coolantOn:meta.coolantOn, len:len, blockIndex:meta.blockIndex, srcLine:meta.srcLine,
       rc:meta.rc, toolNum:meta.toolNum, pendingDef:meta.pendingDef,
       safeRetract:!!meta.safeRetract, ensureVisible:!!meta.ensureVisible,
@@ -1946,6 +2424,7 @@ function commitSeg(sm){
   } else if(sm.toolNum){
     currentToolNum = sm.toolNum;
   }
+  if(sm.cycleEvent) return;
   // collision check for rapid moves — skip if Z is moving upward (retract)
   if(sm.rapid && !sm.safeRetract && VX && sm.to.z < sm.from.z){
     var cellSize=Math.min(VX.dx,VX.dy,VX.dz);

@@ -397,7 +397,7 @@ function advance(dt){
     guard++;
     var sm = sub[subIndex];
     var spd = segSpeed(sm);
-    var segTime = sm.len / spd;
+    var segTime = sm.dwellSeconds>0 ? sm.dwellSeconds / SPEEDS[speedIdx] : sm.len / spd;
     var tLeft = (1 - subProgress) * segTime;
     // A short cycle retract can otherwise start and finish between two render
     // frames and look like a teleport. Show its midpoint once, while retaining

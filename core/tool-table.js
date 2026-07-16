@@ -1,4 +1,4 @@
-// tool-table -- verified byte-for-byte identical between web and android repos.
+// tool-table -- web implementation; Android port intentionally deferred until acceptance.
 
 function inferToolType(t){
   if(t && TOOL_TYPES.indexOf(t.TYPE)>=0) return t.TYPE;
@@ -50,9 +50,13 @@ function toolEntryErrors(t, allTools){
   if(t.TYPE==='MILL' && t.R+t.DR<=0) errs.push('DR must keep effective radius R+DR above 0 mm');
   if(t.R2>0 && (t.R2+t.DR2<=0 || t.R2+t.DR2>t.R+(t.TYPE==='MILL'?t.DR:0))) errs.push('DR2 must keep effective R2 above 0 and not larger than the effective tool radius');
   if(!finite(t.CUT)||Math.floor(t.CUT)!==t.CUT||t.CUT<1||t.CUT>20) errs.push('CUT must be a whole number from 1 to 20');
+  var rCuts=t.RCUTS===undefined?t.CUT:t.RCUTS;
+  if(!finite(rCuts)||Math.floor(rCuts)!==rCuts||rCuts<0||rCuts>t.CUT) errs.push('RCUTS must be a whole number from 0 to CUT');
   if(!finite(t.LCUTS)||t.LCUTS<=0||t.LCUTS>t.L+t.DL) errs.push('LCUTS must be above 0 and no larger than effective length L+DL');
   if(!finite(t.ANGLE)||t.ANGLE<0||t.ANGLE>90) errs.push('ANGLE must be 0–90°');
   if(!finite(t.T_ANGLE)||(t.T_ANGLE!==0&&(t.T_ANGLE<10||t.T_ANGLE>170))) errs.push('T-ANGLE must be 0 (flat) or 10–170°');
+  var pitch=t.PITCH===undefined?0:t.PITCH;
+  if(!finite(pitch)||pitch<0||(pitch!==0&&pitch<0.001)||pitch>100) errs.push('PITCH must be 0 (unspecified) or 0.001–100 mm');
   if(t.TYPE==='COUNTERSINK' && !(t.T_ANGLE>0)) errs.push('COUNTERSINK requires T-ANGLE > 0');
   if(!finite(t.RT)||Math.floor(t.RT)!==t.RT||t.RT<0||t.RT>999) errs.push('RT must be 0 or a whole tool number from 1 to 999');
   if(t.RT===t.T) errs.push('RT cannot reference the same tool');
@@ -75,8 +79,10 @@ function normalizeImportedTool(raw){
     L:length, R:radius, R2:r2,
     DL:dl, DR:raw.DR===undefined?0:Number(raw.DR), DR2:raw.DR2===undefined?0:Number(raw.DR2),
     CUT:raw.CUT===undefined?2:Number(raw.CUT),
+    RCUTS:raw.RCUTS===undefined?(raw.CUT===undefined?2:Number(raw.CUT)):Number(raw.RCUTS),
     LCUTS:raw.LCUTS===undefined?(r2>0&&r2>=radius?r2:Math.min(25,length+dl)):Number(raw.LCUTS),
     ANGLE:raw.ANGLE===undefined?0:Number(raw.ANGLE), T_ANGLE:raw.T_ANGLE===undefined?0:Number(raw.T_ANGLE),
+    PITCH:raw.PITCH===undefined?0:Number(raw.PITCH),
     TL:raw.TL===true, RT:raw.RT===undefined?0:Number(raw.RT),
     TIME2:raw.TIME2===undefined?0:Number(raw.TIME2), CUR_TIME:raw.CUR_TIME===undefined?0:Number(raw.CUR_TIME),
     DOC:String(raw.DOC===undefined?'':raw.DOC).trim()
@@ -115,7 +121,7 @@ function renderToolForm(num, overrides){
   var curType = ov.hasOwnProperty('TYPE') ? ov.TYPE : (isNew ? 'MILL' : inferToolType(t));
 
   // fv: override value (from a just-changed dropdown re-render) wins, else existing tool value, else default-for-new
-  function fv(id, def){ return ov.hasOwnProperty(id) ? ov[id] : (isNew ? def : t[id]); }
+  function fv(id, def){ return ov.hasOwnProperty(id) ? ov[id] : (isNew || t[id]===undefined ? def : t[id]); }
 
   function field(id, label, val, type, desc, step, min, max){
     var attrs = '';
@@ -160,6 +166,7 @@ function renderToolForm(num, overrides){
     +field('DR',    'DR — Radius oversize',  fv('DR',0),       'number', drDesc, '0.001')
     +field('DR2',   'DR2 — R2 oversize',     fv('DR2',0),      'number', 'Delta value added to R2', '0.001')
     +field('CUT',   'CUT — Number of teeth', fv('CUT',4),      'number', 'Reference number of cutting edges; stored and exported but not used to change geometry', '1', 1, 20)
+    +field('RCUTS', 'RCUTS — Center-cutting teeth', fv('RCUTS',fv('CUT',4)), 'number', 'Number of teeth that cut across the center. 0 prevents direct Cycle 208 plunging.', '1', 0, 20)
     +(function(){
       var _ta = pFloat(fv('T_ANGLE', curType==='DRILL'?118:0))||0;
       var _r  = pFloat(fv('R',5))||5;
@@ -193,8 +200,9 @@ function renderToolForm(num, overrides){
         return field('LCUTS', 'LCUTS — Tooth length', _lcVal2, 'number', 'Cutting edge length along tool axis. Used in Cycle 22 (pocket roughing)', '0.1');
       }
     })()
-    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    fv('ANGLE',3),        'number', 'Reference value for the tool. The simulator displays and exports it but does not alter a programmed path from it.', '0.1', 0, 90)
+    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    fv('ANGLE',3),        'number', 'Maximum helical plunge angle; Cycle 208 limits Q334 to this tool value when it is greater than 0.', '0.1', 0, 90)
     +field('T_ANGLE', 'T-ANGLE — Tool point angle (°)', fv('T_ANGLE', curType==='DRILL'?118:0), 'number', 'Full included angle of tool tip. Drill = 118°, center drill = 142°, countersink — any angle. 0 disables the conical tip (flat end mill / ball nose).', '0.1', 0, 170)
+    +field('PITCH',   'PITCH — Thread pitch (mm)',      fv('PITCH',0),        'number', 'Optional tap pitch. Cycle 209 rejects Q239 when its magnitude does not match a non-zero PITCH.', '0.001', 0, 100)
     +'<div class="tool-field"><label>TL — Tool locked</label>'
       +'<input id="tf_TL" type="checkbox" '+((ov.hasOwnProperty('TL')?ov.TL:(!isNew&&t.TL))?'checked':'')+' style="width:auto;margin-top:4px;">'
       +'<span class="field-desc">Lock tool to prevent use (e.g. after breakage)</span>'
@@ -213,7 +221,7 @@ function renderToolForm(num, overrides){
 function toolTypeChanged(){
   var wrap = document.getElementById('toolFormWrap');
   if(!wrap) return;
-  var ids = ['NAME','L','R','R2','DL','DR','DR2','CUT','LCUTS','ANGLE','T_ANGLE','RT','TIME2','CUR_TIME','DOC'];
+  var ids = ['NAME','L','R','R2','DL','DR','DR2','CUT','RCUTS','LCUTS','ANGLE','T_ANGLE','PITCH','RT','TIME2','CUR_TIME','DOC'];
   var ov = {};
   ids.forEach(function(id){
     var elx = document.getElementById('tf_'+id);
@@ -244,8 +252,10 @@ function toolSave(oldNum){
   var DR     = formNum('DR',0);
   var DR2    = formNum('DR2',0);
   var CUT    = formNum('CUT',NaN);
+  var RCUTS  = formNum('RCUTS',0);
   var ANGLE   = formNum('ANGLE',NaN);
   var T_ANGLE = formNum('T_ANGLE',0);
+  var PITCH   = formNum('PITCH',0);
   // LCUTS: editable <input> for flat AND cone tools (renderToolForm renders a
   // real input for both). For cone tools LCUTS = cone cutting-edge height and
   // defines the cone's widest diameter (2·LCUTS·tan(angle/2)) — same as a real
@@ -263,7 +273,7 @@ function toolSave(oldNum){
   var CUR_TIME = formNum('CUR_TIME',0);
   var DOC    = document.getElementById('tf_DOC').value.trim();
 
-  var entry = {T:T,TYPE:TYPE,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
+  var entry = {T:T,TYPE:TYPE,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,RCUTS:RCUTS,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,PITCH:PITCH,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
   var prospective=toolLibrary.filter(function(t){return oldNum===null||t.T!==oldNum;}).concat([entry]);
   var toolErrs=toolEntryErrors(entry,prospective);
   if(oldNum!==null && T!==oldNum && toolLibrary.some(function(t){return t.T===T;})) toolErrs.push('T'+T+' already exists');
@@ -375,11 +385,11 @@ function renderToolsTab(){
   html += '<div style="overflow-x:auto;width:100%;">';
   html += '<table class="tools-table"><thead><tr>'
     +'<th data-help="tt-T">T</th><th data-help="tt-TYPE">TYPE</th><th data-help="tt-NAME">NAME</th><th data-help="tt-L">L</th><th data-help="tt-R">R</th><th data-help="tt-R2">R2</th>'
-    +'<th data-help="tt-DL">DL</th><th data-help="tt-DR">DR</th><th data-help="tt-DR2">DR2</th><th data-help="tt-CUT">CUT</th><th data-help="tt-LCUTS">LCUTS</th><th data-help="tt-ANGLE">ANGLE</th><th data-help="tt-TANGLE">T-ANGLE</th>'
+    +'<th data-help="tt-DL">DL</th><th data-help="tt-DR">DR</th><th data-help="tt-DR2">DR2</th><th data-help="tt-CUT">CUT</th><th data-help="tt-RCUTS">RCUTS</th><th data-help="tt-LCUTS">LCUTS</th><th data-help="tt-ANGLE">ANGLE</th><th data-help="tt-TANGLE">T-ANGLE</th><th data-help="tt-PITCH">PITCH</th>'
     +'<th data-help="tt-TL">TL</th><th data-help="tt-RT">RT</th><th data-help="tt-TIME2">TIME2</th><th data-help="tt-CURTIME">CUR.TIME</th><th data-help="tt-DOC">DOC</th><th></th>'
     +'</tr></thead><tbody>';
 
-  var TOOLS_COLSPAN = 19;
+  var TOOLS_COLSPAN = 21;
   var groupDesc = {
     MILL:        'MILL — end mills & ball nose (R/R2 define the cutting shape)',
     DRILL:       'DRILL — twist drills & reamers (R is the real, fixed cutting radius)',
@@ -404,9 +414,11 @@ function renderToolsTab(){
     html += '<td>'+(t.DR||0)+'</td>';
     html += '<td>'+(t.DR2||0)+'</td>';
     html += '<td>'+t.CUT+'</td>';
+    html += '<td>'+(t.RCUTS===undefined?t.CUT:t.RCUTS)+'</td>';
     html += '<td>'+t.LCUTS+'</td>';
     html += '<td>'+(t.ANGLE||0)+'</td>';
     html += '<td>'+(t.T_ANGLE||0)+'</td>';
+    html += '<td>'+(t.PITCH||0)+'</td>';
     html += '<td>'+(t.TL?'L':'-')+'</td>';
     html += '<td>'+(t.RT||'-')+'</td>';
     var _ct=t.CUR_TIME||0, _t2=t.TIME2||0;
@@ -580,6 +592,11 @@ function calcToolTimes(subArr){
   var RAPID_FEED=20000; // mm/min for rapid (FMAX)
   for(var i=0;i<subArr.length;i++){
     var s=subArr[i];
+    if(s.dwellSeconds>0){
+      var dwellTool=getToolByNum(s.toolNum||1);
+      if(dwellTool && s.cyclePhase!=='top') dwellTool.CUR_TIME=Math.round((dwellTool.CUR_TIME+s.dwellSeconds/60)*100)/100;
+      continue;
+    }
     if(!s.len||s.len<1e-6) continue;
     var feedMmMin=s.rapid?RAPID_FEED:Math.max(s.feed||1,1);
     var timeMins=s.len/feedMmMin;
@@ -605,6 +622,7 @@ function calcEstTime(subArr){
   var totalSec = 0;
   for(var i=0;i<subArr.length;i++){
     var s=subArr[i];
+    if(s.dwellSeconds>0){ totalSec += s.dwellSeconds; continue; }
     if(!s.len || s.len<1e-6) continue;
     var feedMmMin = s.rapid ? RAPID_FEED : Math.max(s.feed||1, 1);
     totalSec += (s.len / feedMmMin) * 60;

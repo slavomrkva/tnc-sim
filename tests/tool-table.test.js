@@ -40,8 +40,8 @@ function makeContext() {
 function tool(overrides = {}) {
   return Object.assign({
     T: 1, TYPE: 'MILL', NAME: 'END_MILL', L: 80, R: 5, R2: 0,
-    DL: 0, DR: 0, DR2: 0, CUT: 4, LCUTS: 25, ANGLE: 0,
-    T_ANGLE: 0, TL: false, RT: 0, TIME2: 0, CUR_TIME: 0, DOC: ''
+    DL: 0, DR: 0, DR2: 0, CUT: 4, RCUTS: 4, LCUTS: 25, ANGLE: 0,
+    T_ANGLE: 0, PITCH: 0, TL: false, RT: 0, TIME2: 0, CUR_TIME: 0, DOC: ''
   }, overrides);
 }
 
@@ -87,6 +87,12 @@ function importText(context, text) {
   context.toolSave(null);
   assert.strictEqual(context.toolLibrary.length, 2);
   assert.match(context.toasts.join('\n'), /DR must be/);
+
+  context.toasts = [];
+  setFields(context, tool({ T: 3, NAME: 'BAD_PITCH', PITCH: -1 }));
+  context.toolSave(null);
+  assert.strictEqual(context.toolLibrary.length, 2);
+  assert.match(context.toasts.join('\n'), /PITCH must be/);
 }
 
 {
@@ -101,13 +107,14 @@ function importText(context, text) {
 
 {
   const context = makeContext();
-  const original = tool({ DR: 0.2, DOC: '<img src=x onerror=alert(1)>' });
+  const original = tool({ DR: 0.2, PITCH: 1.25, DOC: '<img src=x onerror=alert(1)>' });
   context.toolLibrary = [original];
   context.toolTableExport();
   assert.strictEqual(context.downloads[0].filename, 'tools.tnt');
   context.toolLibrary = [];
   importText(context, context.downloads[0].text);
   assert.strictEqual(context.toolLibrary.length, 1);
+  assert.strictEqual(context.toolLibrary[0].PITCH, 1.25, 'PITCH survives Tool Table export/import');
   assert.strictEqual(context.TOOL_R, 5.2, 'import applies active MILL table DR');
 
   context.elements.viewTools = { innerHTML: '' };
@@ -148,6 +155,13 @@ function importText(context, text) {
   context.calcToolTimes([{ len: 10, feed: 100, rapid: false, toolNum: 1 }]);
   assert.strictEqual(context.toolLibrary[0].CUR_TIME, 0.1);
   assert.strictEqual(context.toolLibrary[0].TL, true, 'TIME2 locks a worn tool');
+}
+
+{
+  const context = makeContext();
+  context.toolLibrary = [tool()];
+  context.calcToolTimes([{ len: 0.001, rapid: true, dwellSeconds: 6, toolNum: 1 }]);
+  assert.strictEqual(context.toolLibrary[0].CUR_TIME, 0.1, 'cycle dwell contributes to current tool time');
 }
 
 console.log('tool table CRUD, validation, import/export and tool-life regressions passed');

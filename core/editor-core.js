@@ -1,4 +1,4 @@
-// editor-core -- verified byte-for-byte identical between web and android repos.
+// editor-core -- web implementation; Android port intentionally deferred until acceptance.
 
 function highlightActiveLine(lineIdx){
   var divs = lineNums.querySelectorAll('.ln');
@@ -290,13 +290,25 @@ function applyFix(idx){
 
 function runValidation(){
   problemsData = validateProgram(codeEl.value);
+  // Some errors can only be known after constructing the actual compensated
+  // toolpath (for example an inner corner that the effective tool radius cannot
+  // enter). Surface those parser diagnostics in the same Problems panel so Run
+  // is blocked explicitly instead of silently omitting the affected blocks.
+  var tmpProg = parseProgram(codeEl.value);
   // Learn mode: validator is fully OFF — the lesson's own Check (with hints)
   // is the feedback channel; error nags would just intimidate a beginner.
   if(typeof LEARN!=='undefined' && LEARN.open){ problemsData = []; }
+  else if(tmpProg && tmpProg.problems && tmpProg.problems.length){
+    var seenProblems={};
+    problemsData.forEach(function(p){ seenProblems[p.line+'|'+p.sev+'|'+p.msg]=true; });
+    tmpProg.problems.forEach(function(p){
+      var key=p.line+'|'+p.sev+'|'+p.msg;
+      if(!seenProblems[key]){ problemsData.push(p); seenProblems[key]=true; }
+    });
+  }
   renderProblems();
   if(typeof learnUpdateBlank==='function') learnUpdateBlank();
   // update estimated time on every edit
-  var tmpProg = parseProgram(codeEl.value);
   calcEstTime(tmpProg.sub);
 }
 

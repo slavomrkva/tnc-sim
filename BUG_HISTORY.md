@@ -15,6 +15,72 @@ Newest first.
 
 ---
 
+## C18 — Heidenhain cycles, cutting logic and validator audit
+**Repos:** web `tnc-sim`; accepted implementation ported separately to Android.
+**Resolved/accepted:** 2026-07-16 in web v0.863 after the user ran all bundled
+programs and approved merging, while noting that real-machine edge cases may
+still emerge over time.
+
+### Reproduced defects and root causes
+- `Q201=0` fell through to a default depth in cycles 201/208/209; positive
+  `Q201` was silently negated. Falsy-default extraction and sign normalization
+  made invalid input look executable.
+- `Q204=0` became 50 and a lower Q204 could cause a final rapid move downward.
+  Final clearance selection did not preserve explicit zero or choose the safer
+  of the two retract levels.
+- Cycle 208 used the physical tip radius for radial stepping but the effective
+  `R+DR` for the wall path. A countersink with R≈0.001 and DR+2 therefore
+  generated roughly 290,000 segments. Its final vertical retract also began
+  off-centre.
+- RL/RR imposed a hidden 0.05 mm radius floor. Gouge checks later treated each
+  short display chord of a tessellated C/RND as a real contour primitive, which
+  falsely rejected Complete Part even though R20 and the Ø10 tool fit.
+- Programmed DL/DR state was not consistently captured per run, and a TOOL CALL
+  under active compensation could silently change/cancel the path state.
+- The validator accepted syntax that the parser ignored, including unsupported
+  blocks/M functions/axes, malformed coordinates and Q expressions, impossible
+  arcs, and orphaned RND/CHF. Parser-only errors were not shown in Problems.
+
+### Attempts and accepted fixes
+- A VM harness first recorded numerical before-values for A1–A5 and R1. This
+  prevented visually plausible toolpaths from being accepted without proving
+  depths, segment order, feeds and retract coordinates.
+- Cycle parameters now preserve explicit zero, reject positive depth without a
+  cutting path, and use a safe conditional second-clearance retract. Cycle 208
+  uses one effective radius for wall and stepover, bounds its pass count, returns
+  to centre at working depth, and respects Q334/Q342/Q351, spindle direction,
+  ANGLE, R2/DR2 and RCUTS. Cycles 200/201 model their feeds/dwells and Q395;
+  Cycle 209 models Q239 hand, Q336, Q403, PITCH and synchronized reversal.
+- DL/DR is captured per segment/run, program allowance remains separate from
+  the physical voxel tool, RL/RR direction is preserved, R0 supports lateral
+  lead-out and pure-Z cancellation, outer corners receive transitional arcs,
+  and invalid compensated runs emit no nominal/gouging cut.
+- The first gouge fix exposed a false positive in Complete Part. Grouping
+  tessellated chords by source primitive and checking actual local curvature
+  fixed the diagnosis without special-casing R=0.001 or increasing a segment
+  guard.
+- Parser diagnostics are returned to the editor and merged into Problems, so
+  geometrically invalid code blocks Run/Step instead of disappearing. Static
+  validation now rejects only unsupported/malformed features in the simulator's
+  implemented scope and does not claim those features are invalid on every real
+  HEIDENHAIN control.
+- Angle Mill exposed a regression in the new Q-expression checker: the Q prefix
+  itself was classified as unsupported, preventing Q2 increments and creating
+  repeated false zero-XY/RL errors. Defined Q references are now accepted, the
+  invalid no-op `CALL LBL 0` was removed, and both T1 and T2 execute all 22
+  programmed ramp strips.
+
+### Verification and remaining limits
+All nine Node suites, 38 JavaScript syntax checks and `git diff --check` passed.
+Regression tests cover all four cycles, exact Complete Part and Angle Mill,
+segment order, coordinates, feed/FMAX, direction, pass counts, diagnostics and
+absence of rejected cutting paths. Thread flanks, machine-specific Q403 RPM
+caps and version-dependent Q342 behavior still require an offline control or
+real HEIDENHAIN machine; acceptance does not turn those uncertainties into
+simulated machine guarantees.
+
+---
+
 ## C16 — Complete Learn correctness, content and visual audit
 **Repos:** web `tnc-sim`, with the accepted Learn package ported separately to
 Android. **Resolved:** web v0.858. **Accepted:** 2026-07-15 after iterative user
