@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.859 (web test)
+- Replaced the Start here lesson's three detailed slides with two direct,
+  simpler visuals. The existing five-step guided tour is unchanged.
+
 ## v0.858
 - Released the accepted complete Learn audit: stricter task checking, clearer
   lesson and hint wording, redesigned diagrams and the shorter interactive
