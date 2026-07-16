@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.861';
+var APP_VERSION = '0.862';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -297,14 +297,14 @@ var HELP_MAP = {
   'tt-DL':      {title:'DL — Length oversize (mm)', desc:'Delta value added to the tool length L. Positive = tool cuts shallower, negative = tool cuts deeper. Used for wear / length compensation in TOOL CALL.', ex:'TOOL CALL 1 Z S3000 F800 DL-0.2'},
   'tt-DR':      {title:'DR — Radius oversize (mm)', desc:'Table DR = physical oversize of the real MILL tool (cuts wider). DR in a TOOL CALL = programmed allowance, ADDED to the table value; it offsets only the tool PATH (RL/RR, cycles) while the physical cut stays the same — e.g. TOOL CALL DR+0.2 leaves 0.2 mm finishing stock on the wall, exactly like the real control. DRILL/REAMER: never reshapes the cut. COUNTERSINK: does NOT reshape the cone — path offset only (RL/RR, CYCL DEF 208). Pair with DL = -DR/tan(T-ANGLE/2) so the cone\u2019s own edge meets that offset path.', ex:'TOOL CALL 1 Z S3000 F800 DR+0.1'},
   'tt-DR2':     {title:'DR2 — R2 oversize (mm)', desc:'Delta value added to the corner radius R2 — the same idea as DR, but for the rounded corner of a toroidal / ball-nose cutter.', ex:''},
-  'tt-CUT':     {title:'CUT — Number of teeth', desc:'Number of cutting edges (flutes) on the tool. Used for chip-load style calculations; it does not change the cut geometry in the simulator.', ex:''},
+  'tt-CUT':     {title:'CUT — Number of teeth', desc:'Reference number of cutting edges (flutes). It is stored and exported but does not change calculations or cut geometry in the simulator.', ex:''},
   'tt-LCUTS':   {title:'LCUTS — Tooth length (mm)', desc:'MILL: cutting-edge length along the tool axis — how far up the flutes cut (full ball-nose auto-uses R2). DRILL/REAMER: the real cutting/flute height — purely informational, no link to R or T-ANGLE (rule of thumb: ~6\u00d7 diameter for a standard drill). COUNTERSINK: required, together with T-ANGLE — sets the tool\u2019s max diameter for simulation: \u00d8 = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2), measured from the imaginary sharp apex (independent of R).', ex:''},
-  'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Maximum plunge / ramp-in angle for cycles like CYCL DEF 208 (bore milling). A standard end mill is around 3°; a drill can use 90° (straight plunge).', ex:''},
+  'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Reference maximum plunge / ramp-in angle for the tool. It is stored and exported; the simulator does not alter the programmed path from this value.', ex:''},
   'tt-TANGLE':  {title:'T-ANGLE — Tool point angle (°)', desc:'Full included angle of a pointed tool tip — drill 118° (default for new DRILL tools), center drill 142°, countersink/chamfer — any angle (required, together with LCUTS). 0 disables the conical tip (flat end mill / ball nose). DRILL: point widens up to the real R, then a constant-R shank. COUNTERSINK: widens from R (usually \u22480.001) up to the LCUTS-derived max diameter.', ex:''},
-  'tt-TL':      {title:'TL — Tool locked', desc:'When set, this tool is locked and cannot be selected by TOOL CALL — useful for marking a broken or unavailable tool.', ex:''},
-  'tt-RT':      {title:'RT — Replacement tool', desc:'Tool number of a twin / sister tool that should be swapped in automatically if this tool is locked or reaches its tool-life limit. 0 = no replacement.', ex:''},
-  'tt-TIME2':   {title:'TIME2 — Tool life limit (min)', desc:'Maximum allowed cutting time for this tool before it should be replaced. Compared against CUR.TIME, the time accumulated so far.', ex:''},
-  'tt-CURTIME': {title:'CUR.TIME — Accumulated cutting time', desc:'Total cutting time used by this tool so far, shown as a progress bar against TIME2 (the tool-life limit). Green = OK, yellow = near limit, red = limit reached.', ex:''},
+  'tt-TL':      {title:'TL — Tool locked', desc:'When set, TOOL CALL cannot use this tool. If RT names an unlocked replacement, the simulator uses it automatically; otherwise validation stops the run.', ex:''},
+  'tt-RT':      {title:'RT — Replacement tool', desc:'Tool number of an unlocked twin / sister tool used automatically when this tool is locked. 0 = no replacement.', ex:''},
+  'tt-TIME2':   {title:'TIME2 — Tool life limit (min)', desc:'Cutting-time limit for the completed simulation. Reaching it locks the tool for the next run. 0 = no limit.', ex:''},
+  'tt-CURTIME': {title:'CUR.TIME — Current run cutting time', desc:'Cutting time calculated for the most recently completed simulation, shown against TIME2. It is recalculated rather than added again when the same program is rerun.', ex:''},
   'tt-DOC':     {title:'DOC — Documentation note', desc:'A free-text note about the tool (e.g. manufacturer, part number, special notes). Purely informational.', ex:''},
   'undo':       {title:'↺ Undo', desc:'Reverts the last editing change. Snapshots are taken before destructive edits (typing a new line, deleting, pasting, entering field mode on a line). The number in parentheses is how many undo steps are available.', ex:''},
   'redo':       {title:'↻ Redo', desc:'Re-applies a change that was just undone. Available only right after an Undo — any new edit clears the redo stack.', ex:''},

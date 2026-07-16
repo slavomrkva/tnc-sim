@@ -10,6 +10,89 @@ function inferToolType(t){
 
 function getToolByNum(n){ return toolLibrary.find(function(t){ return t.T===n; })||null; }
 
+function nextFreeToolNumber(){
+  for(var n=1;n<=999;n++) if(!getToolByNum(n)) return n;
+  return 1000;
+}
+
+function toolEsc(value){
+  return String(value===undefined||value===null?'':value)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function effectiveToolRadius(t){
+  if(!t) return 5;
+  return Math.max(0.001, t.R + (inferToolType(t)==='MILL'?(t.DR||0):0));
+}
+
+function resolveToolCall(n){
+  var requested=getToolByNum(n);
+  if(!requested) return {requested:n,tool:null,toolNum:n,replacement:false,locked:false};
+  if(!requested.TL) return {requested:n,tool:requested,toolNum:n,replacement:false,locked:false};
+  var replacement=requested.RT ? getToolByNum(requested.RT) : null;
+  if(replacement && !replacement.TL) return {requested:n,tool:replacement,toolNum:replacement.T,replacement:true,locked:true};
+  return {requested:n,tool:requested,toolNum:n,replacement:false,locked:true};
+}
+
+function toolEntryErrors(t, allTools){
+  var errs=[];
+  function finite(v){ return typeof v==='number' && isFinite(v); }
+  if(!finite(t.T)||Math.floor(t.T)!==t.T||t.T<1||t.T>999) errs.push('T must be a whole number from 1 to 999');
+  if(TOOL_TYPES.indexOf(t.TYPE)<0) errs.push('TYPE is invalid');
+  if(!t.NAME||t.NAME.length>16) errs.push('NAME must contain 1–16 characters');
+  if(!finite(t.L)||t.L<=0||t.L>300) errs.push('L must be 0.001–300 mm');
+  if(!finite(t.R)||t.R<=0||t.R>100) errs.push('R must be 0.001–100 mm');
+  if(!finite(t.R2)||t.R2<0||t.R2>t.R) errs.push('R2 must be 0–R ('+t.R+' mm)');
+  if(!finite(t.DL)||t.DL<-300||t.DL>300||t.L+t.DL<=0) errs.push('DL must keep effective length L+DL above 0 mm');
+  if(!finite(t.DR)||t.DR<-100||t.DR>100) errs.push('DR must be -100–100 mm');
+  if(!finite(t.DR2)||t.DR2<-100||t.DR2>100) errs.push('DR2 must be -100–100 mm');
+  if(t.TYPE==='MILL' && t.R+t.DR<=0) errs.push('DR must keep effective radius R+DR above 0 mm');
+  if(t.R2>0 && (t.R2+t.DR2<=0 || t.R2+t.DR2>t.R+(t.TYPE==='MILL'?t.DR:0))) errs.push('DR2 must keep effective R2 above 0 and not larger than the effective tool radius');
+  if(!finite(t.CUT)||Math.floor(t.CUT)!==t.CUT||t.CUT<1||t.CUT>20) errs.push('CUT must be a whole number from 1 to 20');
+  if(!finite(t.LCUTS)||t.LCUTS<=0||t.LCUTS>t.L+t.DL) errs.push('LCUTS must be above 0 and no larger than effective length L+DL');
+  if(!finite(t.ANGLE)||t.ANGLE<0||t.ANGLE>90) errs.push('ANGLE must be 0–90°');
+  if(!finite(t.T_ANGLE)||(t.T_ANGLE!==0&&(t.T_ANGLE<10||t.T_ANGLE>170))) errs.push('T-ANGLE must be 0 (flat) or 10–170°');
+  if(t.TYPE==='COUNTERSINK' && !(t.T_ANGLE>0)) errs.push('COUNTERSINK requires T-ANGLE > 0');
+  if(!finite(t.RT)||Math.floor(t.RT)!==t.RT||t.RT<0||t.RT>999) errs.push('RT must be 0 or a whole tool number from 1 to 999');
+  if(t.RT===t.T) errs.push('RT cannot reference the same tool');
+  if(t.RT && allTools && !allTools.some(function(x){return x.T===t.RT;})) errs.push('RT references missing tool T'+t.RT);
+  if(!finite(t.TIME2)||t.TIME2<0) errs.push('TIME2 must be 0 or more');
+  if(!finite(t.CUR_TIME)||t.CUR_TIME<0) errs.push('CUR.TIME must be 0 or more');
+  if(t.DOC.length>120) errs.push('DOC must contain at most 120 characters');
+  return errs;
+}
+
+function normalizeImportedTool(raw){
+  var type=(raw && TOOL_TYPES.indexOf(raw.TYPE)>=0) ? raw.TYPE : inferToolType(raw||{});
+  var tNum=Number(raw.T), radius=Number(raw.R);
+  var r2=raw.R2===undefined?0:Number(raw.R2);
+  var length=raw.L===undefined?75:Number(raw.L);
+  var dl=raw.DL===undefined?0:Number(raw.DL);
+  return {
+    T:tNum, TYPE:type,
+    NAME:String(raw.NAME===undefined?('TOOL_'+tNum):raw.NAME).trim().replace(/\s+/g,'_').toUpperCase(),
+    L:length, R:radius, R2:r2,
+    DL:dl, DR:raw.DR===undefined?0:Number(raw.DR), DR2:raw.DR2===undefined?0:Number(raw.DR2),
+    CUT:raw.CUT===undefined?2:Number(raw.CUT),
+    LCUTS:raw.LCUTS===undefined?(r2>0&&r2>=radius?r2:Math.min(25,length+dl)):Number(raw.LCUTS),
+    ANGLE:raw.ANGLE===undefined?0:Number(raw.ANGLE), T_ANGLE:raw.T_ANGLE===undefined?0:Number(raw.T_ANGLE),
+    TL:raw.TL===true, RT:raw.RT===undefined?0:Number(raw.RT),
+    TIME2:raw.TIME2===undefined?0:Number(raw.TIME2), CUR_TIME:raw.CUR_TIME===undefined?0:Number(raw.CUR_TIME),
+    DOC:String(raw.DOC===undefined?'':raw.DOC).trim()
+  };
+}
+
+function invalidateToolTableState(){
+  var activeNum=(typeof currentToolNum!=='undefined'&&currentToolNum)?currentToolNum:TOOL_NUM;
+  TOOL_R=effectiveToolRadius(getToolByNum(activeNum));
+  if(typeof buildToolMesh==='function' && typeof toolGroup!=='undefined' && toolGroup) buildToolMesh();
+  if(typeof onReset==='function') onReset();
+  if(typeof runValidation==='function') runValidation();
+  var stale=document.getElementById('staleSimWarning');
+  if(stale) stale.style.display='';
+}
+
 function field(id, label, val, type, title, min2, minV, maxV){
   var step = type==='number' ? (id==='T'?1:0.001) : undefined;
   var attrs = 'id="tf_'+id+'" style="font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 7px;width:80px;outline:none;" title="'+(title||label)+'"';
@@ -27,7 +110,7 @@ function field(id, label, val, type, title, min2, minV, maxV){
 function renderToolForm(num, overrides){
   var t = (num !== null) ? getToolByNum(num) : null;
   var isNew = !t || !t.T;
-  var nextT = isNew ? (toolLibrary.length ? Math.max.apply(null,toolLibrary.map(function(x){return x.T;}))+1 : 1) : t.T;
+  var nextT = isNew ? nextFreeToolNumber() : t.T;
   var ov = overrides || {};
   var curType = ov.hasOwnProperty('TYPE') ? ov.TYPE : (isNew ? 'MILL' : inferToolType(t));
 
@@ -42,7 +125,7 @@ function renderToolForm(num, overrides){
     if(_ftype==='number'){ _ftype='text'; attrs += ' inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off"'; }
     return '<div class="tool-field">'
       +'<label>'+label+'</label>'
-      +'<input id="tf_'+id+'" type="'+_ftype+'"'+attrs+' value="'+val+'">'
+      +'<input id="tf_'+id+'" type="'+_ftype+'"'+attrs+' value="'+toolEsc(val)+'">'
       +'<span class="field-desc">'+desc+'</span>'
       +'</div>';
   }
@@ -66,7 +149,7 @@ function renderToolForm(num, overrides){
   }[curType];
 
   return '<div class="tool-form">'
-    +'<h3>'+(isNew?'New Tool':'T'+t.T+' — '+t.NAME)+'</h3>'
+    +'<h3>'+(isNew?'New Tool':'T'+t.T+' — '+toolEsc(t.NAME))+'</h3>'
     +field('T',     'T — Tool number',       isNew?nextT:t.T,    'number', 'Tool number used in TOOL CALL', '1', 1, 999)
     +typeField
     +field('NAME',  'NAME — Tool name',      fv('NAME',''),    'text',   'Max 16 chars, no spaces. E.g. END_MILL_D10')
@@ -76,7 +159,7 @@ function renderToolForm(num, overrides){
     +field('DL',    'DL — Length oversize',  fv('DL',0),       'number', 'Delta value added to L. Used for wear compensation', '0.001')
     +field('DR',    'DR — Radius oversize',  fv('DR',0),       'number', drDesc, '0.001')
     +field('DR2',   'DR2 — R2 oversize',     fv('DR2',0),      'number', 'Delta value added to R2', '0.001')
-    +field('CUT',   'CUT — Number of teeth', fv('CUT',4),      'number', 'Number of cutting edges (used for chip load calculation)', '1', 1, 20)
+    +field('CUT',   'CUT — Number of teeth', fv('CUT',4),      'number', 'Reference number of cutting edges; stored and exported but not used to change geometry', '1', 1, 20)
     +(function(){
       var _ta = pFloat(fv('T_ANGLE', curType==='DRILL'?118:0))||0;
       var _r  = pFloat(fv('R',5))||5;
@@ -110,15 +193,15 @@ function renderToolForm(num, overrides){
         return field('LCUTS', 'LCUTS — Tooth length', _lcVal2, 'number', 'Cutting edge length along tool axis. Used in Cycle 22 (pocket roughing)', '0.1');
       }
     })()
-    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    fv('ANGLE',3)||3,     'number', 'Max plunge angle for ramp-in (Cycle 22/208). End mill ~3°, drill = 90°', '0.1', 0, 90)
+    +field('ANGLE',   'ANGLE — Max ramp angle (°)',    fv('ANGLE',3),        'number', 'Reference value for the tool. The simulator displays and exports it but does not alter a programmed path from it.', '0.1', 0, 90)
     +field('T_ANGLE', 'T-ANGLE — Tool point angle (°)', fv('T_ANGLE', curType==='DRILL'?118:0), 'number', 'Full included angle of tool tip. Drill = 118°, center drill = 142°, countersink — any angle. 0 disables the conical tip (flat end mill / ball nose).', '0.1', 0, 170)
     +'<div class="tool-field"><label>TL — Tool locked</label>'
       +'<input id="tf_TL" type="checkbox" '+((ov.hasOwnProperty('TL')?ov.TL:(!isNew&&t.TL))?'checked':'')+' style="width:auto;margin-top:4px;">'
       +'<span class="field-desc">Lock tool to prevent use (e.g. after breakage)</span>'
     +'</div>'
-    +field('RT',    'RT — Replacement tool', fv('RT',0),       'number', 'Tool number of twin/replacement tool. 0 = none')
-    +field('TIME2',    'TIME2 — Max tool life at TOOL CALL (min)', fv('TIME2',100)||0, 'number', 'When CUR.TIME reaches TIME2, tool is locked at next TOOL CALL. 0 = no limit')
-    +field('CUR_TIME', 'CUR.TIME — Current tool age (min)',        fv('CUR_TIME',0)||0,   'number', 'Accumulated cutting time. Reset after tool change.', '0.1')
+    +field('RT',    'RT — Replacement tool', fv('RT',0),       'number', 'Unlocked replacement tool used automatically when this tool is locked. 0 = none')
+    +field('TIME2',    'TIME2 — Max tool life (min)', fv('TIME2',100), 'number', 'When the completed simulation reaches this cutting-time limit, the tool is locked for the next run. 0 = no limit')
+    +field('CUR_TIME', 'CUR.TIME — Current run cutting time (min)', fv('CUR_TIME',0), 'number', 'Cutting time calculated for the most recently completed simulation.', '0.1')
     +field('DOC',   'DOC — Comment',         fv('DOC',''),     'text',   'Free text comment, shown in table')
     +'<div class="tool-form-btns">'
       +'<button class="tool-btn-save" onclick="toolSave('+(isNew?'null':num)+')">'+(isNew?'Add Tool':'Save Changes')+'</button>'
@@ -145,87 +228,58 @@ function toolTypeChanged(){
   wrap.innerHTML = renderToolForm(editingTool, ov);
 }
 
-function toolErrsCheck(){
-  var T=pInt(document.getElementById('tf_T').value)||0;
-  var R=pFloat(document.getElementById('tf_R').value)||0;
-  var R2=pFloat(document.getElementById('tf_R2').value)||0;
-  var errs=[];
-  if(!T||T<1||T>32767) errs.push('T must be 1–32767');
-  if(R<=0) errs.push('R must be > 0');
-  if(R2<0||R2>R) errs.push('R2 must be 0–R ('+R+' mm)');
-  return errs;
-}
-
 function toolSave(oldNum){
-  var T      = pInt(document.getElementById('tf_T').value)||1;
+  function formNum(id, blankValue){
+    var raw=document.getElementById('tf_'+id).value.trim();
+    return raw==='' ? blankValue : pFloat(raw);
+  }
+  var T      = formNum('T',NaN);
   var _tyEl  = document.getElementById('tf_TYPE');
   var TYPE   = (_tyEl && TOOL_TYPES.indexOf(_tyEl.value)>=0) ? _tyEl.value : 'MILL';
   var NAME   = document.getElementById('tf_NAME').value.trim().replace(/\s+/g,'_').toUpperCase()||'TOOL_'+T;
-  var L      = pFloat(document.getElementById('tf_L').value)||0;
-  var R      = pFloat(document.getElementById('tf_R').value)||0;
-  var R2     = pFloat(document.getElementById('tf_R2').value)||0;
-  var DL     = pFloat(document.getElementById('tf_DL').value)||0;
-  var DR     = pFloat(document.getElementById('tf_DR').value)||0;
-  var DR2    = pFloat(document.getElementById('tf_DR2').value)||0;
-  var CUT    = pInt(document.getElementById('tf_CUT').value)||2;
-  var ANGLE   = pFloat(document.getElementById('tf_ANGLE').value)||3;
-  var T_ANGLE = pFloat(document.getElementById('tf_T_ANGLE').value)||0;
+  var L      = formNum('L',NaN);
+  var R      = formNum('R',NaN);
+  var R2     = formNum('R2',0);
+  var DL     = formNum('DL',0);
+  var DR     = formNum('DR',0);
+  var DR2    = formNum('DR2',0);
+  var CUT    = formNum('CUT',NaN);
+  var ANGLE   = formNum('ANGLE',NaN);
+  var T_ANGLE = formNum('T_ANGLE',0);
   // LCUTS: editable <input> for flat AND cone tools (renderToolForm renders a
   // real input for both). For cone tools LCUTS = cone cutting-edge height and
   // defines the cone's widest diameter (2·LCUTS·tan(angle/2)) — same as a real
   // control — so we keep the user's value. Only a full ball nose auto-derives
   // it (= R2), where the form shows a read-only span (no tf_LCUTS element).
   var _lcutsEl = document.getElementById('tf_LCUTS');
-  var LCUTS  = _lcutsEl ? (pFloat(_lcutsEl.value)||0) : 0;
+  var LCUTS  = _lcutsEl ? formNum('LCUTS',NaN) : 0;
   if(!_lcutsEl && R2 > 0 && R2 >= R){
     // Full ball nose: LCUTS = R2 (form had no editable field for it)
     LCUTS = R2;
   }
   var TL     = document.getElementById('tf_TL').checked;
-  var RT     = pInt(document.getElementById('tf_RT').value)||0;
-  var TIME2    = pFloat(document.getElementById('tf_TIME2').value)||0;
-  var CUR_TIME = pFloat(document.getElementById('tf_CUR_TIME').value)||0;
+  var RT     = formNum('RT',0);
+  var TIME2    = formNum('TIME2',0);
+  var CUR_TIME = formNum('CUR_TIME',0);
   var DOC    = document.getElementById('tf_DOC').value.trim();
 
-  // ── Limits ──
-  var toolErrs = [];
-  if(T<1||T>999)           toolErrs.push('T must be 1–999');
-  if(R<=0||R>100)          toolErrs.push('R must be 0.001–100 mm');
-  if(R2<0||R2>R)           toolErrs.push('R2 must be 0–R ('+R+' mm)');
-  if(L<=0||L>300)          toolErrs.push('L must be 0.001–300 mm');
-  if(CUT<1||CUT>20)        toolErrs.push('CUT must be 1–20');
-  // LCUTS auto-calculated — no manual validation needed (except COUNTERSINK, below)
-  if(ANGLE<0||ANGLE>90)    toolErrs.push('ANGLE must be 0–90°');
-  if(T_ANGLE!==0&&(T_ANGLE<10||T_ANGLE>170)) toolErrs.push('T-ANGLE must be 0 (flat) or 10–170°');
-  if(TYPE==='COUNTERSINK'){
-    // Mandatory: these two together define the tool's physical max diameter for simulation
-    if(!(T_ANGLE>0)) toolErrs.push('COUNTERSINK requires T-ANGLE > 0');
-    if(!(LCUTS>0))   toolErrs.push('COUNTERSINK requires LCUTS > 0 (sets the max diameter together with T-ANGLE)');
-  }
-  if(toolErrs.length){ _toast('Cannot save:\n'+toolErrs.join('\n'), true); return; }
-
   var entry = {T:T,TYPE:TYPE,NAME:NAME,L:L,R:R,R2:R2,DL:DL,DR:DR,DR2:DR2,CUT:CUT,LCUTS:LCUTS,ANGLE:ANGLE,T_ANGLE:T_ANGLE,TL:TL,RT:RT,TIME2:TIME2,CUR_TIME:CUR_TIME,DOC:DOC};
+  var prospective=toolLibrary.filter(function(t){return oldNum===null||t.T!==oldNum;}).concat([entry]);
+  var toolErrs=toolEntryErrors(entry,prospective);
+  if(oldNum!==null && T!==oldNum && toolLibrary.some(function(t){return t.T===T;})) toolErrs.push('T'+T+' already exists');
+  if(toolErrs.length){ _toast('Cannot save:\n'+toolErrs.join('\n'), true); return; }
 
   if(oldNum !== null){
     var idx = toolLibrary.findIndex(function(t){ return t.T===oldNum; });
     if(idx>=0) toolLibrary[idx] = entry;
+    if(T!==oldNum) toolLibrary.forEach(function(t){ if(t.RT===oldNum) t.RT=T; });
   } else {
     if(toolLibrary.find(function(t){ return t.T===T; })){ _toast('T'+T+' already exists.', true); return; }
     if(toolLibrary.length>=30){ _toast('Tool Table is full (max 30 tools).', true); return; }
     toolLibrary.push(entry);
-    toolLibrary.sort(function(a,b){ return a.T-b.T; });
   }
-
-  // sync TOOL_R and rebuild mesh if this is the active tool
-  if(T===TOOL_NUM){ TOOL_R = R + (TYPE==='MILL'?(DR||0):0); if(typeof buildToolMesh==='function') buildToolMesh(); runValidation(); }
-
-  // Tool change invalidates parsed RC offsets — must re-parse
-  // Auto-reset so next Run re-parses with new tool geometry
-  if(mode==='done' || mode==='stepping' || mode==='idle'){
-    onReset();
-    var _stale = document.getElementById('staleSimWarning');
-    if(_stale) _stale.style.display='';
-  }
+  toolLibrary.sort(function(a,b){ return a.T-b.T; });
+  invalidateToolTableState();
 
   editingTool = null;
   renderToolsTab();
@@ -241,8 +295,9 @@ function toolEdit(num){
 function toolDeleteConfirm(num, btn){
   _editorConfirm('Delete T'+num+'?', function(){
     toolLibrary = toolLibrary.filter(function(t){ return t.T!==num; });
+    toolLibrary.forEach(function(t){ if(t.RT===num) t.RT=0; });
+    invalidateToolTableState();
     renderToolsTab();
-    runValidation();
   });
 }
 
@@ -253,6 +308,8 @@ function toolCancelEdit(){
 
 function toolDelete(num){
   toolLibrary = toolLibrary.filter(function(t){ return t.T!==num; });
+  toolLibrary.forEach(function(t){ if(t.RT===num) t.RT=0; });
+  invalidateToolTableState();
   renderToolsTab();
 }
 
@@ -273,10 +330,21 @@ function onToolImportFile(e){
     try{
       var arr=JSON.parse(ev.target.result);
       if(!Array.isArray(arr)) throw new Error('Expected a tool array');
-      toolLibrary=arr.filter(function(t){ return t&&typeof t.T==='number'&&typeof t.R==='number'; })
-        .map(function(t){ t.TYPE = inferToolType(t); return t; });
-      TOOL_R=(getToolByNum(TOOL_NUM)||{R:5}).R;
-      renderToolsTab(); runValidation();
+      if(arr.length>30) throw new Error('Tool Table is full (max 30 tools)');
+      var imported=arr.map(function(t,idx){
+        if(!t||typeof t!=='object'||Array.isArray(t)) throw new Error('Tool '+(idx+1)+' is not an object');
+        return normalizeImportedTool(t);
+      });
+      var seen={};
+      imported.forEach(function(t,idx){
+        if(seen[t.T]) throw new Error('Duplicate tool number T'+t.T);
+        seen[t.T]=true;
+        var errs=toolEntryErrors(t,imported);
+        if(errs.length) throw new Error('Tool '+(idx+1)+': '+errs.join('; '));
+      });
+      toolLibrary=imported.sort(function(a,b){return a.T-b.T;});
+      invalidateToolTableState();
+      renderToolsTab();
     }catch(err){ _toast('Import failed: '+err.message, true); }
     e.target.value='';
   };
@@ -285,12 +353,10 @@ function onToolImportFile(e){
 }
 
 function toolAddNew(){
-  var maxT=toolLibrary.reduce(function(m,t){return Math.max(m,t.T);},0);
-  editingTool='new';
-  renderToolsTab();
+  toolEdit(null);
   setTimeout(function(){
     var el=document.getElementById('tf_T');
-    if(el){el.value=maxT+1; el.select();}
+    if(el){el.value=nextFreeToolNumber(); el.select();}
   },30);
 }
 
@@ -330,7 +396,7 @@ function renderToolsTab(){
     var _hex2 = '#'+[_tc2[0],_tc2[1],_tc2[2]].map(function(v){ return ('0'+Math.round(v*255).toString(16)).slice(-2); }).join('');
     html += '<td class="tool-num"><span class="tool-swatch" style="background:'+_hex2+'"></span>'+(active?'▶ ':'')+t.T+'</td>';
     html += '<td><span style="display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:9px;color:#fff;background:'+TOOL_TYPE_COLOR[grp]+';">'+TOOL_TYPE_LABEL[grp]+'</span></td>';
-    html += '<td>'+t.NAME+'</td>';
+    html += '<td>'+toolEsc(t.NAME)+'</td>';
     html += '<td>'+t.L+'</td>';
     html += '<td>'+t.R+'</td>';
     html += '<td>'+t.R2+'</td>';
@@ -351,7 +417,7 @@ function renderToolsTab(){
       +'<div style="width:36px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;">'
       +'<div style="width:'+_pct+'%;height:100%;background:'+_barCol+';border-radius:3px;"></div></div>'
       +_ct.toFixed(1)+'</div></td>';
-    html += '<td style="color:var(--text3)">'+t.DOC+'</td>';
+    html += '<td style="color:var(--text3)">'+toolEsc(t.DOC)+'</td>';
     html += '<td class="tool-actions">'
       +'<button class="tool-act-btn" onclick="toolEdit('+t.T+')">Edit</button>'
       +'<button class="tool-act-btn del" onclick="toolDeleteConfirm('+t.T+', this)">Del</button>'
@@ -361,7 +427,7 @@ function renderToolsTab(){
   });
   html += '</tbody></table>';
   html += '<br><div style="display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap;">'
-    +'<button class="tool-act-btn" style="font-size:10px;padding:4px 12px;" onclick="toolEdit(null)">+ Add tool</button>'
+    +'<button class="tool-act-btn" style="font-size:10px;padding:4px 12px;" onclick="toolAddNew()">+ Add tool</button>'
     +'<button class="tool-act-btn" style="font-size:10px;padding:4px 10px;" onclick="toolTableExport()" title="Export as .tnt JSON">&#8595; Export</button>'
     +'<button class="tool-act-btn" style="font-size:10px;padding:4px 10px;" onclick="toolTableImport()" title="Import .tnt JSON">&#8593; Import</button>'
     +'<input type="file" id="toolImportInput" accept="application/json,text/plain,.json,.tnt,.txt" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onToolImportFile(event)">'
@@ -389,7 +455,7 @@ function insertToolDef(){
 
   var panel = document.getElementById('ctxPanel');
   var opts = sorted.map(function(t){
-    return '<option value="'+t.T+'"'+(t.T===defaultT?' selected':'')+'>T'+t.T+(t.NAME?' — '+t.NAME:'')+'</option>';
+    return '<option value="'+t.T+'"'+(t.T===defaultT?' selected':'')+'>T'+t.T+(t.NAME?' — '+toolEsc(t.NAME):'')+'</option>';
   }).join('');
 
   panel.style.height='';
@@ -422,7 +488,7 @@ function openToolDefEdit(lineIdx){
   var curT = cur ? parseInt(cur[1]) : null;
   var sorted = toolLibrary.filter(function(t){ return t && t.T; }).sort(function(a,b){ return a.T-b.T; });
   var opts = sorted.map(function(t){
-    return '<option value="'+t.T+'"'+(t.T===curT?' selected':'')+'>T'+t.T+(t.NAME?' \u2014 '+t.NAME:'')+'</option>';
+    return '<option value="'+t.T+'"'+(t.T===curT?' selected':'')+'>T'+t.T+(t.NAME?' \u2014 '+toolEsc(t.NAME):'')+'</option>';
   }).join('');
   var panel = document.getElementById('ctxPanel');
   panel.style.height='';
@@ -472,7 +538,7 @@ function openToolPicker(){
     var hex = color ? '#'+[color[0],color[1],color[2]].map(function(v){return ('0'+Math.round(v*255).toString(16)).slice(-2);}).join('') : '#888';
     return '<div onclick="pickTool('+t.T+')" style="display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06);'+(sel?'background:rgba(20,184,166,.12);':'')+'">'
       +'<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+hex+';flex-shrink:0;"></span>'
-      +'<span style="font-family:var(--mono);font-size:14px;color:var(--text);flex:1;">T'+t.T+' — '+t.NAME+'</span>'
+      +'<span style="font-family:var(--mono);font-size:14px;color:var(--text);flex:1;">T'+t.T+' — '+toolEsc(t.NAME)+'</span>'
       +(sel?'<span style="color:var(--accent3);font-size:18px;">●</span>':'<span style="color:var(--text3);font-size:18px;">○</span>')
       +'</div>';
   }).join('');

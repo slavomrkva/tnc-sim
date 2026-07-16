@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.862 (web test)
+- Repaired Tool Table add/edit/delete state handling, strict parameter checks,
+  safe transactional import and duplicate-number protection.
+- Locked tools now use an available RT replacement, TIME2 locks a tool for the
+  next run, and the table explains which reference values do not alter motion.
+- Tool Table imports now reject malformed data without replacing the current
+  table, while valid `.tnt` export/import remains compatible.
+
 ## v0.861
 - Released the accepted shorter Start here lesson: two direct slides, a simple
   task → editor → Check diagram, and a text-only explanation of progressive
