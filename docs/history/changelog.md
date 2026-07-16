@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.864 — first tutorial orientation lesson
+
+- Ported only `L00` Start here from the older preview branch onto the current
+  main: three information slides, visual Hint 1–3 progression and an ungraded
+  editor/3D walkthrough.
+- Hid the solution control for this intro lesson and added focused regressions;
+  all later lessons and current parser, cycle and 3D behavior remain unchanged.
+
 ## v0.862 — Tool Table audit fixes
 
 - Added one validation path for CRUD and imported tools, transactional `.tnt`

@@ -86,32 +86,29 @@ var LESSONS = [
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p><b>Every lesson works the same way:</b></p>'
-      + learnSvgLearningLoop(); } },
+      + '<p>Every lesson begins with three information slides. They explain the theory you will need for the test. Read them carefully before starting practice.</p>'; } },
     { html:function(){ return ''
-      + '<p><b>HINT</b></p>'
-      + '<p>Each press reveals one more level of help:</p>'
-      + '<p><b>1 ·</b> a small nudge<br>'
-      + '<b>2 ·</b> the steps to follow<br>'
-      + '<b>3 ·</b> a complete example</p>'
-      + '<p>Hints are free. They never change or reset your code.</p>'; } }
+      + '<p>Need help during practice? Use Hint. Each press reveals the next level of help:</p>'
+      + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
+      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.06);"><b style="color:var(--accent);">&#128161; Hint 1</b><span>a small nudge</span></div>'
+      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.10);"><b style="color:var(--accent);">&#128161; Hint 2</b><span>the structure</span></div>'
+      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--accent);border-radius:6px;background:rgba(74,158,255,.16);"><b style="color:var(--accent);">&#128161; Hint 3</b><span>the full answer</span></div>'
+      + '</div>'; } },
+    { html:function(){ return ''
+      + '<p>Practice uses the real editor. As soon as you make a valid change to the code, you can see the result in the 3D view.'
+      + (typeof _isMTab==='function' && _isMTab() ? ' Switch between the Editor and 3D view at any time.' : '')
+      + '</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Add a comment before END PGM, then press Check.',
+      prompt:'Your challenge appears here. Complete it in the editor and press Check',
       hints:[
-        'A comment begins with <code>;</code>.',
-        'Use the empty line above <code>END PGM</code>.',
-        'Type: <code>; my first program</code>'
+        'Use Hint whenever you need help. It gives you a nudge without changing your code.',
+        'Each press reveals a little more help: first a nudge, then the structure, then the full answer.',
+        'Hints are optional. Use them whenever you need them.'
       ],
-      solRepl:['END PGM','; my first Heidenhain program\nEND PGM'],
       starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
-      checks:[
-        {t:'has_comment', label:'Comment added',
-         hint:'Add a line starting with ;'},
-        {t:'begin_end', label:'BEGIN PGM and END PGM are unchanged',
-         hint:'Keep the BEGIN PGM / END PGM lines as they are.'}
-      ]
+      checks:[]
     }
   ]
 },
