@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.866 — desktop F menu placement
+
+- Open the desktop-only F menu below its trigger, preserving its mobile-native
+  selector and click-to-select behavior.
+
 ## v0.865 — desktop F menu and called-LBL status
 
 - Kept the compact native F selector on mobile, while desktop now uses a
