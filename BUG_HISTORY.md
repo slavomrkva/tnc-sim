@@ -51,6 +51,10 @@ student a short interactive first success.
 - Attempt 10 replaced tutorial slide 2's narrow columns with full-width stacked
   Goals, Hint and Check rows. The user accepted the resulting v0.857 preview and
   requested the complete Learn package be merged and ported to Android.
+- Attempt 11 reduced Start here to two direct slides. The first shows only
+  task → editor → Check; the second explains the three progressive Hint levels
+  in text without an image. The accepted five-step coach stayed unchanged. The
+  user accepted v0.860 and requested the web and Android merge.
 
 ## C14 — Revealed hints leaked into a newly opened lesson
 **Repo:** web `tnc-sim`; Android port prepared separately. **Resolved:** web

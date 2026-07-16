@@ -2,62 +2,21 @@
 
 function learnSvgLearningLoop(){
   var cards = [
-    {x:5,   n:'1', title:'READ',    a:'one small', b:'idea', c:'var(--accent)'},
-    {x:90,  n:'2', title:'TRY',     a:'edit real', b:'code', c:'#f0a94a'},
-    {x:175, n:'3', title:'CHECK',   a:'see every', b:'goal', c:'#5dcaa5'},
-    {x:260, n:'4', title:'IMPROVE', a:'hint or', b:'next task', c:'var(--accent)'}
+    {x:10,  n:'1', title:'READ TASK', c:'var(--accent)'},
+    {x:125, n:'2', title:'EDIT CODE', c:'#f0a94a'},
+    {x:240, n:'3', title:'CHECK',     c:'#5dcaa5'}
   ];
   var g = '';
   cards.forEach(function(c, i){
-    g += '<rect x="'+c.x+'" y="28" width="75" height="82" rx="8" fill="rgba(74,158,255,.07)" stroke="'+c.c+'"/>'
-      + '<circle cx="'+(c.x+37.5)+'" cy="48" r="11" fill="'+c.c+'" opacity=".18"/>'
-      + '<text x="'+(c.x+37.5)+'" y="52" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="'+c.c+'">'+c.n+'</text>'
-      + '<text x="'+(c.x+37.5)+'" y="74" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="'+c.c+'">'+c.title+'</text>'
-      + '<text x="'+(c.x+37.5)+'" y="91" text-anchor="middle" font-family="monospace" font-size="9" fill="var(--text3)">'+c.a+'</text>'
-      + '<text x="'+(c.x+37.5)+'" y="103" text-anchor="middle" font-family="monospace" font-size="9" fill="var(--text3)">'+c.b+'</text>';
+    g += '<rect x="'+c.x+'" y="16" width="90" height="54" rx="9" fill="rgba(74,158,255,.07)" stroke="'+c.c+'"/>'
+      + '<text x="'+(c.x+45)+'" y="39" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="'+c.c+'">'+c.n+'</text>'
+      + '<text x="'+(c.x+45)+'" y="58" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="var(--text)">'+c.title+'</text>';
     if(i < cards.length-1){
-      g += '<path d="M'+(c.x+77)+' 69 H'+(c.x+85)+'" stroke="var(--text3)" stroke-width="1.6"/>'
-        + '<path d="M'+(c.x+81)+' 65 l5 4 l-5 4" fill="none" stroke="var(--text3)" stroke-width="1.6"/>';
+      g += '<path d="M'+(c.x+94)+' 43 H'+(c.x+111)+'" stroke="var(--text3)" stroke-width="2"/>'
+        + '<path d="M'+(c.x+105)+' 37 l7 6 l-7 6" fill="none" stroke="var(--text3)" stroke-width="2"/>';
     }
   });
-  return '<svg class="learn-svg" viewBox="0 0 340 125" role="img" aria-label="Lesson loop: read, try, check and improve">'
-    + g
-    + '<text x="170" y="121" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">small steps · instant feedback · progress saved</text>'
-    + '</svg>';
-}
-
-function learnSvgPracticeHelpers(){
-  return '<svg class="learn-svg" viewBox="0 0 340 225" role="img" aria-label="Practice helpers: goals, hints and check">'
-    + '<rect x="10" y="10" width="320" height="58" rx="8" fill="rgba(74,158,255,.07)" stroke="var(--accent)"/>'
-    + '<text x="28" y="36" font-family="monospace" font-size="11.5" font-weight="700" fill="var(--accent)">GOALS</text>'
-    + '<text x="105" y="31" font-family="monospace" font-size="9.5" fill="var(--text3)">See exactly what counts.</text>'
-    + '<text x="105" y="50" font-family="monospace" font-size="9.5" fill="#5dcaa5">Grey before · green after Check.</text>'
-    + '<rect x="10" y="78" width="320" height="58" rx="8" fill="rgba(240,169,74,.07)" stroke="#f0a94a"/>'
-    + '<text x="28" y="112" font-family="monospace" font-size="11.5" font-weight="700" fill="#f0a94a">HINT</text>'
-    + '<text x="105" y="99" font-family="monospace" font-size="9.5" fill="var(--text3)">1 · nudge</text>'
-    + '<text x="105" y="119" font-family="monospace" font-size="9.5" fill="var(--text3)">2 · structure</text>'
-    + '<text x="215" y="119" font-family="monospace" font-size="9.5" fill="var(--text3)">3 · answer</text>'
-    + '<rect x="10" y="146" width="320" height="58" rx="8" fill="rgba(93,202,165,.07)" stroke="#5dcaa5"/>'
-    + '<text x="28" y="180" font-family="monospace" font-size="11.5" font-weight="700" fill="#5dcaa5">CHECK</text>'
-    + '<text x="105" y="167" font-family="monospace" font-size="9.5" fill="var(--text3)">Press anytime.</text>'
-    + '<text x="105" y="187" font-family="monospace" font-size="9.5" fill="var(--text3)">See what failed.</text>'
-    + '<text x="195" y="187" font-family="monospace" font-size="9.5" fill="#5dcaa5">Fix it, then try again.</text>'
-    + '<text x="170" y="220" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">Hints are free. Checking never resets your code.</text>'
-    + '</svg>';
-}
-
-function learnSvgFirstWin(){
-  return '<svg class="learn-svg" viewBox="0 0 340 125" role="img" aria-label="Add a comment, press Check and complete two goals">'
-    + '<rect x="15" y="25" width="185" height="72" rx="7" fill="rgba(74,158,255,.07)" stroke="var(--border)"/>'
-    + '<text x="28" y="48" font-family="monospace" font-size="10" fill="var(--text3)">BEGIN PGM HELLO MM</text>'
-    + '<text x="28" y="68" font-family="monospace" font-size="11" font-weight="700" fill="#f0a94a">; my first program</text>'
-    + '<text x="28" y="88" font-family="monospace" font-size="10" fill="var(--text3)">END PGM HELLO MM</text>'
-    + '<path d="M210 61 H238" stroke="var(--text3)" stroke-width="2"/><path d="M230 55 l9 6 l-9 6" fill="none" stroke="var(--text3)" stroke-width="2"/>'
-    + '<rect x="245" y="28" width="82" height="68" rx="10" fill="rgba(93,202,165,.10)" stroke="#5dcaa5" stroke-width="1.5"/>'
-    + '<text x="286" y="57" text-anchor="middle" font-family="monospace" font-size="20" font-weight="700" fill="#5dcaa5">✓</text>'
-    + '<text x="286" y="79" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#5dcaa5">2 / 2 goals</text>'
-    + '<text x="170" y="118" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">Your first win takes one line.</text>'
-    + '</svg>';
+  return '<svg class="learn-svg" viewBox="0 0 340 86" role="img" aria-label="Read the task, edit the code, then check">'+g+'</svg>';
 }
 
 function learnSvgBlank(dx, dy, dz){

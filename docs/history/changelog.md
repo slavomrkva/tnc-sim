@@ -7,6 +7,25 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.861 — accepted shorter tutorial release
+
+- Recorded user acceptance of the two-slide Start here tutorial and prepared
+  the final web merge plus deliberate Android port.
+- Kept the existing five-step guided coach unchanged.
+
+## v0.860 — direct Hint slide
+
+- Removed the second tutorial diagram and its extra warm-up wording.
+- Made the slide solely explain the three progressive Hint levels and their
+  non-destructive behavior.
+
+## v0.859 — shorter Start here lesson
+
+- Replaced three explanation-heavy tutorial slides with two direct slides:
+  task → editor → Check, followed by the exact comment warm-up.
+- Simplified both tutorial diagrams and shortened the warm-up wording while
+  deliberately keeping the accepted five-step guided coach unchanged.
+
 ## v0.858 — accepted Learn audit release
 
 - Moved the user-accepted Learn audit from TODO into BUG_HISTORY with all ten

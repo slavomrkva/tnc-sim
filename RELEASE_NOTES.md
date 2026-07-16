@@ -10,6 +10,19 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.861
+- Released the accepted shorter Start here lesson: two direct slides, a simple
+  task → editor → Check diagram, and a text-only explanation of progressive
+  hints. The five-step guided tour remains unchanged.
+
+## v0.860 (web test)
+- Replaced the second Start here diagram with a direct explanation of the three
+  progressive Hint levels and confirmed that hints never reset student code.
+
+## v0.859 (web test)
+- Replaced the Start here lesson's three detailed slides with two direct,
+  simpler visuals. The existing five-step guided tour is unchanged.
+
 ## v0.858
 - Released the accepted complete Learn audit: stricter task checking, clearer
   lesson and hint wording, redesigned diagrams and the shorter interactive

@@ -80,36 +80,34 @@ var TOOL_CUT_COLORS = [
 
 var LESSONS = [
 {
-  id:'L00', intro:true, title:'Start here — your first 2 minutes',
+  id:'L00', intro:true, title:'Start here — your first minute',
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p><b>Welcome!</b> Every lesson follows the same short loop. Read one idea, try it in the real editor, check the visible goals, then improve or continue.</p>'
-      + learnSvgLearningLoop()
-      + '<p>The simulator updates while you type, so code and the 3D result stay connected.</p>'; } },
+      + '<p><b>Every lesson works the same way:</b></p>'
+      + learnSvgLearningLoop(); } },
     { html:function(){ return ''
-      + '<p>Practice never hides the rules. These three helpers are available on every task:</p>'
-      + learnSvgPracticeHelpers()
-      + '<p>Use <b>Check</b> early and often — a failed check is feedback, not a penalty.</p>'; } },
-    { html:function(){ return ''
-      + '<p>Let’s make one tiny, safe edit: add a comment. The machine ignores comments, but they make programs easier for people to understand.</p>'
-      + learnSvgFirstWin()
-      + '<p>Your work and progress save automatically. <b>&#9776;</b> returns to all lessons. Start the warm-up below; a short five-step tour will point out the editor, goals, Hint and Check.</p>'; } }
+      + '<p><b>HINT</b></p>'
+      + '<p>Each press reveals one more level of help:</p>'
+      + '<p><b>1 ·</b> a small nudge<br>'
+      + '<b>2 ·</b> the steps to follow<br>'
+      + '<b>3 ·</b> a complete example</p>'
+      + '<p>Hints are free. They never change or reset your code.</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Add one comment of your own before END PGM, then press Check.',
+      prompt:'Add a comment before END PGM, then press Check.',
       hints:[
-        'A comment is a note for people; the control skips it. Comments begin with a semicolon <code>;</code>.',
-        'Click the empty line above <code>END PGM</code>, type <code>;</code>, then add any short message.',
-        'Type this on the empty line before <code>END PGM</code>:<br><code>; my first Heidenhain program</code>'
+        'A comment begins with <code>;</code>.',
+        'Use the empty line above <code>END PGM</code>.',
+        'Type: <code>; my first program</code>'
       ],
       solRepl:['END PGM','; my first Heidenhain program\nEND PGM'],
       starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
       checks:[
-        {t:'has_comment', label:'Your program contains a comment after ;',
-         hint:'Add a line that starts with ; — e.g.  ; my first program'},
-        {t:'begin_end', label:'Program still opens and closes correctly',
+        {t:'has_comment', label:'Comment added',
+         hint:'Add a line starting with ;'},
+        {t:'begin_end', label:'BEGIN PGM and END PGM are unchanged',
          hint:'Keep the BEGIN PGM / END PGM lines as they are.'}
       ]
     }
