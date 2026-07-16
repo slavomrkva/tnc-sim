@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.864 (web test)
+- Reworked the first Start here lesson into three concise orientation slides,
+  with a visual preview of Hint 1–3 and an ungraded editor walkthrough.
+
 ## v0.863
 - Corrected cycles 200, 201, 208 and 209 for zero/positive depths, safe final
   retracts, feeds, dwell behavior, spindle direction and tapping parameters.

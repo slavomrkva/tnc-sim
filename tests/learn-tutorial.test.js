@@ -30,6 +30,17 @@ function solutionFor(task){
   return null;
 }
 
+const intro = context.LESSONS.find(lesson => lesson.id === 'L00');
+assert.strictEqual(intro.slides.length, 3, 'Start here has three information slides');
+assert.match(intro.slides[0].html(), /theory you will need for the test/);
+assert.match(intro.slides[1].html(), /Each press reveals the next level of help/);
+assert.match(intro.slides[1].html(), /Hint 1[\s\S]*Hint 2[\s\S]*Hint 3/, 'Hint levels render in order');
+assert.match(intro.slides[2].html(), /real editor/);
+assert.strictEqual(intro.tasks[0].prompt, 'Your challenge appears here. Complete it in the editor and press Check');
+assert.strictEqual(intro.tasks[0].checks.length, 0, 'Start here is not a graded task');
+assert.strictEqual(solutionFor(intro.tasks[0]), null, 'Start here has no solution');
+assert.match(read('core/data-tables.js'), /Switch between the Editor and 3D view at any time/);
+
 for(const lesson of context.LESSONS){
   for(let i=0; i<lesson.tasks.length; i++){
     const task = lesson.tasks[i];
