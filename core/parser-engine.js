@@ -103,6 +103,18 @@ function checkRadiusVsTool(r, lineIdx, lines){
   return null;
 }
 
+// Parser tests and lightweight embeds can load this module without the full
+// Tool Table UI module, so keep a small compatibility resolver here.
+function resolveParserToolCall(n){
+  if(typeof resolveToolCall==='function') return resolveToolCall(n);
+  var requested=typeof getToolByNum==='function' ? getToolByNum(n) : null;
+  if(!requested) return {requested:n,tool:null,toolNum:n,replacement:false,locked:false};
+  if(!requested.TL) return {requested:n,tool:requested,toolNum:n,replacement:false,locked:false};
+  var replacement=requested.RT && typeof getToolByNum==='function' ? getToolByNum(requested.RT) : null;
+  if(replacement && replacement.T===requested.RT && !replacement.TL) return {requested:n,tool:replacement,toolNum:replacement.T,replacement:true,locked:true};
+  return {requested:n,tool:requested,toolNum:n,replacement:false,locked:true};
+}
+
 function validateProgram(code){
   // Real Heidenhain .H files (as exported by the control) prefix every block
   // with its block number, e.g. "12 TOOL CALL 5 Z S2000". Strip it so all the
@@ -267,7 +279,15 @@ function validateProgram(code){
         probs.push({line:srcI,sev:'warn',msg:'Spindle speed S missing in TOOL CALL'});
       hasToolCall=true; toolCallLine=srcI;
       valToolCallPendingSpindle=true;
-      var _tm=u.match(/TOOL CALL (\d+)/); if(_tm) valToolNum=parseInt(_tm[1]);
+      var _tm=u.match(/TOOL CALL (\d+)/);
+      if(_tm){
+        var _requestedTool=parseInt(_tm[1]);
+        var _resolvedTool=resolveParserToolCall(_requestedTool);
+        valToolNum=_resolvedTool.toolNum;
+        if(!_resolvedTool.tool) probs.push({line:srcI,sev:'err',msg:'Tool T'+_requestedTool+' is missing from the Tool Table'});
+        else if(_resolvedTool.locked&&!_resolvedTool.replacement) probs.push({line:srcI,sev:'err',msg:'Tool T'+_requestedTool+' is locked and has no available replacement tool'});
+        else if(_resolvedTool.replacement) probs.push({line:srcI,sev:'warn',msg:'Tool T'+_requestedTool+' is locked — replacement T'+_resolvedTool.toolNum+' will be used'});
+      }
 
     // ── TOOL DEF ──
     } else if(u.indexOf('TOOL DEF')===0){
@@ -1125,9 +1145,12 @@ function parseProgram(code){
     else if(line.indexOf('TOOL CALL')===0){
       flushPending(); pendingDefTool=0;
       spindleOn=false; coolantOn=false;
-      var tn=line.match(/TOOL CALL (\d+)/); if(tn) toolNum=parseInt(tn[1]);
+      var tn=line.match(/TOOL CALL (\d+)/);
+      var requestedToolNum=tn ? parseInt(tn[1]) : toolNum;
+      var resolvedTool=resolveParserToolCall(requestedToolNum);
+      toolNum=resolvedTool.toolNum;
       // Add to GOTO list with current sub[] index
-      toolCallList.push({toolNum:toolNum, lineNum:srcLineI, subIdx:sub.length});
+      toolCallList.push({toolNum:toolNum, requestedToolNum:requestedToolNum, lineNum:srcLineI, subIdx:sub.length});
       var tf=line.match(/\bF(\d+)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; toolCallFeed=feed; }
       var ts=line.match(/\bS(\d+)/); if(ts) spindleS=parseInt(ts[1]);
       // DL/DR overrides from TOOL CALL line (override tool table values)
@@ -1721,7 +1744,6 @@ function resetState(){
   var _tb=document.getElementById('activeToolBadge'); if(_tb){ _tb.style.display='none'; }
   clearSimInfoPanel();
   activeSrcLine=-1; highlightActiveLine(-1);
-  toolLibrary.forEach(function(t){ t.CUR_TIME=0; t.TL=false; });
   if(typeof curView!=='undefined' && curView==='tools') renderToolsTab();
   // sync currentToolNum and tool mesh with program's first TOOL CALL
   if(sub && sub.length){

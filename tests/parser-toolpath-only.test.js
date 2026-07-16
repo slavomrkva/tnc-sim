@@ -53,4 +53,25 @@ END PGM ${name} MM`;
   assert.deepStrictEqual(JSON.parse(JSON.stringify(parsed.viewMax)), {x:100,y:80,z:0});
 }
 
+{
+  const tools = {
+    1: {T:1, TYPE:'MILL', R:5, R2:0, DR:0, DR2:0, DL:0, TL:true, RT:2},
+    2: {T:2, TYPE:'MILL', R:4, R2:0, DR:0, DR2:0, DL:0, TL:false, RT:0}
+  };
+  context.getToolByNum = number => tools[number] || null;
+  const replacementProgram = program('REPLACE', '');
+  const replacementProblems = context.validateProgram(replacementProgram);
+  assert.ok(replacementProblems.some(p => p.sev === 'warn' && /replacement T2/.test(p.msg)));
+  assert.ok(!replacementProblems.some(p => p.sev === 'err' && /locked/.test(p.msg)));
+  const parsed = context.parseProgram(replacementProgram);
+  assert.ok(parsed.sub.some(segment => segment.toolNum === 2), 'locked T1 must execute with replacement T2');
+
+  tools[2].TL = true;
+  const lockedProblems = context.validateProgram(replacementProgram);
+  assert.ok(lockedProblems.some(p => p.sev === 'err' && /no available replacement/.test(p.msg)));
+
+  const missingProblems = context.validateProgram(replacementProgram.replace('TOOL CALL 1', 'TOOL CALL 99'));
+  assert.ok(missingProblems.some(p => p.sev === 'err' && /missing from the Tool Table/.test(p.msg)));
+}
+
 console.log('parser toolpath-only regression tests passed');

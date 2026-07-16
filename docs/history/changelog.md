@@ -7,6 +7,16 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.862 — Tool Table audit fixes
+
+- Added one validation path for CRUD and imported tools, transactional `.tnt`
+  import, duplicate-T protection, HTML escaping and complete simulation-state
+  invalidation after table changes.
+- Preserved valid zero values, kept RT references consistent across renames and
+  deletes, and implemented TL/RT replacement plus TIME2 locking semantics.
+- Added focused Tool Table and parser regressions covering CRUD, import/export,
+  invalid input, active radius refresh, locked tools and replacements.
+
 ## v0.861 — accepted shorter tutorial release
 
 - Recorded user acceptance of the two-slide Start here tutorial and prepared
