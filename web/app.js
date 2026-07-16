@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.862';
+var APP_VERSION = '0.863';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -298,9 +298,11 @@ var HELP_MAP = {
   'tt-DR':      {title:'DR — Radius oversize (mm)', desc:'Table DR = physical oversize of the real MILL tool (cuts wider). DR in a TOOL CALL = programmed allowance, ADDED to the table value; it offsets only the tool PATH (RL/RR, cycles) while the physical cut stays the same — e.g. TOOL CALL DR+0.2 leaves 0.2 mm finishing stock on the wall, exactly like the real control. DRILL/REAMER: never reshapes the cut. COUNTERSINK: does NOT reshape the cone — path offset only (RL/RR, CYCL DEF 208). Pair with DL = -DR/tan(T-ANGLE/2) so the cone\u2019s own edge meets that offset path.', ex:'TOOL CALL 1 Z S3000 F800 DR+0.1'},
   'tt-DR2':     {title:'DR2 — R2 oversize (mm)', desc:'Delta value added to the corner radius R2 — the same idea as DR, but for the rounded corner of a toroidal / ball-nose cutter.', ex:''},
   'tt-CUT':     {title:'CUT — Number of teeth', desc:'Reference number of cutting edges (flutes). It is stored and exported but does not change calculations or cut geometry in the simulator.', ex:''},
+  'tt-RCUTS':   {title:'RCUTS — Center-cutting teeth', desc:'Number of cutting edges that reach the tool center. Cycle 208 permits direct axial boring only when RCUTS is greater than 0.', ex:''},
   'tt-LCUTS':   {title:'LCUTS — Tooth length (mm)', desc:'MILL: cutting-edge length along the tool axis — how far up the flutes cut (full ball-nose auto-uses R2). DRILL/REAMER: the real cutting/flute height — purely informational, no link to R or T-ANGLE (rule of thumb: ~6\u00d7 diameter for a standard drill). COUNTERSINK: required, together with T-ANGLE — sets the tool\u2019s max diameter for simulation: \u00d8 = 2\u00d7LCUTS\u00d7tan(T-ANGLE/2), measured from the imaginary sharp apex (independent of R).', ex:''},
-  'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Reference maximum plunge / ramp-in angle for the tool. It is stored and exported; the simulator does not alter the programmed path from this value.', ex:''},
+  'tt-ANGLE':   {title:'ANGLE — Max ramp angle (°)', desc:'Maximum helical plunge / ramp-in angle. In Cycle 208 a non-zero value limits the programmed Q334 descent per revolution.', ex:''},
   'tt-TANGLE':  {title:'T-ANGLE — Tool point angle (°)', desc:'Full included angle of a pointed tool tip — drill 118° (default for new DRILL tools), center drill 142°, countersink/chamfer — any angle (required, together with LCUTS). 0 disables the conical tip (flat end mill / ball nose). DRILL: point widens up to the real R, then a constant-R shank. COUNTERSINK: widens from R (usually \u22480.001) up to the LCUTS-derived max diameter.', ex:''},
+  'tt-PITCH':   {title:'PITCH — Thread pitch (mm)', desc:'Optional Tool Table pitch for taps. When non-zero, Cycle 209 requires |Q239| to match it before generating a synchronized tapping path.', ex:'PITCH 1.25 for an M8×1.25 tap'},
   'tt-TL':      {title:'TL — Tool locked', desc:'When set, TOOL CALL cannot use this tool. If RT names an unlocked replacement, the simulator uses it automatically; otherwise validation stops the run.', ex:''},
   'tt-RT':      {title:'RT — Replacement tool', desc:'Tool number of an unlocked twin / sister tool used automatically when this tool is locked. 0 = no replacement.', ex:''},
   'tt-TIME2':   {title:'TIME2 — Tool life limit (min)', desc:'Cutting-time limit for the completed simulation. Reaching it locks the tool for the next run. 0 = no limit.', ex:''},
@@ -402,13 +404,13 @@ var ALL_KEYS=[];
 
 // ── Tool library ──────────────────────────────────────────────────
 var toolLibrary = [
-  {T:1, TYPE:'MILL',        NAME:'END_MILL_D10', L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'End mill D10'},
-  {T:2, TYPE:'MILL',        NAME:'BALL_MILL_D8', L:70,  R:4,   R2:4, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:4,    ANGLE:0, T_ANGLE:0,   DOC:'Ball nose D8 (R4)'},
-  {T:3, TYPE:'DRILL',       NAME:'CENTER_D6',    L:60,  R:3,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:8,    ANGLE:0, T_ANGLE:142, DOC:'Center drill D6 142°'},
-  {T:4, TYPE:'DRILL',       NAME:'DRILL_D6_8',   L:100, R:3.4, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:40.8, ANGLE:0, T_ANGLE:118, DOC:'Drill D6.8 118°'},
-  {T:5, TYPE:'COUNTERSINK', NAME:'CSINK_D8_90',  L:60,  R:0.001, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, LCUTS:4, ANGLE:0, T_ANGLE:90,  DOC:'Countersink D8 90° (tip ref)'},
-  {T:6, TYPE:'DRILL',       NAME:'REAMER_7H7',   L:100, R:3.5, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:6, LCUTS:25,   ANGLE:0, T_ANGLE:0,   DOC:'Reamer 7H7 D7'},
-  {T:7, TYPE:'DRILL',       NAME:'TAP_M8',       L:80,  R:4,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, LCUTS:18,   ANGLE:0, T_ANGLE:0,   DOC:'Tap M8x1.25'},
+  {T:1, TYPE:'MILL',        NAME:'END_MILL_D10', L:80,  R:5,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, RCUTS:4, LCUTS:30,    ANGLE:0, T_ANGLE:0,   DOC:'End mill D10'},
+  {T:2, TYPE:'MILL',        NAME:'BALL_MILL_D8', L:70,  R:4,   R2:4, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, RCUTS:2, LCUTS:4,    ANGLE:0, T_ANGLE:0,   DOC:'Ball nose D8 (R4)'},
+  {T:3, TYPE:'DRILL',       NAME:'CENTER_D6',    L:60,  R:3,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, RCUTS:2, LCUTS:8,    ANGLE:0, T_ANGLE:142, DOC:'Center drill D6 142°'},
+  {T:4, TYPE:'DRILL',       NAME:'DRILL_D6_8',   L:100, R:3.4, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, RCUTS:2, LCUTS:40.8, ANGLE:0, T_ANGLE:118, DOC:'Drill D6.8 118°'},
+  {T:5, TYPE:'COUNTERSINK', NAME:'CSINK_D8_90',  L:60,  R:0.001, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:4, RCUTS:4, LCUTS:4, ANGLE:0, T_ANGLE:90,  DOC:'Countersink D8 90° (tip ref)'},
+  {T:6, TYPE:'DRILL',       NAME:'REAMER_7H7',   L:100, R:3.5, R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:6, RCUTS:0, LCUTS:25,   ANGLE:0, T_ANGLE:0,   DOC:'Reamer 7H7 D7'},
+  {T:7, TYPE:'DRILL',       NAME:'TAP_M8',       L:80,  R:4,   R2:0, DL:0, DR:0, DR2:0, TL:false, RT:0, TIME2:0, CUR_TIME:0, CUT:2, RCUTS:0, LCUTS:18,   ANGLE:0, T_ANGLE:0, PITCH:1.25, DOC:'Tap M8x1.25'},
 ];
 var TOOL_R = 5;
 var TOOL_NUM = 1;
@@ -593,7 +595,7 @@ var DEFAULT_CODE = codeEl ? codeEl.value : '';
 // To add more demos later, push { name:'...', code:'...' } onto this array.
 var DEMO_PROGRAMS = [
   { name: 'Complete Part', code: DEFAULT_CODE },
-  { name: 'Angle Mill', code: 'BEGIN PGM PROGRAM MM\n; Angle Mill - 30deg ramp, two passes\n; T1: end mill roughs a 22-step staircase approximating the ramp (X=Q2 0..21, Z=Q1),\n;     DL+0.2 leaves 0.2mm stock on the face for finishing.\n; T2: ball nose (R2=4) reuses the SAME staircase macro. DL-0.536 DR-2 shift the ball\n;     tip/center so it is exactly tangent to the ideal 30deg plane at each step\n;     (no gouge, no leftover stock) - see DL=-R2*(1-cos A), DR=-R2*(1-sin A).\n; Note: the milled surface still looks stepped/staircase in the 3D view because of\n;     the simulation resolution limit (voxel grid size), not the toolpath itself.\nBLK FORM 0.1 Z X+0.5 Y+0 Z+0\nBLK FORM 0.2 X+50 Y+50 Z+20\nCALL LBL 0\nTOOL CALL 1 Z S10000 F5000 DL+0.2 ; T1 end mill - roughing pass\nM8\nM3\nQ1=+10 ; Z start depth\nQ2=+0 ; X start position\nL X-10 Y-10 Z+40 FMAX R0\nLBL 1 ; one ramp step: plunge, cut across Y, retract, return\nL X+Q2 Y-10 Z+Q1 FMAX RL\nL Y+60\nL Z+40 FMAX R0\nL Y-10 FMAX\nQ1 = Q1+0,5774 ; tan(30deg) Z step -> exact 30deg slope\nQ2 = Q2+1 ; 1mm X step\nLBL 0\nCALL LBL 1 REP 21 ; 22 steps total (X=0..21)\nTOOL CALL 2 Z S2000 F5000 DL-0.536 DR-2 ; T2 ball nose - contact-point corrected finishing pass\nM3\nM8\nL X-10 Y-10 Z+40 FMAX R0\nQ1=+10\nQ2=+0\nCALL LBL 1 REP 21\nEND PGM PROGRAM MM' }
+  { name: 'Angle Mill', code: 'BEGIN PGM PROGRAM MM\n; Angle Mill - 30deg ramp, two passes\n; T1: end mill roughs a 22-step staircase approximating the ramp (X=Q2 0..21, Z=Q1),\n;     DL+0.2 leaves 0.2mm stock on the face for finishing.\n; T2: ball nose (R2=4) reuses the SAME staircase macro. DL-0.536 DR-2 shift the ball\n;     tip/center so it is exactly tangent to the ideal 30deg plane at each step\n;     (no gouge, no leftover stock) - see DL=-R2*(1-cos A), DR=-R2*(1-sin A).\n; Note: the milled surface still looks stepped/staircase in the 3D view because of\n;     the simulation resolution limit (voxel grid size), not the toolpath itself.\nBLK FORM 0.1 Z X+0.5 Y+0 Z+0\nBLK FORM 0.2 X+50 Y+50 Z+20\nTOOL CALL 1 Z S10000 F5000 DL+0.2 ; T1 end mill - roughing pass\nM8\nM3\nQ1=+10 ; Z start depth\nQ2=+0 ; X start position\nL X-10 Y-10 Z+40 FMAX R0\nLBL 1 ; one ramp step: plunge, cut across Y, retract, return\nL X+Q2 Y-10 Z+Q1 FMAX RL\nL Y+60\nL Z+40 FMAX R0\nL Y-10 FMAX\nQ1 = Q1+0,5774 ; tan(30deg) Z step -> exact 30deg slope\nQ2 = Q2+1 ; 1mm X step\nLBL 0\nCALL LBL 1 REP 21 ; 22 steps total (X=0..21)\nTOOL CALL 2 Z S2000 F5000 DL-0.536 DR-2 ; T2 ball nose - contact-point corrected finishing pass\nM3\nM8\nL X-10 Y-10 Z+40 FMAX R0\nQ1=+10\nQ2=+0\nCALL LBL 1 REP 22\nEND PGM PROGRAM MM' }
 ].concat(typeof EXTRA_DEMO_PROGRAMS!=='undefined' ? EXTRA_DEMO_PROGRAMS : []);
 var _currentDemoIdx = 0; // textarea starts out as DEMO_PROGRAMS[0] ("Complete Part")
 

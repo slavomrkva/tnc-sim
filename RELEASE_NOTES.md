@@ -10,6 +10,15 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.863
+- Corrected cycles 200, 201, 208 and 209 for zero/positive depths, safe final
+  retracts, feeds, dwell behavior, spindle direction and tapping parameters.
+- Reworked Cycle 208 and RL/RR/R0 cutting paths, including countersink DR,
+  centre-before-retract motion, small effective radii and valid rounded corners.
+- Invalid or unsupported Heidenhain blocks now appear in Problems and block the
+  run instead of being silently ignored; Complete Part and Angle Mill execute
+  their full intended toolpaths.
+
 ## v0.862 (web test)
 - Repaired Tool Table add/edit/delete state handling, strict parameter checks,
   safe transactional import and duplicate-number protection.

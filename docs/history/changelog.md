@@ -138,3 +138,12 @@ History through v0.845 is preserved in
 - Replaced the growing root project notes with a concise current contract,
   archived the complete former notes, and routed future technical entries here.
 - Tightened `CLAUDE.md` session routing so history is loaded only when relevant.
+## v0.863 — 2026-07-16
+- Accepted and released the C18 Heidenhain cycle/cutting/validator audit: fixed
+  A1–A5 and R1, completed cycle 200/201/208/209 behavior, DL/DR plus RL/RR/R0
+  state/geometry, and explicit parser diagnostics for rejected toolpaths.
+- Replaced broad radius assumptions with effective-radius and source-primitive
+  geometry checks; Complete Part no longer loses valid L blocks and Angle Mill
+  validates with 22 roughing plus 22 finishing strips.
+- Added full validator/parser regressions, returned dynamic problems to the
+  editor, refreshed graphify, and advanced the offline cache to v39.
