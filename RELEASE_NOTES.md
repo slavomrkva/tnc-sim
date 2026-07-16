@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.861
+- Released the accepted shorter Start here lesson: two direct slides, a simple
+  task → editor → Check diagram, and a text-only explanation of progressive
+  hints. The five-step guided tour remains unchanged.
+
 ## v0.860 (web test)
 - Replaced the second Start here diagram with a direct explanation of the three
   progressive Hint levels and confirmed that hints never reset student code.

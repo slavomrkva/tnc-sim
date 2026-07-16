@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.861 — accepted shorter tutorial release
+
+- Recorded user acceptance of the two-slide Start here tutorial and prepared
+  the final web merge plus deliberate Android port.
+- Kept the existing five-step guided coach unchanged.
+
 ## v0.860 — direct Hint slide
 
 - Removed the second tutorial diagram and its extra warm-up wording.
