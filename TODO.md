@@ -8,24 +8,6 @@
 
 ## Open bugs
 
-## C18 — Desktop F menu closes before a feed option can be chosen; called LBL is blank
-**Reported:** 2026-07-16. **Repro:** current GitHub main v0.864, web desktop.
-### Symptom
-In field editing of an `L` block, the F menu closes when the mouse button is
-released instead of waiting for FMAX, FAUTO, Q or Skip to be chosen. During an
-expanded `CALL LBL`, the 3D status panel displays `LBL —`.
-### Attempts
-- Attempt 1 — traced the F behavior to the compact native selector added for
-  mobile layout, and reproduced the LBL status loss with a VM parser harness.
-- Attempt 2 — web v0.865 keeps the native selector on mobile and uses a
-  persistent desktop menu; `CALL LBL` now resolves its explicit target for the
-  status panel. Added focused regressions.
-- Attempt 3 — after user verification, moved the desktop menu below the F
-  value in web v0.866. The mobile-native selector remains unchanged.
-### Status
-Web v0.866 is ready for user verification. Do not port to Android or merge
-until the web preview is accepted.
-
 ## C17 — Tool Table CRUD, parameters and import/export audit
 **Reported:** 2026-07-16. **Repro:** current GitHub main v0.861, shared with
 Android APP_VERSION 1.0.43.

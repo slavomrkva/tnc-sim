@@ -15,6 +15,24 @@ Newest first.
 
 ---
 
+## C19 — Desktop F menu closed prematurely; CALL LBL status was blank
+**Repos:** web `tnc-sim` v0.866 and Android `tnc-sim-android` (LBL status only).
+**Resolved/accepted:** 2026-07-16 after web preview verification.
+
+### Symptom and root cause
+The compact native F selector closed on desktop when the mouse button was released.
+It had been introduced to prevent the mobile F controls from wrapping. Expanded
+`CALL LBL n` segments retain the CALL source line for editor highlighting, so the
+status panel had lost the called LBL number.
+
+### Accepted fix and verification
+- Mobile keeps its native F selector. Desktop uses a click-to-open menu below
+  the F value, which stays open until selection, Escape or an outside click.
+- The LBL resolver recognizes `CALL LBL n` at the segment source line before
+  scanning surrounding label definitions, preserving status and highlighting.
+- Focused desktop/mobile menu and LBL-status regressions passed with all bundled
+  web JavaScript tests. The Android LBL-status port is recorded in Android C19.
+
 ## C18 — Heidenhain cycles, cutting logic and validator audit
 **Repos:** web `tnc-sim`; accepted implementation ported separately to Android.
 **Resolved/accepted:** 2026-07-16 in web v0.863 after the user ran all bundled
