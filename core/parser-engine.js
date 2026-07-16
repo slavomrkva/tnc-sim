@@ -2482,6 +2482,12 @@ function commitSeg(sm){
 function getLblAtLine(srcLine){
   if(!codeEl) return null;
   var lines = codeEl.value.split('\n');
+  // Expanded CALL LBL body blocks deliberately point at the CALL line so the
+  // editor highlights the instruction that started the subprogram. That line
+  // is outside the LBL body, therefore recover its explicit target first.
+  var source=(lines[srcLine]||'').trim().replace(/;.*$/,'').trim().toUpperCase();
+  var call=source.match(/^CALL\s+LBL\s+(\d+)/);
+  if(call) return call[1];
   var activeLbl = null;
   for(var i=0; i<=Math.min(srcLine, lines.length-1); i++){
     var u = lines[i].trim().replace(/;.*$/,'').trim().toUpperCase();

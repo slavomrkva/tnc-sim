@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.865 — desktop F menu and called-LBL status
+
+- Kept the compact native F selector on mobile, while desktop now uses a
+  persistent click-to-open menu that closes only after a choice, Escape or an
+  outside click.
+- Made simulation LBL status recognize expanded `CALL LBL` segments without
+  changing their existing editor-line highlighting; added focused regressions.
+
 ## v0.864 — first tutorial orientation lesson
 
 - Ported only `L00` Start here from the older preview branch onto the current

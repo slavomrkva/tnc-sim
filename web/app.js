@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.864';
+var APP_VERSION = '0.865';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -888,6 +888,7 @@ codeEl.addEventListener('scroll', function(){
 document.addEventListener('keydown', function(e){
   if(!FM.active) return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA'&&e.target!==codeEl) return;
+  if(_feedMenuOpen && e.key==='Escape'){ e.preventDefault(); closeFeedMenu(); return; }
   // ak je označený viac ako jeden znak, exit field mode a nechaj browser mazať normálne
   if(codeEl.selectionStart !== codeEl.selectionEnd &&
      (e.key==='Delete' || e.key==='Backspace')) {
