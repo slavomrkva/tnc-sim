@@ -53,7 +53,7 @@ function updateLineNums(){
     html += '<div class="'+cls+'"><button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>'+numLabel+'</div>';
   }
   lineNums.innerHTML = '<div style="padding:10px 0 200px;">' + html + '</div>';
-  blockCountEl.textContent = lines.length + ' blocks';
+  blockCountEl.textContent = lines.length + ' ' + t('editor.blocks', 'blocks');
   var _progTitleEl = document.getElementById('progTitleName');
   if(_progTitleEl) _progTitleEl.textContent = _progFileName(codeEl.value);
   // restore highlights

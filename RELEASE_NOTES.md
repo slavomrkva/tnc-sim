@@ -10,6 +10,22 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.873 (web test)
+- SEO: title/description/OG/JSON-LD teraz spomínajú nemčinu (Deutsch) a opravený počet lekcií (15→16).
+
+## v0.872 (web test)
+- Preložené okno „About" (popis aplikácie, tlačidlá GitHub / Fehler melden / Kaffee).
+
+## v0.871 (web test)
+- Q335 sa v nemeckom preklade správne volá „SOLL-Durchmesser" (namiesto „Nenndurchmesser").
+- Prepínač jazyka teraz ukazuje jazyk, na ktorý prepnete, nie aktuálny (anglická stránka zobrazuje „DE", nemecká „EN").
+
+## v0.870 (web test)
+- Nemecký preklad rozšírený o komentáre v demo programoch, zoznam M-funkcií (M list), automaticky vkladané komentáre pri výbere M-funkcie a komentáre pri všetkých parametroch cyklov (CYCL DEF / Q-parametre). Klartext ostáva nepreložený.
+
+## v0.869 (web test)
+- Nemecká jazyková verzia — prepínač EN/DE, celé UI, Help/Tool Table tooltipy a všetkých 16 Learn lekcií.
+
 ## v0.868
 - Corrected TNC 640 RL/RR tool-centre geometry for supported L, C, CC, CR, CT, CP, RND and CHF contours, removing false radius errors on valid paths.
 - While completing an L block, interim RL/RR diagnostics are now one orange notice rather than multiple blocking errors.

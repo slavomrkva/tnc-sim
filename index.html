@@ -9,35 +9,37 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<title>TNC Sim — Free online Heidenhain TNC simulator with lessons</title>
-<meta name="description" content="Free browser-based Heidenhain TNC simulator with 3D toolpath visualization and 15 interactive Klartext programming lessons — from the basics to full contours and cycles. Works on desktop and mobile. No installation, open source.">
-<meta name="keywords" content="heidenhain online simulator, tnc simulator online, heidenhain tnc programming online, learn heidenhain programming, heidenhain tutorial, heidenhain klartext tutorial, heidenhain programming lessons, cnc heidenhain online, tnc640 online, heidenhain simulator free, tnc programming simulator, cnc simulator online free, cnc simulator mobile, heidenhain simulator phone, 3d cnc simulator">
+<title>TNC Sim — Free Heidenhain TNC Simulator (English &amp; Deutsch)</title>
+<meta name="description" content="Free browser-based Heidenhain TNC simulator with 3D toolpath visualization and 16 interactive Klartext programming lessons — from the basics to full contours and cycles. Now available in English and German (Deutsch) — kostenloser TNC-Simulator zum Programmieren lernen, direkt im Browser. Works on desktop and mobile, no installation, open source.">
+<meta name="keywords" content="heidenhain online simulator, tnc simulator online, heidenhain tnc programming online, learn heidenhain programming, heidenhain tutorial, heidenhain klartext tutorial, heidenhain programming lessons, cnc heidenhain online, tnc640 online, heidenhain simulator free, tnc programming simulator, cnc simulator online free, cnc simulator mobile, heidenhain simulator phone, 3d cnc simulator, heidenhain simulator kostenlos, tnc simulator deutsch, heidenhain programmieren lernen, cnc simulator deutsch, heidenhain klartext deutsch">
 <meta name="author" content="slavomrkva">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://tncsim.org/">
-<meta property="og:title" content="TNC Sim — Free online Heidenhain TNC simulator with lessons">
-<meta property="og:description" content="Free Heidenhain TNC simulator with 3D visualization and 15 interactive Klartext programming lessons. Works on desktop and mobile. No installation needed.">
+<meta property="og:title" content="TNC Sim — Free Heidenhain TNC Simulator (English & Deutsch)">
+<meta property="og:description" content="Free Heidenhain TNC simulator with 3D visualization and 16 interactive Klartext lessons — now available in English and German (Deutsch). Works on desktop and mobile.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tncsim.org/">
 <meta property="og:image" content="https://tncsim.org/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TNC Sim — Free online Heidenhain TNC simulator with lessons">
-<meta name="twitter:description" content="Free Heidenhain TNC simulator with 3D visualization and 15 interactive Klartext lessons. Runs on desktop and mobile.">
+<meta name="twitter:title" content="TNC Sim — Free Heidenhain TNC Simulator (English & Deutsch)">
+<meta name="twitter:description" content="Free Heidenhain TNC simulator with 3D visualization and 16 interactive Klartext lessons — now available in English and German (Deutsch). Runs on desktop and mobile.">
 <meta name="twitter:image" content="https://tncsim.org/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "TNC Sim — CNC simulator compatible with Heidenhain TNC",
-  "description": "Free browser-based Heidenhain TNC simulator with 3D toolpath visualization and 15 interactive Klartext programming lessons. Works on desktop and mobile.",
+  "description": "Free browser-based Heidenhain TNC simulator with 3D toolpath visualization and 16 interactive Klartext programming lessons. Available in English and German. Works on desktop and mobile.",
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web Browser",
+  "inLanguage": ["en", "de"],
   "featureList": [
     "3D toolpath simulation",
     "Heidenhain Klartext editor",
-    "15 interactive programming lessons",
+    "16 interactive programming lessons",
+    "English and German (Deutsch) interface",
     "Runs on desktop and mobile",
     "No installation, open source"
   ],
@@ -49,6 +51,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="web/styles.css">
+<script src="web/i18n.js"></script>
 <script>
   // Apply saved theme before the page paints, to avoid a flash of the wrong theme.
   try{
@@ -66,14 +69,15 @@
     <div class="logo-icon"><svg width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="34" height="34" rx="6" fill="var(--accent)"/><line x1="8" y1="11" x2="26" y2="11" stroke="rgba(255,255,255,.3)" stroke-width="1"/><line x1="8" y1="17" x2="26" y2="17" stroke="rgba(255,255,255,.3)" stroke-width="1"/><line x1="8" y1="23" x2="26" y2="23" stroke="rgba(255,255,255,.3)" stroke-width="1"/><line x1="11" y1="8" x2="11" y2="26" stroke="rgba(255,255,255,.3)" stroke-width="1"/><line x1="17" y1="8" x2="17" y2="26" stroke="rgba(255,255,255,.3)" stroke-width="1"/><line x1="23" y1="8" x2="23" y2="26" stroke="rgba(255,255,255,.3)" stroke-width="1"/><circle cx="17" cy="17" r="4" fill="white"/><circle cx="17" cy="17" r="1.5" fill="var(--accent)"/></svg></div>
     <div>
       <div class="logo-text">TNC Sim</div>
-      <div class="logo-sub">Online CNC simulator for Heidenhain TNC</div>
+      <div class="logo-sub" data-i18n="logo.sub">Online CNC simulator for Heidenhain TNC</div>
     </div>
   </div>
   <div class="header-badges">
-    <button id="themeToggle" onclick="toggleTheme()" title="Toggle dark / light mode" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">
+    <button id="langToggle" onclick="I18N.cycleLang()" title="Language / Sprache" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;"><span id="langLabel">EN</span></button>
+    <button id="themeToggle" onclick="toggleTheme()" title="Toggle dark / light mode" data-i18n-title="theme.title" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">
       <span id="themeIcon">&#9789;</span><span id="themeLabel">Dark</span>
     </button>
-    <button id="aboutBtn" onclick="openAboutPopup()" title="About TNC Sim" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">&#9432; About</button>
+    <button id="aboutBtn" onclick="openAboutPopup()" title="About TNC Sim" data-i18n-title="about.title" data-i18n-html="about.label" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">&#9432; About</button>
     <span class="badge green">● live</span>
     <span class="badge" id="verBadge">v0.8 · 3D</span>
   </div>
@@ -87,11 +91,11 @@
       <div class="panel-header">
         <span class="ph-title"><span class="dot"></span> <span id="progTitleName">program.H</span></span>
         <span style="display:flex;align-items:center;gap:8px;">
-          <button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners">Learn</button>
-          <button id="kpHelpBtn" class="ph-btn" onclick="toggleKpHelp()" title="Context help">Help</button>
-          <button id="mCodesBtn" class="ph-btn" onclick="openMCodesList()" title="List all defined M functions">M list</button>
-          <button class="ph-btn" onclick="exportProgram()" data-help="export" title="Download program.H">Export</button>
-          <button class="ph-btn" onclick="importProgram()" title="Load .H program file">Import</button>
+          <button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners" data-i18n-title="panel.learnTitle" data-i18n="panel.learn">Learn</button>
+          <button id="kpHelpBtn" class="ph-btn" onclick="toggleKpHelp()" title="Context help" data-i18n-title="panel.helpTitle" data-i18n="panel.help">Help</button>
+          <button id="mCodesBtn" class="ph-btn" onclick="openMCodesList()" title="List all defined M functions" data-i18n-title="panel.mlistTitle" data-i18n="panel.mlist">M list</button>
+          <button class="ph-btn" onclick="exportProgram()" data-help="export" title="Download program.H" data-i18n-title="panel.exportTitle" data-i18n="panel.export">Export</button>
+          <button class="ph-btn" onclick="importProgram()" title="Load .H program file" data-i18n-title="panel.importTitle" data-i18n="panel.import">Import</button>
           <input type="file" id="importFileInput" accept="text/plain,.h,.H,.nc,.txt,.tap,.cnc" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onImportFile(event)">
           <span id="blockCount" class="ph-blocks">0 blocks</span>
         </span>
@@ -326,22 +330,22 @@ END PGM PROGRAM MM</textarea>
 
     <div class="canvas-panel">
       <div class="toolbar">
-        <span id="staleSimWarning" style="display:none;font-family:var(--mono);font-size:10px;color:#f0a500;padding:0 8px;white-space:nowrap;align-self:center;">⚠ re-run</span>
-        <button class="btn btn-run" id="runBtn" onclick="onRun()" title="Run" data-help="run"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6,4 20,12 6,20"/></svg><span class="btn-label">Run</span></button>
-        <button class="btn btn-step" onclick="onStep()" title="Step" data-help="step"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="3,4 13,12 3,20"/><polygon points="12,4 22,12 12,20"/></svg><span class="btn-label">Step</span></button>
-        <button class="btn btn-stop" onclick="onStop()" title="Stop" data-help="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="7" height="16" rx="1"/><rect x="13" y="4" width="7" height="16" rx="1"/></svg><span class="btn-label">Stop</span></button>
-        <button class="btn btn-reset" onclick="onReset()" title="Reset" data-help="reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="btn-label">Reset</span></button>
-        <div style="display:flex;flex-direction:column;gap:1px;"><span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.05em;">QUALITY</span><div class="btn-group" id="qualityGroup"><button class="btn btn-tog" onclick="setQuality(0)" data-help="q-low">Low</button><button class="btn btn-tog active" onclick="setQuality(1)" data-help="q-med">Def</button><button class="btn btn-tog" onclick="setQuality(2)" data-help="q-high">High</button></div></div>
-        <div style="display:flex;flex-direction:column;gap:1px;"><span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.05em;">SPEED</span><div class="speed-ctrl" data-help="speed">
+        <span id="staleSimWarning" style="display:none;font-family:var(--mono);font-size:10px;color:#f0a500;padding:0 8px;white-space:nowrap;align-self:center;" data-i18n-html="toolbar.stale">⚠ re-run</span>
+        <button class="btn btn-run" id="runBtn" onclick="onRun()" title="Run" data-i18n-title="toolbar.run" data-help="run"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6,4 20,12 6,20"/></svg><span class="btn-label" data-i18n="toolbar.run">Run</span></button>
+        <button class="btn btn-step" onclick="onStep()" title="Step" data-i18n-title="toolbar.step" data-help="step"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="3,4 13,12 3,20"/><polygon points="12,4 22,12 12,20"/></svg><span class="btn-label" data-i18n="toolbar.step">Step</span></button>
+        <button class="btn btn-stop" onclick="onStop()" title="Stop" data-i18n-title="toolbar.stop" data-help="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="7" height="16" rx="1"/><rect x="13" y="4" width="7" height="16" rx="1"/></svg><span class="btn-label" data-i18n="toolbar.stop">Stop</span></button>
+        <button class="btn btn-reset" onclick="onReset()" title="Reset" data-i18n-title="toolbar.reset" data-help="reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="btn-label" data-i18n="toolbar.reset">Reset</span></button>
+        <div style="display:flex;flex-direction:column;gap:1px;"><span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.05em;" data-i18n="toolbar.quality">QUALITY</span><div class="btn-group" id="qualityGroup"><button class="btn btn-tog" onclick="setQuality(0)" data-help="q-low" data-i18n="toolbar.qLow">Low</button><button class="btn btn-tog active" onclick="setQuality(1)" data-help="q-med" data-i18n="toolbar.qDef">Def</button><button class="btn btn-tog" onclick="setQuality(2)" data-help="q-high" data-i18n="toolbar.qHigh">High</button></div></div>
+        <div style="display:flex;flex-direction:column;gap:1px;"><span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.05em;" data-i18n="toolbar.speed">SPEED</span><div class="speed-ctrl" data-help="speed">
           <button class="speed-btn" onclick="changeSpeed(-1)">&#8722;</button>
           <span class="speed-val" id="speedVal">1.0&#215;</span>
           <button class="speed-btn" onclick="changeSpeed(1)">+</button>
         </div></div>
       </div>
       <div class="view-tabs">
-        <div class="tab active" id="tab3d" onclick="switchView('3d')" data-help="view-3d">3D view</div>
-        <div class="tab" id="tab2d" onclick="switchView('2d')" data-help="view-2d">XY toolpath</div>
-        <div class="tab" id="tabTools" onclick="switchView('tools')" data-help="view-tools">Tool Table</div>
+        <div class="tab active" id="tab3d" onclick="switchView('3d')" data-help="view-3d" data-i18n="view.3d">3D view</div>
+        <div class="tab" id="tab2d" onclick="switchView('2d')" data-help="view-2d" data-i18n="view.2d">XY toolpath</div>
+        <div class="tab" id="tabTools" onclick="switchView('tools')" data-help="view-tools" data-i18n="view.tools">Tool Table</div>
       </div>
       <div class="view-area">
         <div class="scroll-rail" aria-hidden="true"><span>&#8645;</span></div>
@@ -351,16 +355,16 @@ END PGM PROGRAM MM</textarea>
         <div class="view-hint" id="viewHint"></div>
 
         <div id="canvasTopButtons" style="position:absolute;top:10px;left:10px;right:10px;display:flex;flex-wrap:wrap;gap:6px;z-index:5;">
-          <button id="measureBtn" onclick="toggleMeasure()" data-help="measure" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">&#x25CE; Measure</button>
-          <button id="refineBtnCanvas" onclick="triggerRefine()" title="Compute high-precision mesh" style="display:none;font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid rgba(74,158,255,.4);border-radius:5px;background:rgba(14,16,20,.7);color:rgba(74,158,255,.8);cursor:pointer;backdrop-filter:blur(4px);">&#x25C6; Refine</button>
-          <button id="pathToggle" onclick="togglePaths()" title="Show/hide toolpath" data-help="path" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">⛶ Path</button>
-          <button id="stockToggle" onclick="toggleStockVisibility()" title="Hide workpiece and show only the toolpath" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">BLKFORM OFF</button>
+          <button id="measureBtn" onclick="toggleMeasure()" data-help="measure" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);" data-i18n-html="canvas.measure">&#x25CE; Measure</button>
+          <button id="refineBtnCanvas" onclick="triggerRefine()" title="Compute high-precision mesh" data-i18n-title="refine.title" style="display:none;font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid rgba(74,158,255,.4);border-radius:5px;background:rgba(14,16,20,.7);color:rgba(74,158,255,.8);cursor:pointer;backdrop-filter:blur(4px);" data-i18n-html="canvas.refine">&#x25C6; Refine</button>
+          <button id="pathToggle" onclick="togglePaths()" title="Show/hide toolpath" data-i18n-title="path.title" data-help="path" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);" data-i18n-html="canvas.path">⛶ Path</button>
+          <button id="stockToggle" onclick="toggleStockVisibility()" title="Hide workpiece and show only the toolpath" data-i18n-title="blkform.title" style="font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:rgba(14,16,20,.7);color:var(--text3);cursor:pointer;backdrop-filter:blur(4px);">BLKFORM OFF</button>
         </div>
         <div id="simInfoPanel" style="position:absolute;top:38px;left:10px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.9;display:none;pointer-events:none;"></div>
         <div id="toolLegend" style="position:absolute;bottom:36px;left:10px;font-family:var(--mono);font-size:10px;background:rgba(14,16,20,.75);border:1px solid var(--border);border-radius:6px;padding:8px 12px;display:none;pointer-events:none;backdrop-filter:blur(4px);max-width:200px;"></div>
         <div id="refineIndicator" style="display:none;position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;padding:6px 16px;border:1px solid rgba(74,158,255,.5);border-radius:20px;background:rgba(14,16,20,.85);color:rgba(74,158,255,.95);backdrop-filter:blur(4px);align-items:center;gap:8px;z-index:30;box-shadow:0 2px 12px rgba(0,0,0,.3);">
           <span id="refineSpinner" style="display:inline-block;width:11px;height:11px;border:2px solid rgba(74,158,255,.3);border-top-color:rgba(74,158,255,1);border-radius:50%;animation:refine-spin 0.7s linear infinite;"></span>
-          <span id="refineIndicatorText">Refining mesh&hellip;</span>
+          <span id="refineIndicatorText" data-i18n="refine.indicator">Refining mesh&hellip;</span>
         </div>
         <div id="measureOverlay" style="position:absolute;top:48px;right:10px;z-index:6;background:rgba(14,16,20,.85);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);display:none;min-width:180px;max-width:calc(100% - 20px);"></div>
       </div>
@@ -376,15 +380,15 @@ END PGM PROGRAM MM</textarea>
 
 <div id="editScrollRail" aria-hidden="true"><span class="er-ico">&#8645;</span></div>
 <nav class="mtab-bar" aria-label="Mobile sections">
-  <button id="mtabEditor" class="on" onclick="mtabSwitch('editor')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11M4 12h9M4 17h6"/><path d="M15.5 15.5l4-4a1.4 1.4 0 0 0-2-2l-4 4-.5 2.5 2.5-.5z"/></svg></span>Editor</button>
+  <button id="mtabEditor" class="on" onclick="mtabSwitch('editor')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11M4 12h9M4 17h6"/><path d="M15.5 15.5l4-4a1.4 1.4 0 0 0-2-2l-4 4-.5 2.5 2.5-.5z"/></svg></span><span data-i18n="mobile.editor">Editor</span></button>
   <button id="mtabView" onclick="mtabSwitch('view')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6l8 4.6v9.6l-8 4.6-8-4.6V7.2z"/><path d="M12 12l8-4.6M12 12v9.4M12 12L4 7.4"/></svg></span>3D</button>
-  <button id="mtabLearn" onclick="mtabTapLearn()"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V11"/><path d="M22 9v5"/></svg></span>Learn</button>
+  <button id="mtabLearn" onclick="mtabTapLearn()"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V11"/><path d="M22 9v5"/></svg></span><span data-i18n="mobile.learn">Learn</span></button>
 </nav>
 
 <footer>
   <p class="ft-full">TNC Sim &nbsp;·&nbsp; <a href="https://github.com/slavomrkva/tnc-sim">GitHub</a> &nbsp;&middot;&nbsp; <a href="mailto:info@tncsim.org">info@tncsim.org</a></p>
-  <span class="ft-full" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;"><span style="font-size:10px;font-family:var(--mono);color:var(--text3);">Support this project and</span><button onclick="openBugReport()" data-help="bug-report" class="ph-btn" style="white-space:nowrap;background:rgba(245,137,58,.14);border-color:rgba(245,137,58,.4);color:var(--accent-warm);">🐛 Report a Bug / Make a suggestion</button></span>
-  <a class="ft-full ph-btn" href="https://buymeacoffee.com/slavozett" target="_blank" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap;" title="Buy me a coffee">&#9749; Buy me a coffee</a>
+  <span class="ft-full" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;"><span style="font-size:10px;font-family:var(--mono);color:var(--text3);" data-i18n="footer.support">Support this project and</span><button onclick="openBugReport()" data-help="bug-report" class="ph-btn" style="white-space:nowrap;background:rgba(245,137,58,.14);border-color:rgba(245,137,58,.4);color:var(--accent-warm);" data-i18n-html="footer.bug">🐛 Report a Bug / Make a suggestion</button></span>
+  <a class="ft-full ph-btn" href="https://buymeacoffee.com/slavozett" target="_blank" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;white-space:nowrap;" title="Buy me a coffee" data-i18n-html="footer.coffee">&#9749; Buy me a coffee</a>
   <div class="ft-mini">
     <a href="https://github.com/slavomrkva/tnc-sim" title="GitHub" aria-label="GitHub"><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
     <button onclick="openBugReport()" title="Report a Bug / Suggestion" aria-label="Report a bug">🐛</button>
@@ -395,7 +399,7 @@ END PGM PROGRAM MM</textarea>
 <div class="cycle-overlay" id="cycleOverlay" onclick="if(event.target===this)closeCyclePicker()">
   <div class="cycle-modal">
     <div class="cycle-modal-head">
-      <h3 id="cycleModalTitle">Select Cycle</h3>
+      <h3 id="cycleModalTitle" data-i18n="cycle.select">Select Cycle</h3>
       <button class="cycle-close" onclick="closeCyclePicker()">&#10005;</button>
     </div>
     <div class="cycle-modal-body" id="cycleModalBody"></div>
@@ -403,34 +407,34 @@ END PGM PROGRAM MM</textarea>
 </div>
 <div class="help-overlay" id="bugOverlay" onclick="if(event.target===this)closeBugReport()">
   <div class="help-modal" style="max-width:560px;">
-    <h2 style="font-family:var(--mono);">🐛 Bug Report <button class="help-close" onclick="closeBugReport()">&times;</button></h2>
+    <h2 style="font-family:var(--mono);"><span data-i18n-html="bug.title">🐛 Bug Report</span> <button class="help-close" onclick="closeBugReport()">&times;</button></h2>
     <div class="help-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;">Description</label>
-        <textarea id="bugDesc" rows="4" placeholder="Describe what happened and what you expected…" style="width:100%;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;" data-i18n="bug.desc">Description</label>
+        <textarea id="bugDesc" rows="4" placeholder="Describe what happened and what you expected…" data-i18n-ph="bug.descPh" style="width:100%;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;">Screenshot <span style="color:var(--text3);font-size:10px;">(optional)</span></label>
-        <button onclick="bugCopyScreenshot()" style="font-family:var(--mono);font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text2);cursor:pointer;">📋 Copy image to clipboard</button>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">Paste it (<b style="color:var(--text2);">Ctrl+V</b>) wherever you're filing the report.</div>
+        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;"><span data-i18n="bug.screenshot">Screenshot</span> <span style="color:var(--text3);font-size:10px;" data-i18n="bug.optional">(optional)</span></label>
+        <button onclick="bugCopyScreenshot()" style="font-family:var(--mono);font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text2);cursor:pointer;" data-i18n-html="bug.copyImg">📋 Copy image to clipboard</button>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;" data-i18n-html="bug.paste">Paste it (<b style="color:var(--text2);">Ctrl+V</b>) wherever you're filing the report.</div>
       </div>
       <div>
-        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;">Program <span id="bugProgLines" style="color:var(--text3);font-size:10px;"></span></label>
+        <label style="font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-bottom:4px;"><span data-i18n="bug.program">Program</span> <span id="bugProgLines" style="color:var(--text3);font-size:10px;"></span></label>
         <pre id="bugProgPreview" style="font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text2);overflow-y:auto;max-height:100px;margin:0;white-space:pre-wrap;"></pre>
       </div>
         <pre id="bugDebug" style="font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text3);overflow-y:auto;max-height:120px;margin:0;white-space:pre-wrap;"></pre>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-        <button onclick="closeBugReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text3);cursor:pointer;">Cancel</button>
+        <button onclick="closeBugReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text3);cursor:pointer;" data-i18n="bug.cancel">Cancel</button>
         <button onclick="bugSubmit()" style="font-family:var(--mono);padding:6px 16px;border:1px solid var(--accent);border-radius:5px;background:var(--accent);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.4;">
-          <span style="font-size:12px;">🔗 GitHub Issue</span>
-          <span style="font-size:9px;opacity:0.85;">needs GitHub account</span>
+          <span style="font-size:12px;" data-i18n-html="bug.github">🔗 GitHub Issue</span>
+          <span style="font-size:9px;opacity:0.85;" data-i18n="bug.githubNote">needs GitHub account</span>
         </button>
         <button onclick="bugEmailReport()" style="font-family:var(--mono);padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.4;">
-          <span style="font-size:12px;">✉️ Email</span>
-          <span style="font-size:9px;color:var(--text3);">no account needed</span>
+          <span style="font-size:12px;" data-i18n-html="bug.email">✉️ Email</span>
+          <span style="font-size:9px;color:var(--text3);" data-i18n="bug.emailNote">no account needed</span>
         </button>
-        <button onclick="bugCopyReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text2);cursor:pointer;">📋 Copy report</button>
+        <button onclick="bugCopyReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text2);cursor:pointer;" data-i18n-html="bug.copyReport">📋 Copy report</button>
       </div>
     </div>
   </div>
@@ -439,7 +443,7 @@ END PGM PROGRAM MM</textarea>
 
 <div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()">
   <div class="help-modal">
-    <h2>TNC Sim — Help <button class="help-close" onclick="closeHelp()">&times;</button></h2>
+    <h2><span data-i18n="help.title">TNC Sim — Help</span> <button class="help-close" onclick="closeHelp()">&times;</button></h2>
     <div class="help-body" id="helpBody"></div>
   </div>
 </div>
@@ -450,10 +454,13 @@ END PGM PROGRAM MM</textarea>
 <script src="vendor/OrbitControls.js"></script>
 
 <script src="core/data-tables.js" defer></script>
+<script src="web/i18n-lessons-de.js" defer></script>
+<script src="web/i18n-cycles-de.js" defer></script>
 <script src="core/block-form-panel.js" defer></script>
 <script src="core/bug-report.js" defer></script>
 <script src="core/cycle-picker.js" defer></script>
 <script src="core/demo-programs.js" defer></script>
+<script src="web/i18n-demos-de.js" defer></script>
 <script src="core/editor-core.js" defer></script>
 <script src="core/field-editing.js" defer></script>
 <script src="core/help-popups.js" defer></script>
@@ -468,6 +475,7 @@ END PGM PROGRAM MM</textarea>
 <script src="core/render3d.js" defer></script>
 <script src="core/sim-controls.js" defer></script>
 <script src="core/theme-toast.js" defer></script>
+<script src="web/i18n-about-de.js" defer></script>
 <script src="core/tool-table.js" defer></script>
 <script src="core/view2d.js" defer></script>
 <script src="core/voxel-cutting.js" defer></script>

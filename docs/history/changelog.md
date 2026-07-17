@@ -7,6 +7,35 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.873 — bilingual SEO metadata (test branch)
+
+- Fixed stale "15 lessons" → 16 across `<title>`, description, OG/Twitter tags and JSON-LD `featureList`.
+- Appended German keywords/phrases to title, description, OG/Twitter description and `<meta keywords>` (visible in the single English-served page, no separate `/de/` route — a full hreflang setup would need a second physical HTML entry point, out of scope here).
+- Added `"inLanguage": ["en", "de"]` and an "English and German (Deutsch) interface" line to the JSON-LD `featureList`.
+
+## v0.872 — German About popup (test branch)
+
+- Added `web/i18n-about-de.js`, a web-only German override of `openAboutPopup()` (core/theme-toast.js builds the popup from an inline string at call time, so it can't be reached via `data-i18n`). Loaded after `core/theme-toast.js` so the German version wins when the UI language is German; `core/` itself is untouched.
+
+## v0.871 — Q335 naming fix + language-toggle label (test branch)
+
+- Corrected the German name for cycle parameter Q335 from "Nenndurchmesser" to the Heidenhain-standard "SOLL-Durchmesser" in `web/i18n-cycles-de.js`, `web/i18n-demos-de.js` and the embedded `DEFAULT_CODE_DE`/Angle Mill program comments in `web/app.js`.
+- The EN/DE toggle button now shows the language you'd switch *to* rather than the current one (English page shows "DE", German page shows "EN") — changed in `web/i18n.js`'s `init()`.
+
+## v0.870 — German localization: comments, M list, cycle parameters (test branch)
+
+- Added `M_DEFS_DE` overlay in `web/app.js` translating every M-function description; feeds the M-list popup, the auto-inserted comment when picking an M code, and the manual-entry lookup from a single source.
+- Added `web/i18n-cycles-de.js` overlaying `CYCLES` (core/data-tables.js) cycle and Q-parameter names in place, so both the cycle picker dropdown and the auto-inserted `CYCL DEF`/Q-param comments come out localized. CYCL DEF numbers, Q-numbers and default values are untouched.
+- Added `web/i18n-demos-de.js` with parallel German-comment `code` text for the four `EXTRA_DEMO_PROGRAMS` entries (Chamfering, Rough & Finish, Thread Hole, Precise Hole), swapped in by name when building `DEMO_PROGRAMS`; `core/demo-programs.js` stays byte-identical to Android.
+- Added `DEFAULT_CODE_DE` and a German `Angle Mill` variant in `web/app.js`, swapped in for the starter/editor-reset program and demo library when the UI language is German.
+- Extended `tests/i18n-de.test.js` with an invariant check (`assertCommentsOnlyDiff`) verifying every DE program overlay changes only text after `;` — Klartext stays byte-for-byte identical to the English source, line by line.
+
+## v0.869 — German localization (test branch)
+
+- Added `web/i18n.js` (EN/DE dictionary, `I18N.cycleLang()`) and `web/i18n-lessons-de.js` (German overlay for all 16 Learn lessons); wired `data-i18n*` attributes across `index.html` (header, toolbar, panels, bug report, help modal, footer).
+- Added `HELP_MAP_DE` in `web/app.js` for German Help/Tool Table tooltips, applied only when `I18N.getLang()==='de'`; Klartext (BLK FORM, TOOL CALL, CYCL DEF, M-functions, Q-tokens, `learnSnippet` programs) stays untranslated.
+- Added `tests/i18n-de.test.js` guarding key coverage (no missing/orphan German keys) and lesson-overlay parity.
+
 ## v0.868 — analytic TNC 640 radius compensation
 
 - Kept L/C/CR/CT/CP/RND/CHF as exact primitives through RL/RR calculation, including exact L activation, finite inner intersections, outer transition arcs and the equal-radius RND limit; only the completed tool-center path is tessellated.
