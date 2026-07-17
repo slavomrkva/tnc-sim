@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.869 (web test)
+- Nemecká jazyková verzia — prepínač EN/DE, celé UI, Help/Tool Table tooltipy a všetkých 16 Learn lekcií.
+
 ## v0.868
 - Corrected TNC 640 RL/RR tool-centre geometry for supported L, C, CC, CR, CT, CP, RND and CHF contours, removing false radius errors on valid paths.
 - While completing an L block, interim RL/RR diagnostics are now one orange notice rather than multiple blocking errors.

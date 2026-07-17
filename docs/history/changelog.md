@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.869 — German localization (test branch)
+
+- Added `web/i18n.js` (EN/DE dictionary, `I18N.cycleLang()`) and `web/i18n-lessons-de.js` (German overlay for all 16 Learn lessons); wired `data-i18n*` attributes across `index.html` (header, toolbar, panels, bug report, help modal, footer).
+- Added `HELP_MAP_DE` in `web/app.js` for German Help/Tool Table tooltips, applied only when `I18N.getLang()==='de'`; Klartext (BLK FORM, TOOL CALL, CYCL DEF, M-functions, Q-tokens, `learnSnippet` programs) stays untranslated.
+- Added `tests/i18n-de.test.js` guarding key coverage (no missing/orphan German keys) and lesson-overlay parity.
+
 ## v0.868 — analytic TNC 640 radius compensation
 
 - Kept L/C/CR/CT/CP/RND/CHF as exact primitives through RL/RR calculation, including exact L activation, finite inner intersections, outer transition arcs and the equal-radius RND limit; only the completed tool-center path is tessellated.
