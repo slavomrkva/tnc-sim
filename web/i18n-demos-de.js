@@ -130,7 +130,7 @@ Q206=+150 ;Vorschub Zustellung [mm/min]
 Q334=+0 ;Zustellung pro Schnitt [mm]
 Q203=+20 ;Oberflächen-Koordinate [mm]
 Q204=+50 ;2. Sicherheits-Abstand [mm]
-Q335=+8 ;Nenndurchmesser [mm]
+Q335=+8 ;SOLL-Durchmesser [mm]
 Q342=+7.999 ;Vorbohrdurchmesser [mm]
 Q351=+1 ;Frässtrategie
 L X+0 Y+0 FMAX M99
@@ -218,7 +218,7 @@ Q206=+150 ;Vorschub Zustellung [mm/min]
 Q334=+0 ;Zustellung pro Schnitt [mm]
 Q203=+20 ;Oberflächen-Koordinate [mm]
 Q204=+50 ;2. Sicherheits-Abstand [mm]
-Q335=+7 ;Nenndurchmesser [mm]
+Q335=+7 ;SOLL-Durchmesser [mm]
 Q342=+6.999 ;Vorbohrdurchmesser [mm]
 Q351=+1 ;Frässtrategie
 L X+0 Y+0 FMAX M99

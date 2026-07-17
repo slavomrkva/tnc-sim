@@ -155,7 +155,12 @@
   function init() {
     document.documentElement.setAttribute('lang', _lang);
     var lbl = document.getElementById('langLabel');
-    if (lbl) lbl.textContent = LANG_NAMES[_lang] || _lang.toUpperCase();
+    // Button shows the language you'd switch TO, not the current one
+    // (English page shows "DE", German page shows "EN").
+    if (lbl) {
+      var next = LANGS[(LANGS.indexOf(_lang) + 1) % LANGS.length];
+      lbl.textContent = LANG_NAMES[next] || next.toUpperCase();
+    }
     applyDom(document);
   }
 

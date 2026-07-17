@@ -33,7 +33,7 @@
     'Spindle angle':         'Spindelwinkel',
     'Retraction factor':     'Rückzugfaktor',
     'Infeed per pass':       'Zustellung pro Schnitt',
-    'Nominal diameter':      'Nenndurchmesser',
+    'Nominal diameter':      'SOLL-Durchmesser',
     'Pre-drilled dia.':      'Vorbohrdurchmesser',
     'Milling mode':          'Frässtrategie'
   };

@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.870';
+var APP_VERSION = '0.871';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -814,7 +814,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q334=+2 ;Zustellung pro Schnitt [mm]
   Q203=+20 ;Oberflächen-Koordinate [mm]
   Q204=+50 ;2. Sicherheits-Abstand [mm]
-  Q335=+20 ;Nenndurchmesser [mm]
+  Q335=+20 ;SOLL-Durchmesser [mm]
   Q342=+0 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
 L X+0 Y+0 FMAX M99
@@ -907,7 +907,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q334=+0 ;Zustellung pro Schnitt [mm]
   Q203=+20 ;Oberflächen-Koordinate [mm]
   Q204=+50 ;2. Sicherheits-Abstand [mm]
-  Q335=+20 ;Nenndurchmesser [mm]
+  Q335=+20 ;SOLL-Durchmesser [mm]
   Q342=+19.9999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
 L X+0 Y+0 FMAX M99
@@ -919,7 +919,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q334=+0 ;Zustellung pro Schnitt [mm]
   Q203=+20 ;Oberflächen-Koordinate [mm]
   Q204=+50 ;2. Sicherheits-Abstand [mm]
-  Q335=+7 ;Nenndurchmesser [mm]
+  Q335=+7 ;SOLL-Durchmesser [mm]
   Q342=+6.999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
 CALL LBL 1
@@ -931,7 +931,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q334=+0 ;Zustellung pro Schnitt [mm]
   Q203=+20 ;Oberflächen-Koordinate [mm]
   Q204=+50 ;2. Sicherheits-Abstand [mm]
-  Q335=+8 ;Nenndurchmesser [mm]
+  Q335=+8 ;SOLL-Durchmesser [mm]
   Q342=+7.999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
 CALL LBL 2

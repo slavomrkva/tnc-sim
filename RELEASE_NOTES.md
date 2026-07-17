@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.871 (web test)
+- Q335 sa v nemeckom preklade správne volá „SOLL-Durchmesser" (namiesto „Nenndurchmesser").
+- Prepínač jazyka teraz ukazuje jazyk, na ktorý prepnete, nie aktuálny (anglická stránka zobrazuje „DE", nemecká „EN").
+
 ## v0.870 (web test)
 - Nemecký preklad rozšírený o komentáre v demo programoch, zoznam M-funkcií (M list), automaticky vkladané komentáre pri výbere M-funkcie a komentáre pri všetkých parametroch cyklov (CYCL DEF / Q-parametre). Klartext ostáva nepreložený.
 

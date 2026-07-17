@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.871 — Q335 naming fix + language-toggle label (test branch)
+
+- Corrected the German name for cycle parameter Q335 from "Nenndurchmesser" to the Heidenhain-standard "SOLL-Durchmesser" in `web/i18n-cycles-de.js`, `web/i18n-demos-de.js` and the embedded `DEFAULT_CODE_DE`/Angle Mill program comments in `web/app.js`.
+- The EN/DE toggle button now shows the language you'd switch *to* rather than the current one (English page shows "DE", German page shows "EN") — changed in `web/i18n.js`'s `init()`.
+
 ## v0.870 — German localization: comments, M list, cycle parameters (test branch)
 
 - Added `M_DEFS_DE` overlay in `web/app.js` translating every M-function description; feeds the M-list popup, the auto-inserted comment when picking an M code, and the manual-entry lookup from a single source.
