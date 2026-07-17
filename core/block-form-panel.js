@@ -134,6 +134,7 @@ function renderBlkPanel(){
       +' value="'+val+'"'
       +' style="font-family:var(--mono);font-size:14px;color:var(--text);flex:1;min-width:40px;padding:6px 8px;background:var(--bg);border:1px solid var(--accent3);border-radius:6px;outline:none;"'
       +' oninput="blkUpdateVal(this.value)"'
+      +' onbeforeinput="blkBeforeInput(event)"'
       +' onkeydown="blkKeyDown(event)"'
       +'>'
       +'<button class="fbar-nav" onclick="blkStepRel(1)">&#9654;</button>'
@@ -201,18 +202,31 @@ function blkKeyDown(e){
     e.preventDefault();
     var el=document.getElementById('blkFbarVal');
     if(!el) return;
-    var cur=String(el.value||'0').replace(/^[+\-]/,'');
-    var newVal=(e.key==='-'?'-':'+')+cur;
+    var newVal=applyNumericSign(el.value,e.key);
     el.value=newVal;
     blkUpdateVal(newVal);
     return;
   }
 }
 
+function blkBeforeInput(e){
+  if(!e || (e.data!=='-' && e.data!=='+')) return;
+  e.preventDefault();
+  var el=document.getElementById('blkFbarVal');
+  if(!el) return;
+  var newVal=applyNumericSign(el.value,e.data);
+  el.value=newVal;
+  blkUpdateVal(newVal);
+  try{ el.setSelectionRange(newVal.length,newVal.length); }catch(err){}
+}
+
 function blkUpdateVal(v){
+  var normalized=normalizeTrailingNumericSign(v);
+  var el=document.getElementById('blkFbarVal');
+  if(el && el.value!==normalized) el.value=normalized;
   var fields = BLK.shape==='BOX' ? BLK_FIELDS_BOX : BLK_FIELDS_CYL;
   var f = fields[BLK.step-1];
-  if(f) BLK[f.key] = parseFloat(String(v).replace(',','.'))||0;
+  if(f) BLK[f.key] = parseFloat(String(normalized).replace(',','.'))||0;
 }
 
 function insertBlkForm(){

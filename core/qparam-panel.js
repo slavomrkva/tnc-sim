@@ -21,7 +21,7 @@ function openQPopup(lineIdx){
   var qRefBtn = '<button class="fbar-fmax" onclick="qPanelInsertQ()" title="Insert Q parameter reference">Q</button>';
   panel.innerHTML = '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+(label||qkey)+'</span><button style="margin-left:auto;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 8px;" onclick="closeQPopup()">✕</button></div>'
     + '<div class="ctx-row2">'
-    + '<input id="qPanelInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" value="'+qval+'"'
+    + '<input id="qPanelInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="characters" value="'+qval+'"'
     + ' style="font-family:var(--mono);font-size:14px;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:5px;color:var(--text);padding:3px 10px;width:90px;outline:none;text-align:right;">'
     + qRefBtn
     + fmaxBtn
@@ -38,11 +38,20 @@ function openQPopup(lineIdx){
         // default behavior would replace that selection with just "+"/"-", wiping the
         // digits. Strip any existing sign and prepend the new one instead.
         e.preventDefault();
-        var cur = inp.value.replace(/^[+-]/, '');
-        inp.value = (e.key==='-' ? '-' : '+') + cur;
+        inp.value = applyNumericSign(inp.value,e.key);
         try{ inp.setSelectionRange(inp.value.length, inp.value.length); }catch(err){}
         return;
       }
+    });
+    inp.addEventListener('beforeinput', function(e){
+      if(!e || (e.data!=='-' && e.data!=='+')) return;
+      e.preventDefault();
+      inp.value=applyNumericSign(inp.value,e.data);
+      try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(err){}
+    });
+    inp.addEventListener('input', function(){
+      var normalized=normalizeTrailingNumericSign(inp.value);
+      if(inp.value!==normalized) inp.value=normalized;
     });
     _focusEditorControl(inp, function(){ return _qPopupLine>=0; });
     try{ inp.select(); }catch(e){}

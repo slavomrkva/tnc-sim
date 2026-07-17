@@ -291,9 +291,9 @@ for(const [tcall, effR] of [
 
 // ───────────────────── Compensation safety and state capture ─────────────────────
 {
-  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+2 Y+0 RL\nL X+2 Y+2\nL X+4 Y+2 R0`);
+  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+10 Y+0 RL\nL X+10 Y+10\nL X+8 Y+10\nL X+8 Y+8\nL X+6 Y+8 R0`);
   const res=H.parse(code);
-  assert.ok(res.probs.some(p=>p.sev==='err'&&/tool radius too large/.test(p.msg)), 'RL/RR: an unfit inner corner is an error');
+  assert.ok(res.probs.some(p=>p.sev==='err'&&/tool radius too large/.test(p.msg)), 'RL/RR: an unfit bounded inner corner is an error');
   assert.ok(res.resultProblems.some(p=>p.sev==='err'&&/tool radius too large/.test(p.msg)), 'RL/RR: the toolpath error is returned to the browser UI');
   assert.strictEqual(res.sub.filter(s=>s.rc==='RL').length,0, 'RL/RR: an unfit inner corner leaves no compensated cutting run');
 }
@@ -304,9 +304,24 @@ for(const [tcall, effR] of [
   assert.strictEqual(res.sub.filter(s=>s.rc==='RL').length,0, 'RL/RR: an unfit tessellated inner RND leaves no compensated cutting run');
 }
 {
-  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+20 Y+0 RL\nL X+40 Y-5\nL X+50 Y-5 R0`);
+  // PROGRAM.H regression: TNC activates RL at the END of the L block where it
+  // is programmed. The approach therefore ends directly at the analytically
+  // compensated start of the following C (tool Ø10 / effective R=5).
+  const code=H.program(`TOOL CALL 1 Z S2000 F5000\nL X+0 Y+30 Z+0 R0\nL X+0 Y+29.5 RL\nCC X+0 Y+37\nC X+0 Y+44.5 DR+\nL X-5 Y+44.5 R0`);
   const res=H.parse(code);
-  const around=res.sub.filter(s=>s.rc==='RL'&&Math.hypot(s.to.x-20,s.to.y)>1.99&&Math.hypot(s.to.x-20,s.to.y)<2.01);
+  assert.ok(!res.probs.some(p=>p.sev==='err'&&/tool radius too large/.test(p.msg)), 'RL/RR: short activation lead-in before a valid C arc must not be rejected');
+  const activation=res.sub.find(s=>s.rcActivation);
+  assert.ok(activation&&activation.rc==='RL', 'RL/RR: activation L is the single approach move into the compensated contour');
+  assert.ok(Math.abs(activation.to.x)<1e-9&&Math.abs(activation.to.y-34.5)<1e-9, 'RL/RR: activation ends at the exact perpendicular C-offset point (0,34.5)');
+  assert.ok(!res.sub.some(s=>s.rcEntry), 'RL/RR: no invented hidden entry segment is inserted after the activation L');
+  const cSegs=res.sub.filter(s=>s.rcGeom&&s.rcGeom.kind==='C'&&s.rc==='RL');
+  assert.ok(cSegs.length>8, 'RL/RR: valid C entry contour remains available for simulation');
+  assert.ok(cSegs.every(s=>Math.abs(Math.hypot(s.to.x,s.to.y-37)-2.5)<1e-8), 'RL/RR: C is compensated analytically to radius 2.5 before tessellation');
+}
+{
+  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+20 Y+0 RL\nL X+40 Y+5\nL X+50 Y+5\nL X+60 Y+5 R0`);
+  const res=H.parse(code);
+  const around=res.sub.filter(s=>s.rc==='RL'&&Math.hypot(s.to.x-40,s.to.y-5)>1.99&&Math.hypot(s.to.x-40,s.to.y-5)<2.01);
   assert.ok(around.length>=4, 'RL/RR: a shallow convex outside corner uses a transitional radius arc, not a mitre');
 }
 {
@@ -323,16 +338,16 @@ for(const [tcall, effR] of [
   assert.ok(!res.sub.some(s=>s.toolNum===22&&s.rc==='RL'), 'TOOL CALL under RL/RR suppresses subsequent compensated motion until R0');
 }
 {
-  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 Z+0 R0\nL X+20 Y+0 RL\nL Z+10 R0\nL X+30 Y+0`);
+  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 Z+0 R0\nL X+20 Y+0 RL\nL X+30 Y+0\nL Z+10 R0\nL X+40 Y+0`);
   const res=H.parse(code);
   const zCancel=res.sub.find(s=>s.rc==='R0'&&Math.abs(s.to.z-10)<1e-6&&Math.abs(s.to.x-s.from.x)<1e-6);
   assert.ok(zCancel&&Math.abs(zCancel.from.y-2)<1e-6&&Math.abs(zCancel.to.y-2)<1e-6, 'R0: a pure-Z cancellation carries the actual compensated XY position cleanly');
 }
 {
-  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+20 Y+0 RL\nL X+30 Y+0 R0`);
+  const code=H.program(`TOOL CALL 23 Z S3000 F500\nM3\nL X+0 Y+0 R0\nL X+20 Y+0 RL\nL X+30 Y+0\nL X+40 Y+0 R0`);
   const res=H.parse(code);
-  const leadOut=res.sub.find(s=>s.rc==='R0'&&Math.abs(s.to.x-30)<1e-6);
-  assert.ok(leadOut&&Math.abs(leadOut.from.x-20)<1e-6&&Math.abs(leadOut.from.y-2)<1e-6&&Math.abs(leadOut.to.y)<1e-6,
+  const leadOut=res.sub.find(s=>s.rc==='R0'&&Math.abs(s.to.x-40)<1e-6);
+  assert.ok(leadOut&&Math.abs(leadOut.from.x-30)<1e-6&&Math.abs(leadOut.from.y-2)<1e-6&&Math.abs(leadOut.to.y)<1e-6,
     'R0: a lateral cancellation leads out from the compensated endpoint to the nominal target');
 }
 

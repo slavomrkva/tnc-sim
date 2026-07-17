@@ -66,8 +66,13 @@ Detailed module-split history is in the archived project notes linked above.
 12. **Chunked Marching Cubes:** dirty bounds require the one-cell XY dependency
     halo; Measure raycasting stays recursive while the live mesh is a group.
 13. **Cycle feeds and visibility:** cycle `FAUTO` uses the active `TOOL CALL`
-    feed. Cycle 200 retracts stay FMAX; Cycle 209 stays pitch×RPM. Only marked
-    cycle-internal sub-frame reversals get the held midpoint render.
+   feed. Cycle 200 retracts stay FMAX; Cycle 209 stays pitch×RPM. Only marked
+   cycle-internal sub-frame reversals get the held midpoint render.
+14. **Radius compensation geometry:** preserve L/C/CR/CT/CP/RND/CHF as exact
+   contour primitives through RL/RR calculation and validation; tessellate only
+   the finished tool-center path. The activating L is one approach movement
+   ending at the following contour's exact offset start, never a nominal move
+   plus a hidden lateral segment.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

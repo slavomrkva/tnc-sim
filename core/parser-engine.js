@@ -820,7 +820,21 @@ function parseProgram(code){
   // push initial home position as virtual start
   sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:0, srcLine:0, rc:''});
 
-  function pushSeg(to, rapid, srcLine, rc, safeRetract, ensureVisible){
+  var contourGeomSeq=0;
+
+  function pointCopy(p){ return {x:p.x,y:p.y,z:p.z}; }
+
+  function lineGeom(from,to,srcLine,kind){
+    return {id:++contourGeomSeq,type:'line',kind:kind||'L',srcLine:srcLine,
+      from:pointCopy(from),to:pointCopy(to)};
+  }
+
+  function arcGeom(from,to,cx,cy,r,a0,sweep,srcLine,kind){
+    return {id:++contourGeomSeq,type:'arc',kind:kind||'C',srcLine:srcLine,
+      from:pointCopy(from),to:pointCopy(to),cx:cx,cy:cy,r:r,a0:a0,sweep:sweep};
+  }
+
+  function pushSeg(to, rapid, srcLine, rc, safeRetract, ensureVisible, rcActivation, rcGeom){
     var from = {x:pos.x,y:pos.y,z:pos.z};
     if((rc||'') === 'R0') radiusCompBlocked = false;
     if(radiusCompBlocked){
@@ -830,9 +844,25 @@ function parseProgram(code){
     var dx=to.x-from.x, dy=to.y-from.y, dz=to.z-from.z;
     var len = Math.sqrt(dx*dx+dy*dy+dz*dz);
     if(len > 1e-6){
-      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, dlPgm:curDLpgm, drPgm:curDRpgm});
+      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, rcActivation:!!rcActivation, rcGeom:rcGeom||null, dlPgm:curDLpgm, drPgm:curDRpgm});
     }
     pos = {x:to.x,y:to.y,z:to.z};
+  }
+
+  function pushContourLine(to,rapid,srcLine,rc,rcActivation,kind){
+    var geom=lineGeom(pos,to,srcLine,kind||'L');
+    pushSeg(to,rapid,srcLine,rc,false,false,rcActivation,geom);
+    return geom;
+  }
+
+  function pushContourArc(geom,rapid,srcLine,rc,maxStep){
+    var steps=Math.max(8,Math.ceil(Math.abs(geom.sweep)/(maxStep||Math.PI/32)));
+    for(var ai=1;ai<=steps;ai++){
+      var t=ai/steps, ang=geom.a0+geom.sweep*t;
+      var target={x:geom.cx+geom.r*Math.cos(ang),y:geom.cy+geom.r*Math.sin(ang),z:geom.from.z+(geom.to.z-geom.from.z)*t};
+      if(ai===steps) target=pointCopy(geom.to);
+      pushSeg(target,rapid,srcLine,rc,false,false,false,geom);
+    }
   }
 
   function pushCycleEvent(kind, value, srcLine, rc, phase){
@@ -1359,12 +1389,12 @@ function parseProgram(code){
       pos={x:mv.from.x, y:mv.from.y, z:mv.from.z};
       if(mod && mi+1>=pendingMoves.length){
         pushParseProblem(parseProblems,{line:mod.line!=null?mod.line:mv.srcLine,sev:'err',msg:mod.type+' has no following contour move \u2014 modifier ignored'});
-        pushSeg(mv.target, mv.rapid, mv.srcLine, mv.rc);
+        pushContourLine(mv.target, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
         if(mv.m99 && activeCycle) executeCycle(activeCycle, mv.srcLine, mv.rc);
         continue;
       }
       if(!mod){
-        pushSeg(mv.target, mv.rapid, mv.srcLine, mv.rc);
+        pushContourLine(mv.target, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
         if(mv.m99 && activeCycle) executeCycle(activeCycle, mv.srcLine, mv.rc);
         continue;
       }
@@ -1374,24 +1404,27 @@ function parseProgram(code){
       var in_l=Math.sqrt(in_dx*in_dx+in_dy*in_dy);
       var out_dx=nextMv.target.x-corner.x, out_dy=nextMv.target.y-corner.y;
       var out_l=Math.sqrt(out_dx*out_dx+out_dy*out_dy);
-      if(in_l<1e-6||out_l<1e-6){ pushSeg(corner, mv.rapid, mv.srcLine, mv.rc); continue; }
+      if(in_l<1e-6||out_l<1e-6){ pushContourLine(corner, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L'); continue; }
       var u_in={x:in_dx/in_l, y:in_dy/in_l};
       var u_out={x:out_dx/out_l, y:out_dy/out_l};
       var r=mod.r;
       var dot=Math.max(-1,Math.min(1,u_in.x*u_out.x+u_in.y*u_out.y));
       var halfAngle=Math.acos(dot)/2;
-      if(halfAngle<1e-4){ pushSeg(corner, mv.rapid, mv.srcLine, mv.rc); continue; }
-      var requestedDist=mod.type==='CHF'?r:r/Math.tan(halfAngle);
+      if(halfAngle<1e-4){ pushContourLine(corner, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L'); continue; }
+      // A tangential RND consumes r*tan(turn/2) along each adjacent contour
+      // element. Using r/tan(turn/2) is only correct for a 90-degree corner and
+      // distorts every shallow/obtuse HEIDENHAIN rounding arc.
+      var requestedDist=mod.type==='CHF'?r:r*Math.tan(halfAngle);
       if(!(requestedDist>0)||requestedDist>=in_l-1e-6||requestedDist>=out_l-1e-6){
         pushParseProblem(parseProblems,{line:mod.line!=null?mod.line:mv.srcLine,sev:'err',msg:mod.type+' does not fit between the adjacent contour moves \u2014 modifier ignored'});
-        pushSeg(corner,mv.rapid,mv.srcLine,mv.rc);
+        pushContourLine(corner,mv.rapid,mv.srcLine,mv.rc,mv.rcActivation,'L');
         continue;
       }
       var dist=requestedDist;
       var p1={x:corner.x-u_in.x*dist, y:corner.y-u_in.y*dist, z:corner.z};
       var p2={x:corner.x+u_out.x*dist, y:corner.y+u_out.y*dist, z:corner.z};
-      pushSeg(p1, mv.rapid, mv.srcLine, mv.rc);
-      if(mod.type==='CHF'){ pushSeg(p2, mv.rapid, mv.srcLine, mv.rc); }
+      pushContourLine(p1, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
+      if(mod.type==='CHF'){ pushContourLine(p2, mv.rapid, mod.line!=null?mod.line:mv.srcLine, mv.rc, false, 'CHF'); }
       else {
         var cross=u_in.x*u_out.y-u_in.y*u_out.x;
         var sign=cross>=0?1:-1;
@@ -1400,8 +1433,8 @@ function parseProgram(code){
         var a0=Math.atan2(p1.y-cy3,p1.x-cx3);
         var a1t=Math.atan2(p2.y-cy3,p2.x-cx3);
         var sw; if(sign>0){sw=a1t-a0;while(sw<=-1e-4)sw+=2*Math.PI;}else{sw=a1t-a0;while(sw>=1e-4)sw-=2*Math.PI;}
-        var N=Math.max(8,Math.ceil(Math.abs(sw)/(Math.PI/36)));
-        for(var ki=1;ki<=N;ki++){var a=a0+sw*(ki/N);pushSeg({x:cx3+r*Math.cos(a),y:cy3+r*Math.sin(a),z:corner.z},mv.rapid,mv.srcLine,mv.rc);}
+        var rndGeom=arcGeom(p1,p2,cx3,cy3,r,a0,sw,mod.line!=null?mod.line:mv.srcLine,'RND');
+        pushContourArc(rndGeom,mv.rapid,mod.line!=null?mod.line:mv.srcLine,mv.rc,Math.PI/36);
       }
       // CRITICAL: the outgoing block must start at the fillet/chamfer END (p2),
       // not at the original corner — otherwise an extra spike gets cut through
@@ -1596,22 +1629,14 @@ function parseProgram(code){
           pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC \u2014 arc rejected'});
           continue;
         }
-        // NOTE: radius compensation applied later by applyRadiusComp (polyline offset)
-        R = Math.max(R, 0.1);
+        var cFrom=pointCopy(pos);
         var a0 = Math.atan2(pos.y-ccy, pos.x-ccx);
         var a1 = Math.atan2(endY-ccy, endX-ccx);
         var sweep;
         if(dr>0){ sweep = a1-a0; while(sweep<=1e-4) sweep += 2*Math.PI; }
         else { sweep = a1-a0; while(sweep>=-1e-4) sweep -= 2*Math.PI; }
-        var N = Math.max(8, Math.ceil(Math.abs(sweep)/(Math.PI/32)));
-        for(var k=1;k<=N;k++){
-          var a = a0 + sweep*(k/N);
-          pushSeg({x:ccx+R*Math.cos(a), y:ccy+R*Math.sin(a), z:pos.z}, false, srcLineI, rcState);
-        }
-        // If the programmed end point does not lie exactly on the circle around
-        // CC (radius taken from the START point), land on the programmed end
-        // anyway — otherwise pos drifts and subsequent incremental moves shift.
-        if(Math.abs(pos.x-endX)>1e-6||Math.abs(pos.y-endY)>1e-6) pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
+        var cTo={x:endX,y:endY,z:cFrom.z};
+        pushContourArc(arcGeom(cFrom,cTo,ccx,ccy,R,a0,sweep,srcLineI,'C'),false,srcLineI,rcState,Math.PI/32);
       } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Circle center undefined \u2014 C block rejected'});
     }
     else if(line.indexOf('LP')===0){
@@ -1646,11 +1671,10 @@ function parseProgram(code){
         var a0cp=Math.atan2(pos.y-ccy, pos.x-ccx);
         var a1cp=parseFloat(pa2[1])*Math.PI/180;
         var Rcp=Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
-        // apply RL/RR compensation to CP arc radius
-        Rcp = Math.max(Rcp, 0.1); // RC applied later by applyRadiusComp
+        var cpFrom=pointCopy(pos);
         var sw; if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
-        var N=Math.max(8,Math.ceil(Math.abs(sw)/(Math.PI/32)));
-        for(var k=1;k<=N;k++){var a=a0cp+sw*(k/N);pushSeg({x:ccx+Rcp*Math.cos(a),y:ccy+Rcp*Math.sin(a),z:pos.z},false,srcLineI,rcState);}
+        var cpTo={x:ccx+Rcp*Math.cos(a1cp),y:ccy+Rcp*Math.sin(a1cp),z:cpFrom.z};
+        pushContourArc(arcGeom(cpFrom,cpTo,ccx,ccy,Rcp,a0cp,sw,srcLineI,'CP'),false,srcLineI,rcState,Math.PI/32);
       }
     }
     else if(/^CR(\s|$)/.test(line)){
@@ -1672,6 +1696,7 @@ function parseProgram(code){
         var dx = endX-pos.x, dy = endY-pos.y;
         var d2 = dx*dx+dy*dy;
         if(d2 > 0 && R*R >= d2/4){
+          var crFrom=pointCopy(pos);
           var d = Math.sqrt(d2);
           var h = Math.sqrt(R*R - d2/4);
           // Two circle centers exist (mid +- perpendicular*h). For the given
@@ -1686,13 +1711,8 @@ function parseProgram(code){
           var sweep;
           if(dr>0){ sweep=a1-a0; while(sweep<=1e-4) sweep+=2*Math.PI; }
           else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
-          var N=Math.max(8,Math.ceil(Math.abs(sweep)/(Math.PI/32)));
-          for(var k=1;k<=N;k++){
-            var a=a0+sweep*(k/N);
-            pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,srcLineI,rcState);
-          }
-          // guard against float drift: land exactly on the programmed end point
-          if(Math.abs(pos.x-endX)>1e-9||Math.abs(pos.y-endY)>1e-9) pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
+          var crTo={x:endX,y:endY,z:crFrom.z};
+          pushContourArc(arcGeom(crFrom,crTo,cx2,cy2,R,a0,sweep,srcLineI,'CR'),false,srcLineI,rcState,Math.PI/32);
         } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR geometry is impossible \u2014 arc rejected'});
       } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR radius R is missing \u2014 arc rejected'});
     }
@@ -1723,6 +1743,7 @@ function parseProgram(code){
       // solve: center = pos + t*(-tanY, tanX), arc through endX,endY
       var denom = -tanY*dx + tanX*dy;
       if(Math.abs(denom)>1e-6){
+        var ctFrom=pointCopy(pos);
         var t2=(dx*dx+dy*dy)/(2*denom);
         var cx2=pos.x-tanY*t2, cy2=pos.y+tanX*t2;
         var R=Math.sqrt((pos.x-cx2)*(pos.x-cx2)+(pos.y-cy2)*(pos.y-cy2));
@@ -1732,17 +1753,15 @@ function parseProgram(code){
         var sweep;
         if(dr2>0){ sweep=a1-a0; while(sweep<=1e-4) sweep+=2*Math.PI; }
         else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
-        var N=Math.max(8,Math.ceil(Math.abs(sweep)/(Math.PI/32)));
-        for(var k=1;k<=N;k++){
-          var a=a0+sweep*(k/N);
-          pushSeg({x:cx2+R*Math.cos(a),y:cy2+R*Math.sin(a),z:pos.z},false,srcLineI,rcState);
-        }
+        var ctTo={x:endX,y:endY,z:ctFrom.z};
+        pushContourArc(arcGeom(ctFrom,ctTo,cx2,cy2,R,a0,sweep,srcLineI,'CT'),false,srcLineI,rcState,Math.PI/32);
       } else {
-        pushSeg({x:endX,y:endY,z:pos.z},false,srcLineI,rcState);
+        pushContourLine({x:endX,y:endY,z:pos.z},false,srcLineI,rcState,false,'CT-L');
       }
     }
     else if(line.indexOf('L ')===0 || line==='L'){
       blockIndex++;
+      var _priorRcL=rcState;
       if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       var lx=line.match(/IX([+-]?\d+\.?\d*)/), ly=line.match(/IY([+-]?\d+\.?\d*)/), lz=line.match(/IZ([+-]?\d+\.?\d*)/);
       // NOTE: no lookbehind here — (?<!...) is a SyntaxError on iOS Safari <16.4
@@ -1761,7 +1780,7 @@ function parseProgram(code){
       // FMAX is non-persistent: only applies to this block, feed reverts after
       if(isFmax){ var _prevFeed=feed; feed=9999; }
       if(!isNaN(feed) && feed<9000) lastDefinedFeed=feed;
-      pendingMoves.push({from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:target.x,y:target.y,z:target.z}, rapid:isFmax, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, m99:hasM99});
+      pendingMoves.push({from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:target.x,y:target.y,z:target.z}, rapid:isFmax, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, rcActivation:(rcState==='RL'||rcState==='RR')&&rcState!==_priorRcL, m99:hasM99});
       if(isFmax) feed=_prevFeed; // restore feed after FMAX block
       pos = {x:target.x,y:target.y,z:target.z}; // track pos for incremental coords
     }
@@ -1807,9 +1826,341 @@ function parseProgram(code){
   return {blkMin:blkMin, blkMax:blkMax, blkCyl:blkCyl, hasStock:hasStock, viewMin:viewMin, viewMax:viewMax, sub:sub, problems:parseProblems, totalBlocks:blockIndex, start:{x:blkMin.x,y:blkMax.y,z:blkMax.z+50}};
 }
 
-function applyRadiusComp(sub, parseProblems){
-  offsetRun._gouged = {}; // reset gouge-warning dedupe for this parse
-  offsetRun._badRadius = {}; // reset non-positive-radius dedupe for this parse
+function _rcPoint(p){ return {x:p.x,y:p.y,z:p.z}; }
+function _rcDist2(a,b){ var dx=a.x-b.x,dy=a.y-b.y; return dx*dx+dy*dy; }
+function _rcCross(a,b){ return a.x*b.y-a.y*b.x; }
+function _rcDot(a,b){ return a.x*b.x+a.y*b.y; }
+function _rcDirectedAngle(a0,a1,dir){
+  var d=a1-a0;
+  if(dir>0){ while(d<0)d+=2*Math.PI; while(d>=2*Math.PI)d-=2*Math.PI; }
+  else { while(d>0)d-=2*Math.PI; while(d<=-2*Math.PI)d+=2*Math.PI; }
+  return d;
+}
+function _rcPrimitiveStart(p){
+  if(p.type==='line') return _rcPoint(p.start);
+  if(p.type==='point') return _rcPoint(p.point);
+  return {x:p.cx+p.r*Math.cos(p.a0),y:p.cy+p.r*Math.sin(p.a0),z:p.z0};
+}
+function _rcPrimitiveEnd(p){
+  if(p.type==='line') return _rcPoint(p.end);
+  if(p.type==='point') return _rcPoint(p.point);
+  var a=p.a0+p.sweep;
+  return {x:p.cx+p.r*Math.cos(a),y:p.cy+p.r*Math.sin(a),z:p.z1};
+}
+function _rcTangent(p,atEnd){
+  if(p.type==='line'){
+    var dx=p.end.x-p.start.x,dy=p.end.y-p.start.y,l=Math.hypot(dx,dy);
+    return l>1e-12?{x:dx/l,y:dy/l}:{x:0,y:0};
+  }
+  if(p.type==='point') return atEnd?p.endTangent:p.startTangent;
+  var a=p.a0+(atEnd?p.sweep:0),dir=p.sweep>=0?1:-1;
+  return {x:-Math.sin(a)*dir,y:Math.cos(a)*dir};
+}
+function _rcPointOnPrimitive(pt,p,tol){
+  tol=tol||1e-6;
+  if(p.type==='point') return _rcDist2(pt,p.point)<=tol*tol;
+  if(p.type==='line'){
+    var dx=p.end.x-p.start.x,dy=p.end.y-p.start.y,l2=dx*dx+dy*dy;
+    if(l2<1e-16) return _rcDist2(pt,p.start)<=tol*tol;
+    var t=((pt.x-p.start.x)*dx+(pt.y-p.start.y)*dy)/l2;
+    var q={x:p.start.x+dx*t,y:p.start.y+dy*t};
+    return t>=-tol&&t<=1+tol&&_rcDist2(pt,q)<=tol*tol;
+  }
+  var rr=Math.hypot(pt.x-p.cx,pt.y-p.cy);
+  if(Math.abs(rr-p.r)>tol) return false;
+  var dir=p.sweep>=0?1:-1;
+  var rel=_rcDirectedAngle(p.a0,Math.atan2(pt.y-p.cy,pt.x-p.cx),dir);
+  return Math.abs(rel)<=Math.abs(p.sweep)+tol/Math.max(p.r,1e-9);
+}
+function _rcSupportIntersections(a,b){
+  var out=[];
+  if(a.type==='point'){
+    if(_rcPointOnPrimitive(a.point,b,1e-6)) out.push(_rcPoint(a.point));
+    return out;
+  }
+  if(b.type==='point') return _rcSupportIntersections(b,a);
+  if(a.type==='line'&&b.type==='line'){
+    var r={x:a.end.x-a.start.x,y:a.end.y-a.start.y};
+    var s={x:b.end.x-b.start.x,y:b.end.y-b.start.y};
+    var den=_rcCross(r,s);
+    if(Math.abs(den)<1e-12) return out;
+    var qmp={x:b.start.x-a.start.x,y:b.start.y-a.start.y};
+    var t=_rcCross(qmp,s)/den;
+    out.push({x:a.start.x+r.x*t,y:a.start.y+r.y*t,z:a.end.z});
+    return out;
+  }
+  if(a.type==='arc'&&b.type==='line') return _rcSupportIntersections(b,a);
+  if(a.type==='line'&&b.type==='arc'){
+    var dx=a.end.x-a.start.x,dy=a.end.y-a.start.y;
+    var fx=a.start.x-b.cx,fy=a.start.y-b.cy;
+    var qa=dx*dx+dy*dy,qb=2*(fx*dx+fy*dy),qc=fx*fx+fy*fy-b.r*b.r;
+    var disc=qb*qb-4*qa*qc;
+    if(qa<1e-16||disc<-1e-9) return out;
+    disc=Math.sqrt(Math.max(0,disc));
+    var t1=(-qb-disc)/(2*qa),t2=(-qb+disc)/(2*qa);
+    out.push({x:a.start.x+dx*t1,y:a.start.y+dy*t1,z:a.end.z});
+    if(Math.abs(t2-t1)>1e-10) out.push({x:a.start.x+dx*t2,y:a.start.y+dy*t2,z:a.end.z});
+    return out;
+  }
+  var dx=b.cx-a.cx,dy=b.cy-a.cy,d=Math.hypot(dx,dy);
+  if(d<1e-10&&Math.abs(a.r-b.r)<1e-8) return out;
+  if(d>a.r+b.r+1e-8||d<Math.abs(a.r-b.r)-1e-8||d<1e-12) return out;
+  var x=(a.r*a.r-b.r*b.r+d*d)/(2*d);
+  var h=Math.sqrt(Math.max(0,a.r*a.r-x*x));
+  var ux=dx/d,uy=dy/d,px=a.cx+ux*x,py=a.cy+uy*x;
+  out.push({x:px-uy*h,y:py+ux*h,z:a.z1});
+  if(h>1e-10) out.push({x:px+uy*h,y:py-ux*h,z:a.z1});
+  return out;
+}
+function _rcFiniteIntersections(a,b){
+  var c=_rcSupportIntersections(a,b),out=[];
+  for(var i=0;i<c.length;i++) if(_rcPointOnPrimitive(c[i],a,1e-5)&&_rcPointOnPrimitive(c[i],b,1e-5)) out.push(c[i]);
+  return out;
+}
+function _rcSetEnd(p,pt){
+  if(p.type==='line'){ p.end=_rcPoint(pt); return; }
+  if(p.type==='point'){ p.point=_rcPoint(pt); return; }
+  var dir=p.sweep>=0?1:-1;
+  p.sweep=_rcDirectedAngle(p.a0,Math.atan2(pt.y-p.cy,pt.x-p.cx),dir);
+  p.z1=pt.z;
+}
+function _rcSetStart(p,pt){
+  if(p.type==='line'){ p.start=_rcPoint(pt); return; }
+  if(p.type==='point'){ p.point=_rcPoint(pt); return; }
+  var endAngle=p.a0+p.sweep,dir=p.sweep>=0?1:-1;
+  p.a0=Math.atan2(pt.y-p.cy,pt.x-p.cx);
+  p.sweep=_rcDirectedAngle(p.a0,endAngle,dir);
+  p.z0=pt.z;
+}
+function _rcOffsetGeom(g,sideSign,radius){
+  if(!g) return null;
+  if(g.type==='line'){
+    var dx=g.to.x-g.from.x,dy=g.to.y-g.from.y,l=Math.hypot(dx,dy);
+    if(l<1e-10) return {type:'vertical',geom:g};
+    var nx=-dy/l*sideSign,ny=dx/l*sideSign;
+    return {type:'line',kind:g.kind,srcLine:g.srcLine,geom:g,
+      start:{x:g.from.x+nx*radius,y:g.from.y+ny*radius,z:g.from.z},
+      end:{x:g.to.x+nx*radius,y:g.to.y+ny*radius,z:g.to.z}};
+  }
+  var dir=g.sweep>=0?1:-1;
+  var corrected=g.r-sideSign*dir*radius;
+  if(corrected < -1e-8) return {type:'invalid',geom:g,srcLine:g.srcLine};
+  if(Math.abs(corrected)<=1e-8){
+    var endAngle=g.a0+g.sweep;
+    return {type:'point',kind:g.kind,srcLine:g.srcLine,geom:g,
+      point:{x:g.cx,y:g.cy,z:g.to.z},
+      startTangent:{x:-Math.sin(g.a0)*dir,y:Math.cos(g.a0)*dir},
+      endTangent:{x:-Math.sin(endAngle)*dir,y:Math.cos(endAngle)*dir}};
+  }
+  return {type:'arc',kind:g.kind,srcLine:g.srcLine,geom:g,cx:g.cx,cy:g.cy,r:corrected,a0:g.a0,sweep:g.sweep,z0:g.from.z,z1:g.to.z};
+}
+function _rcCloneSegment(template,from,to,side,extra){
+  var s={},k;
+  for(k in template) if(Object.prototype.hasOwnProperty.call(template,k)) s[k]=template[k];
+  s.from=_rcPoint(from); s.to=_rcPoint(to); s.rc=side; s.rcActivation=false;
+  var dx=to.x-from.x,dy=to.y-from.y,dz=to.z-from.z;
+  s.len=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  if(extra) for(k in extra) if(Object.prototype.hasOwnProperty.call(extra,k)) s[k]=extra[k];
+  return s;
+}
+function _rcEmitPrimitive(out,p,template,side){
+  var start=_rcPrimitiveStart(p),end=_rcPrimitiveEnd(p);
+  if(p.type==='point') return;
+  if(p.type==='line'){
+    if(_rcDist2(start,end)>1e-16||Math.abs(start.z-end.z)>1e-9) out.push(_rcCloneSegment(template,start,end,side,{rcGeom:p}));
+    return;
+  }
+  var steps=Math.max(8,Math.ceil(Math.abs(p.sweep)/(Math.PI/64))),prev=start;
+  for(var i=1;i<=steps;i++){
+    var t=i/steps,a=p.a0+p.sweep*t;
+    var q={x:p.cx+p.r*Math.cos(a),y:p.cy+p.r*Math.sin(a),z:p.z0+(p.z1-p.z0)*t};
+    if(i===steps) q=end;
+    out.push(_rcCloneSegment(template,prev,q,side,{rcGeom:p,srcLine:p.srcLine}));
+    prev=q;
+  }
+}
+function _rcEffectiveRadius(seg){
+  var tool=getToolByNum(seg.toolNum);
+  return tool ? tool.R+(tool.DR||0)+(seg.drPgm||0) : TOOL_R;
+}
+function _rcNominalPrimitive(g){
+  if(!g) return null;
+  if(g.type==='line') return {type:'line',start:_rcPoint(g.from),end:_rcPoint(g.to),geom:g};
+  return {type:'arc',cx:g.cx,cy:g.cy,r:g.r,a0:g.a0,sweep:g.sweep,z0:g.from.z,z1:g.to.z,geom:g};
+}
+function _rcNominalPairIntersects(a,b){
+  if(!a.geom||!b.geom) return false;
+  var na=_rcNominalPrimitive(a.geom),nb=_rcNominalPrimitive(b.geom);
+  if(na.type==='arc'&&nb.type==='arc'&&Math.hypot(na.cx-nb.cx,na.cy-nb.cy)<1e-8&&Math.abs(na.r-nb.r)<1e-8) return true;
+  return _rcFiniteIntersections(na,nb).length>0;
+}
+function _rcReport(parseProblems,line,msg){
+  pushParseProblem(parseProblems,{line:line!=null?line:0,sev:'err',msg:msg});
+  console.warn('Line '+((line||0)+1)+': '+msg);
+}
+function _rcHasLoop(pieces){
+  for(var i=0;i<pieces.length;i++) for(var j=i+1;j<pieces.length;j++){
+    if(j===i+1) continue;
+    // The first and last elements are the approach/departure boundary of the
+    // compensated contour. HEIDENHAIN permits these paths to meet or overlap;
+    // they are not a compensation-created interior loop.
+    if(i===0&&j>=pieces.length-2) continue;
+    if(pieces[i].type==='arc'&&pieces[j].type==='arc'&&Math.hypot(pieces[i].cx-pieces[j].cx,pieces[i].cy-pieces[j].cy)<1e-8&&Math.abs(pieces[i].r-pieces[j].r)<1e-8){
+      if(!_rcNominalPairIntersects(pieces[i],pieces[j])) return true;
+      continue;
+    }
+    var hits=_rcFiniteIntersections(pieces[i],pieces[j]);
+    if(hits.length&&!_rcNominalPairIntersects(pieces[i],pieces[j])) return true;
+  }
+  return false;
+}
+
+function applyRadiusComp(sub,parseProblems){
+  var hasAnalytic=false;
+  for(var ai=0;ai<sub.length;ai++) if((sub[ai].rc==='RL'||sub[ai].rc==='RR')&&sub[ai].rcGeom){ hasAnalytic=true; break; }
+  if(hasAnalytic) applyRadiusCompAnalytic(sub,parseProblems);
+  else _applyRadiusCompPolylineFallback(sub,parseProblems);
+}
+
+function applyRadiusCompAnalytic(sub,parseProblems){
+  var i=0;
+  while(i<sub.length){
+    if(sub[i].rc!=='RL'&&sub[i].rc!=='RR'){ i++; continue; }
+    var side=sub[i].rc,j=i;
+    while(j<sub.length&&sub[j].rc===side) j++;
+    var prev=i>0?sub[i-1]:null,next=j<sub.length?sub[j]:null;
+    var newLen=_offsetRunAnalytic(sub,i,j-1,side,prev,next,parseProblems);
+    i+=newLen||0;
+  }
+}
+
+function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
+  var activation=sub[a]&&sub[a].rcActivation?sub[a]:null;
+  if(!activation){
+    var unsupported=false;
+    for(var ui=a;ui<=b;ui++) if(!sub[ui].rcGeom){ unsupported=true; break; }
+    if(unsupported) return _offsetRunPolylineFallback(sub,a,b,side,prevSeg,nextSeg,parseProblems);
+    _rcReport(parseProblems,sub[a]?sub[a].srcLine:0,'Radius compensation must be activated in an L block — compensated cutting run rejected.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  var radius=_rcEffectiveRadius(activation);
+  if(!(radius>0)){
+    _rcReport(parseProblems,activation.srcLine,'Radius compensation active with a non-positive effective tool radius (R+DR = '+radius.toFixed(3)+'mm) — compensated cutting run rejected.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  var groups=[],lastId=null;
+  for(var si=a;si<=b;si++){
+    var sg=sub[si],id=sg.rcGeom?sg.rcGeom.id:'seg-'+si;
+    if(!groups.length||id!==lastId) groups.push({geom:sg.rcGeom,segments:[sg],template:sg,index:groups.length});
+    else groups[groups.length-1].segments.push(sg);
+    lastId=id;
+  }
+  var firstGroup=groups[0];
+  if(!firstGroup.geom||!firstGroup.template.rcActivation){
+    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation at the programmed contour start.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  groups.shift();
+  if(!groups.length){
+    _rcReport(parseProblems,activation.srcLine,'Radius compensation has no following contour element — compensated cutting run rejected.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  var sideSign=side==='RL'?1:-1,items=[],xy=[];
+  for(var gi=0;gi<groups.length;gi++){
+    if(!groups[gi].geom) return _offsetRunPolylineFallback(sub,a,b,side,prevSeg,nextSeg,parseProblems);
+    var prim=_rcOffsetGeom(groups[gi].geom,sideSign,radius);
+    if(prim&&prim.type==='invalid'){
+      _rcReport(parseProblems,prim.srcLine,'tool radius too large: inside contour radius is smaller than the effective tool radius ('+radius.toFixed(3)+'mm).');
+      sub.splice(a,b-a+1); return 0;
+    }
+    var item={group:groups[gi],prim:prim,itemIndex:items.length};
+    items.push(item); if(prim&&prim.type!=='vertical'){ xy.push(item); }
+  }
+  if(!xy.length){
+    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation without a following XY contour element.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  var transitionAfter={},pieces=[];
+  for(var ji=0;ji<xy.length-1;ji++){
+    var left=xy[ji],right=xy[ji+1],p=left.prim,q=right.prim;
+    var nominalEnd=left.group.geom.to,nominalStart=right.group.geom.from;
+    if(_rcDist2(nominalEnd,nominalStart)>1e-8){
+      _rcReport(parseProblems,right.group.geom.srcLine,'Cannot calculate tool radius compensation: gap between contour elements.');
+      sub.splice(a,b-a+1); return 0;
+    }
+    var t1=_rcTangent(p,true),t2=_rcTangent(q,false),cross=_rcCross(t1,t2),dot=_rcDot(t1,t2);
+    if(Math.abs(cross)<1e-9&&dot>0){
+      var pe=_rcPrimitiveEnd(p),qs=_rcPrimitiveStart(q);
+      var snap={x:(pe.x+qs.x)/2,y:(pe.y+qs.y)/2,z:(pe.z+qs.z)/2};
+      _rcSetEnd(p,snap); _rcSetStart(q,snap);
+    } else if(sideSign*cross<0){
+      var from=_rcPrimitiveEnd(p),to=_rcPrimitiveStart(q);
+      var aa0=Math.atan2(from.y-nominalEnd.y,from.x-nominalEnd.x);
+      var aa1=Math.atan2(to.y-nominalEnd.y,to.x-nominalEnd.x);
+      var tsweep=_rcDirectedAngle(aa0,aa1,cross>0?1:-1);
+      var trans={type:'arc',kind:'RC-TRANSITION',srcLine:right.group.geom.srcLine,cx:nominalEnd.x,cy:nominalEnd.y,r:radius,a0:aa0,sweep:tsweep,z0:from.z,z1:to.z};
+      transitionAfter[left.itemIndex]=trans;
+    } else {
+      var candidates=_rcSupportIntersections(p,q),best=null,bestScore=Infinity;
+      var rawEnd=_rcPrimitiveEnd(p),rawStart=_rcPrimitiveStart(q);
+      for(var ci=0;ci<candidates.length;ci++){
+        if(!_rcPointOnPrimitive(candidates[ci],p,1e-5)||!_rcPointOnPrimitive(candidates[ci],q,1e-5)) continue;
+        var score=_rcDist2(candidates[ci],rawEnd)+_rcDist2(candidates[ci],rawStart);
+        if(score<bestScore){ best=candidates[ci]; bestScore=score; }
+      }
+      if(!best){
+        _rcReport(parseProblems,right.group.geom.srcLine,'tool radius too large: the compensated inside contour elements have no valid intersection.');
+        sub.splice(a,b-a+1); return 0;
+      }
+      best.z=nominalEnd.z;
+      _rcSetEnd(p,best); _rcSetStart(q,best);
+    }
+  }
+  for(var pi=0;pi<items.length;pi++) if(items[pi].prim.type!=='vertical'){
+    pieces.push(items[pi].prim);
+    if(transitionAfter[pi]) pieces.push(transitionAfter[pi]);
+  }
+  if(_rcHasLoop(pieces)){
+    _rcReport(parseProblems,activation.srcLine,'tool radius too large: compensation creates a loop in the path of the tool center.');
+    sub.splice(a,b-a+1); return 0;
+  }
+  var out=[],firstStart=_rcPrimitiveStart(xy[0].prim);
+  var approach=_rcCloneSegment(activation,activation.from,firstStart,side,{rcActivation:true,programmedTo:_rcPoint(activation.to),rcGeom:firstGroup.geom});
+  if(approach.len>1e-9) out.push(approach);
+  var current=firstStart;
+  for(var ii=0;ii<items.length;ii++){
+    var it=items[ii];
+    if(it.prim.type==='vertical'){
+      var vg=it.group.geom;
+      var vz={x:current.x,y:current.y,z:vg.to.z};
+      if(Math.abs(vz.z-current.z)>1e-9) out.push(_rcCloneSegment(it.group.template,current,vz,side,{rcGeom:vg}));
+      current=vz;
+    } else {
+      _rcEmitPrimitive(out,it.prim,it.group.template,side);
+      current=_rcPrimitiveEnd(it.prim);
+      if(transitionAfter[ii]){
+        _rcEmitPrimitive(out,transitionAfter[ii],it.group.template,side);
+        current=_rcPrimitiveEnd(transitionAfter[ii]);
+      }
+    }
+  }
+  sub.splice.apply(sub,[a,b-a+1].concat(out));
+  if(nextSeg&&out.length){
+    var last=out[out.length-1].to;
+    var ndx=nextSeg.to.x-nextSeg.from.x,ndy=nextSeg.to.y-nextSeg.from.y;
+    var pureZ=nextSeg.rc==='R0'&&Math.abs(ndx)<1e-9&&Math.abs(ndy)<1e-9;
+    nextSeg.from=_rcPoint(last);
+    if(pureZ){
+      nextSeg.to.x=last.x; nextSeg.to.y=last.y; _recalcSegmentLen(nextSeg);
+      _carryPhysicalXY(sub,a+out.length+1,last.x,last.y);
+    } else _recalcSegmentLen(nextSeg);
+  }
+  return out.length;
+}
+
+function _applyRadiusCompPolylineFallback(sub, parseProblems){
+  _offsetRunPolylineFallback._gouged = {}; // reset fallback diagnostics for this parse
+  _offsetRunPolylineFallback._badRadius = {};
   var i=0;
   while(i<sub.length){
     // Skip non-RC segments
@@ -1821,13 +2172,13 @@ function applyRadiusComp(sub, parseProblems){
     // Run is sub[i..j-1]
     var prevSeg = (i>0) ? sub[i-1] : null;
     var nextSeg = (j<sub.length) ? sub[j] : null;
-    var newLen = offsetRun(sub, i, j-1, side, prevSeg, nextSeg, parseProblems);
+    var newLen = _offsetRunPolylineFallback(sub, i, j-1, side, prevSeg, nextSeg, parseProblems);
     // offsetRun returns the new number of segments in the run
     i = i + (newLen||0);
   }
 }
 
-function offsetRun(sub, a, b, side, prevSeg, nextSeg, parseProblems){
+function _offsetRunPolylineFallback(sub, a, b, side, prevSeg, nextSeg, parseProblems){
   // Build vertex list from the run: V0=seg[a].from, V1=seg[a].to=seg[a+1].from, ...
   // Offset = the tool's reference-point radius R + DR (per-run tool, not global).
   // This positions the tool CENTER; the physical tool shape (cone/ball/flat) in
@@ -1861,9 +2212,9 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg, parseProblems){
   // remove the invalid compensated run rather than cutting the nominal path.
   if(!(TR > 0)){
     var _erLine = (sub[a] && sub[a].srcLine!=null) ? sub[a].srcLine : 0;
-    if(!offsetRun._badRadius) offsetRun._badRadius = {};
-    if(!offsetRun._badRadius[_erLine]){
-      offsetRun._badRadius[_erLine] = true;
+    if(!_offsetRunPolylineFallback._badRadius) _offsetRunPolylineFallback._badRadius = {};
+    if(!_offsetRunPolylineFallback._badRadius[_erLine]){
+      _offsetRunPolylineFallback._badRadius[_erLine] = true;
       var _erMsg = 'Radius compensation active with a non-positive effective tool radius (R+DR = '+TR.toFixed(3)+'mm) — compensated cutting run rejected.';
       pushParseProblem(parseProblems, {line:_erLine, sev:'err', msg:_erMsg});
       console.warn('Line '+(_erLine+1)+': '+_erMsg);
@@ -2026,9 +2377,9 @@ function offsetRun(sub, a, b, side, prevSeg, nextSeg, parseProblems){
 
   if(invalidRun){
     var _gLine=(sub[a]&&sub[a].srcLine!=null)?sub[a].srcLine:0;
-    if(!offsetRun._gouged) offsetRun._gouged = {};
-    if(!offsetRun._gouged[_gLine]){
-      offsetRun._gouged[_gLine]=true;
+    if(!_offsetRunPolylineFallback._gouged) _offsetRunPolylineFallback._gouged = {};
+    if(!_offsetRunPolylineFallback._gouged[_gLine]){
+      _offsetRunPolylineFallback._gouged[_gLine]=true;
       var _gMsg='Inner corner/radius is smaller than the compensation radius ('+TR.toFixed(3)+'mm) — compensated cutting run rejected (tool radius too large).';
       pushParseProblem(parseProblems, {line:_gLine,sev:'err',msg:_gMsg});
       console.warn('Line '+(_gLine+1)+': '+_gMsg);

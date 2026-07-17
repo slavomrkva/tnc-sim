@@ -25,7 +25,8 @@ const TOOLS = {
   24: {T:24, TYPE:'MILL',        R:1,     R2:0, DR:0, DR2:0, DL:0}, // eff via DR_call: 0 / negative
   25: {T:25, TYPE:'MILL',        R:2,     R2:0, DR:0, DR2:0, DL:0, ANGLE:5},
   26: {T:26, TYPE:'MILL',        R:5,     R2:2, DR:0, DR2:1, DL:0, ANGLE:0, RCUTS:4},
-  27: {T:27, TYPE:'MILL',        R:5,     R2:0, DR:0, DR2:0, DL:0, ANGLE:0, RCUTS:0}
+  27: {T:27, TYPE:'MILL',        R:5,     R2:0, DR:0, DR2:0, DL:0, ANGLE:0, RCUTS:0},
+  28: {T:28, TYPE:'MILL',        R:10,    R2:0, DR:0, DR2:0, DL:0, ANGLE:0, RCUTS:4}
 };
 
 function makeContext(){
