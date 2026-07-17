@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.873 (web test)
+- SEO: title/description/OG/JSON-LD teraz spomínajú nemčinu (Deutsch) a opravený počet lekcií (15→16).
+
 ## v0.872 (web test)
 - Preložené okno „About" (popis aplikácie, tlačidlá GitHub / Fehler melden / Kaffee).
 

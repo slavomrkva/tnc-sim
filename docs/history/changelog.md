@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.873 — bilingual SEO metadata (test branch)
+
+- Fixed stale "15 lessons" → 16 across `<title>`, description, OG/Twitter tags and JSON-LD `featureList`.
+- Appended German keywords/phrases to title, description, OG/Twitter description and `<meta keywords>` (visible in the single English-served page, no separate `/de/` route — a full hreflang setup would need a second physical HTML entry point, out of scope here).
+- Added `"inLanguage": ["en", "de"]` and an "English and German (Deutsch) interface" line to the JSON-LD `featureList`.
+
 ## v0.872 — German About popup (test branch)
 
 - Added `web/i18n-about-de.js`, a web-only German override of `openAboutPopup()` (core/theme-toast.js builds the popup from an inline string at call time, so it can't be reached via `data-i18n`). Loaded after `core/theme-toast.js` so the German version wins when the UI language is German; `core/` itself is untouched.
