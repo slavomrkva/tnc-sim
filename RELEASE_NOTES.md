@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.868
+- Corrected TNC 640 RL/RR tool-centre geometry for supported L, C, CC, CR, CT, CP, RND and CHF contours, removing false radius errors on valid paths.
+- While completing an L block, interim RL/RR diagnostics are now one orange notice rather than multiple blocking errors.
+- In the L editor, Radius compensation now precedes Feed on desktop and mobile.
+
 ## v0.867 (web test)
 - On mobile, `−` now moves in front of an entered BLK FORM, guided path or cycle value; pressing `−` again restores the positive value.
 

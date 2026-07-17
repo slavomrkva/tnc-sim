@@ -108,9 +108,11 @@ context.EXTRA_DEMO_PROGRAMS.forEach(demo => {
     'TOOL CALL 1 Z S3000 F500',
     'M3',
     'L X+0 Y+0 R0',
-    'L X+2 Y+0 RL',
-    'L X+2 Y+2',
-    'L X+4 Y+2 R0',
+    'L X+5 Y+0 RL',
+    'L X+5 Y+5',
+    'L X+3 Y+5',
+    'L X+3 Y+3',
+    'L X+1 Y+3 R0',
     'END PGM BAD_CORNER MM'
   ].join('\n');
   assert.ok(!context.validateProgram(unfitCorner).some(problem => /tool radius too large/.test(problem.msg)), 'fixture must require a real toolpath geometry check');

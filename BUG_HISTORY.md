@@ -15,6 +15,21 @@ Newest first.
 
 ---
 
+## 2026-07-17 — mobile numeric editing and TNC 640 RL/RR geometry
+**Repos:** web `tnc-sim` v0.868; deliberately ported to Android in APP_VERSION 1.0.55.
+**Resolved/accepted:** 2026-07-17.
+
+### Reported symptoms and root causes
+- Mobile keyboards appended a newly pressed minus after an entered field value, and an already negative value could not be toggled back to positive. Cycle Q editing requested the full text keyboard.
+- The L builder exposed its fields as XYZ/F/R/M instead of XYZ/R/F/M. During an unfinished L edit, the Problems panel emitted several premature RL/RR errors.
+- `PROGRAM.H` falsely rejected a valid 5 mm effective tool radius. The old compensation pass offset display chords rather than exact contour geometry; its lead-in and inner-radius checks therefore misclassified a valid circular entry.
+
+### Accepted implementation and verification
+- A common mobile sign handler normalizes trailing keyboard signs, toggles an existing negative value, and covers BLK FORM, guided L/C/CC/CR fields, CR radius and cycle Q values. Q editing uses the decimal keypad.
+- The L schema now uses XYZ/R/F/M. Live RL/RR editing suppresses only radius-compensation diagnostics and replaces them with one orange notice; complete editing and simulation retain all blocking validation.
+- The parser preserves L/C/CR/CT/CP/RND/CHF as analytic primitives through compensation, calculates exact offsets, finite inner intersections and outer transition arcs, then tessellates the finished tool-centre path. RND uses the correct tangency distance `R*tan(turn/2)`; equality with the tool radius is handled as its degenerate geometric limit rather than a false "smaller" error.
+- Focused regressions, all parser suites and the supplied PROGRAM.H contour passed locally. The reported entry ends at X0/Y34.5, the entry C centre-path radius is 2.5 mm and each RND centre-path radius is 0.5 mm.
+
 ## C19 — Desktop F menu closed prematurely; CALL LBL status was blank
 **Repos:** web `tnc-sim` v0.866 and Android `tnc-sim-android` (LBL status only).
 **Resolved/accepted:** 2026-07-16 after web preview verification.

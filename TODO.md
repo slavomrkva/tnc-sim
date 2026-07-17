@@ -8,15 +8,6 @@
 
 ## Open bugs
 
-## C19 — Mobile numeric sign toggle in guided editors
-**Reported:** 2026-07-17. **Repro:** on a phone, enter a number in BLK FORM or a guided L/C/CC/CR field, then press the mobile keyboard's `-` key.
-### Symptom
-The sign was appended after the value in BLK FORM, and pressing `-` again on an already negative guided value did not restore the positive value. CR radius also lacked the signed mobile entry needed to select its major/minor arc.
-### Attempts
-- Attempt 1 — added one shared sign helper, intercepted mobile `beforeinput` with a trailing-sign fallback, and routed BLK FORM, cycle Q editing, guided L/C/CC/CR fields, and CR radius through it. Added a Node regression test; syntax checks and the existing field-editor regression pass.
-### Status
-Ready for mobile-web verification on the local test branch. Do not port to Android until the web behaviour is accepted.
-
 ## C17 — Tool Table CRUD, parameters and import/export audit
 **Reported:** 2026-07-16. **Repro:** current GitHub main v0.861, shared with
 Android APP_VERSION 1.0.43.

@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.867';
+var APP_VERSION = '0.868';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -453,8 +453,8 @@ var BUILDERS = {
     {p:'X', prompt:'X coordinate', type:'coord', opt:true},
     {p:'Y', prompt:'Y coordinate', type:'coord', opt:true},
     {p:'Z', prompt:'Z coordinate', type:'coord', opt:true},
-    {p:'F', prompt:'Feed rate', type:'feed', opt:true},
     {p:'', prompt:'Radius compensation', type:'rc', opt:true},
+    {p:'F', prompt:'Feed rate', type:'feed', opt:true},
     {p:'M', prompt:'Miscellaneous function M (e.g. 3,4,5,6,99)', type:'mval', opt:true}
   ]},
   'C':  {title:'C — circular arc', fields:[

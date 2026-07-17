@@ -246,11 +246,41 @@ function updateHighlightOverlay(){
 
 function errorCount(){ return problemsData.filter(function(p){ return p.sev==='err'; }).length; }
 
+function _isLiveRadiusCompEdit(){
+  var guided=typeof FM!=='undefined' && FM.active && FM.builderKey==='L';
+  var direct=typeof _liveEditLine!=='undefined' && _liveEditLine>=0;
+  return !!((guided||direct) && codeEl && /\bR[LR]\b/.test(codeEl.value));
+}
+
+function _isRadiusCompDiagnostic(problem){
+  return /radius comp\.|compensation radius|compensated cutting run|tool radius too large/i.test(String(problem&&problem.msg||''));
+}
+
+function _problemsForDisplay(allProblems){
+  var liveRadiusComp=_isLiveRadiusCompEdit();
+  var hiddenRadiusComp=false;
+  var visible=[];
+  for(var i=0;i<allProblems.length;i++){
+    var problem=allProblems[i];
+    if(problem.line===_liveEditLine) continue;
+    if(liveRadiusComp && _isRadiusCompDiagnostic(problem)){
+      hiddenRadiusComp=true;
+      continue;
+    }
+    visible.push(problem);
+  }
+  if(hiddenRadiusComp){
+    visible.push({line:typeof _liveEditLine==='number'&&_liveEditLine>=0?_liveEditLine:0,
+      sev:'warn',msg:'Radius compensation will be checked when editing is complete or simulation starts'});
+  }
+  return visible;
+}
+
 function renderProblems(){
   var panel=document.getElementById('problems');
   var list=document.getElementById('problemsList');
   var countEl=document.getElementById('problemsCount');
-  var visible = problemsData.filter(function(p){ return p.line!==_liveEditLine; });
+  var visible = _problemsForDisplay(problemsData);
   if(visible.length===0){ panel.style.display='none'; updateLineNums(); return; }
   var errs=visible.filter(function(p){ return p.sev==='err'; }).length, warns=visible.length-errs;
   panel.style.display='flex';
@@ -259,12 +289,12 @@ function renderProblems(){
   if(warns) label+=(errs?' \u00B7 ':'')+'<span style="color:#e8a23a">\u25CF '+warns+(warns>1?' warnings':' warning')+'</span>';
   countEl.innerHTML=label;
   var html='';
-  for(var j=0;j<problemsData.length;j++){
-    var p=problemsData[j];
-    if(p.line===_liveEditLine) continue;
-    var isFixed = fixedProblems[j+':'+p.msg];
+  for(var j=0;j<visible.length;j++){
+    var p=visible[j];
+    var problemIndex=problemsData.indexOf(p);
+    var isFixed = problemIndex>=0 && fixedProblems[problemIndex+':'+p.msg];
     var rowCls = isFixed ? 'problem fixed' : ('problem '+p.sev);
-    var fixBtn = (!isFixed && p.fix) ? '<button class="problem-fix" onclick="event.stopPropagation();applyFix('+j+')">Fix</button>' : '';
+    var fixBtn = (!isFixed && p.fix && problemIndex>=0) ? '<button class="problem-fix" onclick="event.stopPropagation();applyFix('+problemIndex+')">Fix</button>' : '';
     var explainBtn = ''; // Explain disabled (AI removed)
     html+='<div class="'+rowCls+'" onclick="gotoLine('+p.line+')"><span class="pl">L'+(p.line+1)+'</span><span class="pi">'+(isFixed?'\u2714':(p.sev==='err'?'\u2716':'\u26A0'))+'</span><span>'+p.msg+'</span>'+fixBtn+explainBtn+'</div>';
   }
@@ -369,6 +399,7 @@ function lineParts(){
 function writeLine(){
   var lp=lineParts();
   var v=codeEl.value;
+  if(typeof _liveEditLine!=='undefined') _liveEditLine=v.slice(0,FM.lineStart).split('\n').length-1;
   var scrollTop=codeEl.scrollTop;
   codeEl.value = v.slice(0,FM.lineStart) + lp.text + v.slice(FM.lineStart+FM.lineLen);
   codeEl.scrollTop=scrollTop;

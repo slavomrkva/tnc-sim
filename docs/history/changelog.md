@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.868 — analytic TNC 640 radius compensation
+
+- Kept L/C/CR/CT/CP/RND/CHF as exact primitives through RL/RR calculation, including exact L activation, finite inner intersections, outer transition arcs and the equal-radius RND limit; only the completed tool-center path is tessellated.
+- Collapsed temporary radius-compensation diagnostics during a live L edit into one warning, reordered L fields to XYZ/R/F/M and added regressions for the reported PROGRAM.H contour.
+
 ## v0.867 — mobile numeric sign toggle
 
 - Added shared sign handling for BLK FORM, guided L/C/CC/CR entry and cycle Q-value editing: a mobile minus is normalized to the front of the value and toggles an existing negative value back to positive.

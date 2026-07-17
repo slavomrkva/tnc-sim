@@ -622,10 +622,12 @@ function exitFieldMode(keepCaret){
   if(!FM.active) return;
   var caret=FM.lineStart+FM.lineLen;
   FM.active=false;
+  if(typeof _liveEditClear==='function') _liveEditClear();
   _cancelMobileFocus(true);
   if(!keepCaret){ try{ codeEl.setSelectionRange(caret,caret); }catch(e){} }
   var cp=document.getElementById('ctxPanel'); if(cp){ cp.innerHTML=''; }
   renderIdlePanel();
+  if(typeof runValidation==='function') runValidation();
 }
 
 function saveLastSel(){ lastSel={start:codeEl.selectionStart, end:codeEl.selectionEnd}; }

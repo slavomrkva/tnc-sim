@@ -118,6 +118,8 @@ L Z+20 R0
 END PGM C2 MM`;
   const finalLine=repro.split('\n').findIndex(line => line==='L Z+20 R0');
   const parsed=context.parseProgram(repro);
+  assert.ok(!(parsed.problems||[]).some(problem => /tool radius too large|Cannot calculate tool radius compensation/.test(problem.msg)), 'reported C2 contour must retain its valid compensated cutting run');
+  assert.ok(parsed.sub.some(segment => segment.rc==='RL'), 'reported C2 contour must emit compensated motion, not only a nominal retract');
   const retracts=parsed.sub.filter(s => s.srcLine===finalLine);
   assert.strictEqual(retracts.length, 1, 'reported R0 block should produce one segment');
   near(retracts[0].from.x, retracts[0].to.x, 'reported retract X continuity');
