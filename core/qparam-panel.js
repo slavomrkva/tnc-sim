@@ -38,11 +38,20 @@ function openQPopup(lineIdx){
         // default behavior would replace that selection with just "+"/"-", wiping the
         // digits. Strip any existing sign and prepend the new one instead.
         e.preventDefault();
-        var cur = inp.value.replace(/^[+-]/, '');
-        inp.value = (e.key==='-' ? '-' : '+') + cur;
+        inp.value = applyNumericSign(inp.value,e.key);
         try{ inp.setSelectionRange(inp.value.length, inp.value.length); }catch(err){}
         return;
       }
+    });
+    inp.addEventListener('beforeinput', function(e){
+      if(!e || (e.data!=='-' && e.data!=='+')) return;
+      e.preventDefault();
+      inp.value=applyNumericSign(inp.value,e.data);
+      try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(err){}
+    });
+    inp.addEventListener('input', function(){
+      var normalized=normalizeTrailingNumericSign(inp.value);
+      if(inp.value!==normalized) inp.value=normalized;
     });
     _focusEditorControl(inp, function(){ return _qPopupLine>=0; });
     try{ inp.select(); }catch(e){}

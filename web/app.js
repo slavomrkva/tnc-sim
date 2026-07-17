@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.866';
+var APP_VERSION = '0.867';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -772,6 +772,18 @@ var FM={active:false};
 
 var lastMobileVal='';
 
+function _fieldAcceptsSign(f){
+  // CR radius uses its sign to choose the minor/major arc, just like
+  // coordinates use it for direction. Other generic numeric fields stay unsigned.
+  return !!f && (f.type==='coord' || (FM.builderKey==='CR' && f.p==='R'));
+}
+
+function _setFieldSign(f, sign){
+  f.val=applyNumericSign(f.val,sign);
+  FM.typing=true;
+  refreshSelection();
+}
+
 var SUGS={
   feed:[['100','F100'],['500','F500'],['1000','F1000'],['2000','F2000'],['MAX','FMAX']],
   num:[['5','5'],['10','10'],['25','25'],['50','50']],
@@ -929,11 +941,8 @@ document.addEventListener('keydown', function(e){
     if(patterns[f.type] && !patterns[f.type].test(ch)) return;
     if(f.type==='feed' && /[mMaAxXfFuUtToO]/.test(ch)) ch=ch.toUpperCase();
     // + a - na coord poli len zmenia znamienko, nezahadzujú číslo
-    if(f.type==='coord' && (ch==='+'||ch==='-')){
-      var num = f.val===null ? '' : String(f.val).replace(/^[+\-]/,'');
-      f.val = ch + num;
-      FM.typing = true;
-      refreshSelection(); return;
+    if(_fieldAcceptsSign(f) && (ch==='+'||ch==='-')){
+      _setFieldSign(f,ch); return;
     }
     if(!FM.typing){ f.val=''; FM.typing=true; }
     f.val+=ch;
@@ -951,6 +960,26 @@ if(mobileInput){
     mobileInput.value = MI_SENTINEL;
     lastMobileVal = MI_SENTINEL;
   }
+
+  mobileInput.addEventListener('beforeinput', function(e){
+    if(!e || (e.data!=='-' && e.data!=='+')) return;
+    if(_qpPanelOpen()){
+      // Q expressions can contain an internal subtraction. Toggle only a
+      // simple numeric or Q-reference value.
+      if(QP.step===2 && /^[+\-]?(?:\d*(?:\.\d*)?|Q\d*)$/i.test(String(QP.val||''))){
+        e.preventDefault();
+        QP.val=applyNumericSign(QP.val,e.data);
+        QP._typing=true;
+        var qEl=document.getElementById('qpFbarVal'); if(qEl) qEl.textContent=QP.val||'0';
+      }
+      return;
+    }
+    if(!FM.active) return;
+    var field=FM.fields[FM.idx];
+    if(!_fieldAcceptsSign(field)) return;
+    e.preventDefault();
+    _setFieldSign(field,e.data);
+  });
 
   mobileInput.addEventListener('input', function(){
     // ── QP (Q parameter) panel routing — takes priority when open ──
@@ -1009,9 +1038,8 @@ if(mobileInput){
       if(f.type==='tool') continue; // handled by select element
       var patterns={coord:/[0-9.,+\-QqAaBbCc]/,num:/[0-9.,Qq]/,feed:/[0-9.QqFfAaXxUuTtOoMm]/,mfunc:/[0-9]/,mval:/[0-9]/};
       if(patterns[f.type] && !patterns[f.type].test(ch)) continue;
-      if(f.type==='coord' && (ch==='+'||ch==='-')){
-        var num2=f.val===null?'':String(f.val).replace(/^[+\-]/,'');
-        f.val=ch+num2; FM.typing=true; refreshSelection(); continue;
+      if(_fieldAcceptsSign(f) && (ch==='+'||ch==='-')){
+        _setFieldSign(f,ch); continue;
       }
       if(!FM.typing || f.type==='qval'){ f.val=''; FM.typing=true; }
       f.val+=ch;

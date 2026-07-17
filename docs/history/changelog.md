@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.867 — mobile numeric sign toggle
+
+- Added shared sign handling for BLK FORM, guided L/C/CC/CR entry and cycle Q-value editing: a mobile minus is normalized to the front of the value and toggles an existing negative value back to positive.
+- Added CR-radius sign entry for the documented minor/major-arc choice and focused regression coverage, including soft-keyboard fallback behaviour.
+
 ## v0.866 — desktop F menu placement
 
 - Open the desktop-only F menu below its trigger, preserving its mobile-native

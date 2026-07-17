@@ -21,6 +21,24 @@ function pFloat(val){ return parseFloat((val+'').replace(',', '.')); }
 
 function pInt(val){ return parseInt((val+'').replace(',', '')); }
 
+// Numeric editors keep the sign at the front. Minus is a toggle so a second
+// tap turns a negative value back into a positive one; plus selects an explicit
+// positive sign. BLK FORM, cycle and guided-field editors share this behaviour.
+function applyNumericSign(value, sign){
+  var text=String(value===null || value===undefined ? '' : value);
+  var bare=text.replace(/^[+\-]/,'');
+  if(sign==='-') return text.charAt(0)==='-' ? bare : '-'+bare;
+  return '+'+bare;
+}
+
+// Some soft keyboards do not expose beforeinput. In that case their sign is
+// already appended to the value, so normalize that trailing sign as a fallback.
+function normalizeTrailingNumericSign(value){
+  var text=String(value===null || value===undefined ? '' : value);
+  var match=text.match(/([+\-])$/);
+  return match ? applyNumericSign(text.slice(0,-1),match[1]) : text;
+}
+
 function signFmt(v){ 
   v=String(v).trim(); 
   // Normalize comma to dot

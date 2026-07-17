@@ -5,9 +5,9 @@
     "semantic_hash": "0ab90d57dd7181a32f7a9c4cc7de2c9d"
   },
   "core/block-form-panel.js": {
-    "mtime": 1784031046.0776885,
-    "ast_hash": "d014caa7694500572e4ec7e95832f578",
-    "semantic_hash": "d014caa7694500572e4ec7e95832f578"
+    "mtime": 1784287304.8474693,
+    "ast_hash": "f3555bdf765f0e97d9a090f128cae233",
+    "semantic_hash": ""
   },
   "core/bug-report.js": {
     "mtime": 1784031046.0776885,
@@ -25,13 +25,13 @@
     "semantic_hash": ""
   },
   "core/editor-core.js": {
-    "mtime": 1784209690.0606742,
-    "ast_hash": "e5d051c9f5452be7a37529a5f568f24d",
+    "mtime": 1784287292.5586364,
+    "ast_hash": "2f20fab1eaaa623e708b4b71ba2164f4",
     "semantic_hash": ""
   },
   "core/field-editing.js": {
-    "mtime": 1784210402.2683249,
-    "ast_hash": "9b9137b82583c89e8c50c68c8081a741",
+    "mtime": 1784211569.5107088,
+    "ast_hash": "a7722ed9a7a64e9f58b96acde905233f",
     "semantic_hash": ""
   },
   "core/help-popups.js": {
@@ -70,14 +70,14 @@
     "semantic_hash": "e8be05a7c2cf400c3e7941b7a4c256d8"
   },
   "core/parser-engine.js": {
-    "mtime": 1784210402.2708077,
-    "ast_hash": "67955eae7904848b7dbb41a4b9f4a03e",
+    "mtime": 1784211569.5117087,
+    "ast_hash": "68c5ed9acd084eac945acb71e05e90d0",
     "semantic_hash": ""
   },
   "core/qparam-panel.js": {
-    "mtime": 1784031046.0880294,
-    "ast_hash": "40cef8c95ec695bcc9470e5d6e778c70",
-    "semantic_hash": "40cef8c95ec695bcc9470e5d6e778c70"
+    "mtime": 1784287312.651407,
+    "ast_hash": "159183783a3e4cacc04ee8745953c2b0",
+    "semantic_hash": ""
   },
   "core/render3d.js": {
     "mtime": 1784209690.0691247,
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784210817.114581,
-    "ast_hash": "aa0839d65e616682047801249d48648d",
+    "mtime": 1784288008.188788,
+    "ast_hash": "152a95097d9727f69ecb12205f56c8a4",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "BUG_HISTORY.md": {
-    "mtime": 1784209690.054667,
-    "ast_hash": "f4dc4b30d6961b6d65c18d7e72d95bb8",
+    "mtime": 1784211569.5087087,
+    "ast_hash": "eb66571773972e4c0646790260671bd5",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -200,13 +200,13 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784210817.1156988,
-    "ast_hash": "dfed4a749be2e54f185f3c7e090df882",
+    "mtime": 1784288008.19126,
+    "ast_hash": "35cf02073874432a488e95b69ef74f70",
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1784210817.1182144,
-    "ast_hash": "404897790a9eabf373886693d22cc408",
+    "mtime": 1784287400.3784046,
+    "ast_hash": "3a66973717b6dd5852caa51336849038",
     "semantic_hash": ""
   },
   "docs/history/layout-and-renderer-rationale.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784210817.1167018,
-    "ast_hash": "364bd1215afce3adcdaf5588a4e6f5ef",
+    "mtime": 1784288032.2532237,
+    "ast_hash": "4709affd0b078c36515281e0cc50a3d0",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {
@@ -320,13 +320,18 @@
     "semantic_hash": ""
   },
   "tests/field-editing-feed-menu.test.js": {
-    "mtime": 1784210473.9530418,
-    "ast_hash": "c497ce3e10a724b255b4d29b8954ae83",
+    "mtime": 1784211569.540286,
+    "ast_hash": "65976d5c13cc2938d62afaf01b79a437",
     "semantic_hash": ""
   },
   "tests/lbl-status.test.js": {
-    "mtime": 1784210473.9540422,
-    "ast_hash": "c6b814500fd5a07fc4ae6c80c7a757ca",
+    "mtime": 1784211569.5413797,
+    "ast_hash": "d99b46e2317b3dfe67ecc0cae9900c4b",
+    "semantic_hash": ""
+  },
+  "tests/mobile-sign-toggle.test.js": {
+    "mtime": 1784287357.411014,
+    "ast_hash": "f95e3b4df1888bd21ed5b2991bf98ed9",
     "semantic_hash": ""
   }
 }

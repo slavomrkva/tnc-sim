@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.867 (web test)
+- On mobile, `−` now moves in front of an entered BLK FORM, guided path or cycle value; pressing `−` again restores the positive value.
+
 ## v0.866 (web test)
 - The desktop F-field menu now opens downward below the selected feed value.
 
