@@ -7,6 +7,10 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.872 — German About popup (test branch)
+
+- Added `web/i18n-about-de.js`, a web-only German override of `openAboutPopup()` (core/theme-toast.js builds the popup from an inline string at call time, so it can't be reached via `data-i18n`). Loaded after `core/theme-toast.js` so the German version wins when the UI language is German; `core/` itself is untouched.
+
 ## v0.871 — Q335 naming fix + language-toggle label (test branch)
 
 - Corrected the German name for cycle parameter Q335 from "Nenndurchmesser" to the Heidenhain-standard "SOLL-Durchmesser" in `web/i18n-cycles-de.js`, `web/i18n-demos-de.js` and the embedded `DEFAULT_CODE_DE`/Angle Mill program comments in `web/app.js`.

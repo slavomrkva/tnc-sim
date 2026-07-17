@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.872 (web test)
+- Preložené okno „About" (popis aplikácie, tlačidlá GitHub / Fehler melden / Kaffee).
+
 ## v0.871 (web test)
 - Q335 sa v nemeckom preklade správne volá „SOLL-Durchmesser" (namiesto „Nenndurchmesser").
 - Prepínač jazyka teraz ukazuje jazyk, na ktorý prepnete, nie aktuálny (anglická stránka zobrazuje „DE", nemecká „EN").
