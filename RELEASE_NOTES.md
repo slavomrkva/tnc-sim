@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.877 (web test)
+- Kontúra po vŕtacom/frézovacom cykle (napr. CYCL DEF 208 volanom cez M99) už nereže materiál rýchloposuvom FMAX, keď prvý rezný pohyb nemá zadané F — použije sa posledný naprogramovaný posuv (FAUTO). Predtým sa modálny posuv po cykle chybne „zasekol" na FMAX.
+
 ## v0.876 (web test)
 - Názov programu vľavo hore teraz sleduje súbor: pri výbere demo ukáže názov dema, pri importe názov súboru, pri exporte uložený názov a pri novom (vyčistenom) programe „program.H" — namiesto stáleho „PROGRAM.H".
 

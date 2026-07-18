@@ -126,4 +126,50 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const firstCycle208 = html.slice(html.indexOf('CYCL DEF 208'), html.indexOf('CYCL DEF 208') + 500);
 assert.match(firstCycle208, /Q334=\+2\s*;Infeed per pass/);
 
+// Regression: a fixed cycle called via M99 must not corrupt the modal feed.
+// Cycle 208 (and its M99 rapid positioning) run inside flushPending, which
+// reassigns the shared `feed` per move. A contour that ends in an FMAX retract
+// used to leave the modal feed stuck at 9999, so the NEXT contour's first
+// cutting move without an explicit F ran at rapid speed instead of the last
+// programmed / FAUTO feed. It must stay at the TOOL CALL feed.
+{
+  const code = program([
+    'TOOL CALL 1 Z S2000 F5000',
+    'M3',
+    'L X-40 Y-40 Z+20 R0 FMAX',   // contour that ends in an FMAX retract
+    'L Z+0 RL',
+    'L X+40',
+    'L Z+20 R0 FMAX',
+    'CYCL DEF 208 BOHRFRAESEN',
+    ' Q200=+1',
+    ' Q201=-6',
+    ' Q206 FAUTO',
+    ' Q334=+1',
+    ' Q203=+0',
+    ' Q204=+20',
+    ' Q335=+15',
+    ' Q342=+0',
+    ' Q351=+1',
+    'L X+0 Y+0 FMAX R0 M99',       // position + call cycle 208
+    'L X+0 Y+30 Z+20 R0 FMAX',     // next contour, first cutting move omits F
+    'L Z+0 R0 FMAX',
+    'L X+0 Y+29.5 RL',             // <-- must cut at FAUTO (5000), not 9999
+    'L X-20',
+    'L Z+20 R0 FMAX'
+  ].join('\n'));
+  const sub = context.parseProgram(code).sub;
+  // The RL cutting contour after the cycle is emitted from its source lines
+  // (the two 'L X+0 Y+29.5 RL' / 'L X-20' blocks). No non-rapid cutting move
+  // anywhere may run at rapid feed (9999) — that is the corrupted-modal bug.
+  const badCuts = sub.filter(s => !s.rapid && s.feed >= 9000);
+  assert.strictEqual(badCuts.length, 0,
+    'no cutting move may run at FMAX feed (9999) — modal feed corrupted by the cycle');
+  const codeLines = code.split('\n');
+  const m99Line = codeLines.findIndex(l => /M99/.test(l));
+  const cutAfterCycle = sub.filter(s => !s.rapid && s.to.z <= 1e-6 && s.srcLine > m99Line);
+  assert.ok(cutAfterCycle.length > 0, 'cutting moves after cycle 208 should exist');
+  cutAfterCycle.forEach(s => assert.strictEqual(s.feed, 5000,
+    'no-F cutting move after a cycle must use FAUTO (TOOL CALL F5000), not FMAX 9999'));
+}
+
 console.log('cycle feed, helix and retract-motion regressions passed');

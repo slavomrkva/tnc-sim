@@ -7,6 +7,21 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.877 — modal feed no longer corrupted by a fixed cycle / M99 call
+
+- A contour that came after a fixed cycle (e.g. CYCL DEF 208 called with M99)
+  cut the material at rapid feed (FMAX / 9999) instead of the last programmed /
+  FAUTO feed whenever its first cutting move omitted an explicit `F`. Root cause:
+  `flushPending()` in `core/parser-engine.js` reassigns the shared modal `feed`
+  to each move it renders (including 9999 for FMAX rapids and per-move feeds set
+  inside a cycle) and never restored it. A contour ending in an FMAX retract —
+  which is exactly what precedes most `CYCL DEF`/`M99` blocks — left the modal
+  feed stuck at 9999, so the next no-`F` cutting block inherited rapid speed.
+- Fix: `flushPending()` snapshots `feed` on entry and restores it on exit, so
+  its per-move bookkeeping stays local to rendering and the main-loop modal feed
+  keeps tracking the last real programmed feed. Regression added to
+  `tests/parser-cycles.test.js`. Cross-repo bug — same fix ported to Android.
+
 ## v0.876 — header shows the document (file) name
 
 - The `#progTitleName` header no longer always reads "PROGRAM.H". It now tracks

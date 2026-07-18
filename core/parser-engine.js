@@ -1383,6 +1383,14 @@ function parseProgram(code){
   }
 
   function flushPending(){
+    // Iterating the batch below reassigns the shared modal `feed` per move —
+    // including 9999 for FMAX rapids and any per-move feed set inside a fixed
+    // cycle. That is bookkeeping local to rendering; it must NOT leak back as
+    // the main-loop modal feed. Otherwise a contour that ends in an FMAX
+    // retract (or a fixed cycle) corrupts the modal feed to 9999, and the next
+    // contour's first cutting move that omits F would run at rapid instead of
+    // the last programmed / FAUTO feed. Preserve and restore it around the loop.
+    var _modalFeed=feed;
     for(var mi=0;mi<pendingMoves.length;mi++){
       var mv=pendingMoves[mi];
       feed=mv.feed; blockIndex=mv.blockIdx;
@@ -1447,6 +1455,7 @@ function parseProgram(code){
       nextMv.from = {x:p2.x, y:p2.y, z:p2.z};
     }
     pendingMoves=[];
+    feed=_modalFeed; // restore modal feed (see note at top of flushPending)
   }
 
   for(var i=0;i<expandedProg.length;i++){

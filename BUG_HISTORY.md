@@ -15,6 +15,48 @@ Newest first.
 
 ---
 
+## 2026-07-18 — modal feed corrupted to FMAX after a fixed cycle / M99 call
+**Repos:** web `tnc-sim` v0.877; deliberately ported to Android in APP_VERSION 1.0.60.
+**Resolved:** 2026-07-18.
+
+### Reported symptom
+In a user program (`PROGRAM.H`), after `CYCL DEF 208` was called via `M99`, the
+next contour cut the material at rapid feed (FMAX) instead of FAUTO. The contour
+worked correctly *before* the cycle: identical `L … RL` blocks with no explicit
+`F` cut at the TOOL CALL feed (F5000). Only the contours *after* the cycle were
+affected.
+
+### Root cause
+`feed` is the shared modal feedrate in `core/parser-engine.js`'s `parseProgram`.
+The main loop maintains it correctly — an `FMAX` block sets `feed=9999` only for
+that block and restores the previous value afterwards, so no-`F` cutting moves
+inherit the last real programmed feed.
+
+`flushPending()`, however, reassigns that *same* `feed` variable to each move it
+renders (`feed=mv.feed`), including 9999 for FMAX rapids and per-move feeds set
+inside a fixed cycle, and never restored it. Almost every `CYCL DEF` / `M99`
+block is preceded by a contour that ends in an FMAX retract; the `flushPending()`
+triggered by the `CYCL DEF` (and by the M99 call itself) therefore left the
+outer modal `feed` stuck at 9999. The next contour's first cutting move that
+omitted `F` was then pushed with `feed:9999` while `rapid:false` — i.e. it cut
+material at rapid speed. Confirmed by dumping per-`srcLine` feeds: every no-`F`
+cutting move before the cycle read 5000; every one after read 9999.
+
+### Fix
+`flushPending()` now snapshots `feed` on entry (`var _modalFeed=feed;`) and
+restores it on exit (`feed=_modalFeed;`), keeping its per-move bookkeeping local
+to rendering. The main-loop modal feed continues to track the last real
+programmed feed across cycle calls. Regression added to
+`tests/parser-cycles.test.js` (a cycle 208 M99 call between two FMAX-terminated
+contours; asserts no non-rapid segment runs at 9999 and the post-cycle no-`F`
+cut uses F5000). Verified the test fails on the pre-fix tree.
+
+### Approaches considered but not taken
+- Making no-`F` cutting moves fall back to `lastDefinedFeed` at push time: would
+  mask the corruption rather than fix it, and would not repair the modal state
+  for any other consumer of `feed` after a flush. Fixing the corruption at its
+  source (`flushPending`) is narrower and complete.
+
 ## 2026-07-17 — mobile numeric editing and TNC 640 RL/RR geometry
 **Repos:** web `tnc-sim` v0.868; deliberately ported to Android in APP_VERSION 1.0.55.
 **Resolved/accepted:** 2026-07-17.
