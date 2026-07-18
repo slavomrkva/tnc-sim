@@ -71,28 +71,32 @@
       'mobile.learn': 'Lernen',
 
       // footer
-      'footer.support': 'Unterstütze dieses Projekt und',
-      'footer.bug': '🐛 Fehler melden / Vorschlag machen',
-      'footer.coffee': '☕ Spendier mir einen Kaffee',
+      'footer.bug': '🐛 Fehler melden / Vorschlag',
 
       // cycle picker
       'cycle.select': 'Zyklus wählen',
 
-      // bug report modal
-      'bug.title': '🐛 Fehlerbericht',
-      'bug.desc': 'Beschreibung',
-      'bug.descPh': 'Beschreibe, was passiert ist und was du erwartet hast…',
-      'bug.screenshot': 'Screenshot',
-      'bug.optional': '(optional)',
-      'bug.copyImg': '📋 Bild in die Zwischenablage kopieren',
-      'bug.paste': 'Füge es (<b style="color:var(--text2);">Strg+V</b>) dort ein, wo du den Bericht erstellst.',
-      'bug.program': 'Programm',
+      // bug report / suggestion modal
+      'bug.title': '🐛 Problem melden oder Vorschlag',
+      'bug.choiceProblem': '🐛 Problem melden',
+      'bug.choiceSuggest': '💡 Verbesserung vorschlagen',
       'bug.cancel': 'Abbrechen',
-      'bug.github': '🔗 GitHub-Issue',
-      'bug.githubNote': 'GitHub-Konto nötig',
-      'bug.email': '✉️ E-Mail',
-      'bug.emailNote': 'kein Konto nötig',
-      'bug.copyReport': '📋 Bericht kopieren',
+      'bug.sendBug': 'Bericht senden',
+      'bug.sendSuggest': 'Vorschlag senden',
+      'bug.bugPh': 'Optional weitere Details hinzufügen…',
+      'bug.suggestPh': 'Was möchtest du ergänzen oder verbessern?',
+      'bug.warnBug': 'Dieser Bericht – einschließlich des NC-Programms und der von dir eingegebenen Angaben – wird öffentlich auf GitHub veröffentlicht. Gib keine vertraulichen oder firmeninternen Programmdaten an.',
+      'bug.warnSuggest': 'Dieser Vorschlag und die von dir eingegebenen Angaben werden öffentlich auf GitHub veröffentlicht. Gib keine vertraulichen oder firmeninternen Daten an.',
+      'bug.pf.js': 'Der Simulator ist bei der Verarbeitung dieses Programms auf einen internen Fehler gestoßen.',
+      'bug.pf.lesson': 'Die Lektionsprüfung akzeptiert möglicherweise eine korrekte Lösung nicht.',
+      'bug.pf.validator': 'Der Validator bewertet dieses Programm möglicherweise falsch.',
+      'bug.pf.default': 'Das simulierte Ergebnis oder die Werkzeugbahn ist für dieses Programm möglicherweise falsch.',
+      'bug.needText': 'Bitte beschreibe zuerst deinen Vorschlag.',
+      'bug.sending': 'Wird gesendet…',
+      'bug.sent': 'Danke! Dein Bericht wurde veröffentlicht: ',
+      'bug.failed': 'Senden fehlgeschlagen. Bitte versuche es später erneut.',
+      'bug.verifyFailed': 'Verifizierung fehlgeschlagen. Bitte versuche es erneut.',
+      'bug.offline': 'Der Verifizierungsdienst ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.',
 
       // help modal
       'help.title': 'TNC Sim — Hilfe'

@@ -295,3 +295,25 @@ History through v0.845 is preserved in
   validates with 22 roughing plus 22 finishing strips.
 - Added full validator/parser regressions, returned dynamic problems to the
   editor, refreshed graphify, and advanced the offline cache to v39.
+
+## v0.880 — 2026-07-18 — one-click bug report / suggestion (web only)
+- Replaced the multi-button Bug Report dialog with a single problem/suggestion
+  chooser plus one textarea. Bug reports pre-fill a state-based description (JS
+  error / lesson active / validator error / default) and attach program,
+  version, device, validator messages, app area and recent JS errors;
+  suggestions require text, attach only basic context, and never include the
+  program. Removed the GitHub-account/Email/Copy/screenshot controls and the
+  program/debug previews. `core/bug-report.js` now diverges from Android on
+  purpose and posts to `/api/report`.
+- Added `functions/api/report.js` (Cloudflare Pages Function): origin-restricted
+  to `https://tncsim.org`, verifies a Cloudflare Turnstile token, bounds field
+  lengths, and opens a public GitHub issue with a fine-grained `GITHUB_TOKEN` —
+  no visitor account required. Public site key in `web/turnstile-config.js`
+  (invisible Turnstile), secrets kept as Pages secrets. Setup documented in
+  `docs/bug-report-setup.md`.
+- Marketing "Free" → "Open"/"Open-source" in the title, meta/OG/Twitter
+  descriptions, JSON-LD, manifest, README and privacy page (technical phrases
+  untouched). Desktop footer drops "Buy me a coffee" and right-aligns the report
+  button; coffee stays only in About as a small link. Privacy policy updated for
+  public-issue uploads. English + German UI kept complete; i18n DE test extended
+  to scan `core/bug-report.js`. Offline cache advanced to v41.

@@ -1,6 +1,6 @@
 # TNC Sim
 
-Free, open-source online simulator for Heidenhain TNC programming. A static
+Open-source online simulator for Heidenhain TNC programming. A static
 `index.html` shell loads plain JS/CSS modules in the browser — no installation
 or build step needed.
 
@@ -24,7 +24,9 @@ This project is built with heavy AI assistance (Claude) rather than written enti
 
 ## Found a bug?
 
-Use the **Bug report** button inside the app — it opens a pre-filled GitHub issue with your program and debug info attached. Or open an issue directly: [github.com/slavomrkva/tnc-sim/issues](https://github.com/slavomrkva/tnc-sim/issues)
+Use the **Report a problem / suggestion** button inside the app. One click posts a public GitHub issue for you — no GitHub account needed — with the current program, version and device details attached automatically. (Bug reports include the NC program, so the issue is public: don't send confidential program data.) You can also open an issue directly: [github.com/slavomrkva/tnc-sim/issues](https://github.com/slavomrkva/tnc-sim/issues)
+
+Maintainer setup for the in-app reporting endpoint is documented in [docs/bug-report-setup.md](docs/bug-report-setup.md).
 
 ## Running locally
 
