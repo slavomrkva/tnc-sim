@@ -311,7 +311,7 @@ History through v0.845 is preserved in
   no visitor account required. Public site key in `web/turnstile-config.js`
   (invisible Turnstile), secrets kept as Pages secrets. Setup documented in
   `docs/bug-report-setup.md`.
-- Marketing "Free" → "Open"/"Open-source" in the title, meta/OG/Twitter
+- Marketing "Free" → "Open" in the titles and "open-source" in the descriptions, meta/OG/Twitter
   descriptions, JSON-LD, manifest, README and privacy page (technical phrases
   untouched). Desktop footer drops "Buy me a coffee" and right-aligns the report
   button; coffee stays only in About as a small link. Privacy policy updated for

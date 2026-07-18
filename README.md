@@ -1,6 +1,6 @@
 # TNC Sim
 
-Open-source online simulator for Heidenhain TNC programming. A static
+Open online simulator for Heidenhain TNC programming. A static
 `index.html` shell loads plain JS/CSS modules in the browser — no installation
 or build step needed.
 

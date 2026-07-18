@@ -14,7 +14,7 @@ in `NOTES.md`; this file is the short, human-readable history.
 - Rebuilt the bug report as a one-click **Report a problem / Suggest improvement** dialog. Pick a type, optionally add a note, and hit Send — a public GitHub issue is opened for you, no GitHub account needed. Bug reports attach the current program, version and device details automatically; suggestions attach only basic context (no program). A clear warning explains the report becomes a public GitHub issue.
 - Removed the old GitHub-account / Email / Copy report / Copy screenshot buttons and the technical previews from the dialog.
 - Desktop footer: dropped "Buy me a coffee" and moved the report button to the right; "Buy me a coffee" now lives only in the About box as a small link.
-- Refreshed the site description ("open-source" instead of "free") and updated the privacy policy to explain that bug reports upload the NC program and become public GitHub issues.
+- Refreshed the site title/description ("open" / "open-source" instead of "free") and updated the privacy policy to explain that bug reports upload the NC program and become public GitHub issues.
 
 ## v0.879 (web test)
 - Switching from German back to English now restores the English Complete Part starter program instead of leaving its German-comment version in the editor.
