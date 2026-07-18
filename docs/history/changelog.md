@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.874 — rapid-into-material collision warns without stopping
+
+- `rapidCollision` (voxel-cutting.js) no longer sets `mode='idle'`, so a
+  detected FMAX-into-material collision reports its pinned red warning but the
+  simulation plays through to the end instead of halting. Real machine-proven
+  programs (e.g. a rapid onto a pre-drilled floor) must not be blocked.
+- Re-report guard changed from `mode==='idle'` to `window._collisionActive`, so
+  only the first hit is reported and it stays latched via `updateStatus` until
+  reset; `mode` is left untouched. Ported from Android `tnc-sim-android` 1.0.57.
+- Added NOTES rule 15. Verified headless: at High quality the warning fires and
+  all segments still run; a 0.5 mm sub-voxel step goes undetected at coarser
+  quality (known voxel-resolution limit).
+
 ## v0.873 — bilingual SEO metadata (test branch)
 
 - Fixed stale "15 lessons" → 16 across `<title>`, description, OG/Twitter tags and JSON-LD `featureList`.

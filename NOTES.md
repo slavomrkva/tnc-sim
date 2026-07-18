@@ -73,6 +73,14 @@ Detailed module-split history is in the archived project notes linked above.
    the finished tool-center path. The activating L is one approach movement
    ending at the following contour's exact offset start, never a nominal move
    plus a hidden lateral segment.
+15. **Collision is a warning, never a stop:** a rapid-into-material (FMAX)
+   collision must report a pinned warning but must NOT halt the run — real
+   machine-proven programs (e.g. a rapid onto a pre-drilled floor) play through
+   to the end. `rapidCollision` leaves `mode` untouched and latches
+   `window._collisionActive` so `updateStatus` keeps the warning until reset;
+   never re-add `mode='idle'` there. The voxel check is resolution-bound, so
+   sub-voxel gouges surface only at finer quality — do not "fix" that by
+   stopping the sim.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

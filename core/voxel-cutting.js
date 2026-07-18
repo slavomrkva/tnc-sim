@@ -353,8 +353,13 @@ function shouldHoldVisibleSegment(sm, progress, remaining, segTime){
 }
 
 function rapidCollision(sm, cx, cy, cz){
-  if(mode==='idle') return;
-  mode='idle';
+  // Report a rapid-into-material collision as a warning WITHOUT stopping the
+  // run: real machine programs (e.g. a rapid onto a pre-drilled floor) can be
+  // fine in practice, so the simulation must play through to the end. Report
+  // only the first hit and latch _collisionActive so the warning stays pinned
+  // (updateStatus keeps it until reset) instead of being overwritten by the
+  // per-block running status. mode is deliberately left untouched.
+  if(window._collisionActive) return;
   var msg='⚠ COLLISION — rapid move into material at X'+cx.toFixed(1)+' Y'+cy.toFixed(1)+' Z'+cz.toFixed(1);
   updateStatus(msg, false);
   var statusEl=document.getElementById('statusMsg');

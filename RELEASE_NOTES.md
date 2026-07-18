@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.874 (web test)
+- Rýchloposuv (FMAX) do materiálu teraz zobrazí varovanie o kolízii, ale už nezastaví simuláciu — dobehne do konca, aby si videl celý program.
+
 ## v0.873 (web test)
 - SEO: title/description/OG/JSON-LD teraz spomínajú nemčinu (Deutsch) a opravený počet lekcií (15→16).
 
