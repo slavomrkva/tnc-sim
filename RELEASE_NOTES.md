@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.879 (web test)
+- Switching from German back to English now restores the English Complete Part starter program instead of leaving its German-comment version in the editor.
+
 ## v0.878 (web test)
 - Opätovné spustenie (Run/Step) dokončeného programu už nenechá farebné zvyšky rezov z predchádzajúceho behu (napr. fialové steny/ihličky po zahĺbení) v miestach, kde sa odoberal materiál — každý beh teraz začína z čistého polotovaru, rovnako ako po Reset. Doteraz to čistil až manuálny Reset.
 

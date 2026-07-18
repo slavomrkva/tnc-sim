@@ -106,7 +106,9 @@ try {
 try {
   const dt = fs.readFileSync(path.join(root, 'core/data-tables.js'), 'utf8');
   const cyclesCtx = {};
-  vmRun(dt.slice(dt.indexOf('var CYCLES = ['), dt.indexOf('\n];\n', dt.indexOf('var CYCLES = [')) + 3), cyclesCtx);
+  const cyclesSrc = dt.match(/var CYCLES = \[[\s\S]*?\r?\n\];/);
+  if (!cyclesSrc) throw new Error('CYCLES table not found');
+  vmRun(cyclesSrc[0], cyclesCtx);
   const overlaySrc = fs.readFileSync(path.join(root, 'web/i18n-cycles-de.js'), 'utf8');
   const cycleNamesDe = {};
   for (const m of overlaySrc.matchAll(/(\d+):\s*'([^']+)'/g)) cycleNamesDe[m[1]] = m[2];

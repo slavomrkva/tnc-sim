@@ -8,6 +8,23 @@
 
 ## Open bugs
 
+## C20 — DE → EN leaves the Complete Part starter program in German
+**Reported:** 2026-07-18. **Repro:** start with Complete Part, switch the UI to
+German, then switch it back to English.
+### Symptom
+The UI returns to English but the editor still shows the German-comment version
+of the Complete Part starter program.
+### Attempts
+- Attempt 1 — identified browser form-state restoration across the language
+  reload: startup read the restored German `textarea.value` as its English
+  default. The fix uses the markup's English `defaultValue` and replaces only
+  the exact German starter value; a custom restored program remains untouched.
+  Added a focused DE → EN regression and repaired the CRLF-sensitive existing
+  i18n CYCLES test so the full localization suite runs on Windows.
+### Status
+Implemented in web v0.879; automated verification is pending, followed by a
+browser retest and user acceptance before moving this evidence to BUG_HISTORY.md.
+
 ## C17 — Tool Table CRUD, parameters and import/export audit
 **Reported:** 2026-07-16. **Repro:** current GitHub main v0.861, shared with
 Android APP_VERSION 1.0.43.

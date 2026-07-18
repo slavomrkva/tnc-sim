@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.878';
+var APP_VERSION = '0.879';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -765,7 +765,6 @@ _applyThemeUI(document.documentElement.getAttribute('data-theme')==='light' ? 'l
 
 // ---------- DOM ----------
 var codeEl = document.getElementById('code');
-var DEFAULT_CODE = codeEl ? codeEl.value : '';
 
 // ── German comment overlay for the starter program ──────────────
 // Feeds the initial editor content, the "Complete Part" demo entry below and
@@ -979,10 +978,27 @@ CALL LBL 2
 M5 ; Spindel AUS
 M9 ; Kühlmittel AUS
 END PGM PROGRAM MM`;
-if (window.I18N && I18N.getLang() === 'de') {
-  DEFAULT_CODE = DEFAULT_CODE_DE;
-  if (codeEl) codeEl.value = DEFAULT_CODE_DE;
+
+// `value` can be restored by the browser from the previous language reload.
+// `defaultValue` always stays tied to the English textarea markup, so it is the
+// canonical source for Reset and for returning from the German default demo.
+function _selectDefaultDemoCode(el, lang, deCode){
+  var enCode = el ? el.defaultValue : '';
+  if(!el) return lang === 'de' ? deCode : enCode;
+  if(lang === 'de'){
+    el.value = deCode;
+    return deCode;
+  }
+  // Preserve a user's own restored program. Only swap the exact DE starter
+  // program back to its English counterpart after an EN language reload.
+  if(el.value === deCode) el.value = enCode;
+  return enCode;
 }
+var DEFAULT_CODE = _selectDefaultDemoCode(
+  codeEl,
+  (window.I18N && I18N.getLang()) || 'en',
+  DEFAULT_CODE_DE
+);
 
 // ---------- Demo program library ----------
 // The first entry ("General Basic") is the program shipped in the editor.

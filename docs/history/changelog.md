@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.879 — Complete Part returns to English after a DE → EN switch
+
+- A language switch reloads the page. Browser form-state restoration can retain
+  the German Complete Part in `textarea.value` on the next English load; the
+  former startup code then treated that restored value as the English default.
+- `web/app.js` now uses the textarea markup's `defaultValue` as the canonical
+  English starter. On English startup it replaces only the exact German starter
+  value, preserving any other restored user program. Added
+  `tests/i18n-demo-switch.test.js` for DE → EN plus custom-program coverage.
+- Fixed `tests/i18n-de.test.js` to extract the CYCLES table with CRLF-safe line
+  endings, so the existing localization coverage runs on Windows as intended.
+
 ## v0.878 — Run/Step from the start resets the voxel workpiece (no leftover coloured cuts)
 
 - Re-running or stepping a finished program showed leftover coloured cut
