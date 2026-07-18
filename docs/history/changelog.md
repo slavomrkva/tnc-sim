@@ -325,3 +325,11 @@ History through v0.845 is preserved in
 - Regenerated `favicon.ico` (16/32/48 PNG-in-ICO), `favicon-32.png`,
   `icon-192.png` and `icon-512.png` (full-bleed for maskable) from one master
   SVG, and replaced the inline header logo to match. Offline cache → v42.
+
+## v0.882 — 2026-07-18 — /api/report accepts the Android app
+- Generalised the report Function's origin check from a single origin to an
+  allowlist (website + Capacitor app `https://localhost`/`capacitor://localhost`),
+  echoing the matched origin in the CORS headers so the app's WebView can post
+  to the same endpoint. `ALLOWED_ORIGIN` may override the list (comma-separated).
+  Documented the Turnstile `localhost` hostname requirement and the shared site
+  key in `docs/bug-report-setup.md`. Offline cache → v43.

@@ -25,7 +25,9 @@ Copy the token value — it is shown only once.
 In the Cloudflare dashboard → **Turnstile** → **Add widget**:
 
 - **Widget mode:** Invisible.
-- **Hostnames:** `tncsim.org` (add `www.tncsim.org` if used).
+- **Hostnames:** `tncsim.org` (add `www.tncsim.org` if used). **Also add
+  `localhost`** so the Android app's WebView (which runs at `https://localhost`)
+  can obtain a token — see "Android app" below.
 
 This gives you a **Site Key** (public) and a **Secret Key** (private).
 
@@ -45,10 +47,26 @@ secrets:
 | --- | --- | --- |
 | `GITHUB_TOKEN` | the fine-grained token from step 1 | required |
 | `TURNSTILE_SECRET_KEY` | the Turnstile secret from step 2 | required |
-| `ALLOWED_ORIGIN` | `https://tncsim.org` | optional; defaults to `https://tncsim.org` |
+| `ALLOWED_ORIGIN` | `https://tncsim.org,https://localhost,capacitor://localhost` | optional; comma-separated allowlist. Default already includes the website and the app origin |
 | `GITHUB_REPO` | `slavomrkva/tnc-sim` | optional; defaults to `slavomrkva/tnc-sim` |
 
 Redeploy after adding them so the Function picks them up.
+
+## Android app
+
+The Android app (repo `slavomrkva/tnc-sim-android`) reuses **this same
+endpoint** — its report dialog posts to `https://tncsim.org/api/report`. Its
+Capacitor WebView runs at origin `https://localhost`, which is already in the
+default `ALLOWED_ORIGIN` list. Two things make it work:
+
+1. **Turnstile hostname:** the widget must list `localhost` (step 2 above), or
+   the app cannot obtain a token.
+2. **Public site key:** the app ships the same site key in its own
+   `www/android/turnstile-config.js`. Keep it identical to the website's key.
+
+The `Origin` allowlist is only a soft filter (any non-browser client can forge
+the header); the real gate for both the site and the app is the Turnstile
+token, so allowing the app origin does not weaken the endpoint.
 
 ## How the endpoint is protected
 

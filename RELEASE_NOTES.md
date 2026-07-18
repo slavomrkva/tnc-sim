@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.882 (web test)
+- The bug-report endpoint now also accepts reports from the Android app's WebView (same one-click flow), not just the website.
+
 ## v0.881 (web test)
 - New app icon, site logo and favicon: a cleaner radius-compensation motif — the workpiece with the cutter riding along its offset toolpath — replacing the old grid mark.
 
