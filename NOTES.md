@@ -89,6 +89,12 @@ Detailed module-split history is in the archived project notes linked above.
    `runValidation(false)`. Genuine geometry errors (tool radius too large,
    non-positive radius, no valid intersection) always stay live — never blanket
    all radius-comp errors into the deferred set.
+17. **Header name is the file identity, not BEGIN PGM:** `#progTitleName`
+   shows `_docName`, set on demo pick (friendly name), import (filename),
+   export (saved filename) and Clear (`program.H`); `_setDocName` is the only
+   writer and app.js seeds it with the starter demo. Do not revert the header
+   to `_progFileName(code)` — every demo/imported file uses `BEGIN PGM PROGRAM`
+   internally, so parsing the body always yields `PROGRAM.H`.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

@@ -76,6 +76,7 @@ function loadDemo(idx){
   _undoPush();
   codeEl.value = demo.code;
   _currentDemoIdx = idx;
+  _setDocName(demo.name); // header shows the picked demo's friendly name
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
 }
@@ -171,6 +172,7 @@ function editorReset(){
     _undoPush();
     codeEl.value = DEFAULT_CODE;
     _currentDemoIdx = 0; // DEFAULT_CODE is the "Complete Part" demo's code
+    _setDocName((typeof DEMO_PROGRAMS!=='undefined' && DEMO_PROGRAMS[0]) ? DEMO_PROGRAMS[0].name : 'program.H');
     dirty=true; updateLineNums(); runValidation();
     renderIdlePanel();
   });
@@ -186,6 +188,7 @@ function editorClear(){
   var end   = m2 ? m2[1] : 'END PGM PROGRAM MM';
   codeEl.value = begin + '\n' + end;
   _currentDemoIdx = -1;
+  _setDocName('program.H'); // new unsaved program uses the default name
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
 }
@@ -230,6 +233,19 @@ function formatBlockNum(n){
 function _progFileName(code){
   var m = code.match(/^\s*\d*\s*BEGIN PGM (\S+)/im);
   return m ? m[1] + '.H' : 'program.H';
+}
+
+// Header document name. Deliberately decoupled from the program body's
+// BEGIN PGM name so it follows the FILE identity, not the code: it is set when
+// a demo is picked (its friendly name), a file is imported (its filename) or
+// exported (the saved filename). Clear/new resets it to the default. This is
+// why importing "mypart.H" shows mypart.H even though the body still reads
+// BEGIN PGM PROGRAM. app.js seeds it with the starter demo's name at startup.
+var _docName = 'program.H';
+function _setDocName(name){
+  _docName = name || 'program.H';
+  var el = document.getElementById('progTitleName');
+  if(el) el.textContent = _docName;
 }
 
 function updateHighlightOverlay(){
@@ -496,6 +512,8 @@ function onImportFile(e){
       codeEl.value = String(ev.target.result).split('\n')
         .map(function(l){ return l.replace(/^[ \t]*\d+[ \t]+/, ''); })
         .join('\n');
+      _currentDemoIdx = -1;            // imported file is not a demo
+      _setDocName(file.name);          // header shows the imported filename
       dirty = true; updateLineNums(); runValidation();
       renderIdlePanel();
     }catch(err){ _toast('Import failed: '+err.message, true); }
@@ -563,7 +581,10 @@ function _showExportFallback(text, filename){
 
 function exportProgram(){
   var code = codeEl.value;
-  var name = _progFileName(code);
+  // Round-trip an imported/exported filename (…​.H); otherwise fall back to the
+  // BEGIN PGM-derived name. Then reflect the saved filename in the header.
+  var name = (_docName && /\.H$/i.test(_docName)) ? _docName : _progFileName(code);
+  _setDocName(name);
   // Write block numbers back into the text on export, the way the control
   // does — continuation lines (computeBlockNumbers -> null) stay unnumbered.
   var lines = code.split('\n');

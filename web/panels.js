@@ -55,7 +55,9 @@ function updateLineNums(){
   lineNums.innerHTML = '<div style="padding:10px 0 200px;">' + html + '</div>';
   blockCountEl.textContent = lines.length + ' ' + t('editor.blocks', 'blocks');
   var _progTitleEl = document.getElementById('progTitleName');
-  if(_progTitleEl) _progTitleEl.textContent = _progFileName(codeEl.value);
+  // Header follows the document name (demo/import/export/clear), not the body's
+  // BEGIN PGM name. Fall back to the parsed name only if _docName is unset.
+  if(_progTitleEl) _progTitleEl.textContent = (typeof _docName!=='undefined' && _docName) ? _docName : _progFileName(codeEl.value);
   // restore highlights
   if(_selectedLine >= 0){
     var _divs = lineNums.querySelectorAll('.ln');

@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.875';
+var APP_VERSION = '0.876';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1027,6 +1027,8 @@ var DEMO_PROGRAMS = [
 ].concat(typeof EXTRA_DEMO_PROGRAMS!=='undefined' ? EXTRA_DEMO_PROGRAMS : []);
 if (window.I18N && I18N.getLang() === 'de') DEMO_PROGRAMS[1].code = _angleMillDE;
 var _currentDemoIdx = 0; // textarea starts out as DEMO_PROGRAMS[0] ("Complete Part")
+// Seed the header document name with the starter demo (editor-core declares _docName).
+if(typeof _setDocName==='function' && DEMO_PROGRAMS[0]) _setDocName(DEMO_PROGRAMS[0].name);
 
 // push undo snapshot on typing (debounced — 1.5s after last keystroke)
 var _undoLastVal = null;

@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.876 — header shows the document (file) name
+
+- The `#progTitleName` header no longer always reads "PROGRAM.H". It now tracks
+  a `_docName` set from the file identity: the friendly demo name on demo pick,
+  the imported filename on import, the saved filename on export, and `program.H`
+  on Clear. `editor-core.js` owns `_docName`/`_setDocName`; `web/panels.js`
+  renders it; `web/app.js` seeds it with the starter demo. Root cause: every
+  demo/imported program uses `BEGIN PGM PROGRAM` internally, so the old
+  `_progFileName(code)` parse always yielded `PROGRAM.H`.
+- Export prefers a `.H` `_docName` (round-trips an imported filename), else
+  falls back to the BEGIN PGM-derived name, then reflects it in the header.
+  Ported from Android `tnc-sim-android` 1.0.59. Adds
+  `tests/doc-name-header.test.js` and NOTES rule 17.
+
 ## v0.875 — defer in-progress radius-comp errors to Run
 
 - Starting an RL/RR contour no longer flags "RL/RR still active … program R0

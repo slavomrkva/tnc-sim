@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.876 (web test)
+- Názov programu vľavo hore teraz sleduje súbor: pri výbere demo ukáže názov dema, pri importe názov súboru, pri exporte uložený názov a pri novom (vyčistenom) programe „program.H" — namiesto stáleho „PROGRAM.H".
+
 ## v0.875 (web test)
 - Začatie korekcie polomeru (RL/RR) už počas písania nehlási chyby „still active / program R0" — objavia sa až pri Run/Step. Skutočné geometrické chyby (napr. príliš veľký polomer nástroja) sa zobrazia hneď.
 
