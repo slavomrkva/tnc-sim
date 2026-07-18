@@ -7,6 +7,27 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.878 — Run/Step from the start resets the voxel workpiece (no leftover coloured cuts)
+
+- Re-running or stepping a finished program showed leftover coloured cut
+  surfaces from the previous run (e.g. purple tool-5 countersink walls / spikes)
+  where material had been removed, until a manual Reset cleared them. Root cause:
+  only `onReset()` reset the workpiece (`vxReset()`); `onRun()`/`onStep()` rewound
+  the sim with `resetState()` alone (`core/sim-controls.js`), which resets the
+  block index but never the voxel grid/cut/mesh. A run restarted from the
+  beginning therefore replayed onto the previous run's carved, tool-colour-tagged
+  voxels. Each mesh triangle is coloured by `TOOL_CUT_COLORS[VX.cut(nearest)]`, so
+  the stale surfaces kept their cutting tool's colour.
+- Fix: the rewind branch in `onRun()`/`onStep()` now also calls `vxReset()`, so a
+  fresh run always starts from clean stock — identical to Reset+Run. A mid-run
+  resume (not done, not at the end) still leaves the workpiece untouched.
+  Regression added in `tests/sim-run-resets-workpiece.test.js`. Cross-repo —
+  same fix ported to Android.
+- Investigation also ruled out two suspected causes: the incremental chunk
+  meshing (a live carve produces byte-identical geometry+colour to a full clean
+  rebuild) and the light-mode colour change (the theme attribute is applied
+  synchronously in `index.html` before the mesh is built).
+
 ## v0.877 — modal feed no longer corrupted by a fixed cycle / M99 call
 
 - A contour that came after a fixed cycle (e.g. CYCL DEF 208 called with M99)

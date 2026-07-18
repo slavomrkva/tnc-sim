@@ -15,6 +15,55 @@ Newest first.
 
 ---
 
+## 2026-07-18 — coloured leftover cut surfaces when re-running without Reset
+**Repos:** web `tnc-sim` v0.878; deliberately ported to Android in APP_VERSION 1.0.61.
+**Resolved:** 2026-07-18.
+
+### Reported symptom
+Both web and app "sometimes" showed coloured artifacts (purple/tool-5 spikes and
+walls) at the start of a simulation, in the places where material is removed.
+A restart (Reset) made them disappear. The user suspected the light-mode colour
+change but was unsure.
+
+### Investigation (what was ruled out)
+- **Incremental chunk meshing.** A live carve sequence (slot + tool-5 countersink
+  plunge) was replayed through `vxCut` + incremental `vxRebuildMesh`, then
+  compared to a single full clean rebuild of the identical final grid/cut state:
+  **byte-identical** position, normal and colour buffers. So the chunked renderer
+  is faithful and is not the source. (`tests/voxel-chunks.test.js` already asserts
+  chunk-union == full for a static state; this extended it to a live carve.)
+- **Light-mode colour change.** `data-theme` is set synchronously in `index.html`
+  (before the modules load), so `_stockRGB()`/`_stockHex()` read the correct theme
+  at mesh-build time. Stock colours are grey, not the purple seen. Red herring.
+
+### Root cause
+Only `onReset()` reset the voxel workpiece (`resetState(); vxReset();`).
+`onRun()`/`onStep()`, when rewinding a finished/looped run
+(`mode==='done' || subIndex>=sub.length`), called `resetState()` **alone**
+(`core/sim-controls.js`). `resetState()` (`parser-engine.js`) resets the block
+index and tool position but never the voxel grid/cut/mesh. So a run restarted
+from the beginning replayed the toolpath onto the previous run's already-carved,
+tool-colour-tagged voxels; the earlier carved surfaces stayed in the mesh.
+Because each triangle is coloured by `TOOL_CUT_COLORS[VX.cut(nearest voxel)]`
+(and the colour is sampled at the rounded triangle centroid, which also bleeds a
+tool colour onto vertical walls beside a cut), the leftovers appeared as coloured
+spikes/walls. A manual Reset called `vxReset()` and forced a full clean rebuild,
+clearing them — matching "after restart it no longer does it".
+
+### Fix
+The rewind branch of `onRun()`/`onStep()` now also calls `vxReset()`, so every
+fresh run starts from clean stock (identical to Reset+Run). A mid-run resume
+(mode not done and not at the end) still leaves the workpiece untouched so
+cutting continues on the existing carving. Regression:
+`tests/sim-run-resets-workpiece.test.js` (loads the real `sim-controls.js`,
+asserts vxReset on a done-run rewind for both Run and Step, and no reset on a
+mid-run resume). Verified it fails on the pre-fix tree.
+
+### Not fixed (noted for later)
+The centroid-rounded cut-tag colour sampling can still tint a stock wall triangle
+with an adjacent cut's tool colour. It is cosmetic and not the reported artifact;
+left as a possible future hardening.
+
 ## 2026-07-18 — modal feed corrupted to FMAX after a fixed cycle / M99 call
 **Repos:** web `tnc-sim` v0.877; deliberately ported to Android in APP_VERSION 1.0.60.
 **Resolved:** 2026-07-18.

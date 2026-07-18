@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.878 (web test)
+- Opätovné spustenie (Run/Step) dokončeného programu už nenechá farebné zvyšky rezov z predchádzajúceho behu (napr. fialové steny/ihličky po zahĺbení) v miestach, kde sa odoberal materiál — každý beh teraz začína z čistého polotovaru, rovnako ako po Reset. Doteraz to čistil až manuálny Reset.
+
 ## v0.877 (web test)
 - Kontúra po vŕtacom/frézovacom cykle (napr. CYCL DEF 208 volanom cez M99) už nereže materiál rýchloposuvom FMAX, keď prvý rezný pohyb nemá zadané F — použije sa posledný naprogramovaný posuv (FAUTO). Predtým sa modálny posuv po cykle chybne „zasekol" na FMAX.
 
