@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.875 (web test)
+- Začatie korekcie polomeru (RL/RR) už počas písania nehlási chyby „still active / program R0" — objavia sa až pri Run/Step. Skutočné geometrické chyby (napr. príliš veľký polomer nástroja) sa zobrazia hneď.
+
 ## v0.874 (web test)
 - Rýchloposuv (FMAX) do materiálu teraz zobrazí varovanie o kolízii, ale už nezastaví simuláciu — dobehne do konca, aby si videl celý program.
 

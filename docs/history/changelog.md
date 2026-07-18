@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.875 — defer in-progress radius-comp errors to Run
+
+- Starting an RL/RR contour no longer flags "RL/RR still active … program R0
+  before END PGM" while typing. `validateProgram(code, liveEdit)` gates the two
+  completeness checks behind `!liveEdit`, and the "contour not finished yet"
+  `_rcReport` diagnostics carry an `incomplete`→`rcDefer` flag.
+- `runValidation(liveEdit)` (editor-core) defaults to `liveEdit=true` and skips
+  the deferred diagnostics; `onRun`/`onStep` (sim-controls) call
+  `runValidation(false)` so those checks run — and block Run — at simulation
+  start. Genuine geometry errors (tool radius too large, etc.) still show live.
+- Ported from Android `tnc-sim-android` 1.0.58. Adds
+  `tests/radius-comp-live-defer.test.js` and NOTES rule 16.
+
 ## v0.874 — rapid-into-material collision warns without stopping
 
 - `rapidCollision` (voxel-cutting.js) no longer sets `mode='idle'`, so a

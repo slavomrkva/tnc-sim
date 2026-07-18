@@ -336,8 +336,14 @@ function applyFix(idx){
   runValidation();
 }
 
-function runValidation(){
-  problemsData = validateProgram(codeEl.value);
+function runValidation(liveEdit){
+  // liveEdit defaults to true: nearly every caller runs while the user edits.
+  // Run/Step (sim-controls) pass false so radius-compensation checks — the
+  // completeness checks in validateProgram and the rc-tagged run diagnostics
+  // below — surface only at simulation start, not while a contour is still
+  // being typed.
+  if(liveEdit===undefined) liveEdit=true;
+  problemsData = validateProgram(codeEl.value, liveEdit);
   // Some errors can only be known after constructing the actual compensated
   // toolpath (for example an inner corner that the effective tool radius cannot
   // enter). Surface those parser diagnostics in the same Problems panel so Run
@@ -350,6 +356,10 @@ function runValidation(){
     var seenProblems={};
     problemsData.forEach(function(p){ seenProblems[p.line+'|'+p.sev+'|'+p.msg]=true; });
     tmpProg.problems.forEach(function(p){
+      // Defer only "contour not finished yet" comp diagnostics while editing;
+      // genuine geometry errors (tool radius too large, etc.) still show live.
+      // The deferred ones return at Run/Step (liveEdit=false).
+      if(liveEdit && p.rcDefer) return;
       var key=p.line+'|'+p.sev+'|'+p.msg;
       if(!seenProblems[key]){ problemsData.push(p); seenProblems[key]=true; }
     });

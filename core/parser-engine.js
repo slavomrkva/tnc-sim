@@ -163,7 +163,12 @@ function resolveParserToolCall(n){
   return {requested:n,tool:requested,toolNum:n,replacement:false,locked:true};
 }
 
-function validateProgram(code){
+function validateProgram(code, liveEdit){
+  // liveEdit=true suppresses radius-compensation completeness checks (a contour
+  // that is still active because R0 has not been typed yet). While editing, an
+  // in-progress RL/RR contour is normal and must not nag; those checks run at
+  // simulation start instead (Run/Step pass liveEdit=false). Defaults to full
+  // validation when called directly.
   // Real Heidenhain .H files (as exported by the control) prefix every block
   // with its block number, e.g. "12 TOOL CALL 5 Z S2000". Strip it so all the
   // startsWith-style keyword checks below (BEGIN PGM, LBL, CYCL DEF, ...) work
@@ -353,7 +358,7 @@ function validateProgram(code){
         if(beginName && endName && beginName!==endName)
           probs.push({line:srcI,sev:'err',msg:'PGM name mismatch: END PGM "'+endName+'" \u2260 BEGIN PGM "'+beginName+'"'});
       }
-      if(valRcState==='RL'||valRcState==='RR')
+      if((valRcState==='RL'||valRcState==='RR') && !liveEdit)
         probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' still active \u2014 program R0 before END PGM'});
 
     // ── BLK FORM 0.1 ──
@@ -696,7 +701,7 @@ function validateProgram(code){
   // definition is genuinely half-finished.
   if(hasBlk1!==hasBlk2) probs.push({line:0,sev:'warn',msg:'BLK FORM incomplete'});
   if(_cylPending) probs.push({line:lines.length-1,sev:'err',msg:'BLK FORM CYLINDER is missing its 0.2 radius/top block'});
-  if(valRcState==='RL'||valRcState==='RR') probs.push({line:valRcLine,sev:'err',msg:'Radius comp. '+valRcState+' still active at END PGM \u2014 cancel with R0'});
+  if((valRcState==='RL'||valRcState==='RR') && !liveEdit) probs.push({line:valRcLine,sev:'err',msg:'Radius comp. '+valRcState+' still active at END PGM \u2014 cancel with R0'});
 
   return probs;
 }
@@ -1994,8 +1999,13 @@ function _rcNominalPairIntersects(a,b){
   if(na.type==='arc'&&nb.type==='arc'&&Math.hypot(na.cx-nb.cx,na.cy-nb.cy)<1e-8&&Math.abs(na.r-nb.r)<1e-8) return true;
   return _rcFiniteIntersections(na,nb).length>0;
 }
-function _rcReport(parseProblems,line,msg){
-  pushParseProblem(parseProblems,{line:line!=null?line:0,sev:'err',msg:msg});
+function _rcReport(parseProblems,line,msg,incomplete){
+  // incomplete=true marks a diagnostic that only means "the RL/RR contour is
+  // not finished yet" (no following contour element). The editor defers those
+  // to simulation start so a contour that is still being typed does not nag
+  // (see runValidation). Genuine geometry errors (tool radius too large, etc.)
+  // leave incomplete falsy and keep showing live.
+  pushParseProblem(parseProblems,{line:line!=null?line:0,sev:'err',msg:msg,rcDefer:!!incomplete});
   console.warn('Line '+((line||0)+1)+': '+msg);
 }
 function _rcHasLoop(pieces){
@@ -2057,12 +2067,12 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
   }
   var firstGroup=groups[0];
   if(!firstGroup.geom||!firstGroup.template.rcActivation){
-    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation at the programmed contour start.');
+    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation at the programmed contour start.',true);
     sub.splice(a,b-a+1); return 0;
   }
   groups.shift();
   if(!groups.length){
-    _rcReport(parseProblems,activation.srcLine,'Radius compensation has no following contour element — compensated cutting run rejected.');
+    _rcReport(parseProblems,activation.srcLine,'Radius compensation has no following contour element — compensated cutting run rejected.',true);
     sub.splice(a,b-a+1); return 0;
   }
   var sideSign=side==='RL'?1:-1,items=[],xy=[];
@@ -2077,7 +2087,7 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
     items.push(item); if(prim&&prim.type!=='vertical'){ xy.push(item); }
   }
   if(!xy.length){
-    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation without a following XY contour element.');
+    _rcReport(parseProblems,activation.srcLine,'Cannot calculate tool radius compensation without a following XY contour element.',true);
     sub.splice(a,b-a+1); return 0;
   }
   var transitionAfter={},pieces=[];

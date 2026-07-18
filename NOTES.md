@@ -81,6 +81,14 @@ Detailed module-split history is in the archived project notes linked above.
    never re-add `mode='idle'` there. The voxel check is resolution-bound, so
    sub-voxel gouges surface only at finer quality — do not "fix" that by
    stopping the sim.
+16. **Defer only in-progress radius-comp errors:** while editing
+   (`runValidation` defaults to `liveEdit=true`) suppress the "contour not
+   finished yet" compensation diagnostics — the `validateProgram` "RL/RR still
+   active … END PGM" completeness checks and the `_rcReport` calls flagged
+   `incomplete` (`rcDefer`). They return at Run/Step, which call
+   `runValidation(false)`. Genuine geometry errors (tool radius too large,
+   non-positive radius, no valid intersection) always stay live — never blanket
+   all radius-comp errors into the deferred set.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

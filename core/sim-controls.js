@@ -121,7 +121,7 @@ function onRun(){
     updateStatus('Running…', true);
     return;
   }
-  runValidation();
+  runValidation(false); // full validation at Run: include deferred radius-comp checks
   if(hasErrors()){ updateStatus('Fix '+errorCount()+' error(s) before running', false); problemsOpen=true; renderProblems(); return; }
   ensurePrepared();
   if(mode==='done' || subIndex>=sub.length){ resetState(); }
@@ -130,7 +130,7 @@ function onRun(){
 }
 
 function onStep(){
-  runValidation();
+  runValidation(false); // full validation at Step: include deferred radius-comp checks
   if(hasErrors()){ updateStatus('Fix '+errorCount()+' error(s) before running', false); problemsOpen=true; renderProblems(); return; }
   ensurePrepared();
   if(mode==='done' || subIndex>=sub.length){ resetState(); }
