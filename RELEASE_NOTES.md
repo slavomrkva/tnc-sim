@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.881 (web test)
+- New app icon, site logo and favicon: a cleaner radius-compensation motif — the workpiece with the cutter riding along its offset toolpath — replacing the old grid mark.
+
 ## v0.880 (web test)
 - Rebuilt the bug report as a one-click **Report a problem / Suggest improvement** dialog. Pick a type, optionally add a note, and hit Send — a public GitHub issue is opened for you, no GitHub account needed. Bug reports attach the current program, version and device details automatically; suggestions attach only basic context (no program). A clear warning explains the report becomes a public GitHub issue.
 - Removed the old GitHub-account / Email / Copy report / Copy screenshot buttons and the technical previews from the dialog.

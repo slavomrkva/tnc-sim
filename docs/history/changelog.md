@@ -317,3 +317,11 @@ History through v0.845 is preserved in
   button; coffee stays only in About as a small link. Privacy policy updated for
   public-issue uploads. English + German UI kept complete; i18n DE test extended
   to scan `core/bug-report.js`. Offline cache advanced to v41.
+
+## v0.881 — 2026-07-18 — new icon / logo / favicon (web)
+- Replaced the grid-and-dot brand mark with a radius-compensation motif: a
+  rounded workpiece with the cutter tangent on its left edge and the faint
+  cutter-centre offset toolpath around it (teal gradient tile, white marks).
+- Regenerated `favicon.ico` (16/32/48 PNG-in-ICO), `favicon-32.png`,
+  `icon-192.png` and `icon-512.png` (full-bleed for maskable) from one master
+  SVG, and replaced the inline header logo to match. Offline cache → v42.
