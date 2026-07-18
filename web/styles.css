@@ -264,6 +264,11 @@ canvas#sim2d{width:100%;height:100%;display:block;}
 .ph-btn{font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;}
 .ph-btn:hover{color:var(--text2);background:var(--surface2);}
 button.ph-btn[onclick="openBugReport()"]:hover{background:rgba(245,137,58,.24) !important;}
+/* One-click bug report: problem / suggestion choice buttons */
+.bug-choice{display:flex;gap:8px;}
+.bug-choice-btn{flex:1;font-family:var(--mono);font-size:12px;padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text3);cursor:pointer;transition:background .12s,border-color .12s,color .12s;}
+.bug-choice-btn:hover{color:var(--text2);background:var(--surface2);}
+.bug-choice-btn.on{border-color:var(--accent);color:var(--text);background:rgba(var(--accent-rgb),.14);}
 #kpHelpBtn,#mCodesBtn,
 button.ph-btn[onclick="exportProgram()"],
 button.ph-btn[onclick="importProgram()"]{background:rgba(var(--accent-rgb),.14);border-color:rgba(var(--accent-rgb),.4);color:var(--accent);}

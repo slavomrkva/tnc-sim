@@ -2,7 +2,7 @@
   "id": "/",
   "name": "TNC Sim — Heidenhain TNC Simulator",
   "short_name": "TNC Sim",
-  "description": "Free browser-based simulator for Heidenhain TNC Klartext CNC programming, with 3D toolpath visualization, an XY toolpath view, a tool table, and 15 interactive lessons for learning to program — no installation needed.",
+  "description": "Open-source browser-based simulator for Heidenhain TNC Klartext CNC programming, with 3D toolpath visualization, an XY toolpath view, a tool table, and 15 interactive lessons for learning to program — no installation needed.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

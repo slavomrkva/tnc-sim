@@ -1,40 +1,95 @@
-// bug-report -- verified byte-for-byte identical between web and android repos.
+// bug-report -- WEB ONLY. The Android app keeps its own simpler flow; this
+// file diverges from the Android copy on purpose (it talks to the tncsim.org
+// /api/report Cloudflare Pages Function). Do not port it wholesale to Android.
+//
+// One-click flow: the user picks "Report a problem" or "Suggest improvement",
+// optionally edits one textarea, and hits Send. The current NC program (bug
+// only), version, device/browser, validator messages, app area and recent JS
+// errors are attached automatically and a public GitHub issue is opened server
+// side — no GitHub account required from the visitor.
 
-function openBugReport(){
-  var overlay = document.getElementById('bugOverlay');
-  // Collect debug info
-  var info = [];
-  info.push('TNC Sim v' + APP_VERSION);
-  info.push('UA: '+navigator.userAgent.slice(0,120));
-  info.push('Platform: '+navigator.platform);
-  info.push('Screen: '+window.screen.width+'×'+window.screen.height+' @ '+window.devicePixelRatio+'x');
-  info.push('Touch: '+(navigator.maxTouchPoints > 0 ? 'yes ('+navigator.maxTouchPoints+' points)' : 'no'));
-  info.push('Lang: '+navigator.language);
-  info.push('Program: '+(codeEl?codeEl.value.split('\n').length+' lines':'n/a'));
-  if(prog){
-    info.push('Blocks: '+prog.totalBlocks);
-    info.push('Segments: '+(sub?sub.length:'0'));
-    info.push('Mode: '+mode);
+var _bugKind = 'bug';   // 'bug' | 'suggest'
+
+function _bugT(key, en){ return (typeof t === 'function') ? t(key, en) : en; }
+
+// Which part of the app the user is looking at, for the report context.
+function _bugArea(){
+  if(typeof LEARN !== 'undefined' && LEARN && LEARN.open) return 'Learn';
+  var mt = document.body.getAttribute('data-mtab');
+  if(mt === 'view') return '3D';
+  if(mt === 'learn') return 'Learn';
+  return 'Editor';
+}
+
+// The first validator problem of error severity (if any).
+function _bugValidatorError(){
+  if(!(typeof problemsData !== 'undefined' && problemsData && problemsData.length)) return null;
+  for(var i=0;i<problemsData.length;i++){ if(problemsData[i].sev === 'err') return problemsData[i]; }
+  return null;
+}
+
+// Automatic, state-based description that pre-fills the textarea for a bug.
+function _bugPrefill(){
+  if(typeof _bugErrors !== 'undefined' && _bugErrors.length){
+    return _bugT('bug.pf.js', 'The simulator encountered an internal error while processing this program.');
   }
-  if(problemsData && problemsData.length){
-    info.push('Validator: '+problemsData.length+' issue(s)');
-    problemsData.slice(0,5).forEach(function(p){ info.push('  '+p.sev.toUpperCase()+' L'+(p.line+1)+': '+p.msg); });
+  if(typeof LEARN !== 'undefined' && LEARN && LEARN.open){
+    return _bugT('bug.pf.lesson', 'The lesson validation may not accept a correct solution.');
   }
-  if(_bugErrors.length){
-    info.push('JS errors:');
-    _bugErrors.forEach(function(e){ info.push('  '+e); });
+  var ve = _bugValidatorError();
+  if(ve){
+    return _bugT('bug.pf.validator', 'The validator may be evaluating this program incorrectly.')
+      + '\n\n' + ('L' + (ve.line+1) + ': ' + ve.msg);
+  }
+  return _bugT('bug.pf.default', 'The simulated result or toolpath may be incorrect for this program.');
+}
+
+// Reflect the active kind (bug/suggest) into the dialog.
+function bugSetKind(kind){
+  _bugKind = (kind === 'suggest') ? 'suggest' : 'bug';
+  var pB = document.getElementById('bugChoiceProblem');
+  var pS = document.getElementById('bugChoiceSuggest');
+  if(pB) pB.classList.toggle('on', _bugKind === 'bug');
+  if(pS) pS.classList.toggle('on', _bugKind === 'suggest');
+
+  var ta = document.getElementById('bugDesc');
+  var send = document.getElementById('bugSendBtn');
+  var warn = document.getElementById('bugWarn');
+  if(_bugKind === 'suggest'){
+    ta.value = '';
+    ta.placeholder = _bugT('bug.suggestPh', 'What would you like to add or improve?');
+    if(send) send.textContent = _bugT('bug.sendSuggest', 'Send suggestion');
+    if(warn) warn.textContent = _bugT('bug.warnSuggest',
+      'This suggestion and the details you enter will be published publicly on GitHub. Do not include confidential or company data.');
   } else {
-    info.push('JS errors: none');
+    ta.value = _bugPrefill();
+    ta.placeholder = _bugT('bug.bugPh', 'Optionally add more detail…');
+    if(send) send.textContent = _bugT('bug.sendBug', 'Send report');
+    if(warn) warn.textContent = _bugT('bug.warnBug',
+      'This report, including the NC program and details you enter, will be published publicly on GitHub. Do not include confidential or company program data.');
   }
-  var codeEl2 = document.getElementById('code');
-  var progLines = codeEl2 ? codeEl2.value.split('\n').length : 0;
-  info.push('--- Program ('+progLines+' lines included in report) ---');
-  document.getElementById('bugDebug').textContent = info.join('\n');
-  var codeEl2 = document.getElementById('code');
-  var progTxt = codeEl2 ? codeEl2.value : '';
-  document.getElementById('bugProgPreview').textContent = progTxt;
-  document.getElementById('bugProgLines').textContent = '('+progTxt.split('\n').length+' lines — included in report)';
-  document.getElementById('bugDesc').value = '';
+  _bugUpdateSendState();
+}
+
+// Suggestions require text; bug reports are always sendable.
+function _bugUpdateSendState(){
+  var send = document.getElementById('bugSendBtn');
+  if(!send) return;
+  var has = (document.getElementById('bugDesc').value.trim().length > 0);
+  var disabled = (_bugKind === 'suggest' && !has) || send.dataset.sending === '1';
+  send.disabled = disabled;
+  send.style.opacity = disabled ? '0.5' : '1';
+  send.style.cursor = disabled ? 'default' : 'pointer';
+}
+
+function openBugReport(kind){
+  var overlay = document.getElementById('bugOverlay');
+  var status = document.getElementById('bugStatus');
+  if(status){ status.textContent = ''; status.style.display = 'none'; }
+  var send = document.getElementById('bugSendBtn');
+  if(send){ send.dataset.sending = '0'; }
+  bugSetKind(kind === 'suggest' ? 'suggest' : 'bug');
+  _bugRenderTurnstile();
   overlay.classList.add('open');
   setTimeout(function(){ document.getElementById('bugDesc').focus(); }, 100);
 }
@@ -43,126 +98,149 @@ function closeBugReport(){
   document.getElementById('bugOverlay').classList.remove('open');
 }
 
-function bugCopyScreenshot(){
-  if(!renderer) return;
-  var btn = event.target;
-  var orig = btn.textContent;
-  renderer.render(scene, camera); // make sure the canvas reflects the current view
-  renderer.domElement.toBlob(function(blob){
-    if(!blob || !navigator.clipboard || !window.ClipboardItem) return;
-    navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function(){
-      btn.textContent = '✓ Copied';
-      setTimeout(function(){ btn.textContent = orig; }, 1500);
-    }).catch(function(){});
-  }, 'image/png');
+// Collect the automatic context lines for the report body.
+function _bugContext(){
+  var info = [];
+  info.push('TNC Sim v' + APP_VERSION);
+  info.push('Area: ' + _bugArea());
+  info.push('UA: ' + navigator.userAgent.slice(0,180));
+  info.push('Platform: ' + navigator.platform);
+  info.push('Screen: ' + window.screen.width + '×' + window.screen.height + ' @ ' + window.devicePixelRatio + 'x');
+  info.push('Touch: ' + (navigator.maxTouchPoints > 0 ? 'yes (' + navigator.maxTouchPoints + ' points)' : 'no'));
+  info.push('Lang: ' + navigator.language);
+  return info;
 }
 
-function _bugBuildText(){
+// Full markdown body sent to the server for the GitHub issue.
+function _bugBuildBody(){
   var desc = document.getElementById('bugDesc').value.trim();
-  var debug = document.getElementById('bugDebug').textContent;
-  var codeEl2 = document.getElementById('code');
-  var prog_txt = codeEl2 ? codeEl2.value : (codeEl ? codeEl.value : '(unavailable)');
-  return '## Description\n'+(desc||'(no description)')+'\n\n## Debug info\n```\n'+debug+'\n```\n\n## Program\n```\n'+prog_txt+'\n```'
-    +'\n\n## Screenshot\n(paste here, if you have one)';
+  var out = '## Description\n' + (desc || '(no description)') + '\n';
+
+  out += '\n## Context\n```\n' + _bugContext().join('\n') + '\n```\n';
+
+  if(_bugKind === 'bug'){
+    // validator messages
+    if(typeof problemsData !== 'undefined' && problemsData && problemsData.length){
+      var v = ['Validator: ' + problemsData.length + ' issue(s)'];
+      problemsData.slice(0,10).forEach(function(p){
+        v.push('  ' + p.sev.toUpperCase() + ' L' + (p.line+1) + ': ' + p.msg);
+      });
+      out += '\n## Validator\n```\n' + v.join('\n') + '\n```\n';
+    }
+    // recent JS errors
+    if(typeof _bugErrors !== 'undefined' && _bugErrors.length){
+      out += '\n## JS errors\n```\n' + _bugErrors.join('\n') + '\n```\n';
+    }
+    // the NC program (bug reports only)
+    var codeEl2 = document.getElementById('code');
+    var prog = codeEl2 ? codeEl2.value : (typeof codeEl !== 'undefined' && codeEl ? codeEl.value : '');
+    out += '\n## Program\n```\n' + prog + '\n```\n';
+  }
+  return out;
 }
 
-function bugSubmit(){
-  var desc = document.getElementById('bugDesc').value.trim();
-  var debug = document.getElementById('bugDebug').textContent;
-  var codeEl2 = document.getElementById('code');
-  var prog_txt = codeEl2 ? codeEl2.value : '';
-  var title = encodeURIComponent('Bug: '+(desc.slice(0,60)||'issue'));
-
-  // GitHub's actual URL length limit is ~8192 chars for the WHOLE url
-  // ("Your request URL is too long" otherwise). Leave headroom for the
-  // base path + title + "&body=".
-  var URL_BUDGET = 7000;
-
-  function buildBody(progPart, debugPart){
-    return '## Description\n'+(desc||'(no description)')
-      +'\n\n## Program\n```\n'+progPart+'\n```'
-      +'\n\n## Debug info\n```\n'+debugPart+'\n```'
-      +'\n\n## Screenshot\n(paste here, if you have one)';
-  }
-
-  var encoded = encodeURIComponent(buildBody(prog_txt, debug));
-
-  if(encoded.length > URL_BUDGET){
-    // Binary-search the longest program slice whose ENCODED length still
-    // fits — encodeURIComponent expansion (newlines -> %0A etc.) isn't a
-    // fixed ratio, so test the real encoded length rather than guessing.
-    var lo=0, hi=prog_txt.length, fit=0;
-    while(lo<=hi){
-      var mid=(lo+hi)>>1;
-      var candidate = prog_txt.slice(0,mid)+(mid<prog_txt.length?'\n...(trimmed)':'');
-      if(encodeURIComponent(buildBody(candidate, debug)).length <= URL_BUDGET){ fit=mid; lo=mid+1; }
-      else hi=mid-1;
-    }
-    var trimmedProg = prog_txt.slice(0,fit)+(fit<prog_txt.length?'\n...(trimmed)':'');
-    encoded = encodeURIComponent(buildBody(trimmedProg, debug));
-
-    // Still too long (huge debug info or description) — shrink debug info too.
-    if(encoded.length > URL_BUDGET){
-      encoded = encodeURIComponent(buildBody(trimmedProg, debug.slice(0,500)+'...(trimmed)'));
-    }
-  }
-  window.open('https://github.com/slavomrkva/tnc-sim/issues/new?title='+title+'&body='+encoded, '_blank');
+function _bugTitle(){
+  var desc = document.getElementById('bugDesc').value.trim().replace(/\s+/g,' ');
+  var prefix = (_bugKind === 'suggest') ? 'Suggestion: ' : 'Bug: ';
+  var body = desc.slice(0,80) || (_bugKind === 'suggest' ? 'improvement' : 'issue');
+  return prefix + body;
 }
 
-function bugEmailReport(){
-  // No GitHub account needed — opens the user's own mail app (works on
-  // mobile too, via the OS-level mailto: handler).
-  var desc = document.getElementById('bugDesc').value.trim();
-  var debug = document.getElementById('bugDebug').textContent;
-  var codeEl2 = document.getElementById('code');
-  var prog_txt = codeEl2 ? codeEl2.value : '';
-  var subject = encodeURIComponent('TNC Sim bug report'+(desc?': '+desc.slice(0,50):''));
-
-  // mailto: links have a much smaller practical limit than web URLs —
-  // older Outlook/Windows mail handlers cap total length around ~2000
-  // chars, so stay conservative across clients.
-  var MAIL_BUDGET = 1500;
-
-  function buildBody(progPart, debugPart){
-    return 'Description:\n'+(desc||'(no description)')
-      +'\n\nProgram:\n'+progPart
-      +'\n\nDebug info:\n'+debugPart;
-  }
-
-  var encoded = encodeURIComponent(buildBody(prog_txt, debug));
-  if(encoded.length > MAIL_BUDGET){
-    var lo=0, hi=prog_txt.length, fit=0;
-    while(lo<=hi){
-      var mid=(lo+hi)>>1;
-      var candidate = prog_txt.slice(0,mid)+(mid<prog_txt.length?'\n...(trimmed \u2014 full program copied to clipboard)':'');
-      if(encodeURIComponent(buildBody(candidate, debug)).length <= MAIL_BUDGET){ fit=mid; lo=mid+1; }
-      else hi=mid-1;
-    }
-    var trimmedProg = prog_txt.slice(0,fit)+(fit<prog_txt.length?'\n...(trimmed \u2014 full program copied to clipboard)':'');
-    encoded = encodeURIComponent(buildBody(trimmedProg, debug));
-    if(encoded.length > MAIL_BUDGET){
-      encoded = encodeURIComponent(buildBody(trimmedProg, debug.slice(0,300)+'...(trimmed)'));
-    }
-  }
-
-  window.location.href = 'mailto:info@tncsim.org?subject='+subject+'&body='+encoded;
+function _bugSetStatus(msg, isError){
+  var status = document.getElementById('bugStatus');
+  if(!status) return;
+  status.style.display = 'block';
+  status.style.color = isError ? 'var(--err, #e5484d)' : 'var(--text2)';
+  status.innerHTML = msg;
 }
 
-function bugCopyReport(){
-  var text = _bugBuildText();
-  var btn = event.target;
-  var orig = btn.textContent;
-  function flashCopied(){
-    btn.textContent = '✓ Copied';
-    setTimeout(function(){ btn.textContent = orig; }, 1500);
+// ── Cloudflare Turnstile (invisible) ──────────────────────────────────────
+// The public site key lives in web/turnstile-config.js (window.TURNSTILE_SITE_KEY).
+// The matching secret is a Cloudflare Pages secret, never in the repo.
+var _tsWidgetId = null;
+var _tsResolve = null;
+
+function _bugRenderTurnstile(){
+  if(_tsWidgetId !== null) return;
+  if(!window.turnstile || !window.TURNSTILE_SITE_KEY) return;
+  try{
+    _tsWidgetId = window.turnstile.render('#bugTurnstile', {
+      sitekey: window.TURNSTILE_SITE_KEY,
+      size: 'invisible',
+      callback: function(tok){ if(_tsResolve){ _tsResolve(tok); _tsResolve = null; } },
+      'error-callback': function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } },
+      'expired-callback': function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }
+    });
+  }catch(e){ _tsWidgetId = null; }
+}
+
+// Resolves with a Turnstile token, or null if verification is unavailable.
+function _bugGetToken(){
+  return new Promise(function(resolve){
+    if(!window.turnstile || !window.TURNSTILE_SITE_KEY){ resolve(null); return; }
+    _bugRenderTurnstile();
+    if(_tsWidgetId === null){ resolve(null); return; }
+    _tsResolve = resolve;
+    try{ window.turnstile.reset(_tsWidgetId); }catch(e){}
+    try{ window.turnstile.execute(_tsWidgetId); }
+    catch(e){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }
+    // Safety net if no callback fires (e.g. network stalls).
+    setTimeout(function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }, 20000);
+  });
+}
+
+function sendReport(){
+  var send = document.getElementById('bugSendBtn');
+  if(!send || send.disabled) return;
+  var kind = _bugKind;
+
+  if(kind === 'suggest' && !document.getElementById('bugDesc').value.trim()){
+    _bugSetStatus(_bugT('bug.needText', 'Please describe your suggestion first.'), true);
+    return;
   }
-  navigator.clipboard.writeText(text).then(flashCopied).catch(function(){
-    // fallback
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+
+  var payload = {
+    kind: kind,
+    title: _bugTitle(),
+    body: _bugBuildBody()
+  };
+
+  send.dataset.sending = '1';
+  _bugUpdateSendState();
+  _bugSetStatus(_bugT('bug.sending', 'Sending…'), false);
+
+  _bugGetToken().then(function(token){
+    if(!token){
+      send.dataset.sending = '0';
+      _bugUpdateSendState();
+      _bugSetStatus(window.turnstile
+        ? _bugT('bug.verifyFailed', 'Verification failed. Please try again.')
+        : _bugT('bug.offline', 'Could not reach the verification service. Check your connection and try again.'), true);
+      return;
+    }
+    payload.token = token;
+    return fetch('/api/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        return { ok: res.ok, data: data };
+      });
+    }).then(function(r){
+      send.dataset.sending = '0';
+      _bugUpdateSendState();
+      if(r.ok && r.data && r.data.url){
+        _bugSetStatus(_bugT('bug.sent', 'Thanks! Your report was posted: ')
+          + '<a href="' + r.data.url + '" target="_blank" rel="noopener" style="color:var(--accent);">' + r.data.url + '</a>', false);
+      } else {
+        var msg = (r.data && r.data.error) ? r.data.error : _bugT('bug.failed', 'Sorry, sending failed. Please try again later.');
+        _bugSetStatus(msg, true);
+      }
+    });
+  }).catch(function(){
+    send.dataset.sending = '0';
+    _bugUpdateSendState();
+    _bugSetStatus(_bugT('bug.failed', 'Sorry, sending failed. Please try again later.'), true);
   });
 }
