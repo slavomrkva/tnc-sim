@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.885 (web test)
+- Unified the light and dark themes with consistent neutral grays, teal actions and amber highlights; the 3D view, scrollbars and toolbar controls now match the same visual style. The browser-tab icon is also larger and easier to recognize, with a cleaner tab title.
+- The one-click report dialog now explains its privacy behavior and the basic technical diagnostics it sends in a calmer, clearer way.
+
 ## v0.884 (web test)
 - Enabled the production Turnstile widget for secure one-click problem reports and suggestions from the website and Android app.
 

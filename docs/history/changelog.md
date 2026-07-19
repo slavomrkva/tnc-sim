@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.885 — unified color identity
+
+- Unified light and dark themes around cool-neutral grays, teal primary actions
+  and an amber warm accent. The 3D scene, PWA launch background, scrollbars and
+  toolbar control sizing now follow the same visual system. Enlarged the favicon
+  motif for clearer recognition at 16–32 px without changing the app icons, and
+  shortened the browser-tab title by removing the redundant language suffix.
+- Renamed the report entry point to “One-click bug report / Suggest an
+  improvement” and changed the orange warning into a neutral privacy note. It
+  now states that reports are anonymous and do not collect personal data, while
+  clearly listing the description, NC program and basic technical diagnostics
+  sent to the public tracker.
+
 ## v0.879 — Complete Part returns to English after a DE → EN switch
 
 - A language switch reloads the page. Browser form-state restoration can retain

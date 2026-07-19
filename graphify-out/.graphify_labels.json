@@ -144,6 +144,7 @@
   "142": "Rs",
   "143": "uo",
   "144": "Zc",
+  "145": ".crossFadeFrom",
   "146": "C4 — Placement of a newly inserted block relative to the active line",
   "147": "i18n-about-de.js",
   "148": "i18n-cycles-de.js",
@@ -151,5 +152,14 @@
   "150": "i18n-demos-de.js",
   "151": "demo-programs.js",
   "152": "i18n-lessons-de.js",
-  "153": "turnstile-config.js"
+  "153": "turnstile-config.js",
+  "154": "sc",
+  "155": "vl",
+  "156": ".getNormalMatrix",
+  "157": "Zc",
+  "158": ".rotateX",
+  "159": ".rotateZ",
+  "160": ".scale",
+  "161": ".translate",
+  "162": ".applyMatrix4"
 }
