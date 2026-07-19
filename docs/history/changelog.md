@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.885 — unified color identity
+
+- Unified light and dark themes around cool-neutral grays, teal primary actions
+  and an amber warm accent. The 3D scene, PWA launch background, scrollbars and
+  toolbar control sizing now follow the same visual system. Enlarged the favicon
+  motif for clearer recognition at 16–32 px without changing the app icons, and
+  shortened the browser-tab title by removing the redundant language suffix.
+- Renamed the report entry point to “One-click bug report / Suggest an
+  improvement” and changed the orange warning into a neutral privacy note. It
+  now states that reports are anonymous and do not collect personal data, while
+  clearly listing the description, NC program and basic technical diagnostics
+  sent to the public tracker.
+
 ## v0.879 — Complete Part returns to English after a DE → EN switch
 
 - A language switch reloads the page. Browser form-state restoration can retain
@@ -333,3 +346,22 @@ History through v0.845 is preserved in
   to the same endpoint. `ALLOWED_ORIGIN` may override the list (comma-separated).
   Documented the Turnstile `localhost` hostname requirement and the shared site
   key in `docs/bug-report-setup.md`. Offline cache → v43.
+
+## v0.883 — 2026-07-19 — move /api/report from Pages Functions to Workers
+- Replaced the unused `functions/api/report.js` Pages Function with
+  `worker/report-worker.mjs`, a real Worker entrypoint that handles
+  `/api/report` and delegates ordinary requests to the Static Assets binding.
+- Added `wrangler.jsonc` with assets-first routing and `run_worker_first` scoped
+  to `/api/*`, plus `.assetsignore` so Worker sources, tests, docs, and local
+  configuration are not published as site assets.
+- Kept the endpoint fail-closed until encrypted `GITHUB_TOKEN` and
+  `TURNSTILE_SECRET_KEY` values are installed. Added Turnstile hostname checks,
+  stricter request validation, Worker regressions, and corrected deployment
+  documentation. Removed the committed always-pass Site Key; production waits
+  for the real public key. Offline cache → v44.
+
+## v0.884 — 2026-07-19 — production Turnstile Site Key
+- Replaced the fail-closed empty Turnstile configuration with the real public
+  Site Key for the Invisible `tncsim.org`/`localhost` widget. The same public
+  key is versioned in the independent Android client; both private secrets stay
+  outside Git as encrypted Worker secrets. Offline cache → v45.

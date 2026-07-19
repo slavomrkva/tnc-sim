@@ -1,6 +1,6 @@
 // bug-report -- WEB ONLY. The Android app keeps its own simpler flow; this
 // file diverges from the Android copy on purpose (it talks to the tncsim.org
-// /api/report Cloudflare Pages Function). Do not port it wholesale to Android.
+// /api/report Cloudflare Worker). Do not port it wholesale to Android.
 //
 // One-click flow: the user picks "Report a problem" or "Suggest improvement",
 // optionally edits one textarea, and hits Send. The current NC program (bug
@@ -60,13 +60,13 @@ function bugSetKind(kind){
     ta.placeholder = _bugT('bug.suggestPh', 'What would you like to add or improve?');
     if(send) send.textContent = _bugT('bug.sendSuggest', 'Send suggestion');
     if(warn) warn.textContent = _bugT('bug.warnSuggest',
-      'This suggestion and the details you enter will be published publicly on GitHub. Do not include confidential or company data.');
+      'The suggestion is anonymous. TNC Sim does not collect personal data. Your text and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
   } else {
     ta.value = _bugPrefill();
     ta.placeholder = _bugT('bug.bugPh', 'Optionally add more detail…');
     if(send) send.textContent = _bugT('bug.sendBug', 'Send report');
     if(warn) warn.textContent = _bugT('bug.warnBug',
-      'This report, including the NC program and details you enter, will be published publicly on GitHub. Do not include confidential or company program data.');
+      'This report is anonymous. TNC Sim does not collect personal data. Your description, current NC program, and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
   }
   _bugUpdateSendState();
 }
@@ -156,7 +156,7 @@ function _bugSetStatus(msg, isError){
 
 // ── Cloudflare Turnstile (invisible) ──────────────────────────────────────
 // The public site key lives in web/turnstile-config.js (window.TURNSTILE_SITE_KEY).
-// The matching secret is a Cloudflare Pages secret, never in the repo.
+// The matching secret is a Cloudflare Worker secret, never in the repo.
 var _tsWidgetId = null;
 var _tsResolve = null;
 

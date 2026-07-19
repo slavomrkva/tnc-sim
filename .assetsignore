@@ -1,0 +1,22 @@
+# Worker/development files must not be published as website assets.
+.git/
+.claude/
+.wrangler/
+node_modules/
+worker/
+functions/
+tests/
+docs/
+graphify-out/
+.dev.vars*
+.env*
+.assetsignore
+.gitignore
+wrangler.jsonc
+CLAUDE.md
+NOTES.md
+TODO.md
+BUG_HISTORY.md
+RELEASE_NOTES.md
+README.md
+effort.md

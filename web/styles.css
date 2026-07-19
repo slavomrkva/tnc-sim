@@ -1,9 +1,9 @@
 :root{
-  --bg:#100f0d; --surface:#1a1814; --surface2:#22201c; --border:#2c2a26;
-  --accent:#14b8a6; --accent2:#1da06a; --accent3:#4a9eff; --accent-warm:#f5893a;
+  --bg:#101113; --surface:#1a1b1d; --surface2:#222326; --border:#2c2e31;
+  --accent:#14b8a6; --accent2:#1da06a; --accent3:#4a9eff; --accent-warm:#e8a23a;
   --accent-rgb:20,184,166;
-  --key-pale:#38352e;
-  --text:#e8eaf0; --text2:#c2c6d1; --text3:#9da3b0;
+  --key-pale:#34373d;
+  --text:#e9ebed; --text2:#c6c9cc; --text3:#9aa0a5;
   --mono:'JetBrains Mono',monospace; --sans:'Syne',sans-serif; --radius:8px;
   --editor-fs:12px;
 }
@@ -11,12 +11,12 @@
    light content area, with a pure-white editor. Not a "day/brightness" mode. ── */
 html[data-theme="light"]{
   /* light content context (main area, editor, cards, modals) */
-  --bg:#eef0f3; --surface:#ffffff; --surface2:#e3e6ed; --border:#c7cbd6;
+  --bg:#f2f2f2; --surface:#ffffff; --surface2:#e8e9ea; --border:#cdced1;
   --accent:#14b8a6; --accent2:#0f9d76; --accent3:#1558d4; --accent-warm:#c96410;
   --accent-rgb:20,184,166;
-  --key-pale:#e3e6ed;
-  --text:#171a20; --text2:#454c5c; --text3:#5c6373;
-  --stage:#c7cdd8;
+  --key-pale:#e8e9ea;
+  --text:#1c1d1f; --text2:#4a4d51; --text3:#64676c;
+  --stage:#cccdd0;
 }
 /* Dark chrome regions (a touch lighter than pure black): re-scope the tokens
    here so descendants flip to the light-on-dark palette automatically.
@@ -35,52 +35,52 @@ html[data-theme="light"] .mtab-bar,
 html[data-theme="light"] #toolLegend,
 html[data-theme="light"] #measureOverlay,
 html[data-theme="light"] #learnCoach .coach-tip{
-  color:#e8ebf1;
-  --surface:#3a414f; --surface2:#3a414f; --key-pale:#333b48;
-  --border:#414956;
-  --text:#e8ebf1; --text2:#c6ccd6; --text3:#9aa3b2;
+  color:#edeef0;
+  --surface:#404346; --surface2:#404346; --key-pale:#373a3d;
+  --border:#474a4e;
+  --text:#edeef0; --text2:#cacccf; --text3:#9da0a5;
 }
 html[data-theme="light"] header,
 html[data-theme="light"] .view-tabs,
 html[data-theme="light"] .status-bar,
 html[data-theme="light"] .keypad,
 html[data-theme="light"] .mtab-bar{
-  background:#272d38 !important;
+  background:#26282b !important;
 }
 html[data-theme="light"] .panel-header,
 html[data-theme="light"] .toolbar,
 html[data-theme="light"] .ctx-panel{
-  background:#353d4c !important;
+  background:#35373a !important;
 }
 /* Field-editor values use --bg while the contextual panel re-scopes its text
    to the dark-chrome palette. Keep that shared value surface dark too, or the
    light theme produces white text on a near-white field for TOOL CALL and the
    other interactive builders. */
-html[data-theme="light"] .ctx-panel{ --bg:#272d38; }
+html[data-theme="light"] .ctx-panel{ --bg:#26282b; }
 /* Header/toolbar action buttons — filled fill on the dark chrome */
 html[data-theme="light"] .btn,
 html[data-theme="light"] .tool-act-btn,
 html[data-theme="light"] #themeToggle,
 html[data-theme="light"] #aboutBtn{
-  background:#3a414f; color:#e8ebf1; border-color:#4a5260;
+  background:#404346; color:#edeef0; border-color:#55585e;
 }
 html[data-theme="light"] .btn:hover,
 html[data-theme="light"] .tool-act-btn:hover,
 html[data-theme="light"] #themeToggle:hover,
-html[data-theme="light"] #aboutBtn:hover{ background:#464e5d; color:#fff; }
+html[data-theme="light"] #aboutBtn:hover{ background:#4c4f53; color:#fff; }
 /* ── PALE controls: editor control panel — path-function & program keys and the
    editor toolbar buttons — get a light fill so they pop against the dark chrome. ── */
 html[data-theme="light"] .keypad .key,
 html[data-theme="light"] .ctx-panel .btn,
 html[data-theme="light"] .ph-btn{
-  background:#d3d8e1; color:#1b222c; border-color:#aeb6c4;
+  background:#d9dadd; color:#1c1f23; border-color:#b3b6ba;
 }
 html[data-theme="light"] .keypad .key:hover,
 html[data-theme="light"] .ctx-panel .btn:hover:not(:disabled),
-html[data-theme="light"] .ph-btn:hover{ background:#e6eaf0; color:#0d1116; border-color:#98a1b2; }
-html[data-theme="light"] .ctx-panel .btn:disabled{ background:#464e5d; color:#8a93a3; border-color:#4a5260; }
-html[data-theme="light"] .keypad .key.off{ background:#c6ccd7; color:#2b313c; border-color:#a7afbd; }
-html[data-theme="light"] .keypad .key.off:hover{ background:#dde1e9; color:#12161c; }
+html[data-theme="light"] .ph-btn:hover{ background:#e9ebee; color:#101214; border-color:#9ea2a8; }
+html[data-theme="light"] .ctx-panel .btn:disabled{ background:#4c4f53; color:#969aa0; border-color:#55585e; }
+html[data-theme="light"] .keypad .key.off{ background:#c7c9cd; color:#2c2f33; border-color:#aaadb2; }
+html[data-theme="light"] .keypad .key.off:hover{ background:#e0e2e5; color:#15171a; }
 html[data-theme="light"] .keypad .key.prog{ background:#c7ece6; color:#0c5148; border-color:#8fd6ca; }
 html[data-theme="light"] .keypad .key.prog:hover{ background:#d7f1ec; color:#083b34; }
 html[data-theme="light"] .keypad .key.pi-key{ background:#f6ddc9; color:#9a4a12; border-color:#ecb98f; }
@@ -94,33 +94,33 @@ html[data-theme="light"] .btn-step{ background:#3f83e6; color:#04101f; border-co
 html[data-theme="light"] .btn-step:hover{ background:#5a97f0; color:#04101f; }
 html[data-theme="light"] .btn-stop{ background:#e0574f; color:#1a0402; border-color:transparent; }
 html[data-theme="light"] .btn-stop:hover{ background:#ef6a62; color:#1a0402; }
-html[data-theme="light"] .btn-reset{ background:#3a414f; color:#e8ebf1; border-color:#4a5260; }
-html[data-theme="light"] .btn-reset:hover{ background:#464e5d; }
+html[data-theme="light"] .btn-reset{ background:#404346; color:#edeef0; border-color:#55585e; }
+html[data-theme="light"] .btn-reset:hover{ background:#4c4f53; }
 html[data-theme="light"] .learn-cta{ background:#14b8a6 !important; color:#062420 !important; border-color:#14b8a6 !important; }
 /* segmented toggles (quality Def/High) */
-html[data-theme="light"] .btn-group{ background:#2f3540; border-color:#414956; }
-html[data-theme="light"] .btn-group .btn-tog{ color:#c6ccd6; border-right-color:#414956; }
-html[data-theme="light"] .btn-group .btn-tog:hover{ background:#3a414f; color:#fff; }
+html[data-theme="light"] .btn-group{ background:#303235; border-color:#474a4e; }
+html[data-theme="light"] .btn-group .btn-tog{ color:#cacccf; border-right-color:#474a4e; }
+html[data-theme="light"] .btn-group .btn-tog:hover{ background:#404346; color:#fff; }
 html[data-theme="light"] .btn-group .btn-tog.active{ background:#14b8a6; color:#062420; font-weight:600; }
 /* speed control */
-html[data-theme="light"] .speed-ctrl{ background:#2f3540; border-color:#414956; }
-html[data-theme="light"] .speed-btn{ color:#c6ccd6; }
-html[data-theme="light"] .speed-btn:hover{ background:#3a414f; color:#fff; }
-html[data-theme="light"] .speed-val{ color:#6df3dd; border-color:#414956; }
+html[data-theme="light"] .speed-ctrl{ background:#303235; border-color:#474a4e; }
+html[data-theme="light"] .speed-btn{ color:#cacccf; }
+html[data-theme="light"] .speed-btn:hover{ background:#404346; color:#fff; }
+html[data-theme="light"] .speed-val{ color:#6df3dd; border-color:#474a4e; }
 /* view tabs (3D view / XY toolpath / Tool Table) */
-html[data-theme="light"] .tab{ background:#2f3540; color:#9aa3b2; }
-html[data-theme="light"] .tab:hover{ color:#c6ccd6; }
+html[data-theme="light"] .tab{ background:#303235; color:#9da0a5; }
+html[data-theme="light"] .tab:hover{ color:#cacccf; }
 html[data-theme="light"] .tab.active{ background:rgba(20,184,166,.18); color:#6df3dd; border-bottom-color:#14b8a6; }
 /* badges (incl. the "live" badge) */
-html[data-theme="light"] .badge{ background:#3a414f; color:#c6ccd6; border-color:#4a5260; }
+html[data-theme="light"] .badge{ background:#404346; color:#cacccf; border-color:#55585e; }
 html[data-theme="light"] .badge.green{ background:#0e5148; color:#6df3dd; border-color:transparent; }
 html[data-theme="light"] .badge.blue{ background:#123a6b; color:#84b6ff; border-color:transparent; }
 /* logo text on the dark header */
-html[data-theme="light"] .logo-text{ color:#f2f4f8; }
-html[data-theme="light"] .logo-sub{ color:#9aa3b2; }
+html[data-theme="light"] .logo-text{ color:#f3f4f6; }
+html[data-theme="light"] .logo-sub{ color:#9da0a5; }
 /* editor stays pure white; number gutter light */
 html[data-theme="light"] .code-area-wrap{ background:#ffffff; }
-html[data-theme="light"] .line-nums{ background:#e9ebf0; }
+html[data-theme="light"] .line-nums{ background:#e8eaed; }
 html[data-theme="light"] .line-nums .ln.selected{ border-left-color:#14b8a6; }
 /* 3D stage background (CSS fallback; JS sets the WebGL scene bg to match) */
 html[data-theme="light"] #view3d{ background:var(--stage); }
@@ -137,8 +137,8 @@ html[data-theme="light"] #measureBtn,
 html[data-theme="light"] #refineBtnCanvas,
 html[data-theme="light"] #toolLegend,
 html[data-theme="light"] #measureOverlay{
-  background:rgba(39,45,56,0.86) !important;
-  color:#e8ebf1 !important;
+  background:rgba(38,40,43,0.86) !important;
+  color:#edeef0 !important;
   box-shadow:0 1px 6px rgba(0,0,0,0.18);
 }
 #stockToggle:disabled,#measureBtn:disabled{opacity:.42;cursor:not-allowed !important;}
@@ -219,7 +219,7 @@ html[data-theme="light"] .syn-cycle{color:#7a5520;}
 .speed-ctrl{display:flex;align-items:center;gap:0;margin-left:auto;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);}
 .speed-btn{font-family:var(--mono);font-size:13px;padding:6px 11px;background:transparent;border:none;color:var(--text2);cursor:pointer;line-height:1;}
 .speed-btn:hover{background:var(--surface2);color:var(--text);}
-.speed-val{font-family:var(--mono);font-size:11px;padding:0 10px;color:var(--accent2);min-width:44px;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+.speed-val{font-family:var(--mono);font-size:11px;padding:0 10px;color:var(--accent);min-width:44px;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);}
 .canvas-panel{flex:1;display:flex;flex-direction:column;background:var(--bg);min-width:0;}
 .view-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface2);flex-shrink:0;}
 .tab{font-family:var(--mono);font-size:11px;padding:8px 16px;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;background:var(--surface);}
@@ -254,7 +254,7 @@ canvas#sim2d{width:100%;height:100%;display:block;}
 .tool-field input:focus{border-color:var(--accent3);}
 .tool-field .field-desc{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:1px;}
 .tool-form-btns{display:flex;gap:8px;margin-top:12px;}
-.tool-btn-save{font-family:var(--mono);font-size:11px;padding:6px 16px;background:var(--accent3);color:#fff;border:none;border-radius:5px;cursor:pointer;}
+.tool-btn-save{font-family:var(--mono);font-size:11px;padding:6px 16px;background:var(--accent);color:#fff;border:none;border-radius:5px;cursor:pointer;}
 .tool-btn-cancel{font-family:var(--mono);font-size:11px;padding:6px 12px;background:none;border:1px solid var(--border);border-radius:5px;color:var(--text3);cursor:pointer;}
 .tool-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
 .view-hint{position:absolute;bottom:10px;right:12px;font-family:var(--mono);font-size:10px;color:var(--text3);pointer-events:none;text-align:right;line-height:1.8;}
@@ -263,7 +263,7 @@ canvas#sim2d{width:100%;height:100%;display:block;}
 #estTime{margin-left:0 !important;}
 .ph-btn{font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;color:var(--text3);cursor:pointer;}
 .ph-btn:hover{color:var(--text2);background:var(--surface2);}
-button.ph-btn[onclick="openBugReport()"]:hover{background:rgba(245,137,58,.24) !important;}
+button.ph-btn[onclick="openBugReport()"]:hover{background:rgba(232,162,58,.24) !important;}
 /* One-click bug report: problem / suggestion choice buttons */
 .bug-choice{display:flex;gap:8px;}
 .bug-choice-btn{flex:1;font-family:var(--mono);font-size:12px;padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text3);cursor:pointer;transition:background .12s,border-color .12s,color .12s;}
@@ -342,8 +342,8 @@ footer a:hover{text-decoration:underline;}
 .cpname{color:var(--text);font-weight:500;}
 .cpdesc{color:var(--text3);font-size:9px;margin-top:1px;}
 .cpunit{color:var(--text3);}
-.cycle-insert-btn{margin-top:10px;width:100%;padding:7px;background:var(--accent3);color:#fff;border:none;border-radius:5px;font-family:var(--mono);font-size:11px;cursor:pointer;font-weight:500;}
-.cycle-insert-btn:hover{background:#3a8ee0;}
+.cycle-insert-btn{margin-top:10px;width:100%;padding:7px;background:var(--accent);color:#fff;border:none;border-radius:5px;font-family:var(--mono);font-size:11px;cursor:pointer;font-weight:500;}
+.cycle-insert-btn:hover{background:#0ea99a;}
 .cycle-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center;}
 .cycle-overlay.open{display:flex;}
 .cycle-modal{background:var(--surface2);border:1px solid var(--border);border-radius:10px;width:90%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -369,8 +369,8 @@ footer a:hover{text-decoration:underline;}
 .cpname{color:var(--text);font-weight:500;}
 .cpdesc{color:var(--text3);font-size:10px;margin-top:2px;}
 .cpunit{color:var(--text3);}
-.cycle-insert-btn{margin-top:14px;width:100%;padding:9px;background:var(--accent3);color:#fff;border:none;border-radius:6px;font-family:var(--mono);font-size:12px;cursor:pointer;font-weight:500;}
-.cycle-insert-btn:hover{background:#3a8ee0;}
+.cycle-insert-btn{margin-top:14px;width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--mono);font-size:12px;cursor:pointer;font-weight:500;}
+.cycle-insert-btn:hover{background:#0ea99a;}
 /* ---------- context panel (fixed height, never jumps) ---------- */
 .ctx-panel{min-height:72px;flex-shrink:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;justify-content:center;padding:4px 8px;gap:3px;overflow:visible;position:relative;z-index:50;}
 .ctx-panel:has(#_idleUndo){min-height:0;}
@@ -429,14 +429,14 @@ footer a:hover{text-decoration:underline;}
 .key.off:hover{background:var(--surface);color:var(--text);border-color:rgba(157,163,176,.4);}
 .key.off .kl{font-size:10px;}
 .key.dis{opacity:.25;cursor:not-allowed;filter:grayscale(1);pointer-events:none;}
-.key.pi-key{border-color:rgba(245,137,58,.4);color:var(--accent-warm);background:rgba(245,137,58,.08);}
-.key.pi-key:hover{border-color:var(--accent-warm);background:rgba(245,137,58,.16);}
-.key.on{background:#d9dde6;color:#15171c;border-color:transparent;}
-.key.on:hover{background:#e8ebf1;}
+.key.pi-key{border-color:rgba(232,162,58,.4);color:var(--accent-warm);background:rgba(232,162,58,.08);}
+.key.pi-key:hover{border-color:var(--accent-warm);background:rgba(232,162,58,.16);}
+.key.on{background:#dcdee1;color:#191b1d;border-color:transparent;}
+.key.on:hover{background:#edeef0;}
 .key.prog{min-height:24px;padding:4px 9px;background:rgba(var(--accent-rgb),.1);border-color:rgba(var(--accent-rgb),.35);box-shadow:0 1px 0 rgba(255,255,255,.05) inset;}
 .key.prog:hover{background:rgba(var(--accent-rgb),.18);color:var(--accent);border-color:var(--accent);}
 .key.pi{background:var(--accent);color:#fff;border-color:transparent;}
-.key.pi:hover{background:#f0631b;}
+.key.pi:hover{background:#0ea99a;}
 
 .fbar-nav{font-family:var(--mono);font-size:13px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;padding:5px 9px;flex-shrink:0;}
 .fbar-nav:hover{color:var(--text);border-color:var(--text3);}
@@ -525,8 +525,8 @@ footer a:hover{text-decoration:underline;}
      the transport/quality/speed controls above). */
   body[data-mtab="view"] .view-tabs .tab{flex:1;max-width:190px;text-align:center;padding-left:4px;padding-right:4px;}
   .panel-header{padding:5px 10px;}
-  .ph-btn{padding:3px 9px !important;min-height:26px !important;}
-  .ctx-panel:has(#_idleUndo) .btn{min-height:26px !important;padding:2px 8px !important;font-size:10px;}
+  .ph-btn{padding:3px 9px !important;min-height:30px !important;}
+  .ctx-panel:has(#_idleUndo) .btn{min-height:30px !important;padding:2px 8px !important;font-size:10px;}
   .ctx-panel{padding-top:4px;padding-bottom:4px;}
 }
 /* ── Touch targets ≥44px (Apple HIG / Material You) ────────── */
@@ -749,10 +749,24 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 #learnCoach .coach-hole{position:fixed;border-radius:8px;pointer-events:none;
   box-shadow:0 0 0 9999px rgba(0,0,0,.66);outline:2px solid var(--accent);
   transition:left .2s,top .2s,width .2s,height .2s;}
-#learnCoach .coach-tip{position:fixed;background:#1b1f27;border:1px solid var(--accent);
+#learnCoach .coach-tip{position:fixed;background:#211f1d;border:1px solid var(--accent);
   border-radius:10px;padding:12px 13px;box-shadow:0 12px 34px rgba(0,0,0,.5);}
 #learnCoach .coach-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text3);}
 #learnCoach .coach-t{font-size:14px;font-weight:600;color:var(--text);margin:3px 0 5px;}
 #learnCoach .coach-d{font-size:12.5px;line-height:1.55;color:var(--text2);}
 #learnCoach .coach-btns{display:flex;gap:8px;margin-top:11px;}
 #learnCoach .coach-btns .grow{flex:1;}
+
+/* unified control heights in the toolbar (desktop pointers only) */
+@media(pointer:fine){
+  .toolbar .btn-group .btn-tog{height:30px;padding:0 10px;display:flex;align-items:center;}
+  .toolbar .speed-btn{height:30px;padding:0 12px;display:flex;align-items:center;}
+  .toolbar .speed-val{height:30px;display:inline-flex;align-items:center;justify-content:center;}
+}
+
+/* themed scrollbars (panels, editor, modals) */
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:2px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:var(--text3);border:2px solid transparent;background-clip:content-box;}

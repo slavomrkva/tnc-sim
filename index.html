@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<title>TNC Sim — Open Heidenhain TNC Simulator (English &amp; Deutsch)</title>
+<title>TNC Sim — Heidenhain TNC Simulator</title>
 <meta name="description" content="Open-source browser-based Heidenhain TNC simulator with 3D toolpath visualization and 16 interactive Klartext programming lessons — from the basics to full contours and cycles. Now available in English and German (Deutsch) — kostenloser TNC-Simulator zum Programmieren lernen, direkt im Browser. Works on desktop and mobile, no installation, open source.">
 <meta name="keywords" content="heidenhain online simulator, tnc simulator online, heidenhain tnc programming online, learn heidenhain programming, heidenhain tutorial, heidenhain klartext tutorial, heidenhain programming lessons, cnc heidenhain online, tnc640 online, heidenhain simulator free, tnc programming simulator, cnc simulator online free, cnc simulator mobile, heidenhain simulator phone, 3d cnc simulator, heidenhain simulator kostenlos, tnc simulator deutsch, heidenhain programmieren lernen, cnc simulator deutsch, heidenhain klartext deutsch">
 <meta name="author" content="slavomrkva">
@@ -387,10 +387,10 @@ END PGM PROGRAM MM</textarea>
 
 <footer>
   <p class="ft-full">TNC Sim &nbsp;·&nbsp; <a href="https://github.com/slavomrkva/tnc-sim">GitHub</a> &nbsp;&middot;&nbsp; <a href="mailto:info@tncsim.org">info@tncsim.org</a></p>
-  <span class="ft-full" style="margin-left:auto;display:inline-flex;align-items:center;white-space:nowrap;"><button onclick="openBugReport()" data-help="bug-report" class="ph-btn" style="white-space:nowrap;background:rgba(245,137,58,.14);border-color:rgba(245,137,58,.4);color:var(--accent-warm);" data-i18n-html="footer.bug">🐛 Report a problem / suggestion</button></span>
+  <span class="ft-full" style="margin-left:auto;display:inline-flex;align-items:center;white-space:nowrap;"><button onclick="openBugReport()" data-help="bug-report" class="ph-btn" style="white-space:nowrap;background:rgba(245,137,58,.14);border-color:rgba(245,137,58,.4);color:var(--accent-warm);" data-i18n-html="footer.bug">🐛 One-click bug report / Suggest an improvement</button></span>
   <div class="ft-mini">
     <a href="https://github.com/slavomrkva/tnc-sim" title="GitHub" aria-label="GitHub"><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-    <button onclick="openBugReport()" title="Report a problem / suggestion" aria-label="Report a problem or suggestion">🐛</button>
+    <button onclick="openBugReport()" title="One-click bug report / Suggest an improvement" aria-label="Report a bug or suggest an improvement">🐛</button>
   </div>
 </footer>
 
@@ -405,16 +405,16 @@ END PGM PROGRAM MM</textarea>
 </div>
 <div class="help-overlay" id="bugOverlay" onclick="if(event.target===this)closeBugReport()">
   <div class="help-modal" style="max-width:520px;">
-    <h2 style="font-family:var(--mono);"><span data-i18n-html="bug.title">🐛 Report a problem or suggestion</span> <button class="help-close" onclick="closeBugReport()">&times;</button></h2>
+    <h2 style="font-family:var(--mono);"><span data-i18n-html="bug.title">🐛 Report a bug or suggest an improvement</span> <button class="help-close" onclick="closeBugReport()">&times;</button></h2>
     <div class="help-body" style="display:flex;flex-direction:column;gap:14px;">
       <div class="bug-choice">
         <button type="button" id="bugChoiceProblem" class="bug-choice-btn on" onclick="bugSetKind('bug')" data-i18n-html="bug.choiceProblem">🐛 Report a problem</button>
-        <button type="button" id="bugChoiceSuggest" class="bug-choice-btn" onclick="bugSetKind('suggest')" data-i18n-html="bug.choiceSuggest">💡 Suggest improvement</button>
+        <button type="button" id="bugChoiceSuggest" class="bug-choice-btn" onclick="bugSetKind('suggest')" data-i18n-html="bug.choiceSuggest">💡 Suggest an improvement</button>
       </div>
       <div>
         <textarea id="bugDesc" rows="5" oninput="_bugUpdateSendState()" style="width:100%;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
       </div>
-      <div id="bugWarn" data-i18n="bug.warnBug" style="font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--accent-warm);background:rgba(245,137,58,.10);border:1px solid rgba(245,137,58,.35);border-radius:6px;padding:8px 10px;">This report, including the NC program and details you enter, will be published publicly on GitHub. Do not include confidential or company program data.</div>
+      <div id="bugWarn" data-i18n="bug.warnBug" style="font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--text2);background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.28);border-radius:6px;padding:8px 10px;">This report is anonymous. TNC Sim does not collect personal data. Your description, current NC program, and basic technical diagnostics are sent to our public GitHub tracker. Please don't include any confidential information.</div>
       <div id="bugTurnstile"></div>
       <div id="bugStatus" style="display:none;font-family:var(--mono);font-size:11px;line-height:1.5;word-break:break-word;"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">

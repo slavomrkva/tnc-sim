@@ -8,6 +8,27 @@
 
 ## Open bugs
 
+## C21 — One-click reports have no endpoint on the Static Assets Worker
+**Reported:** 2026-07-19. **Repro:** deploy web v0.882 through the current
+Cloudflare Workers project and post to `https://tncsim.org/api/report`.
+### Symptom
+The repository contains a Pages Function at `functions/api/report.js`, but the
+production resource is a Worker with only static assets. `/api/report` is not
+executed, and Worker secrets cannot be attached to the missing script.
+### Attempts
+- Attempt 1 — replaced the Pages-only function with a Worker entrypoint and an
+  assets binding. `run_worker_first` is scoped to `/api/*`; ordinary requests
+  stay on the static-assets path. Removed the committed always-pass Turnstile
+  Site Key, added origin/hostname validation and focused Worker tests, and
+  documented the two-stage deploy then encrypted-secret setup.
+- Attempt 2 — installed the real public production Turnstile Site Key in both
+  the web client and the independent Android client; neither private key is
+  stored in Git.
+### Status
+Implemented through web v0.884. Automated verification passes; merge, encrypted
+Worker-secret setup, one live website report and one Android device report are
+still pending.
+
 ## C20 — DE → EN leaves the Complete Part starter program in German
 **Reported:** 2026-07-18. **Repro:** start with Complete Part, switch the UI to
 German, then switch it back to English.

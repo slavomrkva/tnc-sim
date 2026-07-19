@@ -24,7 +24,7 @@ This project is built with heavy AI assistance (Claude) rather than written enti
 
 ## Found a bug?
 
-Use the **Report a problem / suggestion** button inside the app. One click posts a public GitHub issue for you — no GitHub account needed — with the current program, version and device details attached automatically. (Bug reports include the NC program, so the issue is public: don't send confidential program data.) You can also open an issue directly: [github.com/slavomrkva/tnc-sim/issues](https://github.com/slavomrkva/tnc-sim/issues)
+Use the **One-click bug report / Suggest an improvement** button inside the app. One click posts a public GitHub issue for you — no GitHub account needed — with the current program, version and device details attached automatically. (Bug reports include the NC program, so the issue is public: don't send confidential program data.) You can also open an issue directly: [github.com/slavomrkva/tnc-sim/issues](https://github.com/slavomrkva/tnc-sim/issues)
 
 Maintainer setup for the in-app reporting endpoint is documented in [docs/bug-report-setup.md](docs/bug-report-setup.md).
 

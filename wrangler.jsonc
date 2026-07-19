@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tnc-sim",
+  "main": "worker/report-worker.mjs",
+  "compatibility_date": "2026-07-19",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "vars": {
+    "ALLOWED_ORIGIN": "https://tncsim.org,https://localhost,capacitor://localhost",
+    "ALLOWED_TURNSTILE_HOSTNAME": "tncsim.org,localhost",
+    "GITHUB_REPO": "slavomrkva/tnc-sim",
+    "SITE_URL": "https://tncsim.org"
+  }
+}

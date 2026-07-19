@@ -33,8 +33,11 @@ Detailed module-split history is in the archived project notes linked above.
   meaningful user-visible change.
 - When runtime assets change, keep the service-worker cache version and
   precache list synchronized.
-- Push to GitHub; Cloudflare Pages deploys automatically. For a shipped web
-  milestone, create `web-v<APP_VERSION>`. Do not add APK/AAB artifacts here.
+- Push to GitHub; Cloudflare Workers Builds deploys `wrangler.jsonc`, combining
+  the Worker API with the existing Static Assets site. `/api/report` lives in
+  `worker/report-worker.mjs`; its GitHub and Turnstile credentials are encrypted
+  Worker secrets. For a shipped web milestone, create `web-v<APP_VERSION>`. Do
+  not add APK/AAB artifacts here.
 
 ## Current non-obvious invariants
 

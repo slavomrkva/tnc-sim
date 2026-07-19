@@ -71,13 +71,13 @@
       'mobile.learn': 'Lernen',
 
       // footer
-      'footer.bug': '🐛 Fehler melden / Vorschlag',
+      'footer.bug': '🐛 Fehler mit einem Klick melden / Verbesserung vorschlagen',
 
       // cycle picker
       'cycle.select': 'Zyklus wählen',
 
       // bug report / suggestion modal
-      'bug.title': '🐛 Problem melden oder Vorschlag',
+      'bug.title': '🐛 Fehler melden oder Verbesserung vorschlagen',
       'bug.choiceProblem': '🐛 Problem melden',
       'bug.choiceSuggest': '💡 Verbesserung vorschlagen',
       'bug.cancel': 'Abbrechen',
@@ -85,8 +85,8 @@
       'bug.sendSuggest': 'Vorschlag senden',
       'bug.bugPh': 'Optional weitere Details hinzufügen…',
       'bug.suggestPh': 'Was möchtest du ergänzen oder verbessern?',
-      'bug.warnBug': 'Dieser Bericht – einschließlich des NC-Programms und der von dir eingegebenen Angaben – wird öffentlich auf GitHub veröffentlicht. Gib keine vertraulichen oder firmeninternen Programmdaten an.',
-      'bug.warnSuggest': 'Dieser Vorschlag und die von dir eingegebenen Angaben werden öffentlich auf GitHub veröffentlicht. Gib keine vertraulichen oder firmeninternen Daten an.',
+      'bug.warnBug': 'Der Bericht ist anonym. TNC Sim erfasst keine personenbezogenen Daten. Deine Beschreibung, das aktuelle NC-Programm und grundlegende technische Diagnosedaten werden an unseren öffentlichen GitHub-Tracker gesendet. Bitte gib keine vertraulichen Informationen an.',
+      'bug.warnSuggest': 'Der Vorschlag ist anonym. TNC Sim erfasst keine personenbezogenen Daten. Dein Text und grundlegende technische Diagnosedaten werden an unseren öffentlichen GitHub-Tracker gesendet. Bitte gib keine vertraulichen Informationen an.',
       'bug.pf.js': 'Der Simulator ist bei der Verarbeitung dieses Programms auf einen internen Fehler gestoßen.',
       'bug.pf.lesson': 'Die Lektionsprüfung akzeptiert möglicherweise eine korrekte Lösung nicht.',
       'bug.pf.validator': 'Der Validator bewertet dieses Programm möglicherweise falsch.',

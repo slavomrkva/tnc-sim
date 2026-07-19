@@ -1,3 +1,10 @@
 # Graphify creates full dated backups before rebuilding. Git history already
 # preserves the previous tracked graph, so do not accumulate duplicate copies.
 graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+
+# Local Wrangler state and secrets.
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example

@@ -1,7 +1,7 @@
 // render3d -- verified byte-for-byte identical between web and android repos.
 
 function _scene3dBgColor(){
-  return document.documentElement.getAttribute('data-theme')==='light' ? 0xc7cdd8 : 0x100f0d;
+  return document.documentElement.getAttribute('data-theme')==='light' ? 0xcccdd0 : 0x101113;
 }
 
 function _stockRGB(){ return document.documentElement.getAttribute('data-theme')==='light' ? [0.44,0.46,0.50] : [0.61,0.62,0.65]; }
@@ -10,8 +10,8 @@ function _stockHex(){ return document.documentElement.getAttribute('data-theme')
 
 function _gridColors(){
   return document.documentElement.getAttribute('data-theme')==='light'
-    ? [0x858c96, 0xaab0b8]
-    : [0x2a2f3a, 0x1c2026];
+    ? [0x898c91, 0xadb0b4]
+    : [0x2c2e31, 0x1a1b1d];
 }
 
 function _applyGridTheme(grid){
@@ -253,7 +253,7 @@ function buildScene(prog){
     blockMesh = new THREE.Mesh(bg, new THREE.MeshLambertMaterial({color:_stockHex()}));
     scene.add(blockMesh);
     // edge circle outlines (top + bottom)
-    var edgeMat = new THREE.LineBasicMaterial({color:0x3a3e48});
+    var edgeMat = new THREE.LineBasicMaterial({color:0x3c3e42});
     var pts = [];
     for(var ei=0;ei<=64;ei++) pts.push(new THREE.Vector3(cyl.cx+cyl.r*Math.cos(ei/64*Math.PI*2), cyl.cy+cyl.r*Math.sin(ei/64*Math.PI*2), cyl.zMin));
     var edgeGeoB = new THREE.BufferGeometry().setFromPoints(pts);
@@ -270,7 +270,7 @@ function buildScene(prog){
     bg.translate(stockMin.x+stockW/2, stockMin.y+stockD/2, stockMin.z+stockH/2);
     blockMesh = new THREE.Mesh(bg, new THREE.MeshLambertMaterial({color:_stockHex()}));
     scene.add(blockMesh);
-    blockEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bg), new THREE.LineBasicMaterial({color:0x3a3e48}));
+    blockEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bg), new THREE.LineBasicMaterial({color:0x3c3e42}));
     scene.add(blockEdges);
   }
   // voxel init — MC mesh will replace blockMesh immediately
