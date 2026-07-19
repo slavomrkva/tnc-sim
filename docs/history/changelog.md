@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.888 — CNC simulator search metadata
+
+- Reworked the title, description, social metadata and JSON-LD around the
+  Heidenhain simulator and CNC mill simulator search terms. The existing logo
+  heading is now a semantic H1 without changing its visual hierarchy.
+
 ## v0.887 — close the report dialog after success
 
 - After a bug report or suggestion is posted, the send button becomes Close.
