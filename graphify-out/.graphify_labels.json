@@ -161,5 +161,9 @@
   "159": ".rotateZ",
   "160": ".scale",
   "161": ".translate",
-  "162": ".applyMatrix4"
+  "162": ".applyMatrix4",
+  "163": "rc",
+  "164": ".multiply",
+  "165": ".setFromCylindrical",
+  "166": ".setFromSpherical"
 }
