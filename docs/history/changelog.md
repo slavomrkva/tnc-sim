@@ -346,3 +346,9 @@ History through v0.845 is preserved in
   stricter request validation, Worker regressions, and corrected deployment
   documentation. Removed the committed always-pass Site Key; production waits
   for the real public key. Offline cache → v44.
+
+## v0.884 — 2026-07-19 — production Turnstile Site Key
+- Replaced the fail-closed empty Turnstile configuration with the real public
+  Site Key for the Invisible `tncsim.org`/`localhost` widget. The same public
+  key is versioned in the independent Android client; both private secrets stay
+  outside Git as encrypted Worker secrets. Offline cache → v45.

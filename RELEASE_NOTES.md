@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.884 (web test)
+- Enabled the production Turnstile widget for secure one-click problem reports and suggestions from the website and Android app.
+
 ## v0.883 (web test)
 - Restored the one-click report endpoint on the current Cloudflare Workers deployment while keeping the existing website and offline assets unchanged.
 
