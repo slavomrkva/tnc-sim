@@ -151,8 +151,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;
 header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.logo-text{font-size:15px;font-weight:700;color:var(--text);line-height:1.2;}
-.logo-sub{font-size:11px;color:var(--text2);font-weight:400;}
+.logo-heading{font:inherit;min-width:0;}
+.logo-text{display:block;font-size:15px;font-weight:700;color:var(--text);line-height:1.2;}
+.logo-sub{display:block;font-size:11px;color:var(--text2);font-weight:400;}
 .header-badges{display:flex;gap:6px;flex-wrap:wrap;}
 .badge{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);color:var(--text2);}
 .badge.green{border-color:var(--accent2);color:var(--accent2);}

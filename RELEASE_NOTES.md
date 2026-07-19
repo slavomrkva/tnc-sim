@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.888 (web test)
+- Improved how TNC Sim is described to search engines as an open-source online Heidenhain and CNC mill simulator.
+
 ## v0.887 (web test)
 - After a report or suggestion is posted, the send button becomes Close instead of allowing the same item to be submitted again.
 
