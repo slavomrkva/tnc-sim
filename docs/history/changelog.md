@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.886 — rounded browser favicon
+
+- Added transparent rounded corners to the 16, 32 and 48 px favicon variants.
+  The enlarged motif, PWA icons and Android app icons remain unchanged.
+
 ## v0.885 — unified color identity
 
 - Unified light and dark themes around cool-neutral grays, teal primary actions
