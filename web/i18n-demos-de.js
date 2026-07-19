@@ -133,6 +133,7 @@ Q204=+50 ;2. Sicherheits-Abstand [mm]
 Q335=+8 ;SOLL-Durchmesser [mm]
 Q342=+7.999 ;Vorbohrdurchmesser [mm]
 Q351=+1 ;Frässtrategie
+Q370=+1 ;Bahnüberlappungsfaktor
 L X+0 Y+0 FMAX M99
 M5
 M9
@@ -221,6 +222,7 @@ Q204=+50 ;2. Sicherheits-Abstand [mm]
 Q335=+7 ;SOLL-Durchmesser [mm]
 Q342=+6.999 ;Vorbohrdurchmesser [mm]
 Q351=+1 ;Frässtrategie
+Q370=+1 ;Bahnüberlappungsfaktor
 L X+0 Y+0 FMAX M99
 M5
 M9

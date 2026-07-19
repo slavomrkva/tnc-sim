@@ -7,6 +7,25 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.890 — expose Q370 throughout Cycle 208
+
+- Replaced the incomplete Cycle 208 builder with the full bore-milling
+  parameter set and exposed `Q370` in both cycle insertion paths.
+- Added `Q370=+1` to every supplied Cycle 208 demo, Complete Part program and
+  applicable Learn example, starter, solution and check, including German UI
+  content.
+- Added regressions that require the form definition and every shipped Cycle
+  208 demo block to contain Q370; advanced the offline cache to `v50`.
+
+## v0.889 — documented feed and cycle semantics
+
+- Preserved decimals in `TOOL CALL F` and made ordinary `L ... FAUTO` select
+  that exact current-tool feed.
+- Implemented Cycle 208 `Q370` parsing, documented range validation and radial
+  stepover behavior; restricted Cycle 209 `Q336` to `0...360` degrees.
+- Extended the standalone cutting-logic package with a real Q370 program value,
+  independent Q370/Q336 semantic checks and focused parser regressions.
+
 ## v0.888 — CNC simulator search metadata
 
 - Reworked the title, description, social metadata and JSON-LD around the

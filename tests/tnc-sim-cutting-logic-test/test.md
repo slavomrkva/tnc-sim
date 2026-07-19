@@ -96,10 +96,12 @@ Five isolated holes lie on `Y-45`:
 | -60 | Cycle 200, center drill | `FAUTO`, pecking, decimal dwell and Q parameters. |
 | -30 | Cycle 200, drill | Numeric `Q206`, `Q395=1`, decimal depth and peck. |
 | 0 | Cycle 201 | `FAUTO` downfeed and explicit numeric retraction feed. |
-| +30 | Cycle 208 | Bore milling with decimal Q parameters and a centered final retract. |
-| +60 | Cycle 209 | Pitch-synchronized feed, chip breaking and retract factor. |
+| +30 | Cycle 208 | Bore milling with decimal Q parameters, `Q370=0.500` path overlap and a centered final retract. |
+| +60 | Cycle 209 | Pitch-synchronized feed, chip breaking, `Q336` orientation and retract factor. |
 
 All five features must be centered at the coordinates above. Cycle 208 must finish at its bore center before retracting. A missing hole means that the Q value or cycle call was lost. A wrong depth points to Q resolution, `DL`, surface coordinate or cycle-depth handling.
+
+The automated reference also runs isolated semantic variants that cannot be identified from the final outer voxel alone: `Q370=0.500` must create more radial paths than `Q370=1.500`; invalid Cycle 208 values `-0.100`, `0.050` and `1999.100` must be rejected; and negative Cycle 209 `Q336` must be rejected because the documented range is `0...360` degrees.
 
 ## Feed verification
 

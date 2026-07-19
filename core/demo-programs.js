@@ -130,6 +130,7 @@ Q204=+50 ;2nd safety clearance [mm]
 Q335=+8 ;Nominal diameter [mm]
 Q342=+7.999 ;Pre-drilled dia. [mm]
 Q351=+1 ;Milling mode
+Q370=+1 ;Path overlap factor
 L X+0 Y+0 FMAX M99
 M5
 M9
@@ -218,6 +219,7 @@ Q204=+50 ;2nd safety clearance [mm]
 Q335=+7 ;Nominal diameter [mm]
 Q342=+6.999 ;Pre-drilled dia. [mm]
 Q351=+1 ;Milling mode
+Q370=+1 ;Path overlap factor
 L X+0 Y+0 FMAX M99
 M5
 M9

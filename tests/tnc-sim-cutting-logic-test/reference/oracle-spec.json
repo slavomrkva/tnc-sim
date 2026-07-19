@@ -14,6 +14,8 @@
     "programmedLength":"physical cut Z = programmed path Z + TOOL CALL DL; table DL is measured compensation and does not independently alter the workpiece",
     "ball":"R2=R produces a spherical bottom with radius R2",
     "countersink":"cone radius at height h above the tip is Rtip + h*tan(T-ANGLE/2), limited by LCUTS*tan(T-ANGLE/2)",
+    "cycle208PathOverlap":"Q370=0 selects automatic path distribution; Q370>0 sets stepover k = Q370 x active tool radius; supported input is 0 or 0.1...1999",
+    "cycle209Orientation":"Q336 spindle orientation input is 0...360 degrees",
     "voxelTolerance":"path values use 1e-6 mm; voxel floor uses one observed Z cell; measured width allows one observed cell at each boundary"
   },
   "witnesses": [
@@ -48,5 +50,10 @@
     {"id":"C201-FAUTO","tool":10,"expectedFeed":219.5,"cycle":201,"direction":"down"},
     {"id":"C201-RETRACT","tool":10,"expectedFeed":111.1,"cycle":201,"direction":"up"},
     {"id":"C209-DOWN","tool":11,"expectedFeed":500,"cycle":209,"direction":"down"}
+  ],
+  "semanticChecks": [
+    {"id":"C208-Q370-EFFECT","expected":"Q370=0.5 produces more radial path segments than Q370=1.5"},
+    {"id":"C208-Q370-RANGE","expected":"Q370 values -0.1, 0.05 and 1999.1 are rejected without a cycle path"},
+    {"id":"C209-Q336-RANGE","expected":"negative Q336 is rejected without a tapping path"}
   ]
 }

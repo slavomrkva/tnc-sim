@@ -9,7 +9,7 @@ This directory builds an offline expected result for `test.h` without treating T
 - The exact local PDF hashes and relevant pages are locked in `oracle-spec.json`.
 - `test.h` and `test.tnt` define the programmed inputs, not the expected output.
 
-The oracle implements only documented geometry needed by the witnesses: RL/RR path compensation, physical versus programmed DR, programmed DL, flat/ball/conical/drill profiles, cycle dimensions and feed formulas. Every measured result has a stated voxel tolerance based on the actual generated grid cell size.
+The oracle implements only documented geometry needed by the witnesses: RL/RR path compensation, physical versus programmed DR, programmed DL, flat/ball/conical/drill profiles, cycle dimensions and feed formulas. It also runs isolated semantic checks for Cycle 208 Q370 path overlap and Cycle 209 Q336 range rejection, because these behaviors cannot be proven from the final outer voxel alone. Every measured result has a stated voxel tolerance based on the actual generated grid cell size.
 
 ## Run
 

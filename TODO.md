@@ -8,6 +8,29 @@
 
 ## Open bugs
 
+## C22 — Cutting-logic reference failures in feeds and fixed cycles
+**Reported:** 2026-07-19. **Repro:** run the offline cutting-logic reference and
+the focused parser cycle regression against GitHub `main`.
+### Symptom
+Decimal `TOOL CALL F` values were truncated; `L ... FAUTO` retained the prior
+modal numeric feed instead of using the active Tool Call feed; Cycle 208 ignored
+documented `Q370`; and Cycle 209 accepted negative `Q336` although the documented
+range is `0...360` degrees.
+### Attempts
+- Attempt 1 — traced all four failures to the shared parser and verified the
+  applicable TNC 640 rules in the locked offline manuals.
+- Attempt 2 — preserved decimal Tool Call feeds, implemented ordinary L-block
+  FAUTO, added Cycle 208 Q370 parsing/range/stepover behavior, and restricted
+  Cycle 209 Q336 to `0...360`. Added focused parser regressions and independent
+  semantic checks to the long-form cutting-logic package.
+- Attempt 3 — exposed the complete Cycle 208 parameter set, including Q370, in
+  both insertion interfaces and added Q370 to every supplied Cycle 208 demo and
+  applicable Learn program in web v0.890 and Android APP_VERSION 1.0.70.
+### Status
+Implemented in web v0.890 and ported to Android APP_VERSION 1.0.70. Automated
+verification is in progress; keep open until both repository changes and a
+real simulator/device run are accepted.
+
 ## C21 — One-click reports have no endpoint on the Static Assets Worker
 **Reported:** 2026-07-19. **Repro:** deploy web v0.882 through the current
 Cloudflare Workers project and post to `https://tncsim.org/api/report`.

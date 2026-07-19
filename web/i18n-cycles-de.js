@@ -35,7 +35,8 @@
     'Infeed per pass':       'Zustellung pro Schnitt',
     'Nominal diameter':      'SOLL-Durchmesser',
     'Pre-drilled dia.':      'Vorbohrdurchmesser',
-    'Milling mode':          'Frässtrategie'
+    'Milling mode':          'Frässtrategie',
+    'Path overlap factor':   'Bahnüberlappungsfaktor'
   };
 
   CYCLES.forEach(function (cyc) {

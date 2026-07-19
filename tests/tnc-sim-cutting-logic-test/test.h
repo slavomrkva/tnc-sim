@@ -207,6 +207,7 @@ Q204=+Q6
 Q335=+Q4
 Q342=+Q5
 Q351=+1
+Q370=+Q12
 L X+30.000 Y-45.000 FMAX M99
 ; D209 at X+60: pitch-synchronized tapping with chip breaking.
 TOOL CALL 11 Z S400 F200.000

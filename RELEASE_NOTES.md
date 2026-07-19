@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.890 (web test)
+- Cycle 208 now offers its full bore-milling parameter set, including `Q370`, and all supplied Cycle 208 programs and lessons include the path-overlap value.
+
+## v0.889 (web test)
+- Corrected decimal Tool Call feeds and `L ... FAUTO`, added the documented Cycle 208 `Q370` path overlap, and reject negative Cycle 209 `Q336` spindle angles.
+
 ## v0.888 (web test)
 - Improved how TNC Sim is described to search engines as an open-source online Heidenhain and CNC mill simulator.
 
