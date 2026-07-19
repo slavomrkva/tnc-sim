@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.889';
+var APP_VERSION = '0.890';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -689,13 +689,17 @@ var BUILDERS = {
     {p:'Q204', prompt:'2nd safety clearance (mm)', type:'num', opt:false},
     {p:'Q211', prompt:'Dwell time at depth (s)', type:'num', opt:false},
   ]},
-  'CYCL DEF 208':{title:'CYCL DEF 208 — Boring/Reaming', cmd:'CYCL DEF 208', fields:[
+  'CYCL DEF 208':{title:'CYCL DEF 208 — Bore Milling', cmd:'CYCL DEF 208', fields:[
     {p:'Q200', prompt:'Safety clearance (mm)', type:'num', opt:false},
     {p:'Q201', prompt:'Depth (mm, negative)', type:'num', opt:false},
     {p:'Q206', prompt:'Feed rate for plunging (mm/min)', type:'num', opt:false},
-    {p:'Q208', prompt:'Feed rate for retract (mm/min)', type:'num', opt:false},
+    {p:'Q334', prompt:'Infeed per helix revolution (mm)', type:'num', opt:false},
     {p:'Q203', prompt:'Surface coordinate (mm)', type:'num', opt:false},
     {p:'Q204', prompt:'2nd safety clearance (mm)', type:'num', opt:false},
+    {p:'Q335', prompt:'Nominal diameter (mm)', type:'num', opt:false},
+    {p:'Q342', prompt:'Pre-drilled diameter (mm)', type:'num', opt:false},
+    {p:'Q351', prompt:'Milling mode (+1 climb, -1 conventional)', type:'num', opt:false},
+    {p:'Q370', prompt:'Path overlap factor (× tool radius; 0 = automatic)', type:'num', opt:false},
   ]},
 
   'TOOL CALL':{title:'TOOL CALL — select tool', cmd:'TOOL CALL', fields:[
@@ -816,6 +820,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q335=+20 ;SOLL-Durchmesser [mm]
   Q342=+0 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
+  Q370=+1 ;Bahnüberlappungsfaktor
 L X+0 Y+0 FMAX M99
 M5 ; Spindel AUS
 M9 ; Kühlmittel AUS
@@ -909,6 +914,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q335=+20 ;SOLL-Durchmesser [mm]
   Q342=+19.9999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
+  Q370=+1 ;Bahnüberlappungsfaktor
 L X+0 Y+0 FMAX M99
 ; Kanten der D7-Bohrungen fasen (Reiben)
 CYCL DEF 208 ;Bohrfräsen
@@ -921,6 +927,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q335=+7 ;SOLL-Durchmesser [mm]
   Q342=+6.999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
+  Q370=+1 ;Bahnüberlappungsfaktor
 CALL LBL 1
 ; Kanten der D8-Bohrungen fasen (Gewinde)
 CYCL DEF 208 ;Bohrfräsen
@@ -933,6 +940,7 @@ CYCL DEF 208 ;Bohrfräsen
   Q335=+8 ;SOLL-Durchmesser [mm]
   Q342=+7.999 ;Vorbohrdurchmesser [mm]
   Q351=+1 ;Frässtrategie
+  Q370=+1 ;Bahnüberlappungsfaktor
 CALL LBL 2
 M5 ; Spindel AUS
 M9 ; Kühlmittel AUS

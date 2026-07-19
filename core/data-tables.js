@@ -61,6 +61,7 @@ var CYCLES = [
       {q:'Q335', def:'+10',   name:'Nominal diameter',    unit:'mm',      desc:'Target bore diameter'},
       {q:'Q342', def:'+0',    name:'Pre-drilled dia.',    unit:'mm',      desc:'Existing hole diameter — 0 if solid material'},
       {q:'Q351', def:'+1',    name:'Milling mode',         unit:'',        desc:'+1 or 0 = climb (down) milling, -1 = conventional (up) milling; spindle direction is taken into account'},
+      {q:'Q370', def:'+1',    name:'Path overlap factor',  unit:'× R',     desc:'Radial stepover factor: Q370 × active tool radius; 0 = automatic path distribution'},
     ]
   }
 ];
@@ -845,11 +846,11 @@ var LESSONS = [
       + '<p>The helix makes the first opening down to <code>Q201</code>. At the floor, finishing rings expand outward until the D10 tool produces the requested D30 bore.</p>'; } },
     { html:function(){ return ''
       + '<p><b>Q335</b> — target pocket <b>diameter</b><br><b>Q334</b> — depth per helix <b>turn</b><br><b>Q342</b> — <b>pre-drilled</b> hole diameter (0 = solid)<br><b>Q351</b> — +1 climb, -1 conventional</p>'
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling'); } },
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling\n  Q370=+1   ;path overlap factor'); } },
     { html:function(){ return ''
       + '<p>Typical use: a <b>counterbore</b> for a screw head in an existing \u00d86.6 hole \u2014 the head sinks flush:</p>'
       + learnSvgCounterboreClear()
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-6   ;head depth\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;head diameter\n  Q342=+6.6 ;the drilled hole\n  Q351=+1\nL X+50 Y+40 FMAX M99')
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-6   ;head depth\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;head diameter\n  Q342=+6.6 ;the drilled hole\n  Q351=+1\n  Q370=+1   ;path overlap factor\nL X+50 Y+40 FMAX M99')
       + '<p>Called with <code>M99</code> at the hole centre, like every cycle.</p>'; } }
   ],
   tasks:[
@@ -858,10 +859,10 @@ var LESSONS = [
       hints:[
         "<code>CYCL DEF 208</code> mills a round pocket by helixing down. Q values set diameter, depth, infeed per turn… (slide).",
         "Watch <code>Q201</code>=-8 depth, <code>Q334</code>=2 per turn, <code>Q335</code>=30 diameter, <code>Q351</code>=+1 climb.",
-        "Type the <code>CYCL DEF 208</code> block from the slide, with <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code>."
+        "Type the <code>CYCL DEF 208</code> block from the slide, with <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> and <code>Q370=+1</code>."
       ],
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; define the cycle here\n\nM5\nM9\nEND PGM POCKET MM',
-      sol:'CYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1',
+      sol:'CYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1\n  Q370=+1 ;path overlap factor',
       checks:[
         {t:'cycle_def', num:208, label:'CYCL DEF 208 defined',
          hint:'Start with the line: CYCL DEF 208'},
@@ -876,7 +877,9 @@ var LESSONS = [
         {t:'cycle_param', num:208, q:'Q203', value:0, label:'Surface Q203 = +0',
          hint:'Q203=+0 sets the surface at Z0.'},
         {t:'cycle_param', num:208, q:'Q351', value:1, label:'Climb milling Q351 = +1',
-         hint:'Q351=+1 selects climb milling.'}
+         hint:'Q351=+1 selects climb milling.'},
+        {t:'cycle_param', num:208, q:'Q370', value:1, label:'Path overlap Q370 = +1',
+         hint:'Q370 × tool radius sets the radial stepover.'}
       ]
     },
     {
@@ -886,7 +889,7 @@ var LESSONS = [
         "One line.",
         "<code>L X+50 Y+40 FMAX M99</code>"
       ],
-      starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\n; >>> write here\n\nM5\nM9\nEND PGM POCKET MM',
+      starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\n  Q370=+1 ;path overlap factor\n; >>> write here\n\nM5\nM9\nEND PGM POCKET MM',
       sol:'L X+50 Y+40 FMAX M99',
       checks:[
         {t:'uses', re:/\bM99\b/, label:'Cycle called with M99',
@@ -904,7 +907,7 @@ var LESSONS = [
         "Find <code>Q335=+30</code> (the nominal diameter) and make it +40.",
         "<code>Q335=+40</code>"
       ],
-      starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nL X+50 Y+40 FMAX M99\nM5\nM9\nEND PGM POCKET MM',
+      starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-8 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+30 ;nominal DIAMETER\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\n  Q370=+1 ;path overlap factor\nL X+50 Y+40 FMAX M99\nM5\nM9\nEND PGM POCKET MM',
       solRepl:['Q335=+30','Q335=+40'],
       checks:[
         {t:'uses', re:/Q335\s*=\s*\+?40\b/, label:'Diameter changed: Q335 = +40',
@@ -1135,10 +1138,10 @@ var LESSONS = [
       hints:[
         "When the hole is wider than the tool, the cone cannot reach by dipping — mill the rim with <code>CYCL DEF 208</code> and tell the cycle the existing bore diameter with <code>Q342</code> (slide 2).",
         "Call <code>TOOL CALL 5 … DL-2 DR+2</code>, then <code>CYCL DEF 208</code> with <code>Q201=-1</code> and <code>Q342=+10</code> (the milled diameter), then <code>CALL LBL 1</code>.",
-        "<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>a <code>CYCL DEF 208</code> block with <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code><br><code>CALL LBL 1</code>"
+        "<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>a <code>CYCL DEF 208</code> block with <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code>, <code>Q370=+1</code><br><code>CALL LBL 1</code>"
       ],
-      starter:'BEGIN PGM CHAMF MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+4 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;hole diameter\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\nLBL 1\nL X+50 Y+40 FMAX M99\nLBL 0\n; chamfer tool call + cycle go below\n\n\nM5\nM9\nEND PGM CHAMF MM',
-      sol:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-1 ;depth\n  Q206=+300 ;plunge feed rate\n  Q334=+1 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;nominal diameter\n  Q342=+10 ;milled hole diameter\n  Q351=+1 ;milling mode (+1 climb)\nCALL LBL 1',
+      starter:'BEGIN PGM CHAMF MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+4 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;hole diameter\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode (+1 climb)\n  Q370=+1 ;path overlap factor\nLBL 1\nL X+50 Y+40 FMAX M99\nLBL 0\n; chamfer tool call + cycle go below\n\n\nM5\nM9\nEND PGM CHAMF MM',
+      sol:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nCYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-1 ;depth\n  Q206=+300 ;plunge feed rate\n  Q334=+1 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+10 ;nominal diameter\n  Q342=+10 ;milled hole diameter\n  Q351=+1 ;milling mode (+1 climb)\n  Q370=+1 ;path overlap factor\nCALL LBL 1',
       checks:[
         {t:'uses', re:/TOOL\s+CALL\s+5\s+Z[^\n]*DL-2\b/, label:'T5 called with DL-2',
          hint:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2 \u2014 any feed/speed is fine.'},
@@ -1154,6 +1157,8 @@ var LESSONS = [
          hint:'Q335=+10 keeps the target diameter on the existing rim.'},
         {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q351', value:1, label:'Climb milling Q351 = +1',
          hint:'Use Q351=+1 for climb milling.'},
+        {t:'cycle_param', num:208, after:/TOOL\s+CALL\s+5\b/, q:'Q370', value:1, label:'Path overlap Q370 = +1',
+         hint:'Use Q370=+1 for one active-radius stepover.'},
         {t:'order', a:/TOOL\s+CALL\s+5\b/, b:/CALL\s+LBL\s+1\b/, label:'CALL LBL 1 runs the chamfer after T5',
          hint:'Reuse the same label as the milling pass.'}
       ]

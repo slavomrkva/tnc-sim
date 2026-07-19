@@ -156,6 +156,7 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q335=+20 ;Nominal diameter [mm]
   Q342=+0 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
+  Q370=+1 ;Path overlap factor
 L X+0 Y+0 FMAX M99
 M5 ; Spindle OFF
 M9 ; Coolant OFF
@@ -249,6 +250,7 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q335=+20 ;Nominal diameter [mm]
   Q342=+19.9999 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
+  Q370=+1 ;Path overlap factor
 L X+0 Y+0 FMAX M99
 ; Chamfer edges of D7 holes (reaming)
 CYCL DEF 208 ;Circular Pocket Milling
@@ -261,6 +263,7 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q335=+7 ;Nominal diameter [mm]
   Q342=+6.999 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
+  Q370=+1 ;Path overlap factor
 CALL LBL 1
 ; Chamfer edges of D8 holes (thread)
 CYCL DEF 208 ;Circular Pocket Milling
@@ -273,6 +276,7 @@ CYCL DEF 208 ;Circular Pocket Milling
   Q335=+8 ;Nominal diameter [mm]
   Q342=+7.999 ;Pre-drilled dia. [mm]
   Q351=+1 ;Milling mode
+  Q370=+1 ;Path overlap factor
 CALL LBL 2
 M5 ; Spindle OFF
 M9 ; Coolant OFF

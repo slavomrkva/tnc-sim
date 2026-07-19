@@ -39,12 +39,26 @@ const angleMatch = appSource.match(/\{ name: 'Angle Mill', code: (('[^'\\]*(?:\\
 assert.ok(angleMatch, 'Angle Mill program must exist in the demo library');
 const angleCode = vm.runInNewContext(angleMatch[1]);
 
+function assertCycle208HasQ370(code, label) {
+  const lines = code.split(/\r?\n/);
+  lines.forEach((line, index) => {
+    if (!/\bCYCL DEF 208\b/.test(line)) return;
+    const parameters = [];
+    for (let i = index + 1; i < lines.length && /^\s*Q\d+\b/.test(lines[i]); i++) parameters.push(lines[i]);
+    assert.match(parameters.join('\n'), /\bQ370\s*=\s*[+-]?(?:\d+(?:\.\d*)?|\.\d+)/,
+      `${label}: CYCL DEF 208 at line ${index + 1} must define Q370`);
+  });
+}
+
+assertCycle208HasQ370(completeCode, 'Complete Part');
+
 assert.deepStrictEqual(
   Array.from(context.EXTRA_DEMO_PROGRAMS, demo => demo.name),
   ['Chamfering', 'Rough & Finish', 'Thread Hole', 'Precise Hole']
 );
 
 context.EXTRA_DEMO_PROGRAMS.forEach(demo => {
+  assertCycle208HasQ370(demo.code, demo.name);
   const problems = context.validateProgram(demo.code);
   const errors = problems.filter(problem => problem.sev === 'err');
   assert.strictEqual(errors.length, 0, `${demo.name} validation errors: ${JSON.stringify(errors)}`);

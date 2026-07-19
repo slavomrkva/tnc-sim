@@ -125,6 +125,15 @@ assert.strictEqual(context.shouldHoldVisibleSegment({ensureVisible:false}, 0, 0.
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const firstCycle208 = html.slice(html.indexOf('CYCL DEF 208'), html.indexOf('CYCL DEF 208') + 500);
 assert.match(firstCycle208, /Q334=\+2\s*;Infeed per pass/);
+assert.match(firstCycle208, /Q370=\+1\s*;Path overlap factor/);
+
+const cycleTableSource = fs.readFileSync(path.join(root, 'core', 'data-tables.js'), 'utf8');
+const cycle208Table = cycleTableSource.slice(cycleTableSource.indexOf("num: 208"), cycleTableSource.indexOf("num: 208") + 1800);
+assert.match(cycle208Table, /q:'Q370'.*def:'\+1'.*name:'Path overlap factor'/s);
+
+const appSource = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
+const cycle208Builder = appSource.slice(appSource.indexOf("'CYCL DEF 208':"), appSource.indexOf("'CYCL DEF 208':") + 1800);
+assert.match(cycle208Builder, /p:'Q370'.*Path overlap factor/s);
 
 // Regression: a fixed cycle called via M99 must not corrupt the modal feed.
 // Cycle 208 (and its M99 rapid positioning) run inside flushPending, which

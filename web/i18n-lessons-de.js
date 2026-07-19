@@ -725,12 +725,12 @@ var LESSONS_DE = {
       + learnSvgCycle208()
       + '<p>Die Helix macht die erste Öffnung bis <code>Q201</code>. Am Grund weiten sich Schlichtringe nach außen, bis das Werkzeug D10 die geforderte Bohrung D30 erzeugt.</p>'; } },
     { html:function(){ return ''
-      + '<p><b>Q335</b> — Ziel-<b>Durchmesser</b> der Tasche<br><b>Q334</b> — Tiefe pro Helix-<b>Umdrehung</b><br><b>Q342</b> — <b>vorgebohrter</b> Lochdurchmesser (0 = voll)<br><b>Q351</b> — +1 Gleichlauf, -1 Gegenlauf</p>'
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-8   ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q334=+2   ;Zustellung pro Helix-Umdrehung\n  Q203=+0   ;Oberfläche Z\n  Q204=+30  ;2. Sicherheitsabstand\n  Q335=+30  ;Taschen-DURCHMESSER\n  Q342=+0   ;vorgeb. Durchmesser (0 = voll)\n  Q351=+1   ;+1 Gleichlauffräsen'); } },
+      + '<p><b>Q335</b> — Ziel-<b>Durchmesser</b> der Tasche<br><b>Q334</b> — Tiefe pro Helix-<b>Umdrehung</b><br><b>Q342</b> — <b>vorgebohrter</b> Lochdurchmesser (0 = voll)<br><b>Q351</b> — +1 Gleichlauf, -1 Gegenlauf<br><b>Q370</b> — Bahnüberlappungsfaktor × Werkzeugradius (0 = automatisch)</p>'
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-8   ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q334=+2   ;Zustellung pro Helix-Umdrehung\n  Q203=+0   ;Oberfläche Z\n  Q204=+30  ;2. Sicherheitsabstand\n  Q335=+30  ;Taschen-DURCHMESSER\n  Q342=+0   ;vorgeb. Durchmesser (0 = voll)\n  Q351=+1   ;+1 Gleichlauffräsen\n  Q370=+1   ;Bahnüberlappungsfaktor'); } },
     { html:function(){ return ''
       + '<p>Typische Anwendung: eine <b>Senkung</b> für einen Schraubenkopf in einem bestehenden \u00d86.6-Loch \u2014 der Kopf versinkt bündig:</p>'
       + learnSvgCounterboreClear()
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-6   ;Kopftiefe\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;Kopfdurchmesser\n  Q342=+6.6 ;das gebohrte Loch\n  Q351=+1\nL X+50 Y+40 FMAX M99')
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-6   ;Kopftiefe\n  Q206=+150\n  Q334=+2\n  Q203=+0\n  Q204=+30\n  Q335=+11  ;Kopfdurchmesser\n  Q342=+6.6 ;das gebohrte Loch\n  Q351=+1\n  Q370=+1   ;Bahnüberlappungsfaktor\nL X+50 Y+40 FMAX M99')
       + '<p>Mit <code>M99</code> im Bohrungszentrum aufgerufen, wie jeder Zyklus.</p>'; } }
   ],
   tasks:[
@@ -738,8 +738,8 @@ var LESSONS_DE = {
       prompt:'Definiere Zyklus 208 für eine runde Tasche: Durchmesser 30 mm, 8 mm tief, 2 mm pro Helix-Umdrehung, Sicherheitsabstand 2 mm, Oberfläche bei Z+0, Gleichlauffräsen',
       hints:[
         '<code>CYCL DEF 208</code> fräst eine runde Tasche durch helikales Abtauchen. Q-Werte setzen Durchmesser, Tiefe, Zustellung pro Umdrehung… (Folie).',
-        'Beachte <code>Q201</code>=-8 Tiefe, <code>Q334</code>=2 pro Umdrehung, <code>Q335</code>=30 Durchmesser, <code>Q351</code>=+1 Gleichlauf.',
-        'Tippe den Satz <code>CYCL DEF 208</code> von der Folie, mit <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code>.'
+        'Beachte <code>Q201</code>=-8 Tiefe, <code>Q334</code>=2 pro Umdrehung, <code>Q335</code>=30 Durchmesser, <code>Q351</code>=+1 Gleichlauf und <code>Q370</code>=+1 Bahnüberlappung.',
+        'Tippe den Satz <code>CYCL DEF 208</code> von der Folie, mit <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> und <code>Q370=+1</code>.'
       ],
       checks:[
         {label:'CYCL DEF 208 definiert',
@@ -755,7 +755,9 @@ var LESSONS_DE = {
         {label:'Oberfläche Q203 = +0',
          hint:'Q203=+0 setzt die Oberfläche auf Z0.'},
         {label:'Gleichlauffräsen Q351 = +1',
-         hint:'Q351=+1 wählt Gleichlauffräsen.'}
+         hint:'Q351=+1 wählt Gleichlauffräsen.'},
+        {label:'Bahnüberlappungsfaktor Q370 = +1',
+         hint:'Q370=+1 setzt den radialen Bahnabstand auf einen Werkzeugradius.'}
       ]
     },
     {
@@ -999,7 +1001,7 @@ var LESSONS_DE = {
       hints:[
         'Wenn die Bohrung breiter als das Werkzeug ist, erreicht der Kegel sie durch Eintauchen nicht \u2014 fräse den Rand mit <code>CYCL DEF 208</code> und teile dem Zyklus mit <code>Q342</code> den bestehenden Bohrungsdurchmesser mit (Folie 2).',
         'Rufe <code>TOOL CALL 5 … DL-2 DR+2</code> auf, dann <code>CYCL DEF 208</code> mit <code>Q201=-1</code> und <code>Q342=+10</code> (der gefräste Durchmesser), dann <code>CALL LBL 1</code>.',
-        '<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>ein <code>CYCL DEF 208</code>-Satz mit <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code><br><code>CALL LBL 1</code>'
+        '<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>ein <code>CYCL DEF 208</code>-Satz mit <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code>, <code>Q370=+1</code><br><code>CALL LBL 1</code>'
       ],
       checks:[
         {label:'T5 mit DL-2 aufgerufen',
@@ -1016,6 +1018,8 @@ var LESSONS_DE = {
          hint:'Q335=+10 hält den Ziel-Durchmesser am bestehenden Rand.'},
         {label:'Gleichlauffräsen Q351 = +1',
          hint:'Nutze Q351=+1 für Gleichlauffräsen.'},
+        {label:'Bahnüberlappungsfaktor Q370 = +1',
+         hint:'Nutze Q370=+1 für einen radialen Bahnabstand von einem Werkzeugradius.'},
         {label:'CALL LBL 1 fährt die Fase nach T5',
          hint:'Nutze dasselbe Label wie beim Fräsen erneut.'}
       ]

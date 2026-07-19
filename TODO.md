@@ -23,8 +23,11 @@ range is `0...360` degrees.
   FAUTO, added Cycle 208 Q370 parsing/range/stepover behavior, and restricted
   Cycle 209 Q336 to `0...360`. Added focused parser regressions and independent
   semantic checks to the long-form cutting-logic package.
+- Attempt 3 — exposed the complete Cycle 208 parameter set, including Q370, in
+  both insertion interfaces and added Q370 to every supplied Cycle 208 demo and
+  applicable Learn program in web v0.890 and Android APP_VERSION 1.0.70.
 ### Status
-Implemented in web v0.889 and ported to Android APP_VERSION 1.0.69. Automated
+Implemented in web v0.890 and ported to Android APP_VERSION 1.0.70. Automated
 verification is in progress; keep open until both repository changes and a
 real simulator/device run are accepted.
 
