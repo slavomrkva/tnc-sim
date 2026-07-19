@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.887 (web test)
+- After a report or suggestion is posted, the send button becomes Close instead of allowing the same item to be submitted again.
+
 ## v0.886 (web test)
 - The browser-tab icon now has transparent rounded corners for a cleaner appearance.
 

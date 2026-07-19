@@ -165,5 +165,9 @@
   "163": "rc",
   "164": ".multiply",
   "165": ".setFromCylindrical",
-  "166": ".setFromSpherical"
+  "166": ".setFromSpherical",
+  "167": ".setCrossOrigin",
+  "168": "sc",
+  "169": ".toJSON",
+  "170": ".copyLinearToSRGB"
 }

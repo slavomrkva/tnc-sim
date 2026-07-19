@@ -75,6 +75,13 @@ function bugSetKind(kind){
 function _bugUpdateSendState(){
   var send = document.getElementById('bugSendBtn');
   if(!send) return;
+  if(send.dataset.sent === '1'){
+    send.textContent = _bugT('bug.close', 'Close');
+    send.disabled = false;
+    send.style.opacity = '1';
+    send.style.cursor = 'pointer';
+    return;
+  }
   var has = (document.getElementById('bugDesc').value.trim().length > 0);
   var disabled = (_bugKind === 'suggest' && !has) || send.dataset.sending === '1';
   send.disabled = disabled;
@@ -87,7 +94,7 @@ function openBugReport(kind){
   var status = document.getElementById('bugStatus');
   if(status){ status.textContent = ''; status.style.display = 'none'; }
   var send = document.getElementById('bugSendBtn');
-  if(send){ send.dataset.sending = '0'; }
+  if(send){ send.dataset.sending = '0'; send.dataset.sent = '0'; }
   bugSetKind(kind === 'suggest' ? 'suggest' : 'bug');
   _bugRenderTurnstile();
   overlay.classList.add('open');
@@ -192,6 +199,10 @@ function _bugGetToken(){
 function sendReport(){
   var send = document.getElementById('bugSendBtn');
   if(!send || send.disabled) return;
+  if(send.dataset.sent === '1'){
+    closeBugReport();
+    return;
+  }
   var kind = _bugKind;
 
   if(kind === 'suggest' && !document.getElementById('bugDesc').value.trim()){
@@ -229,11 +240,13 @@ function sendReport(){
       });
     }).then(function(r){
       send.dataset.sending = '0';
-      _bugUpdateSendState();
       if(r.ok && r.data && r.data.url){
+        send.dataset.sent = '1';
+        _bugUpdateSendState();
         _bugSetStatus(_bugT('bug.sent', 'Thanks! Your report was posted: ')
           + '<a href="' + r.data.url + '" target="_blank" rel="noopener" style="color:var(--accent);">' + r.data.url + '</a>', false);
       } else {
+        _bugUpdateSendState();
         var msg = (r.data && r.data.error) ? r.data.error : _bugT('bug.failed', 'Sorry, sending failed. Please try again later.');
         _bugSetStatus(msg, true);
       }
