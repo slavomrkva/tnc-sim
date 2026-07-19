@@ -81,6 +81,7 @@
       'bug.choiceProblem': '🐛 Problem melden',
       'bug.choiceSuggest': '💡 Verbesserung vorschlagen',
       'bug.cancel': 'Abbrechen',
+      'bug.close': 'Schließen',
       'bug.sendBug': 'Bericht senden',
       'bug.sendSuggest': 'Vorschlag senden',
       'bug.bugPh': 'Optional weitere Details hinzufügen…',

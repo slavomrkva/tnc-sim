@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "core/bug-report.js": {
-    "mtime": 1784465911.6274407,
-    "ast_hash": "9fd1c4c22925c7c9724c062559297f50",
+    "mtime": 1784468349.203626,
+    "ast_hash": "4680ba40b45bcf8c7a79d4fc1c9996a1",
     "semantic_hash": ""
   },
   "core/cycle-picker.js": {
@@ -115,8 +115,8 @@
     "semantic_hash": ""
   },
   "service-worker.js": {
-    "mtime": 1784465965.161405,
-    "ast_hash": "a28c8c1bc8ce00bf444a508fe2419818",
+    "mtime": 1784468349.2066262,
+    "ast_hash": "fe49548bca5e19d53af32f26cd8b6016",
     "semantic_hash": ""
   },
   "tests/parser-radius-comp.test.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": "8524cd01c45671cc93ea6ab9e73494e7"
   },
   "web/app.js": {
-    "mtime": 1784465965.159879,
-    "ast_hash": "68b440782d969059cb2ed03dcfb274a3",
+    "mtime": 1784468349.2056255,
+    "ast_hash": "f524fb4274302c9928a87ff2960ca25b",
     "semantic_hash": ""
   },
   "web/keyboard.js": {
@@ -200,8 +200,8 @@
     "semantic_hash": ""
   },
   "RELEASE_NOTES.md": {
-    "mtime": 1784465965.1629162,
-    "ast_hash": "2718e3fb7718b746fd7c794eec9624d0",
+    "mtime": 1784468349.2087927,
+    "ast_hash": "4e45e2bc03e5d7bef6c1b00038f4bb28",
     "semantic_hash": ""
   },
   "TODO.md": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "favicon-32.png": {
-    "mtime": 1784465946.328644,
-    "ast_hash": "4974a610e4a9df0b117bc572426a07ae",
+    "mtime": 1784467080.5392082,
+    "ast_hash": "c156a2211c66bc9aaa5857b3d71c3e20",
     "semantic_hash": ""
   },
   "icon-192.png": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "docs/history/changelog.md": {
-    "mtime": 1784465965.161405,
-    "ast_hash": "4630eed6c377915afe709c6bf0a2ccf2",
+    "mtime": 1784468349.2077625,
+    "ast_hash": "c3008394633e405070855fd3ac88e72a",
     "semantic_hash": ""
   },
   "docs/history/project-notes-through-v0.845.md": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "web/i18n.js": {
-    "mtime": 1784465911.6820245,
-    "ast_hash": "639c044c60af2ca3c85689c89dcd54d0",
+    "mtime": 1784468349.204625,
+    "ast_hash": "56a83547fdbd70867d4189db4577ffb0",
     "semantic_hash": ""
   },
   "web/turnstile-config.js": {
@@ -407,6 +407,11 @@
   "docs/bug-report-setup.md": {
     "mtime": 1784465911.6299858,
     "ast_hash": "6efe8ab245475ccc7710abdbcedefe8b",
+    "semantic_hash": ""
+  },
+  "tests/bug-report-close.test.js": {
+    "mtime": 1784468349.2098029,
+    "ast_hash": "ca74535ba3044f6d042b219125a1baf7",
     "semantic_hash": ""
   }
 }

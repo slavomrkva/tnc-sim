@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.887 — close the report dialog after success
+
+- After a bug report or suggestion is posted, the send button becomes Close.
+  Closing it cannot submit the same report again, and reopening the dialog
+  restores the appropriate send action.
+
 ## v0.886 — rounded browser favicon
 
 - Added transparent rounded corners to the 16, 32 and 48 px favicon variants.
