@@ -158,6 +158,8 @@ The `reference` directory prevents the current simulator from becoming its own s
 
 Before running, update the remote references with `git fetch origin --prune` in both repositories. Then run `node reference/build-reference.js` from this package. A non-zero exit code means that no reference is approved; inspect `reference/generated/report.md` and `comparison.json`.
 
+On GitHub, use **Actions -> Cutting Logic Reference Test -> Run workflow**. The same workflow can be triggered by an authenticated AI assistant. GitHub checks out current `main` from both repositories, publishes the report in the job summary, and stores all generated evidence as a downloadable artifact. The official manuals stay offline; CI uses the locked citations, rules and PDF hashes from `oracle-spec.json`, while local runs continue to verify the actual PDF files.
+
 The generated `oracle.json` is the independent expected result. `observed-web.json` and `observed-android.json` are measurements, never truth. The current product must not be used to rewrite an expectation merely to obtain PASS; a changed expectation requires a cited documentation or test-program reason.
 
 ## Acceptance record

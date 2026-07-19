@@ -30,3 +30,15 @@ The script verifies the PDF hashes, program and Tool Table hashes, repository st
 - `approved-reference.json`: present only after a complete two-platform PASS.
 
 Do not edit the oracle to copy current simulator output. Change it only when a cited manual rule, the test input, or a demonstrable oracle defect requires the change.
+
+## GitHub Actions
+
+The web repository contains `.github/workflows/cutting-logic-test.yml`. Open **Actions**, select **Cutting Logic Reference Test**, and choose **Run workflow**. An AI assistant with authenticated GitHub CLI access can trigger the same run with:
+
+```text
+gh workflow run cutting-logic-test.yml --repo slavomrkva/tnc-sim --ref main
+```
+
+The workflow checks out current `main` from both the web and Android repositories, runs the comparison, writes the Markdown report to the GitHub job summary, and uploads the complete `reference/generated` directory as an artifact. A mismatch makes the GitHub check fail while still preserving all evidence.
+
+The official PDF manuals remain offline. Local runs use the default `verify-files` mode and verify their actual SHA-256 hashes. GitHub explicitly uses `TNC_SIM_DOCS_MODE=locked-spec`, which accepts only the checked-in page citations, rules and expected PDF hashes from `oracle-spec.json`; it never silently falls back when local manuals are missing.

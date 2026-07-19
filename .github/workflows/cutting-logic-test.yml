@@ -1,0 +1,84 @@
+name: Cutting Logic Reference Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - core/parser-engine.js
+      - core/voxel-cutting.js
+      - tests/tnc-sim-cutting-logic-test/**
+      - .github/workflows/cutting-logic-test.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cutting-logic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    name: Compare web and Android with offline oracle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out web main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          path: web
+
+      - name: Check out Android main
+        uses: actions/checkout@v4
+        with:
+          repository: slavomrkva/tnc-sim-android
+          ref: main
+          fetch-depth: 0
+          path: android
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run independent comparison
+        id: comparison
+        continue-on-error: true
+        working-directory: web/tests/tnc-sim-cutting-logic-test
+        env:
+          TNC_SIM_WEB: ${{ github.workspace }}/web
+          TNC_SIM_ANDROID: ${{ github.workspace }}/android
+          TNC_SIM_DOCS_MODE: locked-spec
+          TNC_SIM_ALLOW_DETACHED: 1
+        run: node reference/build-reference.js
+
+      - name: Add report to job summary
+        if: always()
+        working-directory: web/tests/tnc-sim-cutting-logic-test
+        shell: bash
+        run: |
+          if [[ -f reference/generated/report.md ]]; then
+            cat reference/generated/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Cutting-logic report was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cutting-logic-reference-${{ github.run_id }}
+          path: web/tests/tnc-sim-cutting-logic-test/reference/generated
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce comparison result
+        if: steps.comparison.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "Cutting-logic comparison failed. See the job summary and uploaded evidence."
+          exit 1

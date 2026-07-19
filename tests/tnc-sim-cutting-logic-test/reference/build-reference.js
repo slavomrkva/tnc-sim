@@ -15,6 +15,8 @@ const TOOL_MAP = new Map(TOOLS.map((tool) => [tool.T, tool]));
 const WEB_REPO = process.env.TNC_SIM_WEB || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-web';
 const ANDROID_REPO = process.env.TNC_SIM_ANDROID || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-android-github-main-2026-07-17-6bddc4eb04';
 const DOCS = process.env.TNC_SIM_DOCS || 'C:\\Users\\sl\\Documents\\MEGA\\Rozne\\TNCSIM\\Docs';
+const DOCS_MODE = process.env.TNC_SIM_DOCS_MODE || 'verify-files';
+const ALLOW_DETACHED = process.env.TNC_SIM_ALLOW_DETACHED === '1' || process.env.CI === 'true';
 
 function sha256(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').toUpperCase();
@@ -33,7 +35,8 @@ function repositoryEvidence(repo) {
   const head = git(repo, ['rev-parse', 'HEAD']);
   const remote = git(repo, ['rev-parse', 'origin/main']);
   const status = git(repo, ['status', '--porcelain']);
-  if (branch !== 'main' || status) {
+  const branchAccepted = branch === 'main' || (ALLOW_DETACHED && branch === '');
+  if (!branchAccepted || status) {
     throw new Error(`Repository preflight failed for ${repo}: branch=${branch}, clean=${!status}`);
   }
   return { repo, branch, localHead: head, sourceRef: 'origin/main', sourceCommit: remote, localHeadEqualsSource: head === remote, clean: true };
@@ -76,10 +79,14 @@ function buildOracle() {
       program: { file: 'test.h', sha256: sha256(PROGRAM_FILE) },
       toolTable: { file: 'test.tnt', sha256: sha256(TOOL_FILE) },
       sources: SPEC.sources.map((source) => {
+        if (DOCS_MODE === 'locked-spec') {
+          return { ...source, verification: 'locked-offline-citation' };
+        }
+        if (DOCS_MODE !== 'verify-files') throw new Error(`Unsupported TNC_SIM_DOCS_MODE: ${DOCS_MODE}`);
         const file = path.join(DOCS, source.file);
         const actualHash = sha256(file);
         if (actualHash !== source.sha256) throw new Error(`Documentation hash mismatch: ${source.file}`);
-        return { ...source, verifiedSha256: actualHash };
+        return { ...source, verification: 'local-file-sha256', verifiedSha256: actualHash };
       }),
     },
     rules: SPEC.rules,
