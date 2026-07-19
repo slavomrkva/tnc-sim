@@ -327,8 +327,10 @@ function validateProgram(code, liveEdit){
         if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q208',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 201: Q206 must be > 0 and Q208/Q211 must be >= 0'});
       } else if(valCycleNum===208){
         if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q334',function(v){return v<0;})||_qNumBad('Q335',function(v){return v<=0;})||_qNumBad('Q342',function(v){return v<0;})||_qNumBad('Q351',function(v){return v!==-1&&v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: invalid feed, diameter, pre-drill, infeed, or Q351 sign'});
+        if(_qNumBad('Q370',function(v){return v<0||(v>0&&v<0.1)||v>1999;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: Q370 path overlap must be 0 or within 0.1...1999'});
       } else if(valCycleNum===209){
-        if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})||_qNumBad('Q336',function(v){return v< -360||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, orientation, or retraction factor'});
+        if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, or retraction factor'});
+        if(_qNumBad('Q336',function(v){return v<0||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees'});
       }
       // Note: Q202 > |Q201| is OK — means single pass (no pecking)
     }
@@ -1024,6 +1026,14 @@ function parseProgram(code){
       var rFeed  = 9999;
       // Q334 = max Z descent per full 360° helix (0 → whole depth in one turn).
       var zStep  = (cy.Q334 !== undefined && cy.Q334 > 0) ? cy.Q334 : Number.POSITIVE_INFINITY;
+      // TNC 640 Cycle 208: Q370=0 lets the control distribute the paths
+      // automatically; a positive Q370 multiplied by the active tool radius is
+      // the radial stepover factor k. Values between 0 and 0.1 are not valid.
+      var q370 = cycleQ(cy, 370, 0);
+      if(!isFinite(q370) || q370 < 0 || (q370 > 0 && q370 < 0.1) || q370 > 1999){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q370 path overlap must be 0 or within 0.1...1999 — no cutting path generated'});
+        return;
+      }
       var q351 = cycleQ(cy, 351, 1);
       if(q351 !== -1 && q351 !== 0 && q351 !== 1){
         pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: Q351 must be -1, 0, or +1 — no cutting path generated'});
@@ -1150,9 +1160,11 @@ function parseProgram(code){
           pushSeg({x:cx2, y:cy2, z:safeZ}, true, srcLine, rc, true, true);
         } else {
           // Build evenly spaced rings from the innermost workable radius out to
-          // the wall. Stepover = effR; the range is divided into equal steps so
-          // there is never a near-zero final pass (Phase 2 pt 4).
-          var radialStep = effR-cornerR208;
+          // the wall. For Q370>0 the documented stepover is Q370 times the
+          // active radius. Q370=0 keeps the automatic distribution, where DR2
+          // reduces the usable radial cutting width. The range is divided into
+          // equal steps so there is never a near-zero final pass.
+          var radialStep = q370 > 0 ? q370*effR : effR-cornerR208;
           if(!(radialStep > _tol)){
             pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: effective corner radius DR2 leaves no supported radial cutting width — full-radius overlap is not modeled; no cutting path generated'});
             feed = oldFeed;
@@ -1280,8 +1292,8 @@ function parseProgram(code){
       }
       var retractFeed = tapFeed * retractFactor;
       var orientation = cycleQ(cy, 336, 0);
-      if(!isFinite(orientation) || orientation < -360 || orientation > 360){
-        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q336 spindle orientation must be within -360...+360 degrees — no tapping path generated'});
+      if(!isFinite(orientation) || orientation < 0 || orientation > 360){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees — no tapping path generated'});
         return;
       }
       var tapTool = getToolByNum(toolNum);
@@ -1550,7 +1562,7 @@ function parseProgram(code){
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       // Zero is a valid Q value (NOTES rule #2): an explicit Q201=0 must stay 0
       // (no cut), and Q334=0 keeps its documented single-revolution meaning.
-      activeCycle={type:208, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q206:+(qm[206]!==undefined?qm[206]:150), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q334:+(qm[334]!==undefined?qm[334]:0), Q335:+(qm[335]!==undefined?qm[335]:10), Q342:+(qm[342]!==undefined?qm[342]:0), Q351:+(qm[351]!==undefined?qm[351]:1)};
+      activeCycle={type:208, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-10), Q206:+(qm[206]!==undefined?qm[206]:150), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q334:+(qm[334]!==undefined?qm[334]:0), Q335:+(qm[335]!==undefined?qm[335]:10), Q342:+(qm[342]!==undefined?qm[342]:0), Q351:+(qm[351]!==undefined?qm[351]:1), Q370:+(qm[370]!==undefined?qm[370]:0)};
     }
     else if(/^CYCL\s+DEF\s+\d+/.test(line)){
       // Unsupported cycle number (e.g. 7 datum shift, 203, 220 patterns...):
@@ -1583,7 +1595,7 @@ function parseProgram(code){
       toolNum=resolvedTool.toolNum;
       // Add to GOTO list with current sub[] index
       toolCallList.push({toolNum:toolNum, requestedToolNum:requestedToolNum, lineNum:srcLineI, subIdx:sub.length});
-      var tf=line.match(/\bF(\d+)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; toolCallFeed=feed; }
+      var tf=line.match(/\bF\+?(\d+(?:\.\d+)?)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; toolCallFeed=feed; }
       var ts=line.match(/\bS(\d+)/); if(ts) spindleS=parseInt(ts[1]);
       // DL/DR overrides from TOOL CALL line (override tool table values)
       // Accept both '.' and ',' as decimal separator (e.g. DL0.2 or DL0,2)
@@ -1791,6 +1803,9 @@ function parseProgram(code){
       var hasM99=_m99L||_m89L||modalCycleCall;       // call cycle after this positioning block?
       if(_m99L) modalCycleCall=false;                // M99 calls once more and cancels modality
       var isFmax = line.indexOf('FMAX')>=0;
+      // FAUTO on an ordinary positioning block selects the feed programmed by
+      // the current TOOL CALL, including its decimal part.
+      if(/\bFAUTO\b/.test(line)) feed=toolCallFeed;
       // FMAX is non-persistent: only applies to this block, feed reverts after
       if(isFmax){ var _prevFeed=feed; feed=9999; }
       if(!isNaN(feed) && feed<9000) lastDefinedFeed=feed;

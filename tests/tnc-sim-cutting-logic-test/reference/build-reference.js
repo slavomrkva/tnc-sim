@@ -106,6 +106,7 @@ function buildOracle() {
       };
     }),
     feedChecks: SPEC.feedChecks,
+    semanticChecks: SPEC.semanticChecks,
   };
 }
 
@@ -228,6 +229,61 @@ function observeFeeds(sub) {
   });
 }
 
+function semanticProgram(body) {
+  return [
+    'BEGIN PGM SEMANTIC MM',
+    'BLK FORM 0.1 Z X-50 Y-50 Z+0',
+    'BLK FORM 0.2 X+50 Y+50 Z+20',
+    body,
+    'END PGM SEMANTIC MM',
+  ].join('\n');
+}
+
+function cycle208Program(q370) {
+  return semanticProgram(`TOOL CALL 1 Z S3000 F420.500\nM3\nCYCL DEF 208\nQ200=+2\nQ201=-2\nQ206=+100\nQ334=+2\nQ203=+0\nQ204=+20\nQ335=+30\nQ342=+0\nQ351=+1\nQ370=${q370}\nCYCL CALL`);
+}
+
+function cycleSegments(context, code, parsed) {
+  const callLine = code.split(/\r?\n/).findIndex((line) => line.trim() === 'CYCL CALL');
+  return parsed.sub.filter((segment) => segment.srcLine === callLine);
+}
+
+function observeSemanticChecks(context) {
+  const fineCode = cycle208Program('+0.5');
+  const coarseCode = cycle208Program('+1.5');
+  const fine = context.parseProgram(fineCode);
+  const coarse = context.parseProgram(coarseCode);
+  const fineSegments = cycleSegments(context, fineCode, fine).length;
+  const coarseSegments = cycleSegments(context, coarseCode, coarse).length;
+
+  const invalidQ370 = ['-0.1', '+0.05', '+1999.1'].map((value) => {
+    const code = cycle208Program(value);
+    const validation = Array.from(context.validateProgram(code) || []);
+    const parsed = context.parseProgram(code);
+    return {
+      value,
+      validationError: validation.some((problem) => problem.sev === 'err' && /Q370/.test(problem.msg)),
+      parseError: Array.from(parsed.problems || []).some((problem) => problem.sev === 'err' && /Q370/.test(problem.msg)),
+      cycleSegments: cycleSegments(context, code, parsed).length,
+    };
+  });
+
+  const q336Code = semanticProgram(`TOOL CALL 11 Z S400 F200.000\nM3\nCYCL DEF 209\nQ200=+2\nQ201=-2\nQ239=+1.250\nQ203=+0\nQ204=+20\nQ336=-0.001\nCYCL CALL`);
+  const q336Validation = Array.from(context.validateProgram(q336Code) || []);
+  const q336Parsed = context.parseProgram(q336Code);
+  const q336 = {
+    validationError: q336Validation.some((problem) => problem.sev === 'err' && /Q336/.test(problem.msg)),
+    parseError: Array.from(q336Parsed.problems || []).some((problem) => problem.sev === 'err' && /Q336/.test(problem.msg)),
+    cycleSegments: cycleSegments(context, q336Code, q336Parsed).length,
+  };
+
+  return [
+    { id: 'C208-Q370-EFFECT', passed: fineSegments > coarseSegments, observed: { q370_0_5: fineSegments, q370_1_5: coarseSegments } },
+    { id: 'C208-Q370-RANGE', passed: invalidQ370.every((item) => item.validationError && item.parseError && item.cycleSegments === 0), observed: invalidQ370 },
+    { id: 'C209-Q336-RANGE', passed: q336.validationError && q336.parseError && q336.cycleSegments === 0, observed: q336 },
+  ];
+}
+
 function simulate(name, repo, coreDir) {
   const parserRelative = path.join(coreDir, 'parser-engine.js');
   const voxelRelative = path.join(coreDir, 'voxel-cutting.js');
@@ -271,6 +327,7 @@ function simulate(name, repo, coreDir) {
     parser: { validation, parseProblems, segmentCount: parsed.sub.length },
     witnesses,
     feedChecks: observeFeeds(parsed.sub),
+    semanticChecks: observeSemanticChecks(context),
   };
 }
 
@@ -313,8 +370,9 @@ function compare(oracle, observations) {
       return { id: expectedItem.id, status: differences.length ? 'FAIL' : 'PASS', differences };
     });
     const feedResults = observation.feedChecks.map((feed) => ({ id: feed.id, status: feed.includesExpected ? 'PASS' : 'FAIL', expectedFeed: feed.expectedFeed, observedFeeds: feed.observedFeeds }));
-    const failCount = [...results, ...feedResults].filter((item) => item.status === 'FAIL').length;
-    return { platform: observation.platform, status: failCount ? 'FAIL' : 'PASS', results, feedResults, summary: { pass: results.length + feedResults.length - failCount, fail: failCount } };
+    const semanticResults = observation.semanticChecks.map((check) => ({ id: check.id, status: check.passed ? 'PASS' : 'FAIL', expected: oracle.semanticChecks.find((item) => item.id === check.id)?.expected, observed: check.observed }));
+    const failCount = [...results, ...feedResults, ...semanticResults].filter((item) => item.status === 'FAIL').length;
+    return { platform: observation.platform, status: failCount ? 'FAIL' : 'PASS', results, feedResults, semanticResults, summary: { pass: results.length + feedResults.length + semanticResults.length - failCount, fail: failCount } };
   });
   return { format: 'tnc-sim-reference-comparison-v1', status: platforms.every((item) => item.status === 'PASS') ? 'PASS' : 'FAIL', platforms };
 }
@@ -326,6 +384,7 @@ function markdown(comparison, observations) {
     lines.push(`## ${platform.platform}`, '', `Grid cell: X ${observation.grid.dx.toFixed(6)} mm, Y ${observation.grid.dy.toFixed(6)} mm, Z ${observation.grid.dz.toFixed(6)} mm.`, '', '| Result | Witness | Difference |', '|---|---|---|');
     for (const result of platform.results) lines.push(`| ${result.status} | ${result.id} | ${result.differences.join('; ') || ''} |`);
     for (const result of platform.feedResults) lines.push(`| ${result.status} | ${result.id} | expected ${result.expectedFeed}; observed ${result.observedFeeds.join(', ')} |`);
+    for (const result of platform.semanticResults) lines.push(`| ${result.status} | ${result.id} | expected ${result.expected}; observed ${JSON.stringify(result.observed)} |`);
     lines.push('');
   }
   lines.push('The oracle is derived from the cited documentation, the NC program and Tool Table geometry. Current simulator output is only the observed side of the comparison.');

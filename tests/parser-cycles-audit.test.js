@@ -249,6 +249,21 @@ for(const [tcall, effR] of [
   }
   assert.ok(withTool(26).length>withTool(1).length*2, 'Cycle 208: effective R2+DR2 reduces radial stepover and increases the overlap pass count');
 }
+{
+  function withOverlap(q370){
+    const code=H.program(`TOOL CALL 1 Z S3000 F500\nM3\nCYCL DEF 208\n Q200=+2\n Q201=-2\n Q206=+100\n Q334=+2\n Q203=+0\n Q204=+20\n Q335=+30\n Q342=+0\n Q351=+1\n Q370=${q370}\nCYCL CALL`);
+    const res=H.parse(code);
+    return {code, res, ss:H.cycleSegments(res,code)};
+  }
+  const fine=withOverlap('+0.5'), coarse=withOverlap('+1.5');
+  assert.ok(fine.ss.length>coarse.ss.length, 'Cycle 208: smaller Q370 produces more radial paths than larger Q370');
+  for(const invalid of ['-0.1', '+0.05', '+1999.1']){
+    const observed=withOverlap(invalid);
+    assert.strictEqual(observed.ss.length,0, `Cycle 208: invalid Q370=${invalid} produces no cycle path`);
+    assert.ok(observed.res.probs.some(p=>p.sev==='err'&&/Q370/.test(p.msg)), `Cycle 208: invalid Q370=${invalid} is a parse-time error`);
+    assert.ok(H.validate(observed.code).some(p=>p.sev==='err'&&/Q370/.test(p.msg)), `Cycle 208: invalid Q370=${invalid} is a static validation error`);
+  }
+}
 
 // ───────────────────── Cycle 209 synchronization ─────────────────────
 {
@@ -287,6 +302,23 @@ for(const [tcall, effR] of [
   const res=H.parse(code);
   assert.strictEqual(H.cycleSegments(res,code).length,0, 'Cycle 209: Q403=0 rejects the tapping path');
   assert.ok(H.validate(code).some(p=>p.sev==='err'&&/CYCL 209/.test(p.msg)), 'Cycle 209: Q403=0 is also a static editor error');
+}
+{
+  const code=H.program(`TOOL CALL 7 Z S200 F250\nM3\nCYCL DEF 209\n Q200=+2\n Q201=-3\n Q239=+1.25\n Q203=+0\n Q204=+20\n Q336=-0.001\nCYCL CALL`);
+  const res=H.parse(code);
+  assert.strictEqual(H.cycleSegments(res,code).length,0, 'Cycle 209: negative Q336 produces no tapping path');
+  assert.ok(res.probs.some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: negative Q336 is a parse-time error');
+  assert.ok(H.validate(code).some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: negative Q336 is a static validation error');
+}
+
+// TOOL CALL feed keeps its decimal precision and L-block FAUTO selects that
+// exact current-tool feed instead of the preceding modal numeric feed.
+{
+  const code=H.program(`TOOL CALL 1 Z S3000 F420.500\nM3\nL X-10 Y+0 F333.300 R0\nL X+10 Y+0 FAUTO RL\nL X+20 Y+0\nL X+30 Y+0 R0`);
+  const res=H.parse(code);
+  const fautoLine=code.split('\n').findIndex(line=>/FAUTO RL/.test(line));
+  const fauto=res.sub.filter(s=>s.srcLine===fautoLine&&!s.rapid);
+  assert.ok(fauto.length&&fauto.every(s=>Math.abs(s.feed-420.5)<1e-9), 'decimal TOOL CALL F and L FAUTO preserve the exact current-tool feed');
 }
 
 // ───────────────────── Compensation safety and state capture ─────────────────────

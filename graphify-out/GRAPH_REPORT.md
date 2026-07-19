@@ -1,16 +1,16 @@
-# Graph Report - tnc-sim-web-seo  (2026-07-19)
+# Graph Report - tnc-sim-web  (2026-07-19)
 
 ## Corpus Check
-- 72 files · ~180,764 words
+- 84 files · ~191,950 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2493 nodes · 4512 edges · 165 communities (112 shown, 53 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 66 edges (avg confidence: 0.55)
+- 2563 nodes · 4603 edges · 165 communities (112 shown, 53 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 67 edges (avg confidence: 0.55)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `020db438`
+- Built from commit: `d0b1443b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -53,10 +53,12 @@
 - Spherical Harmonics Lighting
 - Ray Geometry Intersection
 - Measure Tool UI
+- PMREM Cubemap Processing
+- Quaternion Interpolation
+- JSON Scene Parser
 - eh
 - Object JSON Serialization
 - Buffer Geometry Normals
-- Shadow Map Frustum
 - Sphere Bounding Volume
 - Voxel Cutting Simulation
 - Animation JSON Parsing
@@ -67,6 +69,7 @@
 - Instanced Mesh Skeleton
 - Buffer Attribute Upload
 - XR Controller Session
+- Shape Curve Parameters
 - Instanced Geometry Parsing
 - Curve Length Mapping
 - Path Curve Points
@@ -102,7 +105,6 @@
 - Curve Tangent JSON
 - Spaced Curve Points
 - Buffer Attribute Cache
-- Arc Curve JSON
 - Hi
 - Quadratic Bezier JSON
 - Help Popup UI
@@ -118,8 +120,8 @@
 - Mobile Tab Switching
 - ei
 - .applyQuaternion
-- .addVectors
 - C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour
+- Mobile bottom tab bar behaviour with the on-screen keyboard (web)
 - Polygon Area Geometry
 - sc
 - Text Decode URL Base
@@ -145,9 +147,12 @@
 - Do
 - fo
 - hs
+- Mh
 - .clamp
 - C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed
+- hs
 - Rs
+- uo
 - Zc
 - .crossFadeFrom
 - C4 — Placement of a newly inserted block relative to the active line
@@ -155,38 +160,32 @@
 - sc
 - vl
 - .getNormalMatrix
-- Zc
-- .rotateX
-- .rotateZ
-- .scale
 - .translate
-- .applyMatrix4
-- rc
 - sc
 
 ## God Nodes (most connected - your core abstractions)
 1. `vt` - 125 edges
 2. `copy()` - 121 edges
 3. `Lt` - 80 edges
-4. `en` - 72 edges
-5. `TNC Sim — Release notes` - 72 edges
+4. `TNC Sim — Release notes` - 73 edges
+5. `en` - 72 edges
 6. `Wn` - 58 edges
 7. `St` - 50 edges
-8. `TNC Sim web — technical changelog` - 44 edges
+8. `TNC Sim web — technical changelog` - 45 edges
 9. `Ce` - 43 edges
 10. `tn` - 43 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `buildKeypad()` --indirect_call--> `i()`  [INFERRED]
   core/field-editing.js → vendor/three.min.js
-- `parseExistingLine()` --indirect_call--> `t()`  [INFERRED]
-  core/field-editing.js → web/i18n.js
 - `triggerRefine()` --indirect_call--> `t()`  [INFERRED]
   core/parser-engine.js → web/i18n.js
-- `constructor()` --indirect_call--> `t()`  [INFERRED]
-  vendor/three.min.js → web/i18n.js
 - `onToolImportFile()` --indirect_call--> `t()`  [INFERRED]
   core/tool-table.js → web/i18n.js
+- `renderToolsTab()` --indirect_call--> `t()`  [INFERRED]
+  core/tool-table.js → web/i18n.js
+- `constructor()` --indirect_call--> `t()`  [INFERRED]
+  vendor/three.min.js → web/i18n.js
 
 ## Import Cycles
 - None detected.
@@ -195,15 +194,11 @@
 
 ### Community 0 - "WebGL Shader Variables"
 Cohesion: 0.03
-Nodes (26): cr(), dr(), er(), fr(), gr(), Hi(), hr(), ji() (+18 more)
+Nodes (28): Aa, br(), cr(), dr(), er(), fr(), gr(), Hi() (+20 more)
 
 ### Community 1 - "Three.js Material Compilation"
 Cohesion: 0.04
-Nodes (41): _allocateTargets(), _applyPMREM(), Ba, _blur(), ci, _cleanup(), compileCubemapShader(), compileEquirectangularShader() (+33 more)
-
-### Community 2 - "Quaternion Math Operations"
-Cohesion: 0.06
-Nodes (3): At, fe, Ko
+Nodes (42): _allocateTargets(), _applyPMREM(), Ba, _blur(), $c(), _cleanup(), compileCubemapShader(), compileEquirectangularShader() (+34 more)
 
 ### Community 3 - "Code Editor Core"
 Cohesion: 0.07
@@ -214,12 +209,12 @@ Cohesion: 0.06
 Nodes (23): closeLearn(), learnBackToList(), learnCheck(), _learnCycleBlocks(), _learnEndEditorInput(), learnEvalChecks(), _learnExecutableCode(), learnExit() (+15 more)
 
 ### Community 7 - "Audio Clock Input"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (5): bc, getInput(), getOutput(), ic, Lc
 
 ### Community 8 - "Color Parsing Utilities"
-Cohesion: 0.07
-Nodes (6): dt(), $e(), Ke(), Qe(), tn, ut()
+Cohesion: 0.06
+Nodes (6): dt(), $e(), mn, Qe(), tn, ut()
 
 ### Community 9 - "Voxel Chunk Tests"
 Cohesion: 0.05
@@ -227,54 +222,42 @@ Nodes (22): appSource, assert, before, boundaryDirty, BufferAttribute, BufferGeo
 
 ### Community 10 - "Buffer Attribute UV Transform"
 Cohesion: 0.13
-Nodes (4): as(), copy(), parseObject(), setFromCamera()
+Nodes (3): as(), Ll, parseObject()
 
 ### Community 13 - "Curve Path Utilities"
 Cohesion: 0.19
 Nodes (22): env(), request(), responseJson(), testMissingSecretsFailsClosed(), testOptionsAndOrigin(), testOversizedBodyIsRejected(), testStaticAssetFallback(), testSuccessfulReport() (+14 more)
 
 ### Community 14 - "Tool Table Management"
-Cohesion: 0.09
-Nodes (34): triggerRefine(), buildToolIntoGroup(), calcToolTimes(), effectiveToolRadius(), field(), getToolByNum(), getToolColor3(), inferToolType() (+26 more)
+Cohesion: 0.11
+Nodes (28): buildToolIntoGroup(), calcToolTimes(), effectiveToolRadius(), field(), getToolByNum(), getToolColor3(), inferToolType(), insertToolDef() (+20 more)
 
 ### Community 15 - "Texture Loader Events"
 Cohesion: 0.09
 Nodes (20): anchors, assertCommentsOnlyDiff(), bugReport, deBody, deKeys, deStart, fail(), fs (+12 more)
 
 ### Community 16 - "Object Constructor Copies"
-Cohesion: 0.11
-Nodes (18): ao(), co(), eo(), ho(), io(), ja(), ka(), lo() (+10 more)
-
-### Community 17 - "Frustum Plane Intersection"
-Cohesion: 0.07
-Nodes (3): ai, ht(), Ne
+Cohesion: 0.13
+Nodes (14): eo(), ho(), io(), ja(), ka(), lo(), no(), oo() (+6 more)
 
 ### Community 18 - "Field Editing UI"
-Cohesion: 0.13
-Nodes (28): applyFeedMode(), applySug(), buildKeypad(), _cancelMobileFocus(), chooseFeedMode(), closeFeedMenu(), enterFieldMode(), enterFieldModeOnLine() (+20 more)
-
-### Community 19 - "Animation Action Crossfade"
-Cohesion: 0.06
-Nodes (4): jo, wo, xc, xo
-
-### Community 20 - "Geometry Disable Toggle"
-Cohesion: 0.14
-Nodes (3): bl, dc, mc()
+Cohesion: 0.09
+Nodes (34): applyFeedMode(), applySug(), buildKeypad(), _cancelMobileFocus(), chooseFeedMode(), closeFeedMenu(), enterFieldMode(), enterFieldModeOnLine() (+26 more)
 
 ### Community 25 - "Buffer Geometry Construction"
-Cohesion: 0.11
-Nodes (18): Attempts, Attempts, Attempts, Attempts, C17 — Tool Table CRUD, parameters and import/export audit, C20 — DE → EN leaves the Complete Part starter program in German, C21 — One-click reports have no endpoint on the Static Assets Worker, Open bugs (+10 more)
+Cohesion: 0.09
+Nodes (11): ar(), en, ir(), ni, oc, pi(), rr(), sr() (+3 more)
 
 ### Community 29 - "CNC Parser Engine"
 Cohesion: 0.11
 Nodes (42): applyRadiusComp(), applyRadiusCompAnalytic(), _applyRadiusCompPolylineFallback(), buildToolMesh(), _carryPhysicalXY(), evalQExpr(), expandLblLines(), inspectQExpr() (+34 more)
 
 ### Community 30 - "Scene Object Traversal"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (7): _a, bs, dispose(), Et, ft(), Tt, ws()
 
 ### Community 32 - "2D Path Drawing"
-Cohesion: 0.18
+Cohesion: 0.16
 Nodes (6): assert, cyc(), H, mustError(), seg(), valErrors()
 
 ### Community 33 - "Geometric Projection Utils"
@@ -282,12 +265,20 @@ Cohesion: 0.22
 Nodes (7): assert, desktop, fs, mobile, path, source, vm
 
 ### Community 34 - "Raycaster Object Intersection"
-Cohesion: 0.14
-Nodes (5): bindSkeletons(), parseGeometries(), parseShapes(), parseSkeletons(), pl
+Cohesion: 0.09
+Nodes (22): Attempts, Attempts, Attempts, Attempts, Attempts, C17 — Tool Table CRUD, parameters and import/export audit, C20 — DE → EN leaves the Complete Part starter program in German, C21 — One-click reports have no endpoint on the Static Assets Worker (+14 more)
+
+### Community 35 - "Spherical Harmonics Lighting"
+Cohesion: 0.06
+Nodes (16): Ah, ao(), bo, ci, cl, co(), fa, fh (+8 more)
 
 ### Community 37 - "Measure Tool UI"
 Cohesion: 0.21
 Nodes (11): addItem(), clearMeasure(), deleteMeasureItem(), handleMeasureClick(), makeLine(), makeSphere(), renderMeasureOverlay(), setMeasureMode() (+3 more)
+
+### Community 40 - "JSON Scene Parser"
+Cohesion: 0.12
+Nodes (15): 1. Create the production Turnstile widget, 2. Create the GitHub token, 3. Deploy the Worker code once, 4. Add encrypted Worker secrets, Android app, Endpoint protections, One-click Bug Report / Suggestion — Worker setup, Verification (+7 more)
 
 ### Community 41 - "eh"
 Cohesion: 0.28
@@ -295,9 +286,9 @@ Nodes (15): _bugArea(), _bugBuildBody(), _bugContext(), _bugGetToken(), _bugPref
 
 ### Community 42 - "Object JSON Serialization"
 Cohesion: 0.12
-Nodes (15): 1. Create the production Turnstile widget, 2. Create the GitHub token, 3. Deploy the Worker code once, 4. Add encrypted Worker secrets, Android app, Endpoint protections, One-click Bug Report / Suggestion — Worker setup, Verification (+7 more)
+Nodes (15): Acceptance record, B - ball mills with non-zero `R2`, C - countersinks, D - cycles and feed modes, Feed verification, Fixed test setup, Independent offline reference, M - flat mill: `RL`, `RR`, `R0`, `DL`, `DR` (+7 more)
 
-### Community 44 - "Shadow Map Frustum"
+### Community 43 - "Buffer Geometry Normals"
 Cohesion: 0.17
 Nodes (11): background_color, description, display, icons, id, name, orientation, screenshots (+3 more)
 
@@ -306,24 +297,16 @@ Cohesion: 0.22
 Nodes (12): advance(), placeTool(), segSpeed(), shouldHoldVisibleSegment(), vxBuildGeometryRange(), vxBuildMesh(), vxCut(), vxDisposeObject() (+4 more)
 
 ### Community 47 - "Animation JSON Parsing"
-Cohesion: 0.06
-Nodes (5): il(), Ll, ml, nl, Rl
-
-### Community 48 - "Camera World Raycasting"
-Cohesion: 0.25
-Nodes (3): fo(), mo(), po
+Cohesion: 0.07
+Nodes (4): el, ml, nl, Rl
 
 ### Community 49 - "Keyframe Track Interpolation"
-Cohesion: 0.08
-Nodes (13): hl, i(), load(), oc, ol, parse(), parseAnimations(), parseImages() (+5 more)
+Cohesion: 0.07
+Nodes (16): bindSkeletons(), hl, i(), load(), ol, parse(), parseAnimations(), parseGeometries() (+8 more)
 
 ### Community 50 - "Block Form Panel"
 Cohesion: 0.27
 Nodes (11): blkBeforeInput(), blkCommitVal(), blkConfirmStep(), blkKeyDown(), blkNextStep(), blkSetShape(), blkStepRel(), blkUpdateVal() (+3 more)
-
-### Community 51 - "Bug Report UI"
-Cohesion: 0.18
-Nodes (3): fa, Ga, ta
 
 ### Community 52 - "Instanced Mesh Skeleton"
 Cohesion: 0.39
@@ -335,15 +318,15 @@ Nodes (25): 10. Resize the 3D renderer from the render loop, not only on window 
 
 ### Community 54 - "XR Controller Session"
 Cohesion: 0.04
-Nodes (44): TNC Sim web — technical changelog, v0.846 — documentation damage control, v0.847 — light grid and Learn hint state, v0.848 — machining demo library, v0.849 — Learn correctness and accessibility audit, v0.850 — clearer compensation and Cycle 208 diagrams, v0.851 — complete Learn slide-image redesign, v0.852 — Learn diagram collision corrections (+36 more)
+Nodes (45): TNC Sim web — technical changelog, v0.846 — documentation damage control, v0.847 — light grid and Learn hint state, v0.848 — machining demo library, v0.849 — Learn correctness and accessibility audit, v0.850 — clearer compensation and Cycle 208 diagrams, v0.851 — complete Learn slide-image redesign, v0.852 — Learn diagram collision corrections (+37 more)
 
 ### Community 57 - "Curve Length Mapping"
-Cohesion: 0.11
-Nodes (4): bt, ct(), es(), Xe()
+Cohesion: 0.19
+Nodes (3): ct(), es(), Xe()
 
 ### Community 58 - "Path Curve Points"
 Cohesion: 0.03
-Nodes (72): TNC Sim — Release notes, v0.801, v0.802, v0.803, v0.804, v0.806, v0.809, v0.810 (+64 more)
+Nodes (73): TNC Sim — Release notes, v0.801, v0.802, v0.803, v0.804, v0.806, v0.809, v0.810 (+65 more)
 
 ### Community 59 - "Asset Loader Parser"
 Cohesion: 0.25
@@ -358,8 +341,8 @@ Cohesion: 0.27
 Nodes (7): draw2dFull(), onResize(), resize2d(), resizeToDisplay(), sc2d(), switchView(), tf2d()
 
 ### Community 64 - "HTTP Asset Loader"
-Cohesion: 0.10
-Nodes (8): cn, dn, fn, hn, jn(), on, pn, un
+Cohesion: 0.07
+Nodes (9): cn, dn, ec, fn, hn, jn(), on, pn (+1 more)
 
 ### Community 65 - "Coach Mark Tutorial"
 Cohesion: 0.36
@@ -370,12 +353,12 @@ Cohesion: 0.25
 Nodes (5): ensurePrepared(), onReset(), onRun(), onStep(), prepare()
 
 ### Community 67 - "Radius Compensation Tests"
-Cohesion: 0.24
-Nodes (10): assert, context, fs, near(), path, point(), segment(), source (+2 more)
+Cohesion: 0.07
+Nodes (44): assert, context, fs, near(), path, point(), segment(), source (+36 more)
 
 ### Community 68 - "Interpolant Interval Sampling"
-Cohesion: 0.05
-Nodes (23): ar(), br(), $c(), ds(), en, ge, intersectObject(), intersectObjects() (+15 more)
+Cohesion: 0.12
+Nodes (6): ds(), ge, mt(), ps(), sl, _t
 
 ### Community 69 - "App Input Handlers"
 Cohesion: 0.20
@@ -391,7 +374,7 @@ Nodes (3): 3D renderer resizing, Layout and renderer rationale, Responsive break
 
 ### Community 73 - "Object Clone Serialize"
 Cohesion: 0.25
-Nodes (7): Attempts and fix, Bug history — resolved bugs & how they were fixed, C3 — RND/CHF occasionally inserted at the start of the program, C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed, Root cause and resolution, Symptom, Symptom and cause
+Nodes (7): Attempt and fix, Bug history — resolved bugs & how they were fixed, C12 — Light-theme 3D table grid was too dark, C5 — Editor text passed behind mobile control panels, Root cause and fix, Symptom, Symptom and root cause
 
 ### Community 75 - "String Trim Utilities"
 Cohesion: 0.18
@@ -433,17 +416,9 @@ Nodes (7): ctx, fs, parserSource, path, root, TOOLS, vm
 Cohesion: 0.22
 Nodes (8): app, assert, ctx, end, fs, path, start, vm
 
-### Community 89 - "Spaced Curve Points"
-Cohesion: 0.33
-Nodes (6): 2026-07-18 — coloured leftover cut surfaces when re-running without Reset, Fix, Investigation (what was ruled out), Not fixed (noted for later), Reported symptom, Root cause
-
-### Community 91 - "Arc Curve JSON"
-Cohesion: 0.33
-Nodes (5): Current non-obvious invariants, Product and source layout, Testing before push, TNC Sim web — current project contract, Versioning and deploy
-
 ### Community 93 - "Quadratic Bezier JSON"
-Cohesion: 0.21
-Nodes (3): an, ln, wh()
+Cohesion: 0.11
+Nodes (4): ai, an, Ea(), ln
 
 ### Community 94 - "Help Popup UI"
 Cohesion: 0.60
@@ -458,12 +433,12 @@ Cohesion: 1.00
 Nodes (3): _synEscHtml(), _synHighlightLine(), _synLineWithColor()
 
 ### Community 98 - "Object Clone Update"
-Cohesion: 0.05
-Nodes (19): ca, ei, el, hh, Jr(), li(), ms(), nr() (+11 more)
+Cohesion: 0.07
+Nodes (11): ca, fo(), hh, li(), _o, os(), po, qc (+3 more)
 
-### Community 100 - ".apply"
-Cohesion: 0.10
-Nodes (6): fi(), gl, _s(), update(), updateMatrixWorld(), Yl
+### Community 99 - "Bounding Box Object"
+Cohesion: 0.07
+Nodes (10): clone(), copy(), cs, Do, hs, Rs, uo(), Vs (+2 more)
 
 ### Community 103 - "Keyboard Input Loop"
 Cohesion: 0.83
@@ -474,12 +449,8 @@ Cohesion: 0.22
 Nodes (5): assert, ctx, harness, inProgress, unfitCorner
 
 ### Community 107 - ".applyQuaternion"
-Cohesion: 0.40
-Nodes (5): 2026-07-18 — modal feed corrupted to FMAX after a fixed cycle / M99 call, Approaches considered but not taken, Fix, Reported symptom, Root cause
-
-### Community 108 - ".addVectors"
-Cohesion: 0.40
-Nodes (5): Attempts and fix, C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour, Repro contour, Root cause, Symptom
+Cohesion: 0.29
+Nodes (5): Current non-obvious invariants, Product and source layout, Testing before push, TNC Sim web — current project contract, Versioning and deploy
 
 ### Community 109 - "C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour"
 Cohesion: 0.40
@@ -490,32 +461,44 @@ Cohesion: 0.33
 Nodes (5): Documentation budget, graphify, Non-negotiables, Start of every session, TNC Sim web
 
 ### Community 112 - "sc"
+Cohesion: 0.33
+Nodes (6): 2026-07-18 — coloured leftover cut surfaces when re-running without Reset, Fix, Investigation (what was ruled out), Not fixed (noted for later), Reported symptom, Root cause
+
+### Community 113 - "Text Decode URL Base"
+Cohesion: 0.33
+Nodes (5): Generated evidence, GitHub Actions, Independent cutting-logic oracle, Run, Source of truth
+
+### Community 117 - "C1 — Mobile editor focus/scroll jumping during value editing and Learn"
+Cohesion: 0.40
+Nodes (5): 2026-07-18 — modal feed corrupted to FMAX after a fixed cycle / M99 call, Approaches considered but not taken, Fix, Reported symptom, Root cause
+
+### Community 119 - "hl"
+Cohesion: 0.40
+Nodes (5): Attempts and fix, C2 — Pure-Z R0 cancellation moved diagonally after an RL/RR contour, Repro contour, Root cause, Symptom
+
+### Community 121 - "bind"
 Cohesion: 0.50
 Nodes (4): Attempts (all reverted — v0.812–v0.814, restored to `main`), Context, Mobile bottom tab bar behaviour with the on-screen keyboard (web), Resolution
 
-### Community 113 - "Text Decode URL Base"
+### Community 122 - ".setFromMatrixColumn"
 Cohesion: 0.50
 Nodes (4): Attempts and accepted fixes, C18 — Heidenhain cycles, cutting logic and validator audit, Reproduced defects and root causes, Verification and remaining limits
 
-### Community 117 - "C1 — Mobile editor focus/scroll jumping during value editing and Learn"
+### Community 123 - "ds"
 Cohesion: 0.50
 Nodes (4): Attempts and fix, C7 — 3D stock updates stalled during machining, Root cause, Symptom
 
-### Community 119 - "hl"
-Cohesion: 0.50
-Nodes (4): Attempts and fix, C6 — Measure panel overlapped the mobile BLKFORM control, Root cause, Symptom
-
-### Community 122 - ".setFromMatrixColumn"
-Cohesion: 0.50
-Nodes (4): Attempts and fix, C1 — Mobile editor focus/scroll jumping during value editing and Learn, Root cause, Symptom
-
 ### Community 124 - "C14 — Revealed hints leaked into a newly opened lesson"
 Cohesion: 0.50
-Nodes (4): C11 — Learn (desktop): wasted slide space and hints revealed off-screen, Fix, Root cause, Symptom
+Nodes (4): Attempts and fix, C6 — Measure panel overlapped the mobile BLKFORM control, Root cause, Symptom
 
 ### Community 125 - "C12 — Light-theme 3D table grid was too dark"
 Cohesion: 0.18
 Nodes (9): assert, classList, context, elements, fs, overlayClasses, path, source (+1 more)
+
+### Community 126 - "Ah"
+Cohesion: 0.50
+Nodes (4): Attempts and fix, C1 — Mobile editor focus/scroll jumping during value editing and Learn, Root cause, Symptom
 
 ### Community 127 - "Et"
 Cohesion: 0.25
@@ -523,17 +506,29 @@ Nodes (6): assert, fs, path, root, source, vm
 
 ### Community 128 - "C9 — Short drilling/tapping retracts appeared to teleport"
 Cohesion: 0.50
+Nodes (4): C11 — Learn (desktop): wasted slide space and hints revealed off-screen, Fix, Root cause, Symptom
+
+### Community 130 - "C14 — Revealed hints leaked into a newly opened lesson"
+Cohesion: 0.25
+Nodes (5): bind(), getValue(), setValue(), Si(), ti
+
+### Community 132 - "ge"
+Cohesion: 0.50
 Nodes (4): Fix, Learn tab: dead near-black empty strip at the bottom (single-column layout), Root cause, Symptom
 
-### Community 134 - "Ah"
-Cohesion: 0.12
-Nodes (4): clone(), kl, ts(), us()
+### Community 133 - "uc"
+Cohesion: 0.18
+Nodes (6): fi(), Mh, setFromCamera(), update(), wh(), wi()
 
-### Community 139 - ".clamp"
+### Community 136 - "fo"
+Cohesion: 0.50
+Nodes (3): android, Cutting-logic reference comparison, web
+
+### Community 140 - "C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed"
 Cohesion: 0.67
 Nodes (3): 2026-07-17 — mobile numeric editing and TNC 640 RL/RR geometry, Accepted implementation and verification, Reported symptoms and root causes
 
-### Community 140 - "C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed"
+### Community 141 - "hs"
 Cohesion: 0.67
 Nodes (3): Accepted fix and verification, C19 — Desktop F menu closed prematurely; CALL LBL status was blank, Symptom and root cause
 
@@ -541,57 +536,57 @@ Nodes (3): Accepted fix and verification, C19 — Desktop F menu closed prematur
 Cohesion: 0.67
 Nodes (3): Attempt and fix, C14 — Revealed hints leaked into a newly opened lesson, Symptom and root cause
 
-### Community 144 - "Zc"
+### Community 143 - "uo"
 Cohesion: 0.67
 Nodes (3): Attempt and fix, C13 — Learn Hint did not scroll the desktop left panel fully down, Symptom and root cause
 
-### Community 145 - ".crossFadeFrom"
-Cohesion: 0.12
-Nodes (7): cl, constructor(), fh, gi(), mi(), setDirection(), setLength()
-
-### Community 146 - "C4 — Placement of a newly inserted block relative to the active line"
-Cohesion: 0.67
-Nodes (3): Attempt and fix, C12 — Light-theme 3D table grid was too dark, Symptom and root cause
-
-### Community 149 - "ic"
+### Community 144 - "Zc"
 Cohesion: 0.67
 Nodes (3): Attempts and accepted fixes, C16 — Complete Learn correctness, content and visual audit, Symptom and root causes
 
-### Community 154 - "sc"
+### Community 145 - ".crossFadeFrom"
+Cohesion: 0.08
+Nodes (14): Da, ei, gi(), il(), Jr(), mi(), ms(), nr() (+6 more)
+
+### Community 146 - "C4 — Placement of a newly inserted block relative to the active line"
 Cohesion: 0.67
 Nodes (3): Attempts and fix, C10 — Cycle 209 explicit zero values were ignored, Symptom and cause
 
-### Community 155 - "vl"
+### Community 149 - "ic"
 Cohesion: 0.67
 Nodes (3): Attempts and fix, C9 — Short drilling/tapping retracts appeared to teleport, Symptom and cause
+
+### Community 154 - "sc"
+Cohesion: 0.67
+Nodes (3): Attempts and fix, C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed, Symptom and cause
+
+### Community 155 - "vl"
+Cohesion: 0.67
+Nodes (3): C3 — RND/CHF occasionally inserted at the start of the program, Root cause and resolution, Symptom
 
 ### Community 156 - ".getNormalMatrix"
 Cohesion: 0.67
 Nodes (3): C4 — Placement of a newly inserted block relative to the active line, Original expectation, Resolution note
 
-### Community 157 - "Zc"
-Cohesion: 0.67
-Nodes (3): C5 — Editor text passed behind mobile control panels, Root cause and fix, Symptom
-
 ## Knowledge Gaps
-- **413 isolated node(s):** `id`, `name`, `short_name`, `description`, `start_url` (+408 more)
+- **448 isolated node(s):** `id`, `name`, `short_name`, `description`, `start_url` (+443 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **53 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Lt` connect `Vector3 Math Operations` to `HTTP Asset Loader`, `Three.js Material Compilation`, `Spherical Harmonics Lighting`, `PMREM Cubemap Processing`, `Quaternion Interpolation`, `JSON Scene Parser`, `Ah`, `Buffer Attribute UV Transform`, `hs`, `Mobile bottom tab bar behaviour with the on-screen keyboard (web)`, `Sphere Bounding Volume`, `Frustum Plane Intersection`, `Bug Report UI`, `Buffer Attribute Array Copy`, `cs`, `Animation Memory Manager`, `Quadratic Bezier JSON`, `Scene Object Traversal`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
-- **Why does `t()` connect `Tool Table Management` to `.crossFadeFrom`, `Field Editing UI`, `Spherical Harmonics Lighting`, `PWA Manifest Config`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `copy()` connect `Buffer Attribute UV Transform` to `Three.js Material Compilation`, `C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed`, `Quaternion Math Operations`, `ge`, `Ah`, `fo`, `Color Parsing Utilities`, `hs`, `Skeleton Bone Binding`, `Object Constructor Copies`, `Frustum Plane Intersection`, `Geometry Disable Toggle`, `Buffer Attribute Array Copy`, `Scene Object Quaternion`, `Physics Constraint Binding`, `Animation Memory Manager`, `Bounding Box Operations`, `Camera Projection Update`, `Scene Object Traversal`, `.rotateX`, `.rotateZ`, `.translate`, `Box3 Intersection Utils`, `Spherical Harmonics Lighting`, `Raycaster Object Intersection`, `Ray Geometry Intersection`, `.scale`, `Quaternion Interpolation`, `sc`, `.applyMatrix4`, `rc`, `Sphere Bounding Volume`, `Animation JSON Parsing`, `Camera World Raycasting`, `Bug Report UI`, `Instanced Geometry Parsing`, `Curve Length Mapping`, `PWA Manifest Config`, `HTTP Asset Loader`, `Interpolant Interval Sampling`, `Raycaster Object Picking`, `Animation Weight Blending`, `Line Geometry Index`, `Curve Segment JSON`, `Buffer Attribute Cache`, `Hi`, `Quadratic Bezier JSON`, `Object Clone Update`, `Bounding Box Object`, `.apply`, `Mobile bottom tab bar behaviour with the on-screen keyboard (web)`, `C6 — Measure panel overlapped the mobile BLKFORM control`, `bind`, `Ah`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
+- **Why does `copy()` connect `Bounding Box Object` to `WebGL Shader Variables`, `Three.js Material Compilation`, `C8 — Cycle 208 used the wrong FAUTO feed and uneven helix infeed`, `Quaternion Math Operations`, `uc`, `Ah`, `Color Parsing Utilities`, `hs`, `Buffer Attribute UV Transform`, `Skeleton Bone Binding`, `Mh`, `Object Constructor Copies`, `Frustum Plane Intersection`, `Buffer Attribute Array Copy`, `Scene Object Quaternion`, `Physics Constraint Binding`, `Animation Memory Manager`, `Buffer Geometry Construction`, `Bounding Box Operations`, `Camera Projection Update`, `Scene Object Traversal`, `Box3 Intersection Utils`, `.translate`, `Spherical Harmonics Lighting`, `Ray Geometry Intersection`, `PMREM Cubemap Processing`, `Quaternion Interpolation`, `sc`, `Sphere Bounding Volume`, `Animation JSON Parsing`, `Keyframe Track Interpolation`, `Bug Report UI`, `Shape Curve Parameters`, `Instanced Geometry Parsing`, `PWA Manifest Config`, `HTTP Asset Loader`, `Interpolant Interval Sampling`, `Raycaster Object Picking`, `Animation Weight Blending`, `Line Geometry Index`, `Curve Segment JSON`, `Spaced Curve Points`, `Buffer Attribute Cache`, `Hi`, `Quadratic Bezier JSON`, `Object Clone Update`, `.apply`, `C6 — Measure panel overlapped the mobile BLKFORM control`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `Lt` connect `Vector3 Math Operations` to `Three.js Material Compilation`, `uc`, `Ah`, `Buffer Attribute UV Transform`, `.crossFadeFrom`, `Buffer Attribute Array Copy`, `Physics Constraint Binding`, `Animation Memory Manager`, `Bounding Box Operations`, `Scene Object Traversal`, `Spherical Harmonics Lighting`, `PMREM Cubemap Processing`, `Quaternion Interpolation`, `Shadow Map Frustum`, `Sphere Bounding Volume`, `HTTP Asset Loader`, `Animation Weight Blending`, `Quadratic Bezier JSON`, `cs`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `t()` connect `Field Editing UI` to `PWA Manifest Config`, `Three.js Material Compilation`, `.apply`, `Tool Table Management`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **What connects `id`, `name`, `short_name` to the rest of the system?**
-  _413 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _448 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `WebGL Shader Variables` be split into smaller, more focused modules?**
-  _Cohesion score 0.03129890453834116 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.029473684210526315 - nodes in this community are weakly interconnected._
 - **Should `Three.js Material Compilation` be split into smaller, more focused modules?**
-  _Cohesion score 0.03684210526315789 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03734177215189873 - nodes in this community are weakly interconnected._
 - **Should `Quaternion Math Operations` be split into smaller, more focused modules?**
-  _Cohesion score 0.0573025856044724 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06753006475485661 - nodes in this community are weakly interconnected._
