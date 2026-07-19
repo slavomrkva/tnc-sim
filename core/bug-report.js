@@ -1,6 +1,6 @@
 // bug-report -- WEB ONLY. The Android app keeps its own simpler flow; this
 // file diverges from the Android copy on purpose (it talks to the tncsim.org
-// /api/report Cloudflare Pages Function). Do not port it wholesale to Android.
+// /api/report Cloudflare Worker). Do not port it wholesale to Android.
 //
 // One-click flow: the user picks "Report a problem" or "Suggest improvement",
 // optionally edits one textarea, and hits Send. The current NC program (bug
@@ -156,7 +156,7 @@ function _bugSetStatus(msg, isError){
 
 // ── Cloudflare Turnstile (invisible) ──────────────────────────────────────
 // The public site key lives in web/turnstile-config.js (window.TURNSTILE_SITE_KEY).
-// The matching secret is a Cloudflare Pages secret, never in the repo.
+// The matching secret is a Cloudflare Worker secret, never in the repo.
 var _tsWidgetId = null;
 var _tsResolve = null;
 

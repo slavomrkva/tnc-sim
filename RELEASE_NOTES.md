@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.883 (web test)
+- Restored the one-click report endpoint on the current Cloudflare Workers deployment while keeping the existing website and offline assets unchanged.
+
 ## v0.882 (web test)
 - The bug-report endpoint now also accepts reports from the Android app's WebView (same one-click flow), not just the website.
 

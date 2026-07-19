@@ -333,3 +333,16 @@ History through v0.845 is preserved in
   to the same endpoint. `ALLOWED_ORIGIN` may override the list (comma-separated).
   Documented the Turnstile `localhost` hostname requirement and the shared site
   key in `docs/bug-report-setup.md`. Offline cache → v43.
+
+## v0.883 — 2026-07-19 — move /api/report from Pages Functions to Workers
+- Replaced the unused `functions/api/report.js` Pages Function with
+  `worker/report-worker.mjs`, a real Worker entrypoint that handles
+  `/api/report` and delegates ordinary requests to the Static Assets binding.
+- Added `wrangler.jsonc` with assets-first routing and `run_worker_first` scoped
+  to `/api/*`, plus `.assetsignore` so Worker sources, tests, docs, and local
+  configuration are not published as site assets.
+- Kept the endpoint fail-closed until encrypted `GITHUB_TOKEN` and
+  `TURNSTILE_SECRET_KEY` values are installed. Added Turnstile hostname checks,
+  stricter request validation, Worker regressions, and corrected deployment
+  documentation. Removed the committed always-pass Site Key; production waits
+  for the real public key. Offline cache → v44.

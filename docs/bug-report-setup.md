@@ -1,93 +1,111 @@
-# One-click Bug Report / Suggestion — setup
+# One-click Bug Report / Suggestion — Worker setup
 
-The in-app **Report a problem / Suggest improvement** dialog posts to the
-Cloudflare Pages Function at [`functions/api/report.js`](../functions/api/report.js),
-which verifies a Cloudflare Turnstile token and opens a **public** GitHub issue
-on the visitor's behalf. Visitors do **not** need a GitHub account.
+The in-app **Report a problem / Suggest improvement** dialog posts to
+`https://tncsim.org/api/report`. The endpoint is implemented by
+[`worker/report-worker.mjs`](../worker/report-worker.mjs), while all ordinary
+site requests continue through the same Worker's Static Assets binding.
 
-Nothing secret is stored in the repository. You need to configure two secrets
-in Cloudflare and one public site key in the repo.
+Nothing secret is stored in the repository. Production requires one public
+Turnstile Site Key in the web and Android clients plus two encrypted Worker
+secrets.
 
-## 1. GitHub fine-grained token (secret)
+## 1. Create the production Turnstile widget
 
-Create a **fine-grained personal access token**
-(GitHub → Settings → Developer settings → Fine-grained tokens):
+In Cloudflare Turnstile, create an **Invisible** widget with these hostnames:
+
+- `tncsim.org`
+- `localhost` — required by the Android Capacitor WebView
+
+Cloudflare provides a public **Site Key** and a private **Secret Key**.
+
+- Put the real Site Key in [`web/turnstile-config.js`](../web/turnstile-config.js)
+  as `window.TURNSTILE_SITE_KEY`.
+- Put the same Site Key in the Android repository at
+  `www/android/turnstile-config.js`.
+- Never commit the Secret Key or Cloudflare's always-pass test keys.
+
+The Worker validates both the token result and returned hostname. Its default
+hostname allowlist is `tncsim.org,localhost`.
+
+## 2. Create the GitHub token
+
+Create a fine-grained personal access token:
 
 - **Resource owner / Repository access:** only `slavomrkva/tnc-sim`.
 - **Repository permissions:** **Issues → Read and write**. Nothing else.
-  (Metadata read-only is added automatically.)
-- Set the shortest expiry you are willing to rotate on.
+- Use the shortest expiry you are willing to rotate.
 
-Copy the token value — it is shown only once.
+The token is shown only once. Do not commit it.
 
-## 2. Cloudflare Turnstile widget (public key + secret)
+## 3. Deploy the Worker code once
 
-In the Cloudflare dashboard → **Turnstile** → **Add widget**:
+[`wrangler.jsonc`](../wrangler.jsonc) defines both the Worker entrypoint and the
+current static site. The first deployment can complete without secrets; until
+they are configured, `/api/report` fails closed with HTTP `503` and ordinary
+site assets continue to work.
 
-- **Widget mode:** Invisible.
-- **Hostnames:** `tncsim.org` (add `www.tncsim.org` if used). **Also add
-  `localhost`** so the Android app's WebView (which runs at `https://localhost`)
-  can obtain a token — see "Android app" below.
+Cloudflare Workers Builds should deploy the GitHub branch with Wrangler. The
+deployed resource must show Worker code plus static assets, not **Worker that
+only has static assets**.
 
-This gives you a **Site Key** (public) and a **Secret Key** (private).
+## 4. Add encrypted Worker secrets
 
-- Put the **Site Key** in [`web/turnstile-config.js`](../web/turnstile-config.js)
-  (`window.TURNSTILE_SITE_KEY`). This file is committed — the site key is public
-  by design. The file currently ships Cloudflare's "always passes" **test** key
-  so the dialog works before a real widget exists; replace it before launch.
-- Keep the **Secret Key** for step 3. Never commit it.
+In Cloudflare Dashboard open **Workers & Pages → tnc-sim → Settings → Variables
+and Secrets**. Add both values with type **Secret**:
 
-## 3. Cloudflare Pages secrets
+| Name | Value |
+| --- | --- |
+| `GITHUB_TOKEN` | fine-grained token from step 2 |
+| `TURNSTILE_SECRET_KEY` | private key from step 1 |
 
-In the Cloudflare Pages project (Settings → **Environment variables** →
-Production, and Preview if you use it), add these as **encrypted** variables /
-secrets:
+Deploy the new Worker version after saving them. The non-secret values
+`ALLOWED_ORIGIN`, `ALLOWED_TURNSTILE_HOSTNAME`, `GITHUB_REPO`, and `SITE_URL`
+are already versioned in `wrangler.jsonc`.
 
-| Name | Value | Notes |
-| --- | --- | --- |
-| `GITHUB_TOKEN` | the fine-grained token from step 1 | required |
-| `TURNSTILE_SECRET_KEY` | the Turnstile secret from step 2 | required |
-| `ALLOWED_ORIGIN` | `https://tncsim.org,https://localhost,capacitor://localhost` | optional; comma-separated allowlist. Default already includes the website and the app origin |
-| `GITHUB_REPO` | `slavomrkva/tnc-sim` | optional; defaults to `slavomrkva/tnc-sim` |
+Wrangler CLI is an alternative:
 
-Redeploy after adding them so the Function picks them up.
+```bash
+npx wrangler secret put GITHUB_TOKEN
+npx wrangler secret put TURNSTILE_SECRET_KEY
+```
+
+Enter each value only at Wrangler's protected prompt.
 
 ## Android app
 
-The Android app (repo `slavomrkva/tnc-sim-android`) reuses **this same
-endpoint** — its report dialog posts to `https://tncsim.org/api/report`. Its
-Capacitor WebView runs at origin `https://localhost`, which is already in the
-default `ALLOWED_ORIGIN` list. Two things make it work:
+The Android app posts to the same absolute endpoint from origin
+`https://localhost`. Keep `localhost` in both the Turnstile widget hostnames and
+the Worker's origin/hostname allowlists. Keep the public Site Key identical in
+both repositories.
 
-1. **Turnstile hostname:** the widget must list `localhost` (step 2 above), or
-   the app cannot obtain a token.
-2. **Public site key:** the app ships the same site key in its own
-   `www/android/turnstile-config.js`. Keep it identical to the website's key.
+The Origin check is only a soft browser filter because a non-browser client can
+forge that header. Turnstile server-side validation is the actual abuse gate.
 
-The `Origin` allowlist is only a soft filter (any non-browser client can forge
-the header); the real gate for both the site and the app is the Turnstile
-token, so allowing the app origin does not weaken the endpoint.
+## Endpoint protections
 
-## How the endpoint is protected
+`worker/report-worker.mjs`:
 
-`functions/api/report.js`:
+1. runs before assets only for `/api/*`; existing static files stay on the
+   assets-first path;
+2. accepts `/api/report` only from the configured origins;
+3. requires encrypted GitHub and Turnstile secrets;
+4. verifies every single-use Turnstile token server-side and checks its hostname;
+5. bounds request, token, title, and body sizes;
+6. creates only a `bug` or `enhancement` issue and never exposes either secret.
 
-1. Rejects any request whose `Origin` is not `ALLOWED_ORIGIN` (`403`).
-2. Requires and server-side verifies a Turnstile token with
-   `TURNSTILE_SECRET_KEY`.
-3. Bounds field lengths (title ≤ 150, body ≤ 24000, token ≤ 4000 chars) before
-   forwarding anything to GitHub.
-4. Creates the issue with the `GITHUB_TOKEN`, labelling it `bug` or
-   `enhancement`, and returns only the resulting issue URL — GitHub/token
-   details are never exposed to the browser.
+## Verification
 
-## Local testing
+After deployment:
 
-- The committed **test** site/secret keys (Cloudflare's dummy
-  `1x…`/`2x…` values) let the dialog and Turnstile flow run without a real
-  widget, but the origin check still requires the request to come from
-  `https://tncsim.org`. For local runs, set `ALLOWED_ORIGIN` to your dev origin
-  (e.g. `http://localhost:8788`) in `wrangler`/Pages dev, and use the
-  Turnstile test secret `1x0000000000000000000000000000000AA`.
-- Because a real GitHub issue is created, point `GITHUB_REPO` at a throwaway
-  repository while testing.
+1. Confirm `/`, `/privacy.html`, icons, and the service worker still return the
+   current site.
+2. Confirm an `OPTIONS /api/report` request from `https://tncsim.org` returns
+   `204` with that exact CORS origin.
+3. Send one real website report and confirm the resulting public GitHub issue.
+4. Send one report from the Android app on a device and confirm `localhost`
+   Turnstile validation succeeds.
+5. Confirm an unapproved Origin and a reused/invalid Turnstile token are rejected.
+
+For local development, use an ignored `.dev.vars` file and Cloudflare's paired
+test keys only in the local working copy. Never commit either test key, and use
+a throwaway GitHub repository if exercising issue creation.
