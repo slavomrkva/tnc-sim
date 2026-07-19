@@ -1,0 +1,4 @@
+[
+  {"T":51,"TYPE":"COUNTERSINK","NAME":"CS_BAD_1_DEG","L":80.500,"R":0.001,"R2":0.000,"DL":0.000,"DR":0.000,"DR2":0.000,"CUT":2,"RCUTS":2,"LCUTS":4.500,"ANGLE":0.000,"T_ANGLE":1.000,"PITCH":0.000,"TL":false,"RT":0,"TIME2":0,"CUR_TIME":0,"DOC":"Expected rejection: T-ANGLE below supported minimum"}
+]
+

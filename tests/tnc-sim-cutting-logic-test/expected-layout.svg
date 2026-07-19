@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <style>
+    .title{font:700 28px system-ui;fill:#102234}.sub{font:16px system-ui;fill:#415466}.label{font:700 16px system-ui;fill:#102234}.small{font:13px system-ui;fill:#415466}.stock{fill:#eef3f6;stroke:#102234;stroke-width:3}.zone{stroke:#1b3144;stroke-width:2}.rl{fill:#70c1b3}.rr{fill:#f5a65b}.cycle{fill:#7a9ff5}.line{stroke:#102234;stroke-width:2;stroke-dasharray:6 5}.hole{fill:#fff;stroke:#102234;stroke-width:3}
+  </style>
+  <text x="60" y="45" class="title">TNC Sim cutting-logic reference workpiece</text>
+  <text x="60" y="72" class="sub">Top view: X -80...+80 mm, Y -60...+60 mm. RL is green, RR is orange.</text>
+  <rect x="100" y="100" width="960" height="600" rx="8" class="stock"/>
+  <text x="1075" y="110" class="small">Y +60</text><text x="1075" y="700" class="small">Y -60</text>
+  <text x="90" y="730" class="small">X -80</text><text x="1005" y="730" class="small">X +80</text>
+  <line x1="100" y1="200" x2="1060" y2="200" class="line"/><line x1="100" y1="350" x2="1060" y2="350" class="line"/><line x1="100" y1="500" x2="1060" y2="500" class="line"/>
+  <text x="115" y="128" class="label">M - flat mill</text>
+  <rect x="130" y="145" width="250" height="45" rx="8" class="zone rl"/><text x="205" y="173" class="label">M-RL T1</text>
+  <rect x="780" y="145" width="250" height="45" rx="8" class="zone rr"/><text x="855" y="173" class="label">M-RR T1</text>
+  <text x="115" y="228" class="label">B - full ball mills (round-bottom sections)</text>
+  <rect x="130" y="255" width="100" height="70" rx="8" class="zone rl"/><text x="143" y="285" class="label">T2 RL</text><text x="143" y="306" class="small">R2 1.25</text>
+  <rect x="250" y="255" width="100" height="70" rx="8" class="zone rr"/><text x="263" y="285" class="label">T2 RR</text><text x="263" y="306" class="small">R2 1.25</text>
+  <rect x="400" y="245" width="110" height="80" rx="8" class="zone rl"/><text x="418" y="280" class="label">T3 RL</text><text x="418" y="302" class="small">R2 2.50</text>
+  <rect x="530" y="245" width="110" height="80" rx="8" class="zone rr"/><text x="548" y="280" class="label">T3 RR</text><text x="548" y="302" class="small">R2 2.50</text>
+  <rect x="690" y="232" width="130" height="93" rx="8" class="zone rl"/><text x="713" y="272" class="label">T4 RL</text><text x="713" y="295" class="small">R2 4.75</text>
+  <rect x="845" y="232" width="130" height="93" rx="8" class="zone rr"/><text x="868" y="272" class="label">T4 RR</text><text x="868" y="295" class="small">R2 4.75</text>
+  <text x="115" y="378" class="label">C - countersinks (conical sections)</text>
+  <rect x="130" y="405" width="100" height="70" rx="8" class="zone rl"/><text x="141" y="435" class="label">10° RL</text><text x="141" y="456" class="small">T5</text>
+  <rect x="250" y="405" width="100" height="70" rx="8" class="zone rr"/><text x="261" y="435" class="label">10° RR</text><text x="261" y="456" class="small">T5</text>
+  <rect x="400" y="395" width="110" height="80" rx="8" class="zone rl"/><text x="416" y="430" class="label">90° RL</text><text x="416" y="452" class="small">T6</text>
+  <rect x="530" y="395" width="110" height="80" rx="8" class="zone rr"/><text x="546" y="430" class="label">90° RR</text><text x="546" y="452" class="small">T6</text>
+  <rect x="690" y="382" width="130" height="93" rx="8" class="zone rl"/><text x="708" y="422" class="label">170° RL</text><text x="708" y="445" class="small">T7</text>
+  <rect x="845" y="382" width="130" height="93" rx="8" class="zone rr"/><text x="863" y="422" class="label">170° RR</text><text x="863" y="445" class="small">T7</text>
+  <text x="115" y="528" class="label">D - isolated cycles on Y -45</text>
+  <g class="cycle">
+    <circle cx="220" cy="625" r="40" class="hole"/><circle cx="400" cy="625" r="40" class="hole"/><circle cx="580" cy="625" r="40" class="hole"/><circle cx="760" cy="625" r="55" class="hole"/><circle cx="940" cy="625" r="40" class="hole"/>
+  </g>
+  <text x="183" y="620" class="label">C200</text><text x="174" y="642" class="small">center</text>
+  <text x="363" y="620" class="label">C200</text><text x="369" y="642" class="small">drill</text>
+  <text x="545" y="630" class="label">C201</text>
+  <text x="725" y="630" class="label">C208</text>
+  <text x="905" y="630" class="label">C209</text>
+</svg>
+

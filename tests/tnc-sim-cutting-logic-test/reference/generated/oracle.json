@@ -1,0 +1,587 @@
+{
+  "format": "tnc-sim-independent-geometry-oracle-result-v1",
+  "generatedFrom": {
+    "program": {
+      "file": "test.h",
+      "sha256": "D62C500074016E484F56B4565173889E2D8C132BA00E79B4B3587AAFC0F90F27"
+    },
+    "toolTable": {
+      "file": "test.tnt",
+      "sha256": "52FED66C1C887D9687A6CC7B29F41DBD9F2E8171580449AF09CEC06C8034C77D"
+    },
+    "sources": [
+      {
+        "file": "892903-2C.pdf",
+        "sha256": "5E194ED747299E2363D23F071440CA25AE773D4B5B4A26C3881343669B9729FB",
+        "pages": [
+          101,
+          139,
+          140,
+          141,
+          142,
+          143,
+          161,
+          275,
+          281
+        ],
+        "verifiedSha256": "5E194ED747299E2363D23F071440CA25AE773D4B5B4A26C3881343669B9729FB"
+      },
+      {
+        "file": "1303406-23.pdf",
+        "sha256": "3751E34BB617B99A1091D7147DFC5F476FAA3DF16496B70D19E75E2CEEC9EB3F",
+        "pages": [
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          106,
+          107,
+          108,
+          109,
+          110,
+          139,
+          140,
+          141,
+          142
+        ],
+        "verifiedSha256": "3751E34BB617B99A1091D7147DFC5F476FAA3DF16496B70D19E75E2CEEC9EB3F"
+      }
+    ]
+  },
+  "rules": {
+    "pathCompensation": "effective path radius = tool R + table DR + TOOL CALL DR; RL is left and RR is right relative to travel",
+    "physicalMill": "physical radius = tool R + table DR; TOOL CALL DR does not resize the physical cutter",
+    "programmedLength": "physical cut Z = programmed path Z + TOOL CALL DL; table DL is measured compensation and does not independently alter the workpiece",
+    "ball": "R2=R produces a spherical bottom with radius R2",
+    "countersink": "cone radius at height h above the tip is Rtip + h*tan(T-ANGLE/2), limited by LCUTS*tan(T-ANGLE/2)",
+    "voxelTolerance": "path values use 1e-6 mm; voxel floor uses one observed Z cell; measured width allows one observed cell at each boundary"
+  },
+  "witnesses": [
+    {
+      "id": "M-RL",
+      "tool": 1,
+      "expected": {
+        "centerY": 44,
+        "tipZ": 17,
+        "widthAtProbeZ": 7,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": -2,
+            "floorZ": 17
+          },
+          {
+            "offset": 0,
+            "floorZ": 17
+          },
+          {
+            "offset": 2,
+            "floorZ": 17
+          }
+        ],
+        "pathCenterY": 44
+      }
+    },
+    {
+      "id": "M-RR",
+      "tool": 1,
+      "expected": {
+        "centerY": 36,
+        "tipZ": 17,
+        "widthAtProbeZ": 7,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": -2,
+            "floorZ": 17
+          },
+          {
+            "offset": 0,
+            "floorZ": 17
+          },
+          {
+            "offset": 2,
+            "floorZ": 17
+          }
+        ],
+        "pathCenterY": 36
+      }
+    },
+    {
+      "id": "B-R1.250-RL",
+      "tool": 2,
+      "expected": {
+        "centerY": 11.5,
+        "tipZ": 16.125,
+        "widthAtProbeZ": 2.5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 16.125
+          },
+          {
+            "offset": 0.5,
+            "floorZ": 16.22935607626104
+          },
+          {
+            "offset": 1,
+            "floorZ": 16.625
+          }
+        ],
+        "pathCenterY": 11.5
+      }
+    },
+    {
+      "id": "B-R1.250-RR",
+      "tool": 2,
+      "expected": {
+        "centerY": 8.5,
+        "tipZ": 16.125,
+        "widthAtProbeZ": 2.5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 16.125
+          },
+          {
+            "offset": 0.5,
+            "floorZ": 16.22935607626104
+          },
+          {
+            "offset": 1,
+            "floorZ": 16.625
+          }
+        ],
+        "pathCenterY": 8.5
+      }
+    },
+    {
+      "id": "B-R2.500-RL",
+      "tool": 3,
+      "expected": {
+        "centerY": 12.875,
+        "tipZ": 15.25,
+        "widthAtProbeZ": 5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 15.25
+          },
+          {
+            "offset": 1,
+            "floorZ": 15.45871215252208
+          },
+          {
+            "offset": 2,
+            "floorZ": 16.25
+          }
+        ],
+        "pathCenterY": 12.875
+      }
+    },
+    {
+      "id": "B-R2.500-RR",
+      "tool": 3,
+      "expected": {
+        "centerY": 7.125,
+        "tipZ": 15.25,
+        "widthAtProbeZ": 5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 15.25
+          },
+          {
+            "offset": 1,
+            "floorZ": 15.45871215252208
+          },
+          {
+            "offset": 2,
+            "floorZ": 16.25
+          }
+        ],
+        "pathCenterY": 7.125
+      }
+    },
+    {
+      "id": "B-R4.750-RL",
+      "tool": 4,
+      "expected": {
+        "centerY": 15.25,
+        "tipZ": 13.375,
+        "widthAtProbeZ": 9.5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 13.375
+          },
+          {
+            "offset": 2,
+            "floorZ": 13.816578015096479
+          },
+          {
+            "offset": 4,
+            "floorZ": 15.563262308510101
+          }
+        ],
+        "pathCenterY": 15.25
+      }
+    },
+    {
+      "id": "B-R4.750-RR",
+      "tool": 4,
+      "expected": {
+        "centerY": 4.75,
+        "tipZ": 13.375,
+        "widthAtProbeZ": 9.5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 13.375
+          },
+          {
+            "offset": 2,
+            "floorZ": 13.816578015096479
+          },
+          {
+            "offset": 4,
+            "floorZ": 15.563262308510101
+          }
+        ],
+        "pathCenterY": 4.75
+      }
+    },
+    {
+      "id": "C-10-RL",
+      "tool": 5,
+      "expected": {
+        "centerY": -14.499,
+        "tipZ": 10.285,
+        "widthAtProbeZ": 1.5269274052568553,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0.2,
+            "floorZ": 12.559580408249507
+          },
+          {
+            "offset": 0.5,
+            "floorZ": 15.98859609907791
+          },
+          {
+            "offset": 0.8,
+            "floorZ": 19.417611789906314
+          }
+        ],
+        "pathCenterY": -14.499
+      }
+    },
+    {
+      "id": "C-10-RR",
+      "tool": 5,
+      "expected": {
+        "centerY": -15.501,
+        "tipZ": 10.285,
+        "widthAtProbeZ": 1.5269274052568553,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0.2,
+            "floorZ": 12.559580408249507
+          },
+          {
+            "offset": 0.5,
+            "floorZ": 15.98859609907791
+          },
+          {
+            "offset": 0.8,
+            "floorZ": 19.417611789906314
+          }
+        ],
+        "pathCenterY": -15.501
+      }
+    },
+    {
+      "id": "C-90-RL",
+      "tool": 6,
+      "expected": {
+        "centerY": -14.499,
+        "tipZ": 15.5,
+        "widthAtProbeZ": 7.001999999999999,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0.5,
+            "floorZ": 15.999
+          },
+          {
+            "offset": 1.5,
+            "floorZ": 16.999
+          },
+          {
+            "offset": 3,
+            "floorZ": 18.499000000000002
+          }
+        ],
+        "pathCenterY": -14.499
+      }
+    },
+    {
+      "id": "C-90-RR",
+      "tool": 6,
+      "expected": {
+        "centerY": -15.501,
+        "tipZ": 15.5,
+        "widthAtProbeZ": 7.001999999999999,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0.5,
+            "floorZ": 15.999
+          },
+          {
+            "offset": 1.5,
+            "floorZ": 16.999
+          },
+          {
+            "offset": 3,
+            "floorZ": 18.499000000000002
+          }
+        ],
+        "pathCenterY": -15.501
+      }
+    },
+    {
+      "id": "C-170-RL",
+      "tool": 7,
+      "expected": {
+        "centerY": -14.499,
+        "tipZ": 17.456,
+        "widthAtProbeZ": 11.430052302761348,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 1,
+            "floorZ": 17.543401174862396
+          },
+          {
+            "offset": 3,
+            "floorZ": 17.718378501914245
+          },
+          {
+            "offset": 5,
+            "floorZ": 17.893355828966094
+          }
+        ],
+        "pathCenterY": -14.499
+      }
+    },
+    {
+      "id": "C-170-RR",
+      "tool": 7,
+      "expected": {
+        "centerY": -15.501,
+        "tipZ": 17.456,
+        "widthAtProbeZ": 11.430052302761348,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 1,
+            "floorZ": 17.543401174862396
+          },
+          {
+            "offset": 3,
+            "floorZ": 17.718378501914245
+          },
+          {
+            "offset": 5,
+            "floorZ": 17.893355828966094
+          }
+        ],
+        "pathCenterY": -15.501
+      }
+    },
+    {
+      "id": "D-200-CENTER",
+      "tool": 8,
+      "expected": {
+        "centerY": -45,
+        "tipZ": 18.5,
+        "widthAtProbeZ": 4,
+        "probeZ": 19.5,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 18.5
+          },
+          {
+            "offset": 0.5,
+            "floorZ": 18.672163806644832
+          },
+          {
+            "offset": 1,
+            "floorZ": 18.844327613289664
+          }
+        ],
+        "pathCenterY": null
+      }
+    },
+    {
+      "id": "D-200-DRILL",
+      "tool": 9,
+      "expected": {
+        "centerY": -45,
+        "tipZ": 12.307674,
+        "widthAtProbeZ": 4.8,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": 0,
+            "floorZ": 12.307674
+          },
+          {
+            "offset": 1,
+            "floorZ": 12.908534619027561
+          },
+          {
+            "offset": 2,
+            "floorZ": 13.509395238055122
+          }
+        ],
+        "pathCenterY": null
+      }
+    },
+    {
+      "id": "D-201",
+      "tool": 10,
+      "expected": {
+        "centerY": -45,
+        "tipZ": 13.75,
+        "widthAtProbeZ": 5,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": -1.5,
+            "floorZ": 13.75
+          },
+          {
+            "offset": 0,
+            "floorZ": 13.75
+          },
+          {
+            "offset": 1.5,
+            "floorZ": 13.75
+          }
+        ],
+        "pathCenterY": null
+      }
+    },
+    {
+      "id": "D-208",
+      "tool": 1,
+      "expected": {
+        "centerY": -45,
+        "tipZ": 14.25,
+        "widthAtProbeZ": 28,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": -10,
+            "floorZ": 14.25
+          },
+          {
+            "offset": 0,
+            "floorZ": 14.25
+          },
+          {
+            "offset": 10,
+            "floorZ": 14.25
+          }
+        ],
+        "pathCenterY": null
+      }
+    },
+    {
+      "id": "D-209",
+      "tool": 11,
+      "expected": {
+        "centerY": -45,
+        "tipZ": 13.75,
+        "widthAtProbeZ": 4.2,
+        "probeZ": 19,
+        "profile": [
+          {
+            "offset": -1,
+            "floorZ": 13.75
+          },
+          {
+            "offset": 0,
+            "floorZ": 13.75
+          },
+          {
+            "offset": 1,
+            "floorZ": 13.75
+          }
+        ],
+        "pathCenterY": null
+      }
+    }
+  ],
+  "feedChecks": [
+    {
+      "id": "L-FAUTO-T1",
+      "tool": 1,
+      "expectedFeed": 420.5,
+      "sourceContains": "L X-70.000 Y+40.000 FAUTO RL"
+    },
+    {
+      "id": "L-NUMERIC",
+      "tool": 1,
+      "expectedFeed": 333.3,
+      "sourceContains": "L X-45.000 F+333.300"
+    },
+    {
+      "id": "C200-FAUTO",
+      "tool": 8,
+      "expectedFeed": 321.5,
+      "cycle": 200,
+      "direction": "down"
+    },
+    {
+      "id": "C200-NUMERIC",
+      "tool": 9,
+      "expectedFeed": 222.2,
+      "cycle": 200,
+      "direction": "down"
+    },
+    {
+      "id": "C201-FAUTO",
+      "tool": 10,
+      "expectedFeed": 219.5,
+      "cycle": 201,
+      "direction": "down"
+    },
+    {
+      "id": "C201-RETRACT",
+      "tool": 10,
+      "expectedFeed": 111.1,
+      "cycle": 201,
+      "direction": "up"
+    },
+    {
+      "id": "C209-DOWN",
+      "tool": 11,
+      "expectedFeed": 500,
+      "cycle": 209,
+      "direction": "down"
+    }
+  ]
+}

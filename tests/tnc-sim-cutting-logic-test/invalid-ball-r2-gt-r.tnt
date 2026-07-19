@@ -1,0 +1,4 @@
+[
+  {"T":52,"TYPE":"MILL","NAME":"BALL_BAD_R2","L":80.500,"R":2.500,"R2":2.501,"DL":0.000,"DR":0.000,"DR2":0.000,"CUT":2,"RCUTS":2,"LCUTS":2.500,"ANGLE":0.000,"T_ANGLE":0.000,"PITCH":0.000,"TL":false,"RT":0,"TIME2":0,"CUR_TIME":0,"DOC":"Expected rejection: R2 is larger than R"}
+]
+
