@@ -26,14 +26,14 @@ jobs:
 
     steps:
       - name: Check out web main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
           path: web
 
       - name: Check out Android main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: slavomrkva/tnc-sim-android
           ref: main
@@ -41,7 +41,7 @@ jobs:
           path: android
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -69,7 +69,7 @@ jobs:
 
       - name: Upload comparison evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cutting-logic-reference-${{ github.run_id }}
           path: web/tests/tnc-sim-cutting-logic-test/reference/generated
