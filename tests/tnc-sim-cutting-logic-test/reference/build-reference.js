@@ -8,15 +8,19 @@ const ROOT = path.resolve(__dirname, '..');
 const SPEC = JSON.parse(fs.readFileSync(path.join(__dirname, 'oracle-spec.json'), 'utf8'));
 const PROGRAM_FILE = path.join(ROOT, 'test.h');
 const TOOL_FILE = path.join(ROOT, 'test.tnt');
+const EXPECTED_VOXEL_FILE = path.join(ROOT, 'expected-voxel.json');
 const PROGRAM = fs.readFileSync(PROGRAM_FILE, 'utf8');
 const TOOLS = JSON.parse(fs.readFileSync(TOOL_FILE, 'utf8'));
+const EXPECTED_VOXEL = JSON.parse(fs.readFileSync(EXPECTED_VOXEL_FILE, 'utf8'));
 const TOOL_MAP = new Map(TOOLS.map((tool) => [tool.T, tool]));
 
 const WEB_REPO = process.env.TNC_SIM_WEB || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-web';
 const ANDROID_REPO = process.env.TNC_SIM_ANDROID || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-android-github-main-2026-07-17-6bddc4eb04';
+const WEB_SOURCE_REF = process.env.TNC_SIM_WEB_REF || 'origin/main';
+const ANDROID_SOURCE_REF = process.env.TNC_SIM_ANDROID_REF || 'origin/main';
 const DOCS = process.env.TNC_SIM_DOCS || 'C:\\Users\\sl\\Documents\\MEGA\\Rozne\\TNCSIM\\Docs';
 const DOCS_MODE = process.env.TNC_SIM_DOCS_MODE || 'verify-files';
-const ALLOW_DETACHED = process.env.TNC_SIM_ALLOW_DETACHED === '1' || process.env.CI === 'true';
+const ALLOW_DIRTY = process.env.TNC_SIM_ALLOW_DIRTY === '1';
 
 function sha256(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').toUpperCase();
@@ -26,25 +30,31 @@ function sha256Content(content) {
   return crypto.createHash('sha256').update(content).digest('hex').toUpperCase();
 }
 
+function verifyLockedInput(label, actual, expected) {
+  if (!expected) throw new Error(`Missing locked input hash for ${label}`);
+  if (actual !== expected) throw new Error(`Locked input hash mismatch for ${label}: expected ${expected}, observed ${actual}`);
+}
+
 function git(repo, args) {
   return cp.execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trim();
 }
 
-function repositoryEvidence(repo) {
+function repositoryEvidence(repo, sourceRef) {
   const branch = git(repo, ['branch', '--show-current']);
   const head = git(repo, ['rev-parse', 'HEAD']);
-  const remote = git(repo, ['rev-parse', 'origin/main']);
   const status = git(repo, ['status', '--porcelain']);
-  const branchAccepted = branch === 'main' || (ALLOW_DETACHED && branch === '');
-  if (!branchAccepted || status) {
-    throw new Error(`Repository preflight failed for ${repo}: branch=${branch}, clean=${!status}`);
+  const worktreeSource = sourceRef === 'WORKTREE';
+  if (worktreeSource && status && !ALLOW_DIRTY) {
+    throw new Error(`Repository preflight failed for ${repo}: WORKTREE is dirty and TNC_SIM_ALLOW_DIRTY is not enabled`);
   }
-  return { repo, branch, localHead: head, sourceRef: 'origin/main', sourceCommit: remote, localHeadEqualsSource: head === remote, clean: true };
+  const sourceCommit = worktreeSource ? head : git(repo, ['rev-parse', sourceRef]);
+  return { repo, branch, localHead: head, sourceRef, sourceCommit, localHeadEqualsSource: worktreeSource ? !status : head === sourceCommit, clean: !status, dirtyWorktreeAllowed: !!status && worktreeSource && ALLOW_DIRTY };
 }
 
-function sourceAtOriginMain(repo, relativeFile) {
+function sourceAtRef(repo, relativeFile, sourceRef) {
+  if (sourceRef === 'WORKTREE') return fs.readFileSync(path.join(repo, relativeFile), 'utf8');
   const gitPath = relativeFile.split(path.sep).join('/');
-  return cp.execFileSync('git', ['-C', repo, 'show', `origin/main:${gitPath}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  return cp.execFileSync('git', ['-C', repo, 'show', `${sourceRef}:${gitPath}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
 }
 
 function expectedRadiusAtZ(witness, z) {
@@ -72,12 +82,87 @@ function expectedFloor(witness, offset) {
   return witness.tipZ + Math.max(0, distance - startRadius) / tangent;
 }
 
+function buildAllowedZones() {
+  const witnessById = new Map(SPEC.witnesses.map((witness) => [witness.id, witness]));
+  const zones = EXPECTED_VOXEL.zones.map((zone) => {
+    const witness = witnessById.get(zone.id);
+    if (!witness) throw new Error(`expected-voxel zone ${zone.id} has no oracle witness`);
+    if (zone.tool !== witness.tool) throw new Error(`Tool mismatch for zone ${zone.id}: expected-voxel T${zone.tool}, oracle T${witness.tool}`);
+    let bounds = zone.allowedBounds || zone.bounds;
+    if (!bounds && zone.center) {
+      if (!(witness.scanHalf > 0)) throw new Error(`Zone ${zone.id} needs bounds or a positive witness scanHalf`);
+      bounds = {
+        x: [zone.center.x - witness.scanHalf, zone.center.x + witness.scanHalf],
+        y: [zone.center.y - witness.scanHalf, zone.center.y + witness.scanHalf],
+      };
+    }
+    const validAxis = (axis) => Array.isArray(axis) && axis.length === 2 && axis.every(Number.isFinite) && axis[0] <= axis[1];
+    if (!bounds || !validAxis(bounds.x) || !validAxis(bounds.y)) throw new Error(`Zone ${zone.id} has invalid XY bounds`);
+    return { id: zone.id, tool: zone.tool, bounds };
+  });
+  const zoneIds = new Set(zones.map((zone) => zone.id));
+  if (zoneIds.size !== zones.length) throw new Error('expected-voxel contains duplicate zone IDs');
+  for (const witness of SPEC.witnesses) {
+    if (!zoneIds.has(witness.id)) throw new Error(`Oracle witness ${witness.id} has no expected-voxel zone`);
+  }
+  return zones;
+}
+
+function scanUnexpectedCuts(vx, allowedZones, sampleLimit = 20) {
+  let cutVoxelCount = 0;
+  let unexpectedCutCount = 0;
+  let wrongToolCount = 0;
+  const unexpectedSamples = [];
+  const wrongToolSamples = [];
+  const unexpectedByTool = {};
+  for (let iz = 0; iz < vx.nz; iz += 1) {
+    const z = vx.oz + iz * vx.dz;
+    for (let iy = 0; iy < vx.ny; iy += 1) {
+      const y = vx.oy + iy * vx.dy;
+      for (let ix = 0; ix < vx.nx; ix += 1) {
+        const index = iz * vx.ny * vx.nx + iy * vx.nx + ix;
+        const tool = vx.cut[index];
+        if (!tool) continue;
+        cutVoxelCount += 1;
+        const x = vx.ox + ix * vx.dx;
+        const matchingZones = allowedZones.filter((zone) => x >= zone.bounds.x[0] && x <= zone.bounds.x[1] && y >= zone.bounds.y[0] && y <= zone.bounds.y[1]);
+        if (!matchingZones.length) {
+          unexpectedCutCount += 1;
+          const aggregate = unexpectedByTool[tool] || { count: 0, minX: x, maxX: x, minY: y, maxY: y, minZ: z, maxZ: z };
+          aggregate.count += 1;
+          aggregate.minX = Math.min(aggregate.minX, x);
+          aggregate.maxX = Math.max(aggregate.maxX, x);
+          aggregate.minY = Math.min(aggregate.minY, y);
+          aggregate.maxY = Math.max(aggregate.maxY, y);
+          aggregate.minZ = Math.min(aggregate.minZ, z);
+          aggregate.maxZ = Math.max(aggregate.maxZ, z);
+          unexpectedByTool[tool] = aggregate;
+          if (unexpectedSamples.length < sampleLimit) unexpectedSamples.push({ x, y, z, tool });
+        } else if (tool !== 255 && !matchingZones.some((zone) => zone.tool === tool)) {
+          wrongToolCount += 1;
+          if (wrongToolSamples.length < sampleLimit) wrongToolSamples.push({ x, y, z, tool, zones: matchingZones.map((zone) => zone.id) });
+        }
+      }
+    }
+  }
+  return { cutVoxelCount, unexpectedCutCount, wrongToolCount, unexpectedByTool, unexpectedSamples, wrongToolSamples };
+}
+
 function buildOracle() {
+  const inputHashes = {
+    programSha256: sha256(PROGRAM_FILE),
+    toolTableSha256: sha256(TOOL_FILE),
+    expectedVoxelSha256: sha256(EXPECTED_VOXEL_FILE),
+  };
+  verifyLockedInput('test.h', inputHashes.programSha256, SPEC.inputs?.programSha256);
+  verifyLockedInput('test.tnt', inputHashes.toolTableSha256, SPEC.inputs?.toolTableSha256);
+  verifyLockedInput('expected-voxel.json', inputHashes.expectedVoxelSha256, SPEC.inputs?.expectedVoxelSha256);
   return {
     format: 'tnc-sim-independent-geometry-oracle-result-v1',
     generatedFrom: {
-      program: { file: 'test.h', sha256: sha256(PROGRAM_FILE) },
-      toolTable: { file: 'test.tnt', sha256: sha256(TOOL_FILE) },
+      program: { file: 'test.h', sha256: inputHashes.programSha256 },
+      toolTable: { file: 'test.tnt', sha256: inputHashes.toolTableSha256 },
+      expectedVoxel: { file: 'expected-voxel.json', sha256: inputHashes.expectedVoxelSha256 },
       sources: SPEC.sources.map((source) => {
         if (DOCS_MODE === 'locked-spec') {
           return { ...source, verification: 'locked-offline-citation' };
@@ -107,6 +192,7 @@ function buildOracle() {
     }),
     feedChecks: SPEC.feedChecks,
     semanticChecks: SPEC.semanticChecks,
+    allowedZones: buildAllowedZones(),
   };
 }
 
@@ -217,15 +303,20 @@ function pathCenterAt(sub, witness) {
 
 function observeFeeds(sub) {
   return SPEC.feedChecks.map((check) => {
-    let segments = sub.filter((segment) => segment.toolNum === check.tool && !segment.rapid && !segment.cycleEvent);
+    let segments = sub.filter((segment) => segment.toolNum === check.tool && !segment.cycleEvent);
     if (check.sourceContains) {
       const sourceLine = PROGRAM.split(/\r?\n/).findIndex((line) => line.includes(check.sourceContains));
       segments = segments.filter((segment) => segment.srcLine === sourceLine);
     } else if (check.cycle) {
       segments = segments.filter((segment) => check.direction === 'down' ? segment.to.z < segment.from.z - 1e-6 : segment.to.z > segment.from.z + 1e-6);
     }
+    if (check.expectedRapid !== undefined) {
+      const observedRapid = [...new Set(segments.map((segment) => !!segment.rapid))];
+      return { id: check.id, expectedRapid: check.expectedRapid, observedRapid, segmentCount: segments.length, passed: segments.length > 0 && segments.every((segment) => !!segment.rapid === check.expectedRapid) };
+    }
+    segments = segments.filter((segment) => !segment.rapid);
     const feeds = [...new Set(segments.map((segment) => segment.feed).filter(Number.isFinite))].sort((a, b) => a - b);
-    return { id: check.id, expectedFeed: check.expectedFeed, observedFeeds: feeds, includesExpected: feeds.some((feed) => Math.abs(feed - check.expectedFeed) < 1e-9) };
+    return { id: check.id, expectedFeed: check.expectedFeed, observedFeeds: feeds, segmentCount: segments.length, passed: segments.length > 0 && segments.every((segment) => Number.isFinite(segment.feed) && Math.abs(segment.feed - check.expectedFeed) < 1e-9) };
   });
 }
 
@@ -284,12 +375,12 @@ function observeSemanticChecks(context) {
   ];
 }
 
-function simulate(name, repo, coreDir) {
+function simulate(name, repo, coreDir, sourceRef, oracle) {
   const parserRelative = path.join(coreDir, 'parser-engine.js');
   const voxelRelative = path.join(coreDir, 'voxel-cutting.js');
-  const parserSource = sourceAtOriginMain(repo, parserRelative);
-  const voxelSource = sourceAtOriginMain(repo, voxelRelative);
-  const context = makeContext(parserSource, voxelSource, { parser: `${name}:origin/main:${parserRelative}`, voxel: `${name}:origin/main:${voxelRelative}` });
+  const parserSource = sourceAtRef(repo, parserRelative, sourceRef);
+  const voxelSource = sourceAtRef(repo, voxelRelative, sourceRef);
+  const context = makeContext(parserSource, voxelSource, { parser: `${name}:${sourceRef}:${parserRelative}`, voxel: `${name}:${sourceRef}:${voxelRelative}` });
   const validation = Array.from(context.validateProgram(PROGRAM) || [], (problem) => ({ sev: problem.sev, line: problem.line, msg: problem.msg }));
   const parsed = context.parseProgram(PROGRAM);
   const parseProblems = Array.from(parsed.problems || [], (problem) => ({ sev: problem.sev, line: problem.line, msg: problem.msg }));
@@ -321,13 +412,14 @@ function simulate(name, repo, coreDir) {
   return {
     format: 'tnc-sim-voxel-observation-v1',
     platform: name,
-    repository: repositoryEvidence(repo),
+    repository: repositoryEvidence(repo, sourceRef),
     inputs: { programSha256: sha256(PROGRAM_FILE), toolTableSha256: sha256(TOOL_FILE), parserSha256: sha256Content(parserSource), voxelSha256: sha256Content(voxelSource) },
     grid: { nx: vx.nx, ny: vx.ny, nz: vx.nz, dx: vx.dx, dy: vx.dy, dz: vx.dz, origin: { x: vx.ox, y: vx.oy, z: vx.oz } },
     parser: { validation, parseProblems, segmentCount: parsed.sub.length },
     witnesses,
     feedChecks: observeFeeds(parsed.sub),
     semanticChecks: observeSemanticChecks(context),
+    workpieceGuard: scanUnexpectedCuts(vx, oracle.allowedZones),
   };
 }
 
@@ -369,10 +461,15 @@ function compare(oracle, observations) {
       }
       return { id: expectedItem.id, status: differences.length ? 'FAIL' : 'PASS', differences };
     });
-    const feedResults = observation.feedChecks.map((feed) => ({ id: feed.id, status: feed.includesExpected ? 'PASS' : 'FAIL', expectedFeed: feed.expectedFeed, observedFeeds: feed.observedFeeds }));
+    const feedResults = observation.feedChecks.map((feed) => ({ ...feed, status: feed.passed ? 'PASS' : 'FAIL' }));
     const semanticResults = observation.semanticChecks.map((check) => ({ id: check.id, status: check.passed ? 'PASS' : 'FAIL', expected: oracle.semanticChecks.find((item) => item.id === check.id)?.expected, observed: check.observed }));
-    const failCount = [...results, ...feedResults, ...semanticResults].filter((item) => item.status === 'FAIL').length;
-    return { platform: observation.platform, status: failCount ? 'FAIL' : 'PASS', results, feedResults, semanticResults, summary: { pass: results.length + feedResults.length + semanticResults.length - failCount, fail: failCount } };
+    const workpieceResults = [
+      { id: 'NO-UNEXPECTED-CUTS', status: observation.workpieceGuard.unexpectedCutCount === 0 ? 'PASS' : 'FAIL', observed: observation.workpieceGuard.unexpectedCutCount, byTool: observation.workpieceGuard.unexpectedByTool, samples: observation.workpieceGuard.unexpectedSamples },
+      { id: 'CUT-TOOL-ATTRIBUTION', status: observation.workpieceGuard.wrongToolCount === 0 ? 'PASS' : 'FAIL', observed: observation.workpieceGuard.wrongToolCount, samples: observation.workpieceGuard.wrongToolSamples },
+    ];
+    const allResults = [...results, ...feedResults, ...semanticResults, ...workpieceResults];
+    const failCount = allResults.filter((item) => item.status === 'FAIL').length;
+    return { platform: observation.platform, status: failCount ? 'FAIL' : 'PASS', results, feedResults, semanticResults, workpieceResults, summary: { pass: allResults.length - failCount, fail: failCount } };
   });
   return { format: 'tnc-sim-reference-comparison-v1', status: platforms.every((item) => item.status === 'PASS') ? 'PASS' : 'FAIL', platforms };
 }
@@ -383,8 +480,13 @@ function markdown(comparison, observations) {
     const observation = observations.find((item) => item.platform === platform.platform);
     lines.push(`## ${platform.platform}`, '', `Grid cell: X ${observation.grid.dx.toFixed(6)} mm, Y ${observation.grid.dy.toFixed(6)} mm, Z ${observation.grid.dz.toFixed(6)} mm.`, '', '| Result | Witness | Difference |', '|---|---|---|');
     for (const result of platform.results) lines.push(`| ${result.status} | ${result.id} | ${result.differences.join('; ') || ''} |`);
-    for (const result of platform.feedResults) lines.push(`| ${result.status} | ${result.id} | expected ${result.expectedFeed}; observed ${result.observedFeeds.join(', ')} |`);
+    for (const result of platform.feedResults) {
+      const expected = result.expectedRapid !== undefined ? `rapid=${result.expectedRapid}` : `feed=${result.expectedFeed}`;
+      const observed = result.expectedRapid !== undefined ? `rapid=${result.observedRapid.join(', ')}` : `feed=${result.observedFeeds.join(', ')}`;
+      lines.push(`| ${result.status} | ${result.id} | expected ${expected}; observed ${observed}; segments ${result.segmentCount} |`);
+    }
     for (const result of platform.semanticResults) lines.push(`| ${result.status} | ${result.id} | expected ${result.expected}; observed ${JSON.stringify(result.observed)} |`);
+    for (const result of platform.workpieceResults) lines.push(`| ${result.status} | ${result.id} | observed ${result.observed}; by tool ${JSON.stringify(result.byTool || {})}; samples ${JSON.stringify(result.samples)} |`);
     lines.push('');
   }
   lines.push('The oracle is derived from the cited documentation, the NC program and Tool Table geometry. Current simulator output is only the observed side of the comparison.');
@@ -396,8 +498,8 @@ function main() {
   const approvedFile = path.join(__dirname, 'generated', 'approved-reference.json');
   if (fs.existsSync(approvedFile)) fs.unlinkSync(approvedFile);
   const oracle = buildOracle();
-  const web = simulate('web', WEB_REPO, 'core');
-  const android = simulate('android', ANDROID_REPO, path.join('www', 'core'));
+  const web = simulate('web', WEB_REPO, 'core', WEB_SOURCE_REF, oracle);
+  const android = simulate('android', ANDROID_REPO, path.join('www', 'core'), ANDROID_SOURCE_REF, oracle);
   const observations = [web, android];
   const comparison = compare(oracle, observations);
   const generated = path.join(__dirname, 'generated');
@@ -414,4 +516,6 @@ function main() {
   if (comparison.status !== 'PASS') process.exitCode = 1;
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { buildAllowedZones, buildOracle, observeFeeds, scanUnexpectedCuts, verifyLockedInput };

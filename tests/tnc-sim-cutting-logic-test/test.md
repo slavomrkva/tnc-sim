@@ -11,7 +11,7 @@ It is not a certificate for a real machine. The reference behavior comes from th
 | `test.h` | Main long-form Klartext program. All valid cutting witnesses are physically separated. |
 | `test.tnt` | Reference Tool Table with decimal values. Import this before `test.h`. |
 | `expected-layout.svg` | Top-view map showing which source feature owns every workpiece zone. |
-| `expected-voxel.json` | Machine-readable zone coordinates, formulas and measurement rules. |
+| `expected-voxel.json` | Executable zone coordinates, allowed cutting ownership, formulas and measurement rules. |
 | `test-crud.h` | Witness cut for adding, editing and deleting T90. |
 | `invalid-countersink-angle.tnt` | Import must fail transactionally because T-ANGLE is below the supported limit. |
 | `invalid-ball-r2-gt-r.tnt` | Import must fail transactionally because R2 is larger than R. |
@@ -153,10 +153,11 @@ After each rejection, rerun either `test.h` or `test-crud.h`. An unchanged resul
 
 The `reference` directory prevents the current simulator from becoming its own source of truth:
 
-1. `oracle-spec.json` states the documented compensation and tool-geometry rules and cites exact pages and SHA-256 hashes of the two local HEIDENHAIN manuals.
-2. `build-reference.js` independently calculates the expected path centers, widths, profiles, depths and feeds from `test.h` and `test.tnt`.
-3. It then reads the real web and Android parser/voxel sources from each repository's fetched `origin/main`, without editing either repository, and measures the resulting workpieces on the same 500-cell grid.
-4. Results are written to `reference/generated`. `approved-reference.json` exists only if every check passes on both platforms. Any failed run removes a stale approval file.
+1. `oracle-spec.json` states the documented compensation and tool-geometry rules, locks the approved test-input hashes and cites exact pages and SHA-256 hashes of the two local HEIDENHAIN manuals.
+2. `oracle-spec.json` contains independently reviewed witness constants; `build-reference.js` derives their expected widths and profiles without using simulator output. The locked hashes ensure those constants cannot silently drift away from `test.h`, `test.tnt` or `expected-voxel.json`.
+3. It reads the real web and Android parser/voxel sources from an explicit Git ref (`origin/main` by default, `HEAD` in CI) or an opted-in local worktree, and measures both resulting workpieces on the same 500-cell grid.
+4. It rejects every removed voxel outside the allowed zones in `expected-voxel.json` and every non-matching tool attribution inside them.
+5. Results are written to the untracked `reference/generated` directory. `approved-reference.json` exists only if every check passes on both platforms. Any failed run removes a stale approval file.
 
 Before running, update the remote references with `git fetch origin --prune` in both repositories. Then run `node reference/build-reference.js` from this package. A non-zero exit code means that no reference is approved; inspect `reference/generated/report.md` and `comparison.json`.
 
