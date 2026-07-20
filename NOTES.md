@@ -100,8 +100,10 @@ Detailed module-split history is in the archived project notes linked above.
    internally, so parsing the body always yields `PROGRAM.H`.
 18. **Autosave protects only the main program:** persist the current NC code,
     document name and save time in the local `tncsim.programDraft.v1` record,
-    restore it before normal editor boot, and surface unsaved/saving/saved/error
-    state in the editor header. Entering Learn must first force-save the main
+    restore it before normal editor boot, and surface neutral pending/saving,
+    green saved and orange error state in the editor header. Schedule at most
+    one write 30 seconds after the first pending change, without postponing it
+    on further typing; lifecycle hiding still flushes immediately. Entering Learn must first force-save the main
     program and then suspend autosave; lesson code is transient and closing
     Learn restores the main draft. A reload during Learn must also recover the
     main draft, never browser-restored lesson text.

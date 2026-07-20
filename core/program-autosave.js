@@ -4,7 +4,7 @@
 
 var PROGRAM_DRAFT_STORAGE_KEY = 'tncsim.programDraft.v1';
 var PROGRAM_AUTOSAVE_LEARN_SESSION_KEY = 'tncsim.programDraft.learnActive.v1';
-var PROGRAM_AUTOSAVE_DELAY = 700;
+var PROGRAM_AUTOSAVE_DELAY = 30000;
 
 var _programAutosaveReady = false;
 var _programAutosaveSuspended = false;
@@ -119,13 +119,29 @@ function programAutosaveChanged(){
   var signature = _programAutosaveSignature();
   if(signature === null || signature === _programAutosaveObservedSignature) return;
   _programAutosaveObservedSignature = signature;
+  if(signature === _programAutosaveSavedSignature){
+    _programAutosaveDirty = false;
+    if(_programAutosaveTimer){ clearTimeout(_programAutosaveTimer); _programAutosaveTimer = null; }
+    if(_programAutosaveStorageFailed){
+      _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+    }else if(_programAutosaveSavedAt){
+      _programAutosaveSavedStatus('saved');
+    }
+    return;
+  }
   _programAutosaveDirty = true;
-  _programAutosaveStatus('unsaved', _programAutosaveT('autosave.unsaved', 'Unsaved changes'));
-  if(_programAutosaveTimer) clearTimeout(_programAutosaveTimer);
-  _programAutosaveTimer = setTimeout(function(){
-    _programAutosaveTimer = null;
-    saveProgramDraftNow(false);
-  }, PROGRAM_AUTOSAVE_DELAY);
+  if(!_programAutosaveStorageFailed){
+    _programAutosaveStatus('pending', _programAutosaveT('autosave.pending', 'Changes pending'));
+  }
+  // Throttle rather than debounce: continuous typing still reaches durable
+  // storage within 30 seconds of the first change instead of postponing the
+  // write after every keystroke.
+  if(!_programAutosaveTimer){
+    _programAutosaveTimer = setTimeout(function(){
+      _programAutosaveTimer = null;
+      saveProgramDraftNow(false);
+    }, PROGRAM_AUTOSAVE_DELAY);
+  }
 }
 
 function programAutosaveSuspendForLearn(){
@@ -135,10 +151,14 @@ function programAutosaveSuspendForLearn(){
   _programAutosaveSuspended = true;
   if(_programAutosaveTimer){ clearTimeout(_programAutosaveTimer); _programAutosaveTimer = null; }
   try{ sessionStorage.setItem(PROGRAM_AUTOSAVE_LEARN_SESSION_KEY, '1'); }catch(e){}
-  _programAutosaveStatus(
-    'lesson',
-    _programAutosaveT('autosave.lesson', 'Lesson \u2013 changes are not saved')
-  );
+  if(_programAutosaveStorageFailed){
+    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+  }else{
+    _programAutosaveStatus(
+      'lesson',
+      _programAutosaveT('autosave.lesson', 'Lesson \u2013 changes are not saved')
+    );
+  }
 }
 
 function programAutosaveResumeAfterLearn(){

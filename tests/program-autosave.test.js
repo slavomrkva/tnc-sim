@@ -43,7 +43,7 @@ function boot(options = {}){
     sessionStorage,
     Date,
     JSON,
-    setTimeout(fn){ timers.push(fn); return timers.length; },
+    setTimeout(fn, delay){ fn.delay = delay; timers.push(fn); return timers.length; },
     clearTimeout(){},
     document:{
       visibilityState:'visible',
@@ -58,12 +58,17 @@ function boot(options = {}){
   return {context, codeEl, status, localStorage, sessionStorage, codeListeners, documentListeners, windowListeners, timers};
 }
 
-// Direct typing is debounced, then persists code, document name and timestamp.
+// Direct typing is saved within 30 seconds of the first change. Further input
+// updates the pending payload without postponing that scheduled write.
 const typed = boot({docName:'part.H'});
 typed.codeEl.value = 'BEGIN PGM PART MM\nL X+10\nEND PGM PART MM';
 typed.codeListeners.input();
-assert.strictEqual(typed.status.state, 'unsaved');
+assert.strictEqual(typed.status.state, 'pending');
 assert.strictEqual(typed.localStorage.value('tncsim.programDraft.v1'), undefined);
+assert.strictEqual(typed.timers[0].delay, 30000);
+typed.codeEl.value = 'BEGIN PGM PART MM\nL X+20\nEND PGM PART MM';
+typed.codeListeners.input();
+assert.strictEqual(typed.timers.length, 1, 'continuous typing must not postpone the scheduled save');
 typed.timers.shift()();
 const saved = JSON.parse(typed.localStorage.value('tncsim.programDraft.v1'));
 assert.strictEqual(saved.code, typed.codeEl.value);
@@ -151,5 +156,8 @@ assert.ok(appSource.indexOf('initProgramAutosave()') < appSource.indexOf('update
 const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 assert.match(indexSource, /id="programAutosaveStatus"/);
 assert.match(indexSource, /core\/program-autosave\.js/);
+const stylesSource = fs.readFileSync(path.join(root, 'web', 'styles.css'), 'utf8');
+assert.match(stylesSource, /data-state="pending"[^}]*color:var\(--text3\)/);
+assert.match(stylesSource, /data-state="error"[^}]*color:var\(--accent-warm\)/);
 
 console.log('program-autosave.test.js: durable main draft and Learn isolation verified');

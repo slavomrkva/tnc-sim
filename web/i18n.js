@@ -39,7 +39,7 @@
       'panel.import': 'Import',
       'panel.importTitle': '.H-Programmdatei laden',
       'editor.blocks': 'Sätze',                 // Heidenhain: NC-Satz = one block/line
-      'autosave.unsaved': 'Nicht gespeicherte Änderungen',
+      'autosave.pending': 'Änderungen ausstehend',
       'autosave.saving': 'Wird gespeichert…',
       'autosave.saved': 'Programm gespeichert',
       'autosave.restored': 'Entwurf wiederhergestellt',

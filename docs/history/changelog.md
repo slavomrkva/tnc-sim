@@ -7,6 +7,15 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.893 — calmer 30-second autosave cadence
+
+- Replaced the 700 ms reset-on-input debounce with one throttled write 30
+  seconds after the first pending change; continuous typing no longer postpones
+  persistence, while page hiding still flushes immediately.
+- Pending and saving states are neutral gray, saved/restored remain green and
+  actual storage failures are orange. Advanced the offline cache to `v53` and
+  expanded the timing and styling regressions.
+
 ## v0.892 — resume autosave when closing practice
 
 - The practice close button now uses the complete Learn shutdown path instead

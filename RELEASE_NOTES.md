@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.893 (web test)
+- Autosave now writes at most every 30 seconds while typing. Pending changes use a quiet neutral status; orange is reserved for an actual save problem.
+
 ## v0.892 (web test)
 - Closing a lesson now immediately returns the editor to the saved main program state; the stale “Lesson — changes are not saved” message no longer remains until tabs are switched.
 

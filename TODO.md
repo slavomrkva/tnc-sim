@@ -19,9 +19,13 @@ are not saved. Switching to Simulate and back finally changes it to Saved.
   partial `learnExit()` path while `LEARN.open` remained true. Changed it to
   the complete `closeLearn()` path so Learn closes before autosave resumes, and
   added a regression that rejects the partial close handler.
+- Attempt 2 — user testing accepted the immediate status restoration but found
+  the 700 ms green/orange alternation distracting while typing. Web v0.893 now
+  schedules one write within 30 seconds, uses a neutral pending state and
+  reserves orange for a real storage error.
 ### Status
-Implemented in web v0.892 and awaiting preview acceptance. The same shared fix
-is being ported to Android before this entry is closed.
+The close fix and calmer save cadence are implemented in web v0.893 and await
+preview acceptance; the shared cadence is also being ported to Android.
 
 ## C22 — Cutting-logic reference failures in feeds and fixed cycles
 **Reported:** 2026-07-19. **Repro:** run the offline cutting-logic reference and
