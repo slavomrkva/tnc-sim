@@ -90,6 +90,7 @@
       <div class="panel-resize" id="panelResize"></div>
       <div class="panel-header">
         <span class="ph-title"><span class="dot"></span> <span id="progTitleName">program.H</span></span>
+        <span id="programAutosaveStatus" class="program-autosave-status" role="status" aria-live="polite" hidden></span>
         <span style="display:flex;align-items:center;gap:8px;">
           <button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners" data-i18n-title="panel.learnTitle" data-i18n="panel.learn">Learn</button>
           <button id="kpHelpBtn" class="ph-btn" onclick="toggleKpHelp()" title="Context help" data-i18n-title="panel.helpTitle" data-i18n="panel.help">Help</button>
@@ -452,6 +453,7 @@ END PGM PROGRAM MM</textarea>
 <script src="core/demo-programs.js" defer></script>
 <script src="web/i18n-demos-de.js" defer></script>
 <script src="core/editor-core.js" defer></script>
+<script src="core/program-autosave.js" defer></script>
 <script src="core/field-editing.js" defer></script>
 <script src="core/help-popups.js" defer></script>
 <script src="core/klartext-syntax.js" defer></script>

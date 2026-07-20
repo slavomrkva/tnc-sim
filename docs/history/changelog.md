@@ -7,6 +7,34 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.893 — calmer 30-second autosave cadence
+
+- Replaced the 700 ms reset-on-input debounce with one throttled write 30
+  seconds after the first pending change; continuous typing no longer postpones
+  persistence, while page hiding still flushes immediately.
+- Pending and saving states are neutral gray, saved/restored remain green and
+  actual storage failures are orange. Advanced the offline cache to `v53` and
+  expanded the timing and styling regressions.
+
+## v0.892 — resume autosave when closing practice
+
+- The practice close button now uses the complete Learn shutdown path instead
+  of restoring the editor while leaving `LEARN.open` set.
+- The saved main-program status therefore returns immediately without a
+  Simulate/Editor tab round trip; added a focused regression and advanced the
+  offline cache to `v52`.
+
+## v0.891 — local program autosave with Learn isolation
+
+- Added a debounced local draft containing the NC code, document name and save
+  time, with immediate lifecycle flushing and visible unsaved/saving/saved,
+  restored and error states.
+- Learn now force-saves and suspends the main draft before replacing the
+  editor. Lesson work stays transient through Finish and the stored main
+  program is restored on exit or reload.
+- Added focused persistence, lifecycle and Learn-isolation regressions and
+  advanced the offline cache to `v51`.
+
 ## v0.890 — expose Q370 throughout Cycle 208
 
 - Replaced the incomplete Cycle 208 builder with the full bore-milling

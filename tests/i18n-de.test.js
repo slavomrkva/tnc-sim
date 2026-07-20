@@ -15,6 +15,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const i18n = fs.readFileSync(path.join(root, 'web/i18n.js'), 'utf8');
 const panels = fs.readFileSync(path.join(root, 'web/panels.js'), 'utf8');
 const bugReport = fs.readFileSync(path.join(root, 'core/bug-report.js'), 'utf8');
+const programAutosave = fs.readFileSync(path.join(root, 'core/program-autosave.js'), 'utf8');
 
 let failures = 0;
 const fail = (m) => { console.error('✗ ' + m); failures++; };
@@ -29,6 +30,8 @@ const jsKeys = new Set();
 for (const src of [panels]) for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 // bug-report.js localizes through the _bugT('key', english) helper
 for (const m of bugReport.matchAll(/_bugT\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
+// program-autosave.js localizes through the _programAutosaveT helper
+for (const m of programAutosave.matchAll(/_programAutosaveT\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 
 // keys defined in the German map
 const deStart = i18n.indexOf('de: {');

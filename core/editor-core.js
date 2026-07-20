@@ -246,6 +246,7 @@ function _setDocName(name){
   _docName = name || 'program.H';
   var el = document.getElementById('progTitleName');
   if(el) el.textContent = _docName;
+  if(typeof programAutosaveChanged === 'function') programAutosaveChanged();
 }
 
 function updateHighlightOverlay(){
@@ -353,6 +354,7 @@ function applyFix(idx){
 }
 
 function runValidation(liveEdit){
+  if(typeof programAutosaveChanged === 'function') programAutosaveChanged();
   // liveEdit defaults to true: nearly every caller runs while the user edits.
   // Run/Step (sim-controls) pass false so radius-compensation checks — the
   // completeness checks in validateProgram and the rc-tagged run diagnostics

@@ -949,6 +949,7 @@ function learnUpdateBlank(){
 
 function openLearn(){
   _learnEndEditorInput();
+  if(typeof programAutosaveSuspendForLearn === 'function') programAutosaveSuspendForLearn();
   LEARN.open = true;
   // Stash the user's own program right away and start with an EMPTY editor —
   // the whole point of Learn mode is writing every line yourself, and the 3D
@@ -1065,9 +1066,8 @@ function learnCheck(){
 
 function learnFinishLesson(){
   _learnEndEditorInput();
-  // Keep what the user wrote in the editor — finishing a lesson shouldn't
-  // wipe their result and bring back the previously stashed program.
-  LEARN.savedCode = null;           // drop the stash (kept code wins)
+  // Keep LEARN.savedCode until Learn closes. The completed exercise may stay
+  // visible inside Learn, but it must never replace the autosaved main program.
   LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0;
   LEARN.view = 'list'; LEARN.lesson = -1;
   runValidation();
@@ -1096,6 +1096,7 @@ function learnExit(){
   document.body.classList.remove('practice-on');
   if(typeof renderIdlePanel==='function') renderIdlePanel();
   if(typeof window._growCode==='function') requestAnimationFrame(window._growCode);
+  if(!LEARN.open && typeof programAutosaveResumeAfterLearn === 'function') programAutosaveResumeAfterLearn();
 }
 
 function _learnEndEditorInput(){
@@ -1222,7 +1223,7 @@ function learnRender(){
             : ' Ready for the next task.') + '</span></div>';
     }
     practice += '<div class="lp-practice-btns">'
-      + '<button class="lp-btn lp-exit" style="padding:8px 10px;" onclick="learnExit()" title="Exit practice \u2014 back to editor">&#10005;</button>'
+      + '<button class="lp-btn lp-exit" style="padding:8px 10px;" onclick="closeLearn()" title="Exit practice \u2014 back to editor">&#10005;</button>'
       + (L.intro ? '' : '<button class="lp-btn lp-solve" style="opacity:.25;padding:8px 8px;border-color:transparent;" onclick="learnSolve()" title="">&#8943;</button>')
       + '<button class="lp-btn" onclick="learnStartTask('+LEARN.task+')" title="Reload starter code">Reset</button>'
       + (!allOk && nHints

@@ -165,6 +165,11 @@ header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(-
 .panel-resize:hover,.panel-resize.dragging{background:var(--accent3);opacity:0.5;}
 .panel-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text2);flex-shrink:0;}
 .panel-header span{display:flex;align-items:center;gap:6px;}
+.program-autosave-status{font-size:9px;color:var(--text3);white-space:nowrap;font-weight:400;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.program-autosave-status[hidden]{display:none !important;}
+.program-autosave-status[data-state="saved"],.program-autosave-status[data-state="restored"]{color:#63c59b;}
+.program-autosave-status[data-state="pending"],.program-autosave-status[data-state="saving"],.program-autosave-status[data-state="lesson"]{color:var(--text3);}
+.program-autosave-status[data-state="error"]{color:var(--accent-warm);}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
 .editor-wrap{display:flex;flex:1;overflow:hidden;min-height:0;}
 .line-nums{font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;color:var(--text3);background:var(--surface2);border-right:1px solid var(--border);min-width:52px;text-align:right;overflow-y:scroll;overflow-x:hidden;user-select:none;flex-shrink:0;scrollbar-width:none;}

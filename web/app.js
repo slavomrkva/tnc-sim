@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.890';
+var APP_VERSION = '0.893';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1852,6 +1852,7 @@ var measureRaycaster = null;
 
 
 // ---------- boot ----------
+if(typeof initProgramAutosave === 'function') initProgramAutosave();
 updateLineNums();
 runValidation();
 buildKeypad();
