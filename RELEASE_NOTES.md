@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.892 (web test)
+- Closing a lesson now immediately returns the editor to the saved main program state; the stale “Lesson — changes are not saved” message no longer remains until tabs are switched.
+
 ## v0.891 (web test)
 - The current NC program is now saved automatically in this browser and restored after a reload. The editor shows the save state; lesson exercises remain temporary and never overwrite the saved main program.
 

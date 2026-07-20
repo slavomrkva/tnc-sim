@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.892 — resume autosave when closing practice
+
+- The practice close button now uses the complete Learn shutdown path instead
+  of restoring the editor while leaving `LEARN.open` set.
+- The saved main-program status therefore returns immediately without a
+  Simulate/Editor tab round trip; added a focused regression and advanced the
+  offline cache to `v52`.
+
 ## v0.891 — local program autosave with Learn isolation
 
 - Added a debounced local draft containing the NC code, document name and save

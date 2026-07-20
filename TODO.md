@@ -8,6 +8,21 @@
 
 ## Open bugs
 
+## C23 — Closing practice leaves the Lesson autosave status visible
+**Reported:** 2026-07-21. **Repro:** open a lesson practice on the web preview,
+tap its close button, and return to the editor without switching tabs.
+### Symptom
+The main program is restored, but the header still says that lesson changes
+are not saved. Switching to Simulate and back finally changes it to Saved.
+### Attempts
+- Attempt 1 — traced the stale status to the practice close button calling the
+  partial `learnExit()` path while `LEARN.open` remained true. Changed it to
+  the complete `closeLearn()` path so Learn closes before autosave resumes, and
+  added a regression that rejects the partial close handler.
+### Status
+Implemented in web v0.892 and awaiting preview acceptance. The same shared fix
+is being ported to Android before this entry is closed.
+
 ## C22 — Cutting-logic reference failures in feeds and fixed cycles
 **Reported:** 2026-07-19. **Repro:** run the offline cutting-logic reference and
 the focused parser cycle regression against GitHub `main`.
