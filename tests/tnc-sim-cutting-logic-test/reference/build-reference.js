@@ -26,6 +26,11 @@ function sha256(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').toUpperCase();
 }
 
+function sha256NormalizedText(file) {
+  const content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+  return crypto.createHash('sha256').update(content).digest('hex').toUpperCase();
+}
+
 function sha256Content(content) {
   return crypto.createHash('sha256').update(content).digest('hex').toUpperCase();
 }
@@ -150,9 +155,9 @@ function scanUnexpectedCuts(vx, allowedZones, sampleLimit = 20) {
 
 function buildOracle() {
   const inputHashes = {
-    programSha256: sha256(PROGRAM_FILE),
-    toolTableSha256: sha256(TOOL_FILE),
-    expectedVoxelSha256: sha256(EXPECTED_VOXEL_FILE),
+    programSha256: sha256NormalizedText(PROGRAM_FILE),
+    toolTableSha256: sha256NormalizedText(TOOL_FILE),
+    expectedVoxelSha256: sha256NormalizedText(EXPECTED_VOXEL_FILE),
   };
   verifyLockedInput('test.h', inputHashes.programSha256, SPEC.inputs?.programSha256);
   verifyLockedInput('test.tnt', inputHashes.toolTableSha256, SPEC.inputs?.toolTableSha256);
@@ -413,7 +418,7 @@ function simulate(name, repo, coreDir, sourceRef, oracle) {
     format: 'tnc-sim-voxel-observation-v1',
     platform: name,
     repository: repositoryEvidence(repo, sourceRef),
-    inputs: { programSha256: sha256(PROGRAM_FILE), toolTableSha256: sha256(TOOL_FILE), parserSha256: sha256Content(parserSource), voxelSha256: sha256Content(voxelSource) },
+    inputs: { programSha256: sha256NormalizedText(PROGRAM_FILE), toolTableSha256: sha256NormalizedText(TOOL_FILE), parserSha256: sha256Content(parserSource), voxelSha256: sha256Content(voxelSource) },
     grid: { nx: vx.nx, ny: vx.ny, nz: vx.nz, dx: vx.dx, dy: vx.dy, dz: vx.dz, origin: { x: vx.ox, y: vx.oy, z: vx.oz } },
     parser: { validation, parseProblems, segmentCount: parsed.sub.length },
     witnesses,

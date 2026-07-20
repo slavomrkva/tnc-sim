@@ -9,8 +9,9 @@ This directory builds an offline expected result for `test.h` without treating T
 - The exact local PDF hashes and relevant pages are locked in `oracle-spec.json`.
 - `test.h` and `test.tnt` define the programmed inputs, not the expected output.
 - The approved SHA-256 hashes of `test.h`, `test.tnt` and
-  `expected-voxel.json` are locked in `oracle-spec.json`; changing any of them
-  requires an explicit reference review.
+  `expected-voxel.json` are locked in `oracle-spec.json` after canonical LF
+  line-ending normalization; changing any of them requires an explicit
+  reference review.
 
 The oracle implements only documented geometry needed by the witnesses: RL/RR path compensation, physical versus programmed DR, programmed DL, flat/ball/conical/drill profiles, cycle dimensions and feed formulas. It also runs isolated semantic checks for Cycle 208 Q370 path overlap and Cycle 209 Q336 range rejection, because these behaviors cannot be proven from the final outer voxel alone. Every measured result has a stated voxel tolerance based on the actual generated grid cell size. The zone map in `expected-voxel.json` is executable: every removed voxel must belong to an allowed witness zone, and every attributed tool number must match that zone. This rejects unrelated cavities and scars which point probes alone cannot see.
 

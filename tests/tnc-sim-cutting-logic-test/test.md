@@ -153,7 +153,7 @@ After each rejection, rerun either `test.h` or `test-crud.h`. An unchanged resul
 
 The `reference` directory prevents the current simulator from becoming its own source of truth:
 
-1. `oracle-spec.json` states the documented compensation and tool-geometry rules, locks the approved test-input hashes and cites exact pages and SHA-256 hashes of the two local HEIDENHAIN manuals.
+1. `oracle-spec.json` states the documented compensation and tool-geometry rules, locks the approved test-input hashes after canonical LF line-ending normalization and cites exact pages and SHA-256 hashes of the two local HEIDENHAIN manuals.
 2. `oracle-spec.json` contains independently reviewed witness constants; `build-reference.js` derives their expected widths and profiles without using simulator output. The locked hashes ensure those constants cannot silently drift away from `test.h`, `test.tnt` or `expected-voxel.json`.
 3. It reads the real web and Android parser/voxel sources from an explicit Git ref (`origin/main` by default, `HEAD` in CI) or an opted-in local worktree, and measures both resulting workpieces on the same 500-cell grid.
 4. It rejects every removed voxel outside the allowed zones in `expected-voxel.json` and every non-matching tool attribution inside them.
