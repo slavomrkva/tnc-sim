@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.891 (web test)
+- The current NC program is now saved automatically in this browser and restored after a reload. The editor shows the save state; lesson exercises remain temporary and never overwrite the saved main program.
+
 ## v0.890 (web test)
 - Cycle 208 now offers its full bore-milling parameter set, including `Q370`, and all supplied Cycle 208 programs and lessons include the path-overlap value.
 

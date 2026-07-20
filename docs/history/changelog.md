@@ -7,6 +7,17 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.891 — local program autosave with Learn isolation
+
+- Added a debounced local draft containing the NC code, document name and save
+  time, with immediate lifecycle flushing and visible unsaved/saving/saved,
+  restored and error states.
+- Learn now force-saves and suspends the main draft before replacing the
+  editor. Lesson work stays transient through Finish and the stored main
+  program is restored on exit or reload.
+- Added focused persistence, lifecycle and Learn-isolation regressions and
+  advanced the offline cache to `v51`.
+
 ## v0.890 — expose Q370 throughout Cycle 208
 
 - Replaced the incomplete Cycle 208 builder with the full bore-milling
