@@ -167,15 +167,17 @@ header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(-
 .panel-header span{display:flex;align-items:center;gap:6px;}
 .ph-title{min-width:0;flex:0 1 auto;}
 #progTitleName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ph-actions{flex:0 1 auto;justify-content:flex-end;flex-wrap:wrap;min-width:0;max-width:100%;}
+.ph-actions{order:1;flex:0 1 auto;justify-content:flex-end;flex-wrap:wrap;min-width:0;max-width:100%;}
 .ph-actions .ph-btn{flex:0 0 auto;white-space:nowrap;}
+.ph-blocks{order:2;flex:0 0 auto;white-space:nowrap;}
 .program-autosave-status{font-size:9px;color:var(--text3);white-space:nowrap;font-weight:400;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 .program-autosave-status[hidden]{display:none !important;}
 .program-autosave-status[data-state="saved"],.program-autosave-status[data-state="restored"]{color:#63c59b;}
 .program-autosave-status[data-state="pending"],.program-autosave-status[data-state="saving"],.program-autosave-status[data-state="lesson"]{color:var(--text3);}
 .program-autosave-status[data-state="error"]{color:var(--accent-warm);}
-@container (max-width:620px){.panel-header .ph-blocks{display:none;}.panel-header .ph-actions{gap:3px;}}
-@container (max-width:510px){.panel-header{flex-wrap:wrap;}.ph-actions{flex:1 1 100%;}}
+@container (max-width:620px){.panel-header .ph-actions{gap:3px;}}
+@container (max-width:570px){.panel-header{flex-wrap:wrap;}.panel-header .ph-blocks{order:1;}.ph-actions{order:2;flex:1 1 100%;}}
+@container (max-width:320px){.panel-header .ph-title{display:none;}}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
 .editor-wrap{display:flex;flex:1;overflow:hidden;min-height:0;}
 .line-nums{font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;color:var(--text3);background:var(--surface2);border-right:1px solid var(--border);min-width:52px;text-align:right;overflow-y:scroll;overflow-x:hidden;user-select:none;flex-shrink:0;scrollbar-width:none;}

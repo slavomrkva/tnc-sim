@@ -6,12 +6,15 @@ const root = path.join(__dirname, '..');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'web', 'styles.css'), 'utf8');
 
+const actionsEnd = index.indexOf('</span>', index.indexOf('<span class="ph-actions">'));
+const blockCount = index.indexOf('id="blockCount"');
 assert.match(index, /<span class="ph-actions">[\s\S]*?id="mCodesBtn"[\s\S]*?exportProgram\(\)[\s\S]*?importProgram\(\)/);
+assert.ok(blockCount > actionsEnd, 'block count must stay outside the wrapping button group');
 assert.match(styles, /\.editor-panel\{[^}]*container-type:inline-size/);
 assert.match(styles, /\.panel-header\{[^}]*flex-wrap:nowrap/);
 assert.match(styles, /\.ph-actions\{[^}]*flex-wrap:wrap[^}]*min-width:0/);
 assert.match(styles, /\.ph-actions \.ph-btn\{[^}]*white-space:nowrap/);
-assert.match(styles, /@container \(max-width:620px\)\{\.panel-header \.ph-blocks\{display:none/);
-assert.match(styles, /@container \(max-width:510px\)\{\.panel-header\{flex-wrap:wrap/);
+assert.doesNotMatch(styles, /@container[^}]+\.ph-blocks\{display:none/);
+assert.match(styles, /@container \(max-width:570px\)\{\.panel-header\{flex-wrap:wrap/);
 
 console.log('editor-header-layout.test.js: narrow desktop header wraps controls without splitting labels');
