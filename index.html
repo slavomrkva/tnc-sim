@@ -91,6 +91,7 @@
       <div class="panel-header">
         <span class="ph-title"><span class="dot"></span> <span id="progTitleName">program.H</span></span>
         <span id="programAutosaveStatus" class="program-autosave-status" role="status" aria-live="polite" hidden></span>
+        <span id="blockCount" class="ph-blocks">0 blocks</span>
         <span class="ph-actions">
           <button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners" data-i18n-title="panel.learnTitle" data-i18n="panel.learn">Learn</button>
           <button id="kpHelpBtn" class="ph-btn" onclick="toggleKpHelp()" title="Context help" data-i18n-title="panel.helpTitle" data-i18n="panel.help">Help</button>
@@ -99,7 +100,6 @@
           <button class="ph-btn" onclick="importProgram()" title="Load .H program file" data-i18n-title="panel.importTitle" data-i18n="panel.import">Import</button>
           <input type="file" id="importFileInput" accept="text/plain,.h,.H,.nc,.txt,.tap,.cnc" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onImportFile(event)">
         </span>
-        <span id="blockCount" class="ph-blocks">0 blocks</span>
       </div>
 
       <div class="keypad" id="keypad"></div>
