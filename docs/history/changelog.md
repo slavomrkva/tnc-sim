@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.894 follow-up — keep restored status in the desktop header row
+
+- Kept the normal desktop editor header on one row, allowed long document names
+  to truncate, and hid the secondary block count at resized panel widths.
+- Added container-based wrapping so the editor actions move onto their own row
+  only below 460 px, while individual button labels remain intact. Advanced the
+  offline cache to `v55` and tightened the focused layout regression.
+
 ## v0.894 — compact autosave and wrapping editor actions
 
 - Shortened the saved, restored and storage-error status labels while retaining
