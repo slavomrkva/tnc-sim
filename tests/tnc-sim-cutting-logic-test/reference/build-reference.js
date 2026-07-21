@@ -14,11 +14,21 @@ const TOOLS = JSON.parse(fs.readFileSync(TOOL_FILE, 'utf8'));
 const EXPECTED_VOXEL = JSON.parse(fs.readFileSync(EXPECTED_VOXEL_FILE, 'utf8'));
 const TOOL_MAP = new Map(TOOLS.map((tool) => [tool.T, tool]));
 
-const WEB_REPO = process.env.TNC_SIM_WEB || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-web';
-const ANDROID_REPO = process.env.TNC_SIM_ANDROID || 'C:\\Users\\sl\\tnc-sim\\tnc-sim-android-github-main-2026-07-17-6bddc4eb04';
+// Repository locations: explicit env vars win; otherwise the web repository is
+// the one containing this package and the Android repository is expected as a
+// sibling checkout named tnc-sim-android. A wrong location fails fast instead
+// of silently measuring an unrelated or stale clone.
+function requireGitRepo(label, envName, candidate) {
+  if (!candidate || !fs.existsSync(path.join(candidate, '.git'))) {
+    throw new Error(`${label} repository not found at ${candidate || '(unset)'}; set ${envName} to a local clone`);
+  }
+  return candidate;
+}
+const WEB_REPO = requireGitRepo('Web', 'TNC_SIM_WEB', process.env.TNC_SIM_WEB || path.resolve(ROOT, '..', '..'));
+const ANDROID_REPO = requireGitRepo('Android', 'TNC_SIM_ANDROID', process.env.TNC_SIM_ANDROID || path.resolve(ROOT, '..', '..', '..', 'tnc-sim-android'));
 const WEB_SOURCE_REF = process.env.TNC_SIM_WEB_REF || 'origin/main';
 const ANDROID_SOURCE_REF = process.env.TNC_SIM_ANDROID_REF || 'origin/main';
-const DOCS = process.env.TNC_SIM_DOCS || 'C:\\Users\\sl\\Documents\\MEGA\\Rozne\\TNCSIM\\Docs';
+const DOCS = process.env.TNC_SIM_DOCS || '';
 const DOCS_MODE = process.env.TNC_SIM_DOCS_MODE || 'verify-files';
 const ALLOW_DIRTY = process.env.TNC_SIM_ALLOW_DIRTY === '1';
 
@@ -174,6 +184,9 @@ function buildOracle() {
         }
         if (DOCS_MODE !== 'verify-files') throw new Error(`Unsupported TNC_SIM_DOCS_MODE: ${DOCS_MODE}`);
         const file = path.join(DOCS, source.file);
+        if (!DOCS || !fs.existsSync(file)) {
+          throw new Error(`Manual ${source.file} not found under TNC_SIM_DOCS=${DOCS || '(unset)'}; point TNC_SIM_DOCS at the offline manuals or run with TNC_SIM_DOCS_MODE=locked-spec`);
+        }
         const actualHash = sha256(file);
         if (actualHash !== source.sha256) throw new Error(`Documentation hash mismatch: ${source.file}`);
         return { ...source, verification: 'local-file-sha256', verifiedSha256: actualHash };
@@ -380,6 +393,39 @@ function observeSemanticChecks(context) {
   ];
 }
 
+function observeToolTableChecks(name, repo, coreDir, sourceRef) {
+  const source = sourceAtRef(repo, path.join(coreDir, 'tool-table.js'), sourceRef);
+  const context = {
+    console: { log() {}, warn() {}, error() {} },
+    window: {},
+    document: { getElementById() { return null; } },
+    TOOL_TYPES: ['MILL', 'DRILL', 'COUNTERSINK'],
+    toolLibrary: [],
+  };
+  vm.createContext(context);
+  vm.runInContext(source, context, { filename: `${name}:${sourceRef}:${coreDir}/tool-table.js` });
+  const validate = (tools) => tools
+    .map((raw) => context.normalizeImportedTool(raw))
+    .map((tool, index, all) => ({ T: tool.T, errors: context.toolEntryErrors(tool, all) }));
+  const validTable = validate(TOOLS);
+  const invalidFiles = ['invalid-countersink-angle.tnt', 'invalid-ball-r2-gt-r.tnt'].map((file) => {
+    const rows = validate(JSON.parse(fs.readFileSync(path.join(ROOT, file), 'utf8')));
+    return { file, rejected: rows.some((row) => row.errors.length > 0), rows };
+  });
+  return [
+    {
+      id: 'TNT-VALID-TABLE-ACCEPTED',
+      passed: validTable.length === TOOLS.length && validTable.every((row) => row.errors.length === 0),
+      observed: validTable.filter((row) => row.errors.length > 0),
+    },
+    {
+      id: 'TNT-INVALID-REJECTED',
+      passed: invalidFiles.every((item) => item.rejected),
+      observed: invalidFiles.map((item) => ({ file: item.file, rejected: item.rejected, errors: item.rows.flatMap((row) => row.errors) })),
+    },
+  ];
+}
+
 function simulate(name, repo, coreDir, sourceRef, oracle) {
   const parserRelative = path.join(coreDir, 'parser-engine.js');
   const voxelRelative = path.join(coreDir, 'voxel-cutting.js');
@@ -423,7 +469,7 @@ function simulate(name, repo, coreDir, sourceRef, oracle) {
     parser: { validation, parseProblems, segmentCount: parsed.sub.length },
     witnesses,
     feedChecks: observeFeeds(parsed.sub),
-    semanticChecks: observeSemanticChecks(context),
+    semanticChecks: [...observeSemanticChecks(context), ...observeToolTableChecks(name, repo, coreDir, sourceRef)],
     workpieceGuard: scanUnexpectedCuts(vx, oracle.allowedZones),
   };
 }

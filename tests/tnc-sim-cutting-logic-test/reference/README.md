@@ -13,15 +13,19 @@ This directory builds an offline expected result for `test.h` without treating T
   line-ending normalization; changing any of them requires an explicit
   reference review.
 
-The oracle implements only documented geometry needed by the witnesses: RL/RR path compensation, physical versus programmed DR, programmed DL, flat/ball/conical/drill profiles, cycle dimensions and feed formulas. It also runs isolated semantic checks for Cycle 208 Q370 path overlap and Cycle 209 Q336 range rejection, because these behaviors cannot be proven from the final outer voxel alone. Every measured result has a stated voxel tolerance based on the actual generated grid cell size. The zone map in `expected-voxel.json` is executable: every removed voxel must belong to an allowed witness zone, and every attributed tool number must match that zone. This rejects unrelated cavities and scars which point probes alone cannot see.
+The oracle implements only documented geometry needed by the witnesses: RL/RR path compensation on lines and arcs, `C`/`CC`/`CR` circular interpolation, physical versus programmed DR, programmed DL, flat/ball/conical/drill profiles, cycle dimensions and feed formulas. It also loads the shared tool-table module directly and requires that every `test.tnt` entry validates cleanly while both invalid `.tnt` files are rejected. It also runs isolated semantic checks for Cycle 208 Q370 path overlap and Cycle 209 Q336 range rejection, because these behaviors cannot be proven from the final outer voxel alone. Every measured result has a stated voxel tolerance based on the actual generated grid cell size. The zone map in `expected-voxel.json` is executable: every removed voxel must belong to an allowed witness zone, and every attributed tool number must match that zone. This rejects unrelated cavities and scars which point probes alone cannot see.
 
 ## Run
 
 1. Fetch `origin/main` in the web and Android repositories.
 2. By default the script reads the accepted files directly from `origin/main`;
    the checked-out local branch and unrelated worktree changes are not inputs.
-3. From the package root run `node reference/build-reference.js`.
-4. Read `generated/report.md`.
+3. The web repository defaults to the repository containing this package and
+   the Android repository to a sibling clone named `tnc-sim-android`; set
+   `TNC_SIM_WEB` / `TNC_SIM_ANDROID` to override. A location that is not a Git
+   repository fails fast instead of silently measuring a stale copy.
+4. From the package root run `node reference/build-reference.js`.
+5. Read `generated/report.md`.
 
 To validate an uncommitted web change before push, set
 `TNC_SIM_WEB_REF=WORKTREE` and `TNC_SIM_ALLOW_DIRTY=1`. An explicit `HEAD` ref
