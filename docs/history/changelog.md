@@ -10,7 +10,7 @@ History through v0.845 is preserved in
 ## v0.894 follow-up — keep restored status in the desktop header row
 
 - Kept the normal desktop editor header on one row, allowed long document names
-  to truncate, and placed the block count before a right-anchored action group.
+  to truncate, and grouped the block count after the right-anchored actions.
 - Added container-based wrapping so the editor actions move onto their own row
   only below 570 px, still aligned right, while individual labels remain intact. Advanced the
   offline cache to `v55` and tightened the focused layout regression.
