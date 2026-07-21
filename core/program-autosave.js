@@ -41,8 +41,8 @@ function _programAutosaveTime(savedAt){
 
 function _programAutosaveSavedStatus(state){
   var label = state === 'restored'
-    ? _programAutosaveT('autosave.restored', 'Draft restored')
-    : _programAutosaveT('autosave.saved', 'Program saved');
+    ? _programAutosaveT('autosave.restored', 'Restored')
+    : _programAutosaveT('autosave.saved', 'Saved');
   var time = _programAutosaveSavedAt ? _programAutosaveTime(_programAutosaveSavedAt) : '';
   _programAutosaveStatus(state, label + (time ? ' ' + time : ''));
 }
@@ -67,7 +67,7 @@ function _programAutosaveRead(){
     };
   }catch(e){
     _programAutosaveStorageFailed = true;
-    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Save failed'));
     return null;
   }
 }
@@ -108,7 +108,7 @@ function saveProgramDraftNow(force){
     return true;
   }catch(e){
     _programAutosaveStorageFailed = true;
-    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Save failed'));
     return false;
   }
 }
@@ -123,7 +123,7 @@ function programAutosaveChanged(){
     _programAutosaveDirty = false;
     if(_programAutosaveTimer){ clearTimeout(_programAutosaveTimer); _programAutosaveTimer = null; }
     if(_programAutosaveStorageFailed){
-      _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+      _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Save failed'));
     }else if(_programAutosaveSavedAt){
       _programAutosaveSavedStatus('saved');
     }
@@ -152,7 +152,7 @@ function programAutosaveSuspendForLearn(){
   if(_programAutosaveTimer){ clearTimeout(_programAutosaveTimer); _programAutosaveTimer = null; }
   try{ sessionStorage.setItem(PROGRAM_AUTOSAVE_LEARN_SESSION_KEY, '1'); }catch(e){}
   if(_programAutosaveStorageFailed){
-    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Save failed'));
   }else{
     _programAutosaveStatus(
       'lesson',
@@ -176,7 +176,7 @@ function programAutosaveResumeAfterLearn(){
   _programAutosaveSuspended = false;
   _programAutosaveObservedSignature = _programAutosaveSignature();
   if(_programAutosaveStorageFailed){
-    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Program could not be saved'));
+    _programAutosaveStatus('error', _programAutosaveT('autosave.error', 'Save failed'));
   }else if(_programAutosaveSavedAt){
     _programAutosaveSavedStatus('saved');
   }else{

@@ -76,6 +76,7 @@ assert.strictEqual(saved.docName, 'part.H');
 assert.strictEqual(saved.version, 1);
 assert.strictEqual(typeof saved.savedAt, 'number');
 assert.strictEqual(typed.status.state, 'saved');
+assert.match(typed.status.textContent, /^Saved .+$/);
 
 // A stored main program wins over markup/browser form restoration at boot.
 const storedPayload = JSON.stringify({
@@ -88,6 +89,7 @@ const restored = boot({code:'BROWSER-RESTORED-VALUE', local:{'tncsim.programDraf
 assert.strictEqual(restored.codeEl.value, 'BEGIN PGM STORED MM\nEND PGM STORED MM');
 assert.strictEqual(restored.context._docName, 'stored.H');
 assert.strictEqual(restored.status.state, 'restored');
+assert.match(restored.status.textContent, /^Restored .+$/);
 
 // Entering Learn force-saves the main program and excludes all lesson edits.
 const learn = boot({code:'MAIN PROGRAM', docName:'main.H'});
@@ -127,7 +129,7 @@ failed.codeEl.value = 'CANNOT SAVE';
 failed.codeListeners.input();
 failed.timers.shift()();
 assert.strictEqual(failed.status.state, 'error');
-assert.match(failed.status.textContent, /could not be saved/i);
+assert.strictEqual(failed.status.textContent, 'Save failed');
 
 // The Learn integration must retain the main stash through Finish lesson.
 const learnSource = fs.readFileSync(path.join(root, 'core', 'learn-tutorial.js'), 'utf8');

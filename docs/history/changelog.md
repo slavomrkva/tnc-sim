@@ -7,6 +7,15 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.894 — compact autosave and wrapping editor actions
+
+- Shortened the saved, restored and storage-error status labels while retaining
+  their time and existing state colours.
+- Made the desktop editor action group wrap within the resized panel while each
+  button label remains on one line, preventing it from overlapping 3D controls.
+- Added focused status-copy and responsive-header regressions and advanced the
+  offline cache to `v54`.
+
 ## v0.893 — calmer 30-second autosave cadence
 
 - Replaced the 700 ms reset-on-input debounce with one throttled write 30

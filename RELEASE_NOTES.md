@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.894 (web test)
+- Autosave results now use compact Saved, Restored and Save failed labels that stay on one line. On narrow desktop editor panels, M list, Export and Import keep their labels intact and wrap cleanly instead of overlapping the simulation controls.
+
 ## v0.893 (web test)
 - Autosave now writes at most every 30 seconds while typing. Pending changes use a quiet neutral status; orange is reserved for an actual save problem.
 
