@@ -41,10 +41,10 @@
       'editor.blocks': 'Sätze',                 // Heidenhain: NC-Satz = one block/line
       'autosave.pending': 'Änderungen ausstehend',
       'autosave.saving': 'Wird gespeichert…',
-      'autosave.saved': 'Programm gespeichert',
-      'autosave.restored': 'Entwurf wiederhergestellt',
+      'autosave.saved': 'Gespeichert',
+      'autosave.restored': 'Wiederhergestellt',
       'autosave.lesson': 'Lektion – Änderungen werden nicht gespeichert',
-      'autosave.error': 'Programm konnte nicht gespeichert werden',
+      'autosave.error': 'Speichern fehlgeschlagen',
 
       // toolbar
       'toolbar.stale': '⚠ neu ausführen',
