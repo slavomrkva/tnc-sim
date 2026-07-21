@@ -7,6 +7,24 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.895 — cutting-logic package audit fixes and C/CC/CR arc witnesses
+
+- Added zone A to the cutting-logic acceptance package: a compensated full
+  circle (`C` + `CC` under `RL`, as two 180-degree blocks) and an
+  uncompensated `CR` minor arc with a Q-resolved radius, with matching oracle
+  witnesses, allowed zones and modal-feed checks; both platforms PASS 38/38.
+- Fixed the `B-R1.250-RL` allowed-zone gap (the compensated `-Y` leg reaches
+  `X-57.25` but the zone ended at `X-57.5`), made the other RL allowed zones
+  self-contained, and consumed the previously unused `Q7`/`Q11` bank values
+  (`F+Q7` numeric-feed witness; `CR R+Q11`).
+- The reference harness now validates `test.tnt` and both invalid `.tnt`
+  files against the shared tool-table module, fails fast on missing repository
+  paths instead of using hard-coded local defaults, and drops the unused
+  `TNC_SIM_ALLOW_DETACHED` workflow variable; documentation and the layout
+  map were updated, and the D-200-DRILL oracle tip constant now matches its
+  stated formula. Logged open bug C24: a compensated single-block full circle
+  silently collapses to zero-length segments.
+
 ## v0.894 follow-up — keep restored status in the desktop header row
 
 - Kept the normal desktop editor header on one row, allowed long document names

@@ -15,7 +15,7 @@ Q7 = +333.300
 Q8 = +222.200
 Q9 = +0.100
 Q10 = +2.500
-Q11 = +31.250
+Q11 = +7.250
 Q12 = +0.500
 ;
 ; ==============================================================
@@ -31,7 +31,7 @@ M8
 L X-75.000 Y+50.000 Z+30.000 FMAX R0
 L Z+16.250 F+333.300
 L X-70.000 Y+40.000 FAUTO RL
-L X-45.000 F+333.300
+L X-45.000 F+Q7
 L Y+25.000 F+333.300
 L Z+30.000 FMAX R0
 ; M-RR, +X direction, band must move toward -Y.
@@ -40,6 +40,35 @@ L Z+16.250 F+333.300
 L X+45.000 Y+40.000 FAUTO RR
 L X+70.000 F+333.300
 L Y+25.000 F+333.300
+L Z+30.000 FMAX R0
+;
+; ==============================================================
+; ZONE A, central band Y +22 ... +54 between the two M witnesses.
+; Circular arcs with T1: C around CC under RL, uncompensated CR.
+; A-C-RL: compensated tool-center circle = 7.000 + 4.000 = 11.000.
+; A-CR: no compensation; radius comes from Q11 = 7.250.
+; ==============================================================
+TOOL CALL 1 Z S6000 F420.500 DL+0.750 DR+0.500
+M3
+M8
+; A-C-RL: tangent lead-in, full CW circle as two 180-degree C blocks
+; (a single-block full circle under compensation is not supported),
+; tangent lead-out.
+L X-29.000 Y+45.000 Z+30.000 FMAX R0
+L Z+16.250 F+333.300
+L X-17.000 FAUTO RL
+CC X-17.000 Y+38.000
+C X-17.000 Y+31.000 DR-
+C X-17.000 Y+45.000 DR-
+L X-5.000 F+333.300
+L Z+30.000 FMAX R0
+; A-CR: minor arc by radius sign, Q-resolved R, feed stays modal.
+TOOL CALL 1 Z S6000 F420.500
+M3
+M8
+L X+14.000 Y+40.000 Z+30.000 FMAX R0
+L Z+16.500 F+275.500
+CR X+28.000 Y+40.000 R+Q11 DR+
 L Z+30.000 FMAX R0
 ;
 ; ==============================================================

@@ -22,9 +22,7 @@ It is not a certificate for a real machine. The reference behavior comes from th
   - feed inputs `FMAX`, `FAUTO` and numeric `F`: page 101;
   - tool radius compensation: pages 139-143;
   - straight line `L`: page 161;
-  - Cartesian contour functions: pages 160-169;
-  - polar contour functions: pages 174-177;
-  - subprograms and repetitions: pages 251-257;
+  - Cartesian contour functions, including `C`, `CC` and `CR`: pages 160-169;
   - Q parameters: pages 275-291.
 - `1303406-23.pdf`, *Programming of Machining Cycles*, 10/2023:
   - Cycle 200: pages 78-81;
@@ -59,6 +57,28 @@ The two upper witnesses use T1. The programmed contour travels in `+X`.
 - The final `R0` block is a pure Z retract. There must be no diagonal scar from the compensated band to the nominal XY coordinate.
 
 Any mirrored band points to reversed `RL/RR`. A band displaced by the wrong amount points to path `DR`. Wrong width points to physical table `DR`. A diagonal scar points to faulty `R0` cancellation.
+
+### A - circular arcs: `C` with `CC`, and `CR`
+
+Two T1 witnesses occupy the free central band between the two M witnesses.
+
+- `A-C-RL`: a tangent `+X` lead-in engages `RL`, then a full clockwise circle
+  around `CC X-17 Y+38` with programmed radius `7.000` runs as two 180-degree
+  `C` blocks, and a tangent lead-out exits. A compensated single-block full
+  circle is deliberately not used: the current parser collapses it to
+  zero-length segments, so the two-block form is the supported witness shape.
+  The compensated tool-center circle is `7.000 + 4.000 = 11.000 mm`; the
+  witness is measured at the south point `X-17 Y+27`, where the annular band
+  must be `7.000 mm` wide with a flat floor.
+- `A-CR`: an uncompensated minor arc from `X+14 Y+40` to `X+28 Y+40` with
+  `R+Q11` (`Q11 = +7.250`) and `DR+` bulges south. The Q-resolved radius and
+  the `R+` minor-arc selection place its south extreme at `Y+34.637`; the band
+  must be `7.000 mm` wide there. The arc block carries no `F`, so it must
+  inherit the modal `275.500` feed from the plunge block.
+
+A missing or displaced annulus points to arc interpolation or arc radius
+compensation. A wrong `A-CR` extreme points to `CR` center selection (`R`
+sign against `DR`) or Q resolution inside a movement block.
 
 ### B - ball mills with non-zero `R2`
 
@@ -109,12 +129,13 @@ The final voxel shape cannot distinguish two different feed rates when both foll
 
 1. Step through one `L ... FMAX` block: it must be marked rapid and must not make `FMAX` modal for the following block.
 2. Step through one `L ... FAUTO` block: it must use the active `TOOL CALL F` value.
-3. Step through one numeric `L ... F333.300` block: it must report that exact feed.
-4. Cycle 200 at `X-60` and Cycle 201 at `X0` must use their active `TOOL CALL F` for `Q206 FAUTO`.
-5. Cycle 200 at `X-30` must use `Q206=222.200`.
-6. Cycle 201 must retract at `Q208=111.100`, not at FMAX.
-7. Cycle 209 cutting feed must equal `abs(Q239) x spindle RPM = 1.250 x 400 = 500.000 mm/min`; Q403 affects synchronized retraction.
-8. Cycle-internal positioning and the final move to the second clearance must retain their documented FMAX/feed classification.
+3. Step through the `L X-45.000 F+Q7` block: the Q-resolved feed must report exactly `333.300`.
+4. Step through the zone A `C` blocks: they carry no `F` and must inherit the active `FAUTO` Tool Call feed `420.500`; the `CR` block must inherit the modal `275.500` from its plunge block.
+5. Cycle 200 at `X-60` and Cycle 201 at `X0` must use their active `TOOL CALL F` for `Q206 FAUTO`.
+6. Cycle 200 at `X-30` must use `Q206=222.200`.
+7. Cycle 201 must retract at `Q208=111.100`, not at FMAX.
+8. Cycle 209 cutting feed must equal `abs(Q239) x spindle RPM = 1.250 x 400 = 500.000 mm/min`; Q403 affects synchronized retraction.
+9. Cycle-internal positioning and the final move to the second clearance must retain their documented FMAX/feed classification.
 
 Record any feed failure separately from voxel geometry, because it has no unique final-shape signature.
 
@@ -155,8 +176,12 @@ The `reference` directory prevents the current simulator from becoming its own s
 
 1. `oracle-spec.json` states the documented compensation and tool-geometry rules, locks the approved test-input hashes after canonical LF line-ending normalization and cites exact pages and SHA-256 hashes of the two local HEIDENHAIN manuals.
 2. `oracle-spec.json` contains independently reviewed witness constants; `build-reference.js` derives their expected widths and profiles without using simulator output. The locked hashes ensure those constants cannot silently drift away from `test.h`, `test.tnt` or `expected-voxel.json`.
-3. It reads the real web and Android parser/voxel sources from an explicit Git ref (`origin/main` by default, `HEAD` in CI) or an opted-in local worktree, and measures both resulting workpieces on the same 500-cell grid.
+3. It reads the real web and Android parser/voxel sources from an explicit Git ref (`origin/main` by default and in CI; an explicit `HEAD` ref is supported for a checked-out commit) or an opted-in local worktree, and measures both resulting workpieces on the same 500-cell grid.
 4. It rejects every removed voxel outside the allowed zones in `expected-voxel.json` and every non-matching tool attribution inside them.
+   It also runs the shared tool-table validation directly: every `test.tnt`
+   entry must be accepted with zero errors, and both invalid `.tnt` files must
+   be rejected, so the transactional-import contract is machine-checked on
+   every reference run, not only during the manual walkthrough.
 5. Results are written to the untracked `reference/generated` directory. `approved-reference.json` exists only if every check passes on both platforms. Any failed run removes a stale approval file.
 
 Before running, update the remote references with `git fetch origin --prune` in both repositories. Then run `node reference/build-reference.js` from this package. A non-zero exit code means that no reference is approved; inspect `reference/generated/report.md` and `comparison.json`.

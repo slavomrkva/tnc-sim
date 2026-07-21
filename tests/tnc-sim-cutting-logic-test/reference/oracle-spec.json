@@ -5,16 +5,17 @@
   "manualEdition": "10/2023",
   "grid": {"requestedResolution": 500, "qualityIndex": 2},
   "inputs": {
-    "programSha256": "182D22773CD3167774EA495BFB2F8F75C57910103B2EE3002C6DAE3282CE4A3B",
+    "programSha256": "552B5CA443701809C6FFB0F89754FE61B0BBABB70FEEB664A8C1E92EE45E5631",
     "toolTableSha256": "52FED66C1C887D9687A6CC7B29F41DBD9F2E8171580449AF09CEC06C8034C77D",
-    "expectedVoxelSha256": "384BAAD84CF367061B8A296B0E6CB4EA20781F8FC2BDA66D857783A972309CA0"
+    "expectedVoxelSha256": "8D01C7059EEDC828F32A58283F85A68192C02D443788E31062B133A84DFB9A05"
   },
   "sources": [
-    {"file":"892903-2C.pdf","sha256":"5E194ED747299E2363D23F071440CA25AE773D4B5B4A26C3881343669B9729FB","pages":[101,139,140,141,142,143,161,275,281]},
+    {"file":"892903-2C.pdf","sha256":"5E194ED747299E2363D23F071440CA25AE773D4B5B4A26C3881343669B9729FB","pages":[101,139,140,141,142,143,160,161,162,163,164,165,166,167,168,169,275,281]},
     {"file":"1303406-23.pdf","sha256":"3751E34BB617B99A1091D7147DFC5F476FAA3DF16496B70D19E75E2CEEC9EB3F","pages":[78,79,80,81,82,83,106,107,108,109,110,139,140,141,142]}
   ],
   "rules": {
     "pathCompensation":"effective path radius = tool R + table DR + TOOL CALL DR; RL is left and RR is right relative to travel",
+    "circularArc":"C runs on the circle through the start point around CC; CR selects the arc by end point and radius, R+ is the minor and R- the major arc, DR chooses rotation; under RL/RR the tool center follows the programmed arc offset by the effective path radius toward the compensation side; an arc without RL/RR follows the programmed arc directly",
     "physicalMill":"physical radius = tool R + table DR; TOOL CALL DR does not resize the physical cutter",
     "programmedLength":"physical cut Z = programmed path Z + TOOL CALL DL; table DL is measured compensation and does not independently alter the workpiece",
     "ball":"R2=R produces a spherical bottom with radius R2",
@@ -26,6 +27,9 @@
   "witnesses": [
     {"id":"M-RL","tool":1,"probeX":-60,"centerY":44,"tipZ":17,"shape":"flat","radius":3.5,"zProbe":19,"scanHalf":6,"profileOffsets":[-2,0,2],"path":{"side":"RL","expectedY":44}},
     {"id":"M-RR","tool":1,"probeX":60,"centerY":36,"tipZ":17,"shape":"flat","radius":3.5,"zProbe":19,"scanHalf":6,"profileOffsets":[-2,0,2],"path":{"side":"RR","expectedY":36}},
+
+    {"id":"A-C-RL","tool":1,"probeX":-17,"centerY":27,"tipZ":17,"shape":"flat","radius":3.5,"zProbe":19,"scanHalf":6,"profileOffsets":[-2,0,2]},
+    {"id":"A-CR","tool":1,"probeX":21,"centerY":34.637459,"tipZ":16.5,"shape":"flat","radius":3.5,"zProbe":19,"scanHalf":6,"profileOffsets":[-2,0,2]},
 
     {"id":"B-R1.250-RL","tool":2,"probeX":-65,"centerY":11.5,"tipZ":16.125,"shape":"ball","radius":1.25,"zProbe":19,"scanHalf":3,"profileOffsets":[0,0.5,1.0],"path":{"side":"RL","expectedY":11.5}},
     {"id":"B-R1.250-RR","tool":2,"probeX":-45,"centerY":8.5,"tipZ":16.125,"shape":"ball","radius":1.25,"zProbe":19,"scanHalf":3,"profileOffsets":[0,0.5,1.0],"path":{"side":"RR","expectedY":8.5}},
@@ -42,7 +46,7 @@
     {"id":"C-170-RR","tool":7,"probeX":50,"centerY":-15.501,"tipZ":17.456,"shape":"countersink","tipRadius":0.001,"angle":170,"lcuts":0.5,"zProbe":19,"scanHalf":8,"profileOffsets":[1,3,5],"path":{"side":"RR","expectedY":-15.501}},
 
     {"id":"D-200-CENTER","tool":8,"probeX":-60,"centerY":-45,"tipZ":18.5,"shape":"drill","radius":2,"angle":142,"zProbe":19.5,"scanHalf":4,"profileOffsets":[0,0.5,1.0]},
-    {"id":"D-200-DRILL","tool":9,"probeX":-30,"centerY":-45,"tipZ":12.307674,"shape":"drill","radius":2.4,"angle":118,"zProbe":19,"scanHalf":4,"profileOffsets":[0,1,2]},
+    {"id":"D-200-DRILL","tool":9,"probeX":-30,"centerY":-45,"tipZ":12.307938,"shape":"drill","radius":2.4,"angle":118,"zProbe":19,"scanHalf":4,"profileOffsets":[0,1,2]},
     {"id":"D-201","tool":10,"probeX":0,"centerY":-45,"tipZ":13.75,"shape":"flat","radius":2.5,"zProbe":19,"scanHalf":4,"profileOffsets":[-1.5,0,1.5]},
     {"id":"D-208","tool":1,"probeX":30,"centerY":-45,"tipZ":14.25,"shape":"pocket","radius":14,"zProbe":19,"scanHalf":17,"profileOffsets":[-10,0,10]},
     {"id":"D-209","tool":11,"probeX":60,"centerY":-45,"tipZ":13.75,"shape":"flat","radius":2.1,"zProbe":19,"scanHalf":4,"profileOffsets":[-1,0,1]}
@@ -50,7 +54,9 @@
   "feedChecks": [
     {"id":"L-FMAX","tool":1,"expectedRapid":true,"sourceContains":"L X-75.000 Y+50.000 Z+30.000 FMAX R0"},
     {"id":"L-FAUTO-T1","tool":1,"expectedFeed":420.5,"sourceContains":"L X-70.000 Y+40.000 FAUTO RL"},
-    {"id":"L-NUMERIC","tool":1,"expectedFeed":333.3,"sourceContains":"L X-45.000 F+333.300"},
+    {"id":"L-NUMERIC","tool":1,"expectedFeed":333.3,"sourceContains":"L X-45.000 F+Q7"},
+    {"id":"C-MODAL-FAUTO","tool":1,"expectedFeed":420.5,"sourceContains":"C X-17.000 Y+45.000 DR-"},
+    {"id":"CR-MODAL","tool":1,"expectedFeed":275.5,"sourceContains":"CR X+28.000 Y+40.000"},
     {"id":"C200-FAUTO","tool":8,"expectedFeed":321.5,"cycle":200,"direction":"down"},
     {"id":"C200-NUMERIC","tool":9,"expectedFeed":222.2,"cycle":200,"direction":"down"},
     {"id":"C201-FAUTO","tool":10,"expectedFeed":219.5,"cycle":201,"direction":"down"},
@@ -60,6 +66,8 @@
   "semanticChecks": [
     {"id":"C208-Q370-EFFECT","expected":"Q370=0.5 produces more radial path segments than Q370=1.5"},
     {"id":"C208-Q370-RANGE","expected":"Q370 values -0.1, 0.05 and 1999.1 are rejected without a cycle path"},
-    {"id":"C209-Q336-RANGE","expected":"negative Q336 is rejected without a tapping path"}
+    {"id":"C209-Q336-RANGE","expected":"negative Q336 is rejected without a tapping path"},
+    {"id":"TNT-VALID-TABLE-ACCEPTED","expected":"every test.tnt entry passes the shared tool-table validation with zero errors"},
+    {"id":"TNT-INVALID-REJECTED","expected":"invalid-countersink-angle.tnt and invalid-ball-r2-gt-r.tnt each fail the shared tool-table validation"}
   ]
 }

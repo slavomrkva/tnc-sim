@@ -8,6 +8,26 @@
 
 ## Open bugs
 
+## C24 — Compensated single-block full circle collapses to zero-length segments
+**Reported:** 2026-07-21. **Repro:** on current `main`, program `L ... RL` (or
+`RR`), `CC`, then one `C` block whose end point equals the start point (full
+circle) and parse it.
+### Symptom
+Validation and parsing report no problem, but the compensated contour engine
+emits only zero-length segments at the arc start point, so the circle cuts
+nothing. The same circle as two 180-degree `C` blocks compensates and cuts
+correctly, and an uncompensated (`R0`) single-block full circle also works
+(verified against the real parser: R0 gives 64 segments over the full extent,
+RL/RR give 8 zero-length segments and zero diagnostics).
+### Attempts
+- Attempt 1 — found while adding arc witnesses to the cutting-logic acceptance
+  package; the package documents the limitation and uses the two-block form
+  for its compensated circle witness `A-C-RL`.
+### Status
+Open. Either compensate the single-block full circle or reject it with an
+explicit validation error; the defect is the silent zero-cut. Shared core
+parser — tracked in both repositories.
+
 ## C23 — Closing practice leaves the Lesson autosave status visible
 **Reported:** 2026-07-21. **Repro:** open a lesson practice on the web preview,
 tap its close button, and return to the editor without switching tabs.

@@ -3,7 +3,7 @@
     .title{font:700 28px system-ui;fill:#102234}.sub{font:16px system-ui;fill:#415466}.label{font:700 16px system-ui;fill:#102234}.small{font:13px system-ui;fill:#415466}.stock{fill:#eef3f6;stroke:#102234;stroke-width:3}.zone{stroke:#1b3144;stroke-width:2}.rl{fill:#70c1b3}.rr{fill:#f5a65b}.cycle{fill:#7a9ff5}.line{stroke:#102234;stroke-width:2;stroke-dasharray:6 5}.hole{fill:#fff;stroke:#102234;stroke-width:3}
   </style>
   <text x="60" y="45" class="title">TNC Sim cutting-logic reference workpiece</text>
-  <text x="60" y="72" class="sub">Top view: X -80...+80 mm, Y -60...+60 mm. RL is green, RR is orange.</text>
+  <text x="60" y="72" class="sub">Top view: X -80...+80 mm, Y -60...+60 mm. RL is green, RR is orange, uncompensated is violet.</text>
   <rect x="100" y="100" width="960" height="600" rx="8" class="stock"/>
   <text x="1075" y="110" class="small">Y +60</text><text x="1075" y="700" class="small">Y -60</text>
   <text x="90" y="730" class="small">X -80</text><text x="1005" y="730" class="small">X +80</text>
@@ -11,6 +11,12 @@
   <text x="115" y="128" class="label">M - flat mill</text>
   <rect x="130" y="145" width="250" height="45" rx="8" class="zone rl"/><text x="205" y="173" class="label">M-RL T1</text>
   <rect x="780" y="145" width="250" height="45" rx="8" class="zone rr"/><text x="855" y="173" class="label">M-RR T1</text>
+  <text x="440" y="128" class="label">A - arcs</text>
+  <circle cx="478" cy="188" r="46" fill="none" stroke="#70c1b3" stroke-width="18"/>
+  <circle cx="478" cy="188" r="46" fill="none" stroke="#1b3144" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="440" y="193" class="label">C+CC</text><text x="437" y="211" class="small">T1 RL</text>
+  <path d="M 684 172 A 44 44 0 0 0 768 172" fill="none" stroke="#9b8ef0" stroke-width="18"/>
+  <text x="700" y="168" class="label">CR</text><text x="733" y="168" class="small">T1 R0</text>
   <text x="115" y="228" class="label">B - full ball mills (round-bottom sections)</text>
   <rect x="130" y="255" width="100" height="70" rx="8" class="zone rl"/><text x="143" y="285" class="label">T2 RL</text><text x="143" y="306" class="small">R2 1.25</text>
   <rect x="250" y="255" width="100" height="70" rx="8" class="zone rr"/><text x="263" y="285" class="label">T2 RR</text><text x="263" y="306" class="small">R2 1.25</text>
