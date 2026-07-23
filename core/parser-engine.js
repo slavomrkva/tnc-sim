@@ -1413,7 +1413,8 @@ function parseProgram(code){
         continue;
       }
       if(!mod){
-        pushContourLine(mv.target, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
+        var plainGeom=pushContourLine(mv.target, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
+        if(mv.afterDegenerateChf) plainGeom.afterDegenerateChf=true;
         if(mv.m99 && activeCycle) executeCycle(activeCycle, mv.srcLine, mv.rc);
         continue;
       }
@@ -1442,8 +1443,12 @@ function parseProgram(code){
       var dist=requestedDist;
       var p1={x:corner.x-u_in.x*dist, y:corner.y-u_in.y*dist, z:corner.z};
       var p2={x:corner.x+u_out.x*dist, y:corner.y+u_out.y*dist, z:corner.z};
-      pushContourLine(p1, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
-      if(mod.type==='CHF'){ pushContourLine(p2, mv.rapid, mod.line!=null?mod.line:mv.srcLine, mv.rc, false, 'CHF'); }
+      var incomingGeom=pushContourLine(p1, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
+      if(mv.afterDegenerateChf) incomingGeom.afterDegenerateChf=true;
+      if(mod.type==='CHF'){
+        pushContourLine(p2, mv.rapid, mod.line!=null?mod.line:mv.srcLine, mv.rc, false, 'CHF');
+        if(Math.hypot(p2.x-p1.x,p2.y-p1.y)<1e-10) nextMv.afterDegenerateChf=true;
+      }
       else {
         var cross=u_in.x*u_out.y-u_in.y*u_out.x;
         var sign=cross>=0?1:-1;
@@ -2118,10 +2123,23 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
       sub.splice(a,b-a+1); return 0;
     }
     var t1=_rcTangent(p,true),t2=_rcTangent(q,false),cross=_rcCross(t1,t2),dot=_rcDot(t1,t2);
+    var terminalChfDeparture=Math.abs(cross)<1e-9&&dot<0&&
+      ji===xy.length-2&&right.itemIndex===items.length-1&&
+      nextSeg&&nextSeg.rc==='R0'&&p.type==='line'&&q.type==='line'&&
+      right.group.geom.afterDegenerateChf;
     if(Math.abs(cross)<1e-9&&dot>0){
       var pe=_rcPrimitiveEnd(p),qs=_rcPrimitiveStart(q);
       var snap={x:(pe.x+qs.x)/2,y:(pe.y+qs.y)/2,z:(pe.z+qs.z)/2};
       _rcSetEnd(p,snap); _rcSetStart(q,snap);
+    } else if(terminalChfDeparture){
+      // A 180-degree CHF immediately before the final compensated line
+      // collapses to one nominal point. The last line is then the programmed
+      // departure toward R0, not another inside contour corner. Preserve the
+      // established legacy-simulator behaviour for this reported compatibility
+      // case by leading from the current offset endpoint to that line's offset
+      // endpoint. The TNC 640 manual does not explicitly define a 180-degree
+      // degenerate CHF departure.
+      _rcSetStart(q,_rcPrimitiveEnd(p));
     } else if(sideSign*cross<0){
       var from=_rcPrimitiveEnd(p),to=_rcPrimitiveStart(q);
       var aa0=Math.atan2(from.y-nominalEnd.y,from.x-nominalEnd.x);

@@ -7,6 +7,16 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.899 — terminal CHF departure compatibility
+
+- Preserved the reported terminal 180-degree CHF departure before R0 as a
+  deliberately narrow compatibility case in the analytic radius-compensation
+  engine.
+- Added the complete reported Q41/RL/CHF/RND contour and exact tool-center
+  endpoint regression without weakening ordinary inside-corner validation.
+- Bumped the service-worker cache so the corrected shared parser is delivered
+  with the new web version.
+
 ## v0.898 — logical NC block numbering and insertion
 
 - Added one logical block model for gutter numbering, grouped selection,

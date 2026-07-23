@@ -82,6 +82,40 @@ L X+20 Y+0 R0`));
   near(arc.rcGeom.r,probe.radius,1e-10,`${probe.dr} ${probe.side} compensated radius`);
 }
 
+// Reported compatibility case: the terminal 180-degree CHF before R0 passed
+// with the earlier polyline compensation. Keep its established tool-center
+// endpoints without weakening the general inside-corner checks.
+{
+  const result=H.parse(H.program(`TOOL CALL 1 Z S10000 F2000
+M3
+M8
+Q41 = 0
+L X-10 Y+10 Z+20 R0 FMAX
+L Z+Q41
+L Y+0 RL
+L X+15
+CHF 3
+L Y-35
+RND R10.5
+L X+113
+CHF 3
+L Y-110
+CHF 3
+L X+0
+CHF 3
+L IX+3.02
+L IY+10 R0
+L Z+20 R0 FMAX`));
+  noRadiusError(result,'terminal CHF departure must not raise a radius-compensation error');
+  assert.strictEqual(result.probs.length,0,'terminal CHF departure must parse without diagnostics');
+  const departure=result.sub.find(s=>s.rc==='RL'&&s.rcGeom&&s.rcGeom.srcLine===20);
+  assert.ok(departure,'the terminal compensated departure must remain in the toolpath');
+  near(departure.from.x,3,1e-9,'terminal CHF departure start X');
+  near(departure.from.y,-115,1e-9,'terminal CHF departure start Y');
+  near(departure.to.x,3.02,1e-9,'terminal CHF departure end X');
+  near(departure.to.y,-105,1e-9,'terminal CHF departure end Y');
+}
+
 // If the supplied tool value were truly R10 (not diameter 10 / R5), the same
 // inside C radius 7.5 is smaller and the official TNC error is correct.
 {

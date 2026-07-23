@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.899 (web test)
+- Fixed the reported compensated contour ending with a 180-degree CHF lead-out
+  being rejected as if the tool were too large for an inside corner.
+
 ## v0.898 (web test)
 - Program rows now follow logical TNC blocks: Enter on any row of a cycle inserts one numbered empty block after the whole cycle, while Enter on END PGM does nothing. Desktop multi-line paste and IME input remain supported.
 

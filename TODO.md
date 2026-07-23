@@ -8,6 +8,29 @@
 
 ## Open bugs
 
+## C27 — Terminal 180-degree CHF departure was rejected as an inside corner
+**Reported:** 2026-07-23. **Repro:** finish an RL contour with `CHF 3`,
+`L IX+3.02`, then cancel on `L IY+10 R0` using a 10 mm end mill.
+### Symptom
+The earlier polyline compensation accepted the program reported as correct,
+but the analytic engine reported that the tool radius was too large on the
+final compensated line.
+### Attempts
+- Attempt 1 — traced the regression to the exact 180-degree CHF collapsing to
+  one nominal point. The two adjacent line offsets are opposite and parallel,
+  so the generic inside-corner intersection check cannot join them. The shared
+  core now recognizes only this terminal degenerate-CHF departure before R0
+  and leads from the current compensated endpoint to the final line's offset
+  endpoint, matching the established path. Added the complete reported
+  contour and endpoint regression in both repositories.
+  The local TNC 640 manual documents CHF only between two machinable straight
+  contour elements and does not explicitly define this degenerate 180-degree
+  departure, so this remains a deliberately narrow compatibility exception.
+### Status
+Implemented in web v0.899 and Android APP_VERSION 1.0.88. Focused analytic
+compensation tests pass in both repositories. Keep open until the corrected
+web deployment and Android APK are accepted.
+
 ## C26 — Enter on a cycle can create a misnumbered row outside the program
 **Reported:** 2026-07-23. **Repro:** place the caret on the first, middle or
 last physical row of a multi-row `CYCL DEF` and press Enter. Also test Enter
