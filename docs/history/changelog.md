@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.896 — anonymous web product analytics
+
+- Added cookieless Umami Cloud page analytics and privacy-safe product events for simulation starts/completions, quality selection, explicit Refine use, first editor use, Tool Table open/save, and Learn lesson progress.
+- Event properties are restricted to fixed categories and public lesson identifiers. NC programs, filenames, tool values, free text, bug reports and user identifiers are never sent.
+- Updated the public privacy notice and added focused analytics event tests.
+
 ## v0.895 — cutting-logic package audit fixes and C/CC/CR arc witnesses
 
 - Added zone A to the cutting-logic acceptance package: a compensated full

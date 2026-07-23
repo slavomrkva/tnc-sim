@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.896 (web test)
+- Added cookieless, anonymous usage analytics for simulation runs and quality, explicit Refine use, first editor use, Tool Table use and Learn progress. NC programs, filenames, tool values, free text and user IDs are never included.
+
 ## v0.894 (web test)
 - Autosave results now use compact Saved, Restored and Save failed labels that stay on one line. On narrow desktop editor panels, M list, Export and Import keep their labels intact and wrap cleanly instead of overlapping the simulation controls.
 - The restored-program status now stays in the original single desktop header row. Editor actions move to a separate wrapped row only after the side panel is genuinely narrow.
