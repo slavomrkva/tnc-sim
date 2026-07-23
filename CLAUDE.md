@@ -37,13 +37,7 @@ modules from `core/` and `web/`; there is no build step.
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
-
-For codebase questions, query the tracked graph first when
-`graphify-out/graph.json` exists (`graphify query`, then `path`/`explain` as
-needed). Use the wiki for broad navigation and the full report only for broad
-architecture review. After code changes run `graphify update .` and commit the
-current tracked graph and cache changes with the same push. Do not commit its
-dated backup directories; Git history already preserves prior graphs. Prune
-obsolete cache blobs rather than accumulating them. Documentation-only changes
-do not require a graph rebuild.
+Graphify is an optional local aid for large refactors and architecture reviews.
+Generate or update it on demand, and use `query`/`path`/`explain` only when the
+graph is useful for the current task. `graphify-out/` is generated local state
+and must not be committed.
