@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.897 — repository automation and security hardening
+
+- Made Graphify an optional local tool and removed generated graphs and caches
+  from version control.
+- Added an always-running web regression workflow, made the cutting reference
+  test PR-aware, pinned Actions to immutable commits, and enabled grouped
+  Dependabot updates for Actions.
+
 ## v0.896 — anonymous web product analytics
 
 - Added cookieless Umami Cloud page analytics and privacy-safe product events for simulation starts/completions, quality selection, explicit Refine use, first editor use, Tool Table open/save, and Learn lesson progress.
