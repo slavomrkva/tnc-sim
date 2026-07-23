@@ -75,6 +75,7 @@ function _programAutosaveRead(){
 function _programAutosaveRestore(draft){
   if(!draft || typeof codeEl === 'undefined' || !codeEl) return false;
   codeEl.value = draft.code;
+  if(typeof syncEditorSelection === 'function') syncEditorSelection(0,0);
   if(typeof _setDocName === 'function') _setDocName(draft.docName);
   _programAutosaveSavedAt = draft.savedAt;
   _programAutosaveObservedSignature = _programAutosaveSignature();

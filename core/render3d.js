@@ -189,7 +189,7 @@ function _runRefineMainThread(d){
       var btn2=document.getElementById('refineBtnCanvas');
       if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
       _hideRefineIndicator();
-      updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' blocks', false);
+      updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps', false);
     }
   } catch(err){
     console.error('Main thread refine failed:', err);

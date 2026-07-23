@@ -37,7 +37,10 @@ function renderIdlePanel(){ var panel = document.getElementById('ctxPanel');
 function updateLineNums(){
   if(typeof window._growCode==='function') window._growCode();
   var lines = codeEl.value.split('\n');
+  var model = analyzeProgramRows(lines);
   var blockNums = computeBlockNumbers(lines);
+  var selectedRow = model.rows[_selectedLine];
+  var selectedBlock = selectedRow ? selectedRow.blockIndex : null;
   var marks = {};
   for(var k=0;k<problemsData.length;k++){
     var pr=problemsData[k];
@@ -49,20 +52,19 @@ function updateLineNums(){
   var html='';
   for(var i=0;i<lines.length;i++){
     var cls='ln'; if(marks[i]==='err')cls+=' err'; else if(marks[i]==='warn')cls+=' warn'; else if(marks[i]==='fixed')cls+=' fixed';
+    if(selectedBlock!==null && model.rows[i] && model.rows[i].blockIndex===selectedBlock) cls+=' selected';
     var numLabel = blockNums[i]===null ? '' : blockNums[i];
-    html += '<div class="'+cls+'"><button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>'+numLabel+'</div>';
+    var rowBlock=model.rows[i]&&model.rows[i].blockIndex!==null ? model.blocks[model.rows[i].blockIndex] : null;
+    var deleteBtn=rowBlock&&rowBlock.type!=='begin'&&rowBlock.type!=='end'
+      ? '<button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>' : '';
+    html += '<div class="'+cls+'">'+deleteBtn+numLabel+'</div>';
   }
   lineNums.innerHTML = '<div style="padding:10px 0 200px;">' + html + '</div>';
-  blockCountEl.textContent = lines.length + ' ' + t('editor.blocks', 'blocks');
+  blockCountEl.textContent = model.blocks.length + ' ' + t('editor.blocks', 'blocks');
   var _progTitleEl = document.getElementById('progTitleName');
   // Header follows the document name (demo/import/export/clear), not the body's
   // BEGIN PGM name. Fall back to the parsed name only if _docName is unset.
   if(_progTitleEl) _progTitleEl.textContent = (typeof _docName!=='undefined' && _docName) ? _docName : _progFileName(codeEl.value);
-  // restore highlights
-  if(_selectedLine >= 0){
-    var _divs = lineNums.querySelectorAll('.ln');
-    if(_divs[_selectedLine]) _divs[_selectedLine].classList.add('selected');
-  }
   // sync scroll position
   lineNums.scrollTop = codeEl.scrollTop;
   updateHighlightOverlay();

@@ -75,6 +75,7 @@ function loadDemo(idx){
   var demo = DEMO_PROGRAMS[idx];
   _undoPush();
   codeEl.value = demo.code;
+  syncEditorSelection(0,0);
   _currentDemoIdx = idx;
   _setDocName(demo.name); // header shows the picked demo's friendly name
   dirty=true; updateLineNums(); runValidation();
@@ -96,6 +97,7 @@ function editorUndo(){
   if(!codeEl || _undoStack.length===0) return;
   _redoStack.push(codeEl.value);
   codeEl.value = _undoStack.pop();
+  syncEditorSelection(Math.min(codeEl.selectionStart,codeEl.value.length));
   _undoLastVal = codeEl.value; // keep keystroke-snapshot baseline in sync
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
@@ -105,6 +107,7 @@ function editorRedo(){
   if(!codeEl || _redoStack.length===0) return;
   _undoStack.push(codeEl.value);
   codeEl.value = _redoStack.pop();
+  syncEditorSelection(Math.min(codeEl.selectionStart,codeEl.value.length));
   _undoLastVal = codeEl.value;
   dirty=true; updateLineNums(); runValidation();
   renderIdlePanel();
@@ -171,6 +174,7 @@ function editorReset(){
   _editorConfirm('Reset to default program?', function(){
     _undoPush();
     codeEl.value = DEFAULT_CODE;
+    syncEditorSelection(0,0);
     _currentDemoIdx = 0; // DEFAULT_CODE is the "Complete Part" demo's code
     _setDocName((typeof DEMO_PROGRAMS!=='undefined' && DEMO_PROGRAMS[0]) ? DEMO_PROGRAMS[0].name : 'program.H');
     dirty=true; updateLineNums(); runValidation();
@@ -187,6 +191,7 @@ function editorClear(){
   var begin = m ? m[1] : 'BEGIN PGM PROGRAM MM';
   var end   = m2 ? m2[1] : 'END PGM PROGRAM MM';
   codeEl.value = begin + '\n' + end;
+  syncEditorSelection(0,0);
   _currentDemoIdx = -1;
   _setDocName('program.H'); // new unsaved program uses the default name
   dirty=true; updateLineNums(); runValidation();
@@ -202,26 +207,183 @@ function _liveEditClear(){
   if(_liveEditLine !== -1){ _liveEditLine = -1; renderProblems(); }
 }
 
-function computeBlockNumbers(lines){
-  var nums = [];
-  var blockNum = -1;
-  var prevEndsWithTilde = false;
-  var inCycleQRun = false;
-  // Matches "Q123=..." AND the no-'=' feed keyword form "Q206 FAUTO"/"Q206 FMAX"
-  // (see Q_FAUTO_PARAMS / openQPopup) — both are valid Klartext cycle params.
-  var qLineRe = /^Q\d+\s*(?:=|\s+(?:FAUTO|FMAX))/i;
+function analyzeProgramRows(lines){
+  var rows=[], blocks=[];
+  var prevEndsWithTilde=false;
+  var qLineRe=/^Q\d+\s*(?:=|\s+(?:FAUTO|FMAX))/i;
+
   for(var i=0;i<lines.length;i++){
-    if(i===lines.length-1 && lines[i]===''){ nums.push(null); continue; }
-    var trimmed = lines[i].replace(/^\s+/, '');
-    var isQLine = qLineRe.test(trimmed);
-    var isContinuation = prevEndsWithTilde || (inCycleQRun && isQLine);
-    if(!isContinuation){ blockNum++; nums.push(blockNum); }
-    else nums.push(null);
-    prevEndsWithTilde = /~\s*$/.test(lines[i]);
-    if(/^CYCL\s+DEF\b/i.test(trimmed)) inCycleQRun = true;
-    else if(!(inCycleQRun && isQLine)) inCycleQRun = false;
+    if(i===lines.length-1 && lines[i]===''){
+      rows.push({kind:'trailing-artifact',blockIndex:null,blockNo:null,anchor:i,end:i,type:'trailing-artifact'});
+      continue;
+    }
+
+    var trimmed=lines[i].replace(/^\s+/,'');
+    var previous=blocks.length ? blocks[blocks.length-1] : null;
+    var continuesCycle=!!(previous && previous.type==='cycle' && qLineRe.test(trimmed));
+    var isContinuation=!!previous && (prevEndsWithTilde || continuesCycle);
+
+    if(isContinuation){
+      previous.end=i;
+      rows.push({kind:'continuation',blockIndex:blocks.length-1,blockNo:previous.blockNo,anchor:previous.anchor,end:i,type:previous.type});
+    } else {
+      var upper=trimmed.toUpperCase();
+      var type=/^BEGIN PGM\b/.test(upper)?'begin':
+        (/^END PGM\b/.test(upper)?'end':
+        (/^CYCL\s+DEF\b/.test(upper)?'cycle':
+        (trimmed===''?'placeholder':
+        (/^;/.test(trimmed)?'comment':'block'))));
+      var block={blockNo:blocks.length,anchor:i,end:i,type:type};
+      blocks.push(block);
+      rows.push({kind:type==='placeholder'?'placeholder':'anchor',blockIndex:blocks.length-1,blockNo:block.blockNo,anchor:i,end:i,type:type});
+    }
+    prevEndsWithTilde=/~\s*$/.test(lines[i]);
   }
-  return nums;
+
+  for(var r=0;r<rows.length;r++){
+    if(rows[r].blockIndex!==null) rows[r].end=blocks[rows[r].blockIndex].end;
+  }
+  return {rows:rows,blocks:blocks};
+}
+
+function computeBlockNumbers(lines){
+  return analyzeProgramRows(lines).rows.map(function(row){
+    return row.kind==='continuation'||row.kind==='trailing-artifact' ? null : row.blockNo;
+  });
+}
+
+function _programLineIndexAt(value,pos){
+  pos=Math.max(0,Math.min(value.length,Number(pos)||0));
+  return value.slice(0,pos).split('\n').length-1;
+}
+
+function _programLineOffset(lines,index){
+  var pos=0;
+  for(var i=0;i<index;i++) pos+=lines[i].length+1;
+  return pos;
+}
+
+function syncEditorSelection(start,end){
+  if(!codeEl) return;
+  var max=codeEl.value.length;
+  start=Math.max(0,Math.min(max,Number(start)||0));
+  end=end===undefined?start:Math.max(start,Math.min(max,Number(end)||0));
+  try{ codeEl.setSelectionRange(start,end); }catch(e){}
+  lastSel={start:start,end:end};
+  _selectedLine=_programLineIndexAt(codeEl.value,start);
+}
+
+function planProgramBlockInsertion(value,start,end,text,mode){
+  value=String(value||'');
+  start=Math.max(0,Math.min(value.length,Number(start)||0));
+  end=end===undefined?start:Math.max(start,Math.min(value.length,Number(end)||0));
+  var lines=value.split('\n');
+  var model=analyzeProgramRows(lines);
+  var startRow=model.rows[_programLineIndexAt(value,start)];
+  var endRow=model.rows[_programLineIndexAt(value,end)];
+  var blockIndex=startRow&&startRow.blockIndex;
+  if(blockIndex===null||blockIndex===undefined) blockIndex=model.blocks.length-1;
+  var block=model.blocks[blockIndex];
+  if(!block){
+    if(mode==='enter') return {changed:false,value:value,caret:start,reason:'no-block'};
+    var firstText=String(text);
+    return {
+      changed:firstText!==value,
+      value:firstText,
+      caret:firstText.length,
+      insertStart:0,
+      insertEnd:firstText.length,
+      firstLineEnd:(firstText.split('\n')[0]||'').length,
+      insertLine:0,
+      replacedBlock:null
+    };
+  }
+
+  if(mode==='enter' && endRow && endRow.blockIndex!==null && endRow.blockIndex!==blockIndex){
+    return {changed:false,value:value,caret:start,reason:'cross-block-selection'};
+  }
+  if(mode==='enter' && block.type==='end'){
+    return {changed:false,value:value,caret:start,reason:'end-pgm'};
+  }
+
+  var insertIndex,deleteCount=0,targetBlock=block;
+  var next=model.blocks[blockIndex+1];
+  var previous=model.blocks[blockIndex-1];
+
+  if(mode==='enter'){
+    if(block.type==='placeholder'){
+      return {changed:false,value:value,caret:_programLineOffset(lines,block.anchor),reason:'reuse-placeholder'};
+    }
+    if(next && next.type==='placeholder' && next.anchor===block.end+1){
+      return {changed:false,value:value,caret:_programLineOffset(lines,next.anchor),reason:'reuse-placeholder'};
+    }
+    insertIndex=block.end+1;
+    text='';
+  } else if(block.type==='placeholder'){
+    insertIndex=block.anchor;
+    deleteCount=block.end-block.anchor+1;
+  } else if(block.type==='end'){
+    if(previous && previous.type==='placeholder' && previous.end+1===block.anchor){
+      targetBlock=previous;
+      insertIndex=previous.anchor;
+      deleteCount=previous.end-previous.anchor+1;
+    } else {
+      insertIndex=block.anchor;
+    }
+  } else if(next && next.type==='placeholder' && next.anchor===block.end+1){
+    targetBlock=next;
+    insertIndex=next.anchor;
+    deleteCount=next.end-next.anchor+1;
+  } else {
+    insertIndex=block.end+1;
+  }
+
+  var inserted=String(text).split('\n');
+  lines.splice.apply(lines,[insertIndex,deleteCount].concat(inserted));
+  var newValue=lines.join('\n');
+  var insertStart=_programLineOffset(lines,insertIndex);
+  return {
+    changed:newValue!==value,
+    value:newValue,
+    caret:insertStart+String(text).length,
+    insertStart:insertStart,
+    insertEnd:insertStart+String(text).length,
+    firstLineEnd:insertStart+inserted[0].length,
+    insertLine:insertIndex,
+    replacedBlock:targetBlock
+  };
+}
+
+function insertProgramBlock(text,position,selectionEnd,options){
+  options=options||{};
+  var plan=planProgramBlockInsertion(codeEl.value,position,selectionEnd,text,options.mode||'command');
+  if(plan.changed){
+    _undoPush();
+    codeEl.value=plan.value;
+    var selStart=options.selectFirstLine?plan.insertStart:plan.caret;
+    var selEnd=options.selectFirstLine?plan.firstLineEnd:selStart;
+    syncEditorSelection(selStart,selEnd);
+    dirty=true;
+    updateLineNums();
+    runValidation();
+  } else {
+    syncEditorSelection(plan.caret,plan.caret);
+    updateLineNums();
+  }
+  return plan;
+}
+
+function editorInsertBlankAfterActiveBlock(){
+  if(!codeEl) return false;
+  var plan=insertProgramBlock('',codeEl.selectionStart,codeEl.selectionEnd,{mode:'enter'});
+  return !!plan.changed;
+}
+
+function problemBlockNumber(lineIndex){
+  var model=analyzeProgramRows(codeEl.value.split('\n'));
+  var row=model.rows[Math.max(0,Math.min(model.rows.length-1,lineIndex))];
+  if(row && row.blockNo!==null) return row.blockNo;
+  return model.blocks.length ? model.blocks[model.blocks.length-1].blockNo : 0;
 }
 
 function formatBlockNum(n){
@@ -313,7 +475,7 @@ function renderProblems(){
     var rowCls = isFixed ? 'problem fixed' : ('problem '+p.sev);
     var fixBtn = (!isFixed && p.fix && problemIndex>=0) ? '<button class="problem-fix" onclick="event.stopPropagation();applyFix('+problemIndex+')">Fix</button>' : '';
     var explainBtn = ''; // Explain disabled (AI removed)
-    html+='<div class="'+rowCls+'" onclick="gotoLine('+p.line+')"><span class="pl">L'+(p.line+1)+'</span><span class="pi">'+(isFixed?'\u2714':(p.sev==='err'?'\u2716':'\u26A0'))+'</span><span>'+p.msg+'</span>'+fixBtn+explainBtn+'</div>';
+    html+='<div class="'+rowCls+'" onclick="gotoLine('+p.line+')"><span class="pl">B'+problemBlockNumber(p.line)+'</span><span class="pi">'+(isFixed?'\u2714':(p.sev==='err'?'\u2716':'\u26A0'))+'</span><span>'+p.msg+'</span>'+fixBtn+explainBtn+'</div>';
   }
   list.style.display = problemsOpen?'block':'none';
   list.innerHTML=html;
@@ -331,6 +493,7 @@ function gotoLine(n){
   var pos=0; for(var i=0;i<n && i<lines.length;i++){ pos+=lines[i].length+1; }
   codeEl.focus();
   codeEl.setSelectionRange(pos, pos+(lines[n]?lines[n].length:0));
+  syncEditorSelection(pos,pos+(lines[n]?lines[n].length:0));
   var lh=parseFloat(getComputedStyle(codeEl).lineHeight)||20;
   codeEl.scrollTop = Math.max(0, n*lh - codeEl.clientHeight/2);
   lineNums.scrollTop = codeEl.scrollTop;
@@ -342,6 +505,7 @@ function applyFix(idx){
   var lines = codeEl.value.split('\n');
   var fixedLine = problemsData[idx].fix(lines);
   codeEl.value = lines.join('\n');
+  syncEditorSelection(_programLineOffset(lines,Math.max(0,fixedLine)));
   fixedProblems[idx+':'+problemsData[idx].msg] = true;
   dirty = true;
   updateLineNums();
@@ -447,11 +611,14 @@ function rcBtn(val,cur){ return '<button class="fbar-drbtn'+(cur===val?' sel':''
 function updateSelectedLine(){
   var pos = codeEl.selectionStart;
   var lineIdx = codeEl.value.slice(0, pos).split('\n').length - 1;
-  if(lineIdx === _selectedLine) return;
   _selectedLine = lineIdx;
+  lastSel={start:codeEl.selectionStart,end:codeEl.selectionEnd};
+  var model=analyzeProgramRows(codeEl.value.split('\n'));
+  var selectedRow=model.rows[lineIdx];
+  var selectedBlock=selectedRow?selectedRow.blockIndex:null;
   var divs = lineNums.querySelectorAll('.ln');
   for(var i=0;i<divs.length;i++){
-    if(i===lineIdx) divs[i].classList.add('selected');
+    if(selectedBlock!==null && model.rows[i] && model.rows[i].blockIndex===selectedBlock) divs[i].classList.add('selected');
     else divs[i].classList.remove('selected');
   }
 }
@@ -461,34 +628,25 @@ function syncScrollToLineNums(){
   updateHighlightOverlay();
 }
 
-function deleteLineN(n){
-  _undoPush(); // Save state before deletion
+function deleteLineN(n,confirmed){
   var lines=codeEl.value.split('\n');
   if(n<0||n>=lines.length) return;
-
-  // detect if line belongs to a cycle block (CYCL DEF or Q param line)
-  var isCycleLine = function(l){ return /^\s*CYCL DEF/i.test(l) || /^\s*Q\d+/i.test(l); };
-  var deleteFrom = n, deleteTo = n;
-
-  if(isCycleLine(lines[n])){
-    // find start of cycle block (go up to CYCL DEF line)
-    var start = n;
-    while(start > 0 && /^\s*Q\d+/i.test(lines[start])) start--;
-    if(/^\s*CYCL DEF/i.test(lines[start])){
-      deleteFrom = start;
-      // find end of cycle block (all following Q lines)
-      var end = start + 1;
-      while(end < lines.length && /^\s*Q\d+/i.test(lines[end])) end++;
-      deleteTo = end - 1;
-    }
+  var model=analyzeProgramRows(lines);
+  var row=model.rows[n];
+  if(!row||row.blockIndex===null) return;
+  var block=model.blocks[row.blockIndex];
+  if(block.type==='begin'||block.type==='end') return;
+  if(block.type==='cycle'&&!confirmed){
+    _editorConfirm('Delete the entire cycle?',function(){ deleteLineN(n,true); });
+    return;
   }
-
+  _undoPush();
+  var deleteFrom=block.anchor,deleteTo=block.end;
   lines.splice(deleteFrom, deleteTo - deleteFrom + 1);
   codeEl.value=lines.join('\n');
   var newPos=lines.slice(0,deleteFrom).join('\n').length;
-  if(deleteFrom > 0) newPos++; // account for newline
-  try{ codeEl.setSelectionRange(newPos,newPos); }catch(e){}
-  lastSel={start:newPos,end:newPos};
+  if(deleteFrom > 0) newPos++;
+  syncEditorSelection(newPos,newPos);
   dirty=true; updateLineNums(); runValidation();
   if(FM.active) exitFieldMode();
 }
@@ -514,6 +672,7 @@ function onImportFile(e){
       codeEl.value = String(ev.target.result).split('\n')
         .map(function(l){ return l.replace(/^[ \t]*\d+[ \t]+/, ''); })
         .join('\n');
+      syncEditorSelection(0,0);
       _currentDemoIdx = -1;            // imported file is not a demo
       _setDocName(file.name);          // header shows the imported filename
       dirty = true; updateLineNums(); runValidation();
@@ -590,6 +749,7 @@ function exportProgram(){
   // Write block numbers back into the text on export, the way the control
   // does — continuation lines (computeBlockNumbers -> null) stay unnumbered.
   var lines = code.split('\n');
+  if(lines.length>1 && lines[lines.length-1]==='') lines.pop();
   var blockNums = computeBlockNumbers(lines);
   var numbered = lines.map(function(line, i){
     return blockNums[i]===null ? line : formatBlockNum(blockNums[i]) + line;
@@ -598,51 +758,6 @@ function exportProgram(){
 }
 
 function deleteCurrentLine(){
-  _undoPush();
-  var val=codeEl.value;
-  var pos=lastSel.start;
-  var lineStart=val.lastIndexOf('\n',pos-1)+1;
-  var lineEnd=val.indexOf('\n',pos);
-  if(lineEnd===-1) lineEnd=val.length;
-  // remove line including newline
-  var newVal;
-  if(lineStart===0 && lineEnd===val.length){
-    newVal='';
-  } else if(lineEnd<val.length){
-    newVal=val.slice(0,lineStart)+val.slice(lineEnd+1);
-  } else {
-    newVal=val.slice(0,Math.max(0,lineStart-1));
-  }
-  codeEl.value=newVal;
-  try{ codeEl.setSelectionRange(lineStart,lineStart); }catch(e){}
-  lastSel={start:lineStart,end:lineStart};
-  dirty=true; updateLineNums(); runValidation();
-  if(FM.active) exitFieldMode();
-}
-
-function onGoto(lineNum){
-  lineNum = parseInt(lineNum);
-  if(isNaN(lineNum) || lineNum < 1) return;
-  ensurePrepared();
-  // Do NOT reset voxels — keep simulation visible
-  // Only reset animation state
-  subIndex = 0; subProgress = 0; mode='idle';
-  activeSrcLine=-1; highlightActiveLine(-1);
-  
-  // Find toolCallList entry with this lineNum
-  var toolCall = null;
-  for(var i=0; i<toolCallList.length; i++){
-    if(toolCallList[i].lineNum === lineNum){
-      toolCall = toolCallList[i];
-      break;
-    }
-  }
-  
-  if(toolCall && toolCall.subIdx !== undefined){
-    subIndex = toolCall.subIdx;
-    mode = 'running';
-    updateStatus('Running from TOOL '+toolCall.toolNum+' (line '+lineNum+')', true);
-  } else {
-    _toast('TOOL CALL at line '+lineNum+' not found', true);
-  }
+  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
+  deleteLineN(_programLineIndexAt(codeEl.value,pos));
 }

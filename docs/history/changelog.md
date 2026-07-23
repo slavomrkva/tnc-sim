@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.898 — logical NC block numbering and insertion
+
+- Added one logical block model for gutter numbering, grouped selection,
+  Problems labels, deletion, export and every programming-key insertion path.
+- `CYCL DEF` and its directly following Q rows behave as one block; Enter from
+  any of those rows inserts or reuses one numbered empty block after the cycle.
+- Enter on `END PGM` is a strict no-op. Desktop IME composition is preserved,
+  ordinary multi-line paste/drop remains native, and mobile null-data Enter has
+  a repair fallback.
+- Cycle-Q parser and validator boundaries now end on empty/comment blocks to
+  match the editor model.
+- Static asset uploads now exclude GitHub workflow and Graphify ignore files.
+
 ## v0.897 — repository automation and security hardening
 
 - Made Graphify an optional local tool and removed generated graphs and caches

@@ -8,6 +8,26 @@
 
 ## Open bugs
 
+## C26 — Enter on a cycle can create a misnumbered row outside the program
+**Reported:** 2026-07-23. **Repro:** place the caret on the first, middle or
+last physical row of a multi-row `CYCL DEF` and press Enter. Also test Enter
+with `END PGM` active and test desktop multi-line paste.
+### Symptom
+Numbering, selection, deletion and the different insertion paths used physical
+textarea rows inconsistently. A new row could be positioned relative to a Q
+continuation instead of the complete cycle or appear after `END PGM`.
+### Attempts
+- Attempt 1 — web v0.898 ports the Android logical-block rules through one
+  shared model. A cycle and its directly following Q rows select/delete as one
+  unit; Enter inserts or reuses one numbered empty block after it; Enter on
+  `END PGM` is a no-op; all programming buttons use the same insertion planner.
+  The web path additionally preserves IME composition and allows ordinary
+  desktop multi-line paste/drop outside protected structural blocks.
+### Status
+All 26 web regression tests and JavaScript syntax checks pass. Keep open until
+the v0.898 test deployment is accepted in desktop and narrow/mobile layouts.
+Android APP_VERSION 1.0.87 implements the matching device behavior.
+
 ## C24 — Compensated single-block full circle collapses to zero-length segments
 **Reported:** 2026-07-21. **Repro:** on current `main`, program `L ... RL` (or
 `RR`), `CC`, then one `C` block whose end point equals the start point (full

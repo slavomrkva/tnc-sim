@@ -219,6 +219,29 @@ function validateProgram(code, liveEdit){
   var hasCycleDef=false;
   var pendingCC=true;
 
+  function finishCycleValidation(){
+    if(!valInCycle) return;
+    valInCycle=false;
+    var _cQ200=valCycleQ['Q200'],_cQ201=valCycleQ['Q201'],_cQ204=valCycleQ['Q204'];
+    if(_cQ200!==undefined&&typeof _cQ200==='number'&&_cQ200<0) probs.push({line:valCycleLine,sev:'err',msg:'Q200 safety clearance must be >= 0 (got '+_cQ200+')'});
+    if(_cQ204!==undefined&&typeof _cQ204==='number'&&_cQ204<0) probs.push({line:valCycleLine,sev:'err',msg:'Q204 safety clearance must be >= 0 (got '+_cQ204+')'});
+    if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201===0) probs.push({line:valCycleLine,sev:'warn',msg:'Q201 = 0: cycle will not execute'});
+    if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201>0) probs.push({line:valCycleLine,sev:'err',msg:'Q201 depth must be negative (below surface), got +'+_cQ201+' — the cycle will not cut'});
+    var _qNumBad=function(q,pred){ return typeof valCycleQ[q]==='number'&&pred(valCycleQ[q]); };
+    if(valCycleNum===200){
+      if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q202',function(v){return v<0;})||_qNumBad('Q210',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q206 must be > 0 and Q202/Q210/Q211 must be >= 0'});
+      if(_qNumBad('Q395',function(v){return v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q395 must be 0 or 1'});
+    } else if(valCycleNum===201){
+      if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q208',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 201: Q206 must be > 0 and Q208/Q211 must be >= 0'});
+    } else if(valCycleNum===208){
+      if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q334',function(v){return v<0;})||_qNumBad('Q335',function(v){return v<=0;})||_qNumBad('Q342',function(v){return v<0;})||_qNumBad('Q351',function(v){return v!==-1&&v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: invalid feed, diameter, pre-drill, infeed, or Q351 sign'});
+      if(_qNumBad('Q370',function(v){return v<0||(v>0&&v<0.1)||v>1999;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: Q370 path overlap must be 0 or within 0.1...1999'});
+    } else if(valCycleNum===209){
+      if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, or retraction factor'});
+      if(_qNumBad('Q336',function(v){return v<0||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees'});
+    }
+  }
+
   // Validate LBL structure on the original source. expandLblLines deliberately
   // removes LBL/CALL blocks, so doing this later made all label diagnostics
   // unreachable and missing labels were silently expanded to nothing.
@@ -267,8 +290,9 @@ function validateProgram(code, liveEdit){
   for(var i=0;i<expandedVal.length;i++){
     var raw=expandedVal[i].text.trim();
     var srcI=expandedVal[i].srcLine;
-    if(!raw || raw.charAt(0)===';') continue;
-    var u = raw.toUpperCase().replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'').split(';')[0].trim();
+    var u = (!raw||raw.charAt(0)===';') ? '' :
+      raw.toUpperCase().replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'').split(';')[0].trim();
+    if(valInCycle&&!/^Q\d+/.test(u)) finishCycleValidation();
     if(!u) continue;
 
     // Strip FN 0–4 prefix (FN 0 assign, FN 1 add, FN 2 sub, FN 3 mult, FN 4 div)
@@ -304,35 +328,6 @@ function validateProgram(code, liveEdit){
         var _mf=toks[_mfi].match(/^F\+?(\d+(?:\.\d+)?)$/);
         if(_mf&&parseFloat(_mf[1])<=0) probs.push({line:srcI,sev:'err',msg:'Feed must be greater than 0'});
       }
-    }
-
-    // Cycle Q block exit — validate collected params
-    // Cycle Q block exit — validate collected params. The block ends at the
-    // first line that is not a Q-parameter continuation (CYCL CALL, an L/M
-    // block, END PGM or the next CYCL DEF). The previous `indexOf('CYCL')<0`
-    // guard also matched `CYCL CALL` and any program NAME containing "CYCL",
-    // so a cycle followed immediately by CYCL CALL was never validated.
-    if(valInCycle && !/^Q\d+/.test(u)){
-      valInCycle=false;
-      var _cQ200=valCycleQ['Q200'],_cQ201=valCycleQ['Q201'],_cQ204=valCycleQ['Q204'];
-      if(_cQ200!==undefined&&typeof _cQ200==='number'&&_cQ200<0) probs.push({line:valCycleLine,sev:'err',msg:'Q200 safety clearance must be >= 0 (got '+_cQ200+')'});
-      if(_cQ204!==undefined&&typeof _cQ204==='number'&&_cQ204<0) probs.push({line:valCycleLine,sev:'err',msg:'Q204 safety clearance must be >= 0 (got '+_cQ204+')'});
-      if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201===0) probs.push({line:valCycleLine,sev:'warn',msg:'Q201 = 0: cycle will not execute'});
-      if(_cQ201!==undefined&&typeof _cQ201==='number'&&_cQ201>0) probs.push({line:valCycleLine,sev:'err',msg:'Q201 depth must be negative (below surface), got +'+_cQ201+' — the cycle will not cut'});
-      var _qNumBad=function(q, pred){ return typeof valCycleQ[q]==='number' && pred(valCycleQ[q]); };
-      if(valCycleNum===200){
-        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q202',function(v){return v<0;})||_qNumBad('Q210',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q206 must be > 0 and Q202/Q210/Q211 must be >= 0'});
-        if(_qNumBad('Q395',function(v){return v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 200: Q395 must be 0 or 1'});
-      } else if(valCycleNum===201){
-        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q208',function(v){return v<0;})||_qNumBad('Q211',function(v){return v<0;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 201: Q206 must be > 0 and Q208/Q211 must be >= 0'});
-      } else if(valCycleNum===208){
-        if(_qNumBad('Q206',function(v){return v<=0;})||_qNumBad('Q334',function(v){return v<0;})||_qNumBad('Q335',function(v){return v<=0;})||_qNumBad('Q342',function(v){return v<0;})||_qNumBad('Q351',function(v){return v!==-1&&v!==0&&v!==1;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: invalid feed, diameter, pre-drill, infeed, or Q351 sign'});
-        if(_qNumBad('Q370',function(v){return v<0||(v>0&&v<0.1)||v>1999;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: Q370 path overlap must be 0 or within 0.1...1999'});
-      } else if(valCycleNum===209){
-        if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, or retraction factor'});
-        if(_qNumBad('Q336',function(v){return v<0||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees'});
-      }
-      // Note: Q202 > |Q201| is OK — means single pass (no pecking)
     }
 
     // ── BEGIN PGM ──
@@ -723,7 +718,6 @@ function parseProgram(code){
   // Strip leading block numbers from real exported .H files (see validateProgram).
   code = code.replace(/^[ \t]*\d+[ \t]+/gm, '');
   
-  toolCallList = []; // reset TOOL CALL list for GOTO dropdown
   var lines = code.split('\n');
   var parseProblems = [];
   var blkMin = {x:0,y:0,z:0};
@@ -1477,7 +1471,10 @@ function parseProgram(code){
       .replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'') // tolerate PASTED machine code with block numbers ("12 TOOL CALL 5") — file import strips them too
       .replace(/(\d),(?=\d)/g,'$1.') // Heidenhain decimal comma -> dot (Q1+0,5774, X+10,5); MUST happen before any regex/eval below
       .trim();
-    if(!line || line.charAt(0)===';') continue;
+    if(!line || line.charAt(0)===';'){
+      inCycleParamBlock = false;
+      continue;
+    }
 
     // Strip FN 0–4 prefix BEFORE Q resolution so the assignment LHS (Q1 = …) is protected.
     // FN 0: assign, FN 1: add, FN 2: subtract, FN 3: multiply, FN 4: divide —
@@ -1593,8 +1590,6 @@ function parseProgram(code){
       var requestedToolNum=tn ? parseInt(tn[1]) : toolNum;
       var resolvedTool=resolveParserToolCall(requestedToolNum);
       toolNum=resolvedTool.toolNum;
-      // Add to GOTO list with current sub[] index
-      toolCallList.push({toolNum:toolNum, requestedToolNum:requestedToolNum, lineNum:srcLineI, subIdx:sub.length});
       var tf=line.match(/\bF\+?(\d+(?:\.\d+)?)/); if(tf){ feed=parseFloat(tf[1]); lastDefinedFeed=feed; toolCallFeed=feed; }
       var ts=line.match(/\bS(\d+)/); if(ts) spindleS=parseInt(ts[1]);
       // DL/DR overrides from TOOL CALL line (override tool table values)
@@ -2577,7 +2572,7 @@ function triggerRefine(){
         var btn2=document.getElementById('refineBtnCanvas');
         if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
         _hideRefineIndicator();
-        updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' blocks', false);
+        updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps', false);
       }
     };
     _w.onerror = function(err){

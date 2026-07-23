@@ -8,7 +8,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const context = {
   console, Math, JSON, RegExp, Date, parseFloat, parseInt, isFinite,
   TOOL_R: 5, DEFAULT_FEED: 500, lastDefinedFeed: 500,
-  toolCallList: [], currentToolNum: 1, _WORKPIECE_TOP_Z: 0,
+  currentToolNum: 1, _WORKPIECE_TOP_Z: 0,
   pFloat: value => parseFloat(String(value).replace(',', '.')),
   getToolByNum: number => ({
     T:number, R:number === 4 ? 3.4 : (number === 5 ? 0.001 : (number === 7 ? 4 : 5)),

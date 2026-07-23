@@ -957,6 +957,7 @@ function openLearn(){
   if(LEARN.savedCode === null){
     LEARN.savedCode = codeEl.value;
     codeEl.value = '';
+    if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
     dirty = true;
     updateLineNums(); runValidation();
     if(typeof renderIdlePanel==='function') renderIdlePanel();
@@ -1002,6 +1003,7 @@ function learnSolve(){
   if(T.solRepl) code = code.replace(T.solRepl[0], T.solRepl[1]);
   else if(T.sol !== undefined) code = code.replace('\n\n', '\n' + T.sol + '\n');
   codeEl.value = code;
+  if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
   dirty = true; updateLineNums();
   if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();
   if(typeof renderIdlePanel==='function') renderIdlePanel();
@@ -1029,6 +1031,7 @@ function learnStartTask(ti){
   LEARN.task = ti; LEARN.lastResults = null; LEARN.view = 'lesson';
   LEARN.hint = 0;                        // progressive hints start closed
   codeEl.value = L.tasks[ti].starter;
+  if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
   dirty = true; if(typeof _undoPush==='function') _undoPush();
   updateLineNums(); runValidation();
   if(typeof renderIdlePanel==='function') renderIdlePanel();
@@ -1082,6 +1085,7 @@ function learnExit(){
   _learnEndEditorInput();
   if(LEARN.savedCode !== null){
     codeEl.value = LEARN.savedCode; LEARN.savedCode = null;
+    if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
     dirty = true; updateLineNums(); runValidation();
     if(typeof renderIdlePanel==='function') renderIdlePanel();
     if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();

@@ -130,7 +130,9 @@ function _bugBuildBody(){
     if(typeof problemsData !== 'undefined' && problemsData && problemsData.length){
       var v = ['Validator: ' + problemsData.length + ' issue(s)'];
       problemsData.slice(0,10).forEach(function(p){
-        v.push('  ' + p.sev.toUpperCase() + ' L' + (p.line+1) + ': ' + p.msg);
+        v.push('  ' + p.sev.toUpperCase() + ' B'
+          + (typeof problemBlockNumber==='function' ? problemBlockNumber(p.line) : (p.line+1))
+          + ': ' + p.msg);
       });
       out += '\n## Validator\n```\n' + v.join('\n') + '\n```\n';
     }

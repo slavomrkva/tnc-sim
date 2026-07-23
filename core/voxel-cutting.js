@@ -451,7 +451,7 @@ function advance(dt){
     toolPos = {x:last.x, y:last.y, z:last.z};
     if(mode==='running' || mode==='stepping'){
       mode='done';
-      updateStatus('Done — '+prog.totalBlocks+' blocks executed', false);
+      updateStatus('Done — '+prog.totalBlocks+' simulation steps executed', false);
       calcToolTimes(sub);
       var rb=document.getElementById('refineBtnCanvas'); if(rb){ rb.style.display=prog.hasStock===false?'none':''; rb.disabled=false; rb.textContent='◆ Refine'; }
       updateSimInfoPanel();
@@ -479,7 +479,7 @@ function advance(dt){
     var _sm = sub[subIndex];
     var src = codeEl.value.split('\n')[_sm.srcLine] || '';
     var bi = _sm.blockIndex;
-    updateStatus('Block '+bi+'/'+prog.totalBlocks+':  '+src.trim(), mode==='running'||mode==='stepping');
+    updateStatus('Step '+bi+'/'+prog.totalBlocks+':  '+src.trim(), mode==='running'||mode==='stepping');
     currentFeed = (_sm.rapid || _sm.isMseg) ? 0 : (_sm.feed || 0);
     if(_sm.spindleS && _sm.spindleS > 0) currentSpindle = _sm.spindleS;
     if(typeof _sm.spindleOn !== 'undefined') currentSpindleOn = !!_sm.spindleOn;

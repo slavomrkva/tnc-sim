@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.898 (web test)
+- Program rows now follow logical TNC blocks: Enter on any row of a cycle inserts one numbered empty block after the whole cycle, while Enter on END PGM does nothing. Desktop multi-line paste and IME input remain supported.
+
 ## v0.896 (web test)
 - Added cookieless, anonymous usage analytics for simulation runs and quality, explicit Refine use, first editor use, Tool Table use and Learn progress. NC programs, filenames, tool values, free text and user IDs are never included.
 

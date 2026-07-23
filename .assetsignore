@@ -1,5 +1,6 @@
 # Worker/development files must not be published as website assets.
 .git/
+.github/
 .claude/
 .wrangler/
 node_modules/
@@ -8,6 +9,7 @@ functions/
 tests/
 docs/
 graphify-out/
+.graphifyignore
 .dev.vars*
 .env*
 .assetsignore

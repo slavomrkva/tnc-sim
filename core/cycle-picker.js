@@ -30,7 +30,6 @@ function showCycleList(){ openCyclePicker(); }
 function showCycleParams(num){ selectCycle(num); }
 
 function selectCycle(num){
-  _undoPush();
   closeCyclePicker();
   var cyc=CYCLES.find(function(c){return c.num===num;});
   if(!cyc) return;
@@ -39,15 +38,7 @@ function selectCycle(num){
   cyc.params.forEach(function(p){
     lines.push('  '+p.q+'='+p.def+' ;'+p.name+(p.unit?' ['+p.unit+']':''));
   });
-  // insert after current line
-  var val=codeEl.value;
-  var pos=lastSel.start;
-  var lineEnd=val.indexOf('\n',pos);
-  if(lineEnd===-1) lineEnd=val.length;
-  var ins='\n'+lines.join('\n');
-  codeEl.value=val.slice(0,lineEnd)+ins+val.slice(lineEnd);
-  var newPos=lineEnd+ins.length;
-  try{ codeEl.setSelectionRange(newPos,newPos); }catch(e){}
-  lastSel={start:newPos,end:newPos};
-  dirty=true; updateLineNums(); runValidation();
+  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
+  var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
+  insertProgramBlock(lines.join('\n'),pos,en,{mode:'command'});
 }

@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.897';
+var APP_VERSION = '0.898';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -50,10 +50,6 @@ var BLK_FIELDS_CYL = [
 // Given a BLK FORM line's text and a caret offset within it, return which axis
 // letter (X/Y/Z) the click landed on/nearest to — looks only at the real value
 // tokens (X+50, not the bare "Z" axis-flag in "BLK FORM 0.1 Z X+0 Y+0 Z+0").
-
-var toolCallList = []; // [{toolNum, lineNum}, ...]
-
-
 
 document.addEventListener('keydown', function(e){
   if(!BLK.active || BLK.step < 1) return;
@@ -568,7 +564,6 @@ var PROG_KEYS=[
   {l:'TOOL DEF', code:'TOOL DEF', toolDef:true},
   {l:'LBL SET',   code:'LBL 1', bld:'LBL'},
   {l:'LBL CALL',  code:'CALL LBL 1', bld:'LBL CALL'},
-  {l:'GOTO', code:'GOTO', gotoLine:true},
 ];
 var PI_KEYS=[
   {l:'P', sub:'polar LP',    code:'LP PR+0 PA+0 F500', icon:'polar'},
@@ -1056,10 +1051,17 @@ if(typeof _setDocName==='function' && DEMO_PROGRAMS[0]) _setDocName(DEMO_PROGRAM
 
 // push undo snapshot on typing (debounced — 1.5s after last keystroke)
 var _undoLastVal = null;
+var _editorBeforeInput = null;
 if(codeEl){
   // snapshot BEFORE destructive keystrokes (delete, backspace, enter)
   codeEl.addEventListener('keydown', function(e){
-    if(e.key==='Backspace'||e.key==='Delete'||e.key==='Enter'){
+    if(e.key==='Enter' && !e.isComposing && e.keyCode!==229
+       && !(typeof FM!=='undefined'&&FM.active) && !(typeof BLK!=='undefined'&&BLK.active)){
+      e.preventDefault();
+      editorInsertBlankAfterActiveBlock();
+      return;
+    }
+    if(e.key==='Backspace'||e.key==='Delete'){
       var cur = codeEl.value;
       if(cur !== _undoLastVal){
         _undoPush();
@@ -1092,12 +1094,28 @@ if(codeEl){
 
     var val = codeEl.value;
     var s = codeEl.selectionStart, en = codeEl.selectionEnd;
+    _editorBeforeInput = {value:val,start:s,end:en,inputType:type};
+    var inserted = (typeof e.data === 'string' && e.data) ? e.data
+      : (e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '');
+    var isLogicalEnter = type === 'insertLineBreak' || type === 'insertParagraph'
+      || (type === 'insertText' && (inserted.indexOf('\n') >= 0 || inserted.indexOf('\r') >= 0));
+    if(isInsertion && isLogicalEnter){
+      e.preventDefault();
+      _editorBeforeInput = null;
+      editorInsertBlankAfterActiveBlock();
+      return;
+    }
+
     var lines = val.split('\n');
-    var blockNums = computeBlockNumbers(lines);
+    var model = analyzeProgramRows(lines);
     function lineIdxAt(pos){ return val.slice(0, pos).split('\n').length - 1; }
     function lineStartOffset(idx){ var p=0; for(var i=0;i<idx;i++) p+=lines[i].length+1; return p; }
-    function isCycleAnchor(idx){ return /^CYCL\s+DEF\b/i.test(lines[idx].replace(/^\s+/,'')); }
-    function isLockedLine(idx){ return blockNums[idx] === null || isCycleAnchor(idx); }
+    function blockAt(idx){ var row=model.rows[idx]; return row&&row.blockIndex!==null?model.blocks[row.blockIndex]:null; }
+    function isLockedLine(idx){
+      var row=model.rows[idx], block=blockAt(idx);
+      return !!(row && row.kind!=='trailing-artifact' &&
+        (row.kind==='continuation'||(block&&(block.type==='cycle'||block.type==='begin'||block.type==='end'))));
+    }
 
     // ---- Path 1: a whole-line (or whole multi-line) selection touching a
     // cycle, with Backspace/Delete/Cut pressed -> delete the ENTIRE block. ----
@@ -1108,21 +1126,18 @@ if(codeEl){
       var hasNL = selEnd < lines.length - 1;
       var isWholeLineSel = (s === selStartOff) && (en === selEndContentOff || (hasNL && en === selEndContentOff + 1));
       if(isWholeLineSel){
-        var touchesCycle = false;
-        for(var lj=selStart; lj<=selEnd; lj++){ if(isLockedLine(lj)){ touchesCycle = true; break; } }
-        if(touchesCycle){
+        var lockedLine=-1, structural=false;
+        for(var lj=selStart; lj<=selEnd; lj++){
+          if(isLockedLine(lj)){
+            lockedLine=lj;
+            var lockedBlock=blockAt(lj);
+            structural=!!(lockedBlock&&(lockedBlock.type==='begin'||lockedBlock.type==='end'));
+            break;
+          }
+        }
+        if(lockedLine>=0){
           e.preventDefault();
-          var from = selStart, to = selEnd;
-          while(from > 0 && blockNums[from] === null) from--;
-          while(to + 1 < lines.length && blockNums[to+1] === null) to++;
-          _undoPush();
-          lines.splice(from, to - from + 1);
-          codeEl.value = lines.join('\n');
-          var newPos = lines.slice(0, from).join('\n').length;
-          if(from > 0) newPos++;
-          try{ codeEl.setSelectionRange(newPos, newPos); }catch(err){}
-          lastSel = {start:newPos, end:newPos};
-          dirty = true; updateLineNums(); runValidation();
+          if(!structural) deleteLineN(lockedLine);
           return;
         }
       }
@@ -1144,10 +1159,8 @@ if(codeEl){
 
     if(isDeletion){ e.preventDefault(); return; }
 
-    var inserted = (typeof e.data === 'string' && e.data) ? e.data
-      : (e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '');
     var introducesNewline = inserted.indexOf('\n') >= 0
-      || type === 'insertLineBreak' || type === 'insertParagraph';
+      || inserted.indexOf('\r') >= 0;
     if(idxStart !== idxEnd || introducesNewline){
       e.preventDefault();
     }
@@ -1270,6 +1283,27 @@ codeEl.addEventListener('mouseup', saveLastSel);
 codeEl.addEventListener('keyup',   saveLastSel);
 /* live-edit problem suppression (see _liveEditLine above) */
 codeEl.addEventListener('input', function(){
+  // Some mobile browsers report Enter as insertText with null data. Roll back
+  // only that mutation; desktop paste/drop keeps its native multi-line input.
+  var before=_editorBeforeInput;
+  _editorBeforeInput=null;
+  if(before && before.inputType==='insertText'){
+    var prefix=before.value.slice(0,before.start);
+    var suffix=before.value.slice(before.end);
+    var current=codeEl.value;
+    if(current.slice(0,prefix.length)===prefix
+       && current.slice(current.length-suffix.length)===suffix){
+      var insertedEnd=current.length-suffix.length;
+      var actualInserted=current.slice(prefix.length,insertedEnd);
+      if(actualInserted.indexOf('\n')>=0||actualInserted.indexOf('\r')>=0){
+        codeEl.value=before.value;
+        syncEditorSelection(before.start,before.end);
+        editorInsertBlankAfterActiveBlock();
+      }
+    }
+  }
+  saveLastSel();
+  updateSelectedLine();
   if(document.activeElement===codeEl) _liveEditLine = _caretLineIdx();
 });
 codeEl.addEventListener('keyup', function(){

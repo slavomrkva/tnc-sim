@@ -118,6 +118,7 @@ function _replaceMOnLine(code){
   if(newDesc){ comment = '; ' + newDesc; }
   lines[_mEditLine] = code + (comment ? ' '+comment : '');
   codeEl.value = lines.join('\n');
+  if(typeof syncEditorSelection==='function') syncEditorSelection(_programLineOffset(lines,_mEditLine));
   _mEditLine = -1;
   dirty=true; updateLineNums(); runValidation();
 }

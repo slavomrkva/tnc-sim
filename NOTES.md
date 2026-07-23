@@ -108,6 +108,18 @@ Detailed module-split history is in the archived project notes linked above.
     Learn restores the main draft. A reload during Learn must also recover the
     main draft, never browser-restored lesson text.
 
+19. **Program operations use logical NC blocks, not textarea rows:**
+    `analyzeProgramRows()` is the source of truth for gutter numbering,
+    selection, Problems labels, insertion, deletion and export. `CYCL DEF` plus
+    its directly following Q parameter rows is one block; tilde continuations
+    belong to their anchor block; an internal empty row is a numbered
+    placeholder; only the final textarea newline is an artifact. Enter from
+    anywhere in a cycle targets the first block after the complete cycle, and
+    Enter on `END PGM` remains a no-op. Every programming-key insertion routes
+    through `insertProgramBlock()`. On web, never reclassify desktop multi-line
+    paste/drop as Enter and never intercept Enter while an IME composition is
+    active.
+
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
 the technical log belong in `docs/history/`.

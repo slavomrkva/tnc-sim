@@ -102,6 +102,7 @@ function qPanelConfirm(){
   });
   lines[_qPopupLine] = line;
   codeEl.value = lines.join('\n');
+  if(typeof syncEditorSelection==='function') syncEditorSelection(_programLineOffset(lines,_qPopupLine));
   dirty=true; updateLineNums(); runValidation();
   closeQPopup();
 }

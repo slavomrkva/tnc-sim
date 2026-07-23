@@ -527,6 +527,7 @@ function confirmToolDefEdit(){
   var lines = codeEl.value.split('\n');
   lines[_toolDefEditLine] = 'TOOL DEF '+t+' ; '+TOOL_DEF_DESC;
   codeEl.value = lines.join('\n');
+  if(typeof syncEditorSelection==='function') syncEditorSelection(_programLineOffset(lines,_toolDefEditLine));
   _toolDefEditLine = -1;
   closeCtxPanel();
   dirty=true; updateLineNums(); runValidation();

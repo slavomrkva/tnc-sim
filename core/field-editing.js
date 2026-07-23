@@ -76,7 +76,7 @@ function buildKeypad(){
   });
   html+='</div><div class="kp-sec-title">Program &amp; tools</div><div class="kp-grid prog">';
   PROG_KEYS.forEach(function(k){
-    var idx=ALL_KEYS.push({code:k.code,key:k.l,bld:k.bld,cyclPicker:k.cyclPicker,blkForm:k.blkForm,mPicker:k.mPicker,qParam:k.qParam,toolDef:k.toolDef,gotoLine:k.gotoLine})-1;
+    var idx=ALL_KEYS.push({code:k.code,key:k.l,bld:k.bld,cyclPicker:k.cyclPicker,blkForm:k.blkForm,mPicker:k.mPicker,qParam:k.qParam,toolDef:k.toolDef})-1;
     var cls='off prog'+(k.dis?' dis':'');
     html+='<button class="key '+cls+'"'+(k.dis?' disabled':'')+' data-idx="'+idx+'"><span class="kl">'+k.l+'</span></button>';
   });
@@ -123,8 +123,6 @@ function buildKeypad(){
       openQParamPanel();
     } else if(obj.blkForm){
       openBlkFormPanel();
-    } else if(obj.gotoLine){
-      openGotoPanel();
     } else if(obj.bld && BUILDERS[obj.bld]){
       enterFieldMode(obj.bld);
     } else if(BUILDERS[obj.key]){
@@ -212,19 +210,10 @@ function insertKey(code){
   // Block only when field mode or BLK wizard is active (not M/cycle picker panels)
   if(typeof BLK!=='undefined'&&BLK.active) return; // BLK wizard — block
   if(typeof FM!=='undefined'&&FM.active) exitFieldMode(true); // fbar — exit first, then insert
-  _undoPush();
-  var val=codeEl.value;
-  var pos=lastSel.start;
+  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
+  var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
   // vlož za koniec aktuálneho riadku
-  var lineEnd=val.indexOf('\n', pos);
-  if(lineEnd===-1) lineEnd=val.length;
-  var before=val.slice(0,lineEnd);
-  var ins='\n'+code;
-  codeEl.value = before + ins + val.slice(lineEnd);
-  var caret=(before+ins).length;
-  try{ codeEl.setSelectionRange(caret, caret); }catch(e){}
-  lastSel = {start:caret, end:caret};
-  dirty=true; updateLineNums(); runValidation();
+  insertProgramBlock(code,pos,en,{mode:'command'});
 }
 
 var _mobileFocusToken = 0;
@@ -456,29 +445,22 @@ function enterFieldMode(label){
   closeQPopup();
   var schema=BUILDERS[label]; if(!schema) return;
   // Snapshot for undo — one snapshot per field-editing session
-  if(codeEl && (_undoStack.length===0 || _undoStack[_undoStack.length-1]!==codeEl.value)) _undoPush();
   var fields=[];
   schema.fields.forEach(function(sf){ if(sf.type==='mfunc'||sf.type==='_skip') return; fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:defVal(sf.type, sf.opt)}); });
   FM={active:true, cmd:(schema.cmd||label), builderKey:label, fields:fields, idx:0, lineStart:0, lineLen:0, ranges:[]};
-  var v=codeEl.value;
-  var pos;
-  pos=lastSel.start;
+  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
+  var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
   // vlož za koniec aktuálneho riadku
-  var lineEnd=v.indexOf('\n', pos); if(lineEnd===-1) lineEnd=v.length;
-  var before=v.slice(0,lineEnd);
   var lp=lineParts();
-  FM.lineStart=before.length+1;
-  FM.lineLen=lp.text.length;
   // After inserting a fresh TOOL CALL, auto-add M3 + M8 on the next two lines —
   // spindle and coolant on is the standard next step and saves a manual insert.
   // Only on insertion (here), never on editing an existing TOOL CALL line.
   var _afterLines = (label==='TOOL CALL') ? '\nM3\nM8' : '';
-  codeEl.value = before + '\n' + lp.text + _afterLines + v.slice(lineEnd);
+  var plan=insertProgramBlock(lp.text+_afterLines,pos,en,{mode:'command',selectFirstLine:true});
+  FM.lineStart=plan.insertStart;
+  FM.lineLen=lp.text.length;
   // fbar always visible
   // position cursor in new line
-  var newPos = FM.lineStart;
-  try{ codeEl.setSelectionRange(newPos, newPos+FM.lineLen); }catch(e){}
-  lastSel={start:newPos, end:newPos+FM.lineLen};
   selectField(0);
 }
 

@@ -75,25 +75,6 @@ function openBlkFormPanel(lineText, editLineIdx, clickedAxis, clickedRole){
   renderBlkPanel();
 }
 
-function openGotoPanel(){
-  ensurePrepared(); // Parse program fresh, update toolCallList
-  if(toolCallList.length === 0){
-    _toast('No TOOL CALL found in program', true);
-    return;
-  }
-  var panel = document.getElementById('ctxPanel');
-  var html = '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:11px;color:var(--text2);">GOTO Tool</span>'
-    +'<button style="font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 6px;margin-left:auto;" onclick="closeCtxPanel()">✕</button></div>'
-    +'<div class="ctx-row2"><select id="gotoSelect" style="font-family:var(--mono);font-size:12px;color:var(--text);padding:6px 8px;background:var(--bg);border:1px solid var(--accent3);border-radius:6px;width:100%;" onchange="if(this.value) {onGoto(this.value); closeCtxPanel();}">'
-    +'<option value="">— Select tool call —</option>';
-  toolCallList.forEach(function(tc){
-    html += '<option value="'+tc.lineNum+'">Line '+tc.lineNum+': TOOL '+tc.toolNum+'</option>';
-  });
-  html += '</select></div>';
-  panel.innerHTML = html;
-  setTimeout(function(){ var el=document.getElementById('gotoSelect'); if(el) el.focus(); },50);
-}
-
 function renderBlkPanel(){
   var panel = document.getElementById('ctxPanel');
   panel.style.height = '';
@@ -230,7 +211,6 @@ function blkUpdateVal(v){
 }
 
 function insertBlkForm(){
-  _undoPush();
   blkCommitVal();
   function fmt(v){ var n=parseFloat(v)||0; return (n>=0?'+':'')+n; }
   var line1, line2;
@@ -262,6 +242,7 @@ function insertBlkForm(){
   // Replace the 0.1/CYLINDER line and its following 0.2 line, keeping position.
   if(editingLine !== undefined && editingLine !== null && editingLine >= 0 && editingLine < lines.length
      && /^\s*BLK FORM (0\.1|CYLINDER)/i.test(lines[editingLine])){
+    _undoPush();
     lines[editingLine] = line1;
     if(editingLine+1 < lines.length && /^\s*BLK FORM 0\.2/i.test(lines[editingLine+1])){
       lines[editingLine+1] = line2;
@@ -270,27 +251,18 @@ function insertBlkForm(){
     }
     codeEl.value = lines.join('\n');
     var caretPos = lines.slice(0, editingLine+2).join('\n').length;
-    try{ codeEl.setSelectionRange(caretPos, caretPos); }catch(e){}
-    lastSel = {start:caretPos, end:caretPos};
+    syncEditorSelection(caretPos,caretPos);
     dirty=true; updateLineNums(); runValidation(); return;
   }
 
   // CASE 2 — insert a NEW BLK FORM after the currently active line (like insertKey).
   // Allows placing it anywhere, and stacking two blocks in sequence.
   var pos = (lastSel && lastSel.start!=null) ? lastSel.start : val.length;
-  var lineEnd = val.indexOf('\n', pos);
-  if(lineEnd === -1) lineEnd = val.length;
   // If there's no BLK FORM yet and the active line is BEGIN PGM (or program start), drop it right after BEGIN.
   var hasAnyBlk = /^\s*BLK FORM/im.test(val);
   if(!hasAnyBlk){
     var beginEnd = val.indexOf('\n', val.indexOf('BEGIN PGM'));
-    if(beginEnd !== -1) lineEnd = beginEnd;
+    if(beginEnd !== -1) pos = beginEnd;
   }
-  var before = val.slice(0, lineEnd);
-  var ins = '\n' + line1 + '\n' + line2;
-  codeEl.value = before + ins + val.slice(lineEnd);
-  var caret = (before + ins).length;
-  try{ codeEl.setSelectionRange(caret, caret); }catch(e){}
-  lastSel = {start:caret, end:caret};
-  dirty=true; updateLineNums(); runValidation();
+  insertProgramBlock(line1+'\n'+line2,pos,pos,{mode:'command'});
 }
