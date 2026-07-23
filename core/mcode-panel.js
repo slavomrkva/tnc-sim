@@ -27,8 +27,21 @@ function openMCodesList(){
   document.body.appendChild(overlay);
 }
 
+var _mEditInline = false;
+
+function mTokenAt(lineText, posInLine){
+  var re=/\bM\d+\b/gi, match;
+  while((match=re.exec(String(lineText||'')))!==null){
+    if(posInLine>=match.index && posInLine<=match.index+match[0].length)
+      return {code:match[0].toUpperCase(),start:match.index,end:match.index+match[0].length};
+  }
+  return null;
+}
+
 function openMPanelEdit(lineIdx){
   _mEditLine = lineIdx;
+  var editLine=(codeEl.value.split('\n')[lineIdx]||'').replace(/;.*$/,'');
+  _mEditInline=!/^\s*M\d+\b/i.test(editLine);
   openMPanel();
 }
 
@@ -50,7 +63,7 @@ function openMPanel(){
   var curCode = null;
   if(_mEditLine >= 0){
     var lines = codeEl.value.split('\n');
-    var cm = (lines[_mEditLine]||'').match(/^\s*(M\d+)/i);
+    var cm = (lines[_mEditLine]||'').replace(/;.*$/,'').match(/\b(M\d+)\b/i);
     curCode = cm ? cm[1].toUpperCase() : null;
   }
   var curInPanel = curCode && M_PANEL_CODES.indexOf(curCode) >= 0;
@@ -114,11 +127,18 @@ function _replaceMOnLine(code){
   var orig = lines[_mEditLine] || '';
   var ci = orig.indexOf(';');
   var comment = ci>=0 ? orig.slice(ci) : '';
+  var body = ci>=0 ? orig.slice(0,ci).trimEnd() : orig;
   var newDesc = _mDescFor(code);
-  if(newDesc){ comment = '; ' + newDesc; }
-  lines[_mEditLine] = code + (comment ? ' '+comment : '');
+  if(_mEditInline){
+    body=body.replace(/\bM\d+\b/i,code);
+    lines[_mEditLine]=body+(comment?' '+comment:'');
+  } else {
+    if(newDesc){ comment = '; ' + newDesc; }
+    lines[_mEditLine] = code + (comment ? ' '+comment : '');
+  }
   codeEl.value = lines.join('\n');
   if(typeof syncEditorSelection==='function') syncEditorSelection(_programLineOffset(lines,_mEditLine));
   _mEditLine = -1;
+  _mEditInline = false;
   dirty=true; updateLineNums(); runValidation();
 }

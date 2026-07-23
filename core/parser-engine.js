@@ -442,12 +442,22 @@ function validateProgram(code, liveEdit){
 
     // ── CC ──
     } else if(toks[0]==='CC'){
-      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/],srcI);
-      if(!/X[+-]?\d/.test(u)&&!/Y[+-]?\d/.test(u))
-        probs.push({line:srcI,sev:'err',msg:'CC block without coordinates'});
-      var _ccxm=u.match(/X([+-]?\d+\.?\d*)/), _ccym=u.match(/Y([+-]?\d+\.?\d*)/);
-      if(_ccxm) valCCX=parseFloat(_ccxm[1]);
-      if(_ccym) valCCY=parseFloat(_ccym[1]);
+      rejectUnknownTokens(toks,1,[/^I?[XY][+-]?\d+(?:\.\d+)?$/],srcI);
+      var _ccixm=u.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), _cciym=u.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+      var _ccxm=u.match(/(?:^|\s)X([+-]?\d+\.?\d*)/), _ccym=u.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+      if(!_ccixm&&!_cciym&&!_ccxm&&!_ccym){
+        if(valLastX===null||valLastY===null) probs.push({line:srcI,sev:'err',msg:'CC without coordinates requires a preceding tool position'});
+        else { valCCX=valLastX; valCCY=valLastY; }
+      } else {
+        if((_ccixm&&valLastX===null)||(_cciym&&valLastY===null))
+          probs.push({line:srcI,sev:'err',msg:'Incremental CC requires a preceding tool position'});
+        if(_ccixm&&valLastX!==null) valCCX=valLastX+parseFloat(_ccixm[1]);
+        else if(_ccxm) valCCX=parseFloat(_ccxm[1]);
+        else if(valCCX===null&&valLastX!==null) valCCX=valLastX;
+        if(_cciym&&valLastY!==null) valCCY=valLastY+parseFloat(_cciym[1]);
+        else if(_ccym) valCCY=parseFloat(_ccym[1]);
+        else if(valCCY===null&&valLastY!==null) valCCY=valLastY;
+      }
       lastCC=true; ccLine=srcI; pendingCC=true;
 
     // ── C arc ──
@@ -508,25 +518,57 @@ function validateProgram(code, liveEdit){
 
     // ── LP / CP ──
     } else if(toks[0]==='LP'){
-      rejectUnknownTokens(toks,1,[/^PR[+-]?\d+(?:\.\d+)?$/, /^PA[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/],srcI);
+      rejectUnknownTokens(toks,1,[/^PR[+-]?\d+(?:\.\d+)?$/, /^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/],srcI);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before LP'});
-      if(!/PR[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar radius PR missing'});
-      if(!/PA[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar angle PA missing'});
-      var _vpr=u.match(/PR([+-]?\d+\.?\d*)/), _vpa=u.match(/PA([+-]?\d+\.?\d*)/);
-      if(_vpr&&_vpa&&valCCX!==null&&valCCY!==null){
-        var _vpaRad=parseFloat(_vpa[1])*Math.PI/180;
-        valLastX=valCCX+parseFloat(_vpr[1])*Math.cos(_vpaRad);
-        valLastY=valCCY+parseFloat(_vpr[1])*Math.sin(_vpaRad);
-        valHasXYTangent=true;
+      var _vpr=u.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+      var _vpa=u.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var _vipa=u.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      if(_vpa&&_vipa) probs.push({line:srcI,sev:'err',msg:'LP may contain PA or IPA, not both'});
+      if(!_vpr&&!_vpa&&!_vipa) probs.push({line:srcI,sev:'err',msg:'LP block has no polar end point'});
+      if(valCCX!==null&&valCCY!==null){
+        var _vcurR=(valLastX!==null&&valLastY!==null)?Math.hypot(valLastX-valCCX,valLastY-valCCY):null;
+        var _vcurA=(valLastX!==null&&valLastY!==null)?Math.atan2(valLastY-valCCY,valLastX-valCCX):null;
+        var _vResolvedR=_vpr?parseFloat(_vpr[1]):_vcurR;
+        var _vResolvedA=_vpa?parseFloat(_vpa[1])*Math.PI/180:(_vipa&&_vcurA!==null?_vcurA+parseFloat(_vipa[1])*Math.PI/180:_vcurA);
+        if(_vResolvedR===null) probs.push({line:srcI,sev:'err',msg:'LP without PR requires a preceding polar position'});
+        if(_vResolvedA===null) probs.push({line:srcI,sev:'err',msg:'LP without absolute PA requires a preceding polar position'});
+        if(_vResolvedR!==null&&_vResolvedA!==null){
+          var _voldPX=valLastX,_voldPY=valLastY;
+          valLastX=valCCX+_vResolvedR*Math.cos(_vResolvedA);
+          valLastY=valCCY+_vResolvedR*Math.sin(_vResolvedA);
+          if(_voldPX===null||_voldPY===null||Math.hypot(valLastX-_voldPX,valLastY-_voldPY)>1e-9) valHasXYTangent=true;
+        }
       }
+      if(_vpr&&parseFloat(_vpr[1])<0) probs.push({line:srcI,sev:'err',msg:'Polar radius PR must not be negative'});
+      if(/\bM(?:89|99)\b/.test(u)&&!hasCycleDef)
+        probs.push({line:srcI,sev:'err',msg:(u.match(/\bM(?:89|99)\b/)||['M99'])[0]+' without a defined cycle \u2014 CYCL DEF missing'});
       if(firstMoveLine<0) firstMoveLine=srcI;
     } else if(toks[0]==='CP'){
-      rejectUnknownTokens(toks,1,[/^PA[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      rejectUnknownTokens(toks,1,[/^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^I?Z[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before CP'});
-      if(!/PA[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Polar angle PA missing'});
+      var _vcpa=u.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/), _vcipa=u.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      if(!_vcpa&&!_vcipa) probs.push({line:srcI,sev:'err',msg:'Polar angle PA or IPA missing'});
+      if(_vcpa&&_vcipa) probs.push({line:srcI,sev:'err',msg:'CP may contain PA or IPA, not both'});
       if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
+      if(_vcipa){
+        var _vcipaNum=parseFloat(_vcipa[1]);
+        var _vcDr=u.indexOf('DR-')>=0?-1:1;
+        if(Math.abs(_vcipaNum)<1e-12) probs.push({line:srcI,sev:'err',msg:'Incremental polar angle IPA must be non-zero'});
+        else if(_vcipaNum*_vcDr<0) probs.push({line:srcI,sev:'err',msg:'For incremental CP, IPA and DR must have the same sign'});
+      }
       if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. not permitted on a CP block'});
+      if(valCCX!==null&&valCCY!==null&&valLastX!==null&&valLastY!==null&&(_vcpa||_vcipa)){
+        var _vcR=Math.hypot(valLastX-valCCX,valLastY-valCCY);
+        var _vcA0=Math.atan2(valLastY-valCCY,valLastX-valCCX);
+        var _vcA1=_vcpa?parseFloat(_vcpa[1])*Math.PI/180:_vcA0+parseFloat(_vcipa[1])*Math.PI/180;
+        valLastX=valCCX+_vcR*Math.cos(_vcA1);
+        valLastY=valCCY+_vcR*Math.sin(_vcA1);
+        valHasXYTangent=true;
+      }
+      var _vcpiz=u.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _vcpz=u.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+      if(_vcpiz) valZ=(valZ===null?0:valZ)+parseFloat(_vcpiz[1]);
+      else if(_vcpz) valZ=parseFloat(_vcpz[1]);
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
@@ -1637,8 +1679,13 @@ function parseProgram(code){
       if(/^M30\b/.test(line)) break; // end of program
     }
     else if(line.indexOf('CC')===0){
-      var cx=line.match(/X([+-]?\d+\.?\d*)/), cy=line.match(/Y([+-]?\d+\.?\d*)/);
-      if(cx) ccx=parseFloat(cx[1]); if(cy) ccy=parseFloat(cy[1]);
+      var cix=line.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), ciy=line.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+      var cx=line.match(/(?:^|\s)X([+-]?\d+\.?\d*)/), cy=line.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+      if(!cix&&!ciy&&!cx&&!cy){ ccx=pos.x; ccy=pos.y; }
+      else {
+        if(cix) ccx=pos.x+parseFloat(cix[1]); else if(cx) ccx=parseFloat(cx[1]); else if(ccx===null) ccx=pos.x;
+        if(ciy) ccy=pos.y+parseFloat(ciy[1]); else if(cy) ccy=parseFloat(cy[1]); else if(ccy===null) ccy=pos.y;
+      }
     }
     else if(/^C(\s|$)/.test(line)){
       flushPending();
@@ -1666,13 +1713,23 @@ function parseProgram(code){
       } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Circle center undefined \u2014 C block rejected'});
     }
     else if(line.indexOf('LP')===0){
-      // LP PR+30 PA+45 F500 — linear polar move
+      // LP PR+30 PA+45 / LP IPA+60 — linear polar move. Omitted
+      // coordinates retain the current polar radius/angle, as on TNC 640.
       blockIndex++;
-      var pr=line.match(/PR([+-]?\d+\.?\d*)/), pa=line.match(/PA([+-]?\d+\.?\d*)/);
+      var pr=line.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+      var pa=line.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var ipa=line.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
       var fm=line.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 LP block rejected'});
-      if(pr && pa && ccx!==null && ccy!==null){
-        var rad=parseFloat(pr[1]), ang=parseFloat(pa[1])*Math.PI/180;
+      if((pr||pa||ipa) && ccx!==null && ccy!==null){
+        var curRad=Math.hypot(pos.x-ccx,pos.y-ccy);
+        var curAng=Math.atan2(pos.y-ccy,pos.x-ccx);
+        var rad=pr?parseFloat(pr[1]):curRad;
+        var ang=pa?parseFloat(pa[1])*Math.PI/180:(ipa?curAng+parseFloat(ipa[1])*Math.PI/180:curAng);
+        if(rad<0){
+          pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar radius PR must not be negative \u2014 LP block rejected'});
+          continue;
+        }
         var tx=ccx+rad*Math.cos(ang), ty=ccy+rad*Math.sin(ang);
         if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
         var _m99LP=/\bM99\b/.test(line), _m89LP=/\bM89\b/.test(line);
@@ -1685,21 +1742,35 @@ function parseProgram(code){
       }
     }
     else if(line.indexOf('CP')===0){
-      // CP PA+180 DR+ F500 — circular polar arc
+      // CP PA+180 or CP IPA+360 IZ+5 — polar arc / helix
       flushPending();
       blockIndex++;
-      var pa2=line.match(/PA([+-]?\d+\.?\d*)/);
+      var pa2=line.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var ipa2=line.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      var cpiz=line.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/);
+      var cpz=line.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
       var fm2=line.match(/\bF\+?(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
       var dr2=line.indexOf('DR-')>=0 ? -1 : 1;
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 CP block rejected'});
       if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
-      if(pa2 && ccx!==null && ccy!==null){
+      if((pa2||ipa2) && ccx!==null && ccy!==null){
         var a0cp=Math.atan2(pos.y-ccy, pos.x-ccx);
-        var a1cp=parseFloat(pa2[1])*Math.PI/180;
         var Rcp=Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
         var cpFrom=pointCopy(pos);
-        var sw; if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
-        var cpTo={x:ccx+Rcp*Math.cos(a1cp),y:ccy+Rcp*Math.sin(a1cp),z:cpFrom.z};
+        var sw,a1cp;
+        if(ipa2){
+          sw=parseFloat(ipa2[1])*Math.PI/180;
+          if(Math.abs(sw)<1e-12||sw*dr2<0){
+            pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'For incremental CP, IPA must be non-zero and have the same sign as DR \u2014 CP block rejected'});
+            continue;
+          }
+          a1cp=a0cp+sw;
+        } else {
+          a1cp=parseFloat(pa2[1])*Math.PI/180;
+          if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
+        }
+        var cpEndZ=cpiz?cpFrom.z+parseFloat(cpiz[1]):(cpz?parseFloat(cpz[1]):cpFrom.z);
+        var cpTo={x:ccx+Rcp*Math.cos(a1cp),y:ccy+Rcp*Math.sin(a1cp),z:cpEndZ};
         pushContourArc(arcGeom(cpFrom,cpTo,ccx,ccy,Rcp,a0cp,sw,srcLineI,'CP'),false,srcLineI,rcState,Math.PI/32);
       }
     }

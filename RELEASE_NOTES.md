@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.900 (web test)
+- Added documented incremental polar programming: `LP IPA`, `CP IPA` with
+  simultaneous `IZ`, incremental `CC IX/IY`, and modal omitted LP coordinates.
+- On phones, the last program row now stays above the horizontal scrollbar,
+  protected BEGIN/END rows no longer leave a stray caret, and tapping an
+  embedded `M89`/`M99` edits only that M function.
+
 ## v0.899 (web test)
 - Fixed the reported compensated contour ending with a 180-degree CHF lead-out
   being rejected as if the tool were too large for an inside corner.

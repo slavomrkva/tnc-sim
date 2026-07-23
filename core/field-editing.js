@@ -134,7 +134,28 @@ function buildKeypad(){
   });
 }
 
+function fieldAllowsIncremental(builderKey, field){
+  if(!field || field.type!=='coord') return false;
+  var p=String(field.p||'').toUpperCase();
+  if(builderKey==='L') return /^[XYZABC]$/.test(p);
+  if(builderKey==='CC') return /^[XY]$/.test(p);
+  if(builderKey==='P') return p==='PA';
+  if(builderKey==='CP') return p==='PA'||p==='Z';
+  return false;
+}
+
 function toggleIncrementalToken(){
+  // Guided editing owns the current parsed field. This is also required on
+  // mobile, where the textarea selection is intentionally stale while the
+  // custom keyboard is open.
+  if(typeof FM!=='undefined' && FM.active){
+    var currentField=FM.fields&&FM.fields[FM.idx];
+    if(!fieldAllowsIncremental(FM.builderKey,currentField)) return;
+    currentField.incr=!currentField.incr;
+    selectField(FM.idx);
+    return;
+  }
+
   _undoPush();
   var val = codeEl.value;
   var selStart = lastSel.start;
@@ -146,12 +167,17 @@ function toggleIncrementalToken(){
   if(lineEnd === -1) lineEnd = val.length;
   var line = val.slice(lineStart, lineEnd);
 
-  // Musí to byť L riadok
-  if(!/^L\b/i.test(line.trim())) return;
+  var trimmed=line.trim();
+  var coordRe=null;
+  if(/^L\b/i.test(trimmed)) coordRe=/\bI?[XYZABC][+\-]?\d+(?:\.\d+)?/gi;
+  else if(/^CC\b/i.test(trimmed)) coordRe=/\bI?[XY][+\-]?\d+(?:\.\d+)?/gi;
+  else if(/^LP\b/i.test(trimmed)) coordRe=/\bI?PA[+\-]?\d+(?:\.\d+)?/gi;
+  else if(/^CP\b/i.test(trimmed)) coordRe=/\b(?:I?PA|I?Z)[+\-]?\d+(?:\.\d+)?/gi;
+  else return;
 
   // Nájdi coord token ktorý je označený alebo najbližší ku kurzoru
   // Token je napr. X+20, IY-5, Z+0 ...
-  var re = /\bI?[XYZABC][+\-]?\d+(\.\d+)?/gi;
+  var re = coordRe;
   var match, best = null, bestDist = Infinity;
   var localSel = selEnd - lineStart; // koniec selekcie v rámci riadku
 
@@ -289,7 +315,8 @@ function renderFbar(){
   html+='<div class="ctx-row2">';
   html+='<button class="fbar-nav" onclick="fieldPrev()">&#9664;</button>';
   var isFieldIncr=f.type==='coord'&&!!f.incr;
-  var modeLbl=FM.builderKey==='P'?'POLAR':(isFieldIncr?'INCR':'ABS');
+  var polarField=FM.builderKey==='P'||FM.builderKey==='CP';
+  var modeLbl=polarField?(isFieldIncr?'POLAR INCR':'POLAR ABS'):(isFieldIncr?'INCR':'ABS');
   html+='<span class="fbar-mode '+(isFieldIncr?'incr':'abs')+'">'+modeLbl+'</span>';
   if(f.type==='tool'){
     var _curT = String(f.val||1);

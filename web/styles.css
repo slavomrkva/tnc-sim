@@ -721,8 +721,8 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
   body[data-mtab="editor"] .editor-wrap{display:flex;flex:1;height:auto !important;min-height:0;max-height:none !important;overflow:hidden !important;overscroll-behavior:contain !important;}
   body[data-mtab="editor"] .line-nums{min-height:0 !important;}
   body[data-mtab="editor"] .code-area-wrap{overflow:hidden;position:relative;}
-  body[data-mtab="editor"] #code{position:absolute;inset:0;width:100%;height:100% !important;min-height:0;overflow:auto;resize:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-  body[data-mtab="editor"] #hlLayer{position:absolute;inset:0;height:100%;}
+  body[data-mtab="editor"] #code{position:absolute;inset:0;width:100%;height:100% !important;min-height:0;overflow:auto;resize:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:28px;}
+  body[data-mtab="editor"] #hlLayer{position:absolute;inset:0;height:100%;padding-bottom:28px;}
   #editScrollRail{display:none !important;}
 
   /* Practice is a real flex row above the bounded code viewport. */

@@ -7,6 +7,16 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.900 — incremental polar editing and mobile footer
+
+- Added documented `CC IX/IY`, modal LP radius/angle, `LP IPA`, and helical
+  `CP IPA ... IZ` parsing, validation, guided editing, and toolpaths.
+- Embedded `M89`/`M99` tokens in positioning blocks now open and update the M
+  editor without replacing the surrounding block.
+- Reserved mobile editor space above the horizontal scrollbar and removed the
+  native caret from protected BEGIN/END rows.
+- Added focused editor and parser regressions and bumped the offline cache.
+
 ## v0.899 — terminal CHF departure compatibility
 
 - Preserved the reported terminal 180-degree CHF departure before R0 as a

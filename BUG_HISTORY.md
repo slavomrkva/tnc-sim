@@ -15,6 +15,38 @@ Newest first.
 
 ---
 
+## C28 — Mobile editor footer and incremental polar blocks
+**Repos:** web `tnc-sim` v0.900 and Android `tnc-sim-android`
+APP_VERSION 1.0.89. **Accepted:** 2026-07-23.
+
+### Reported symptom
+At the bottom of the mobile editor, the horizontal scrollbar covered the final
+program row and a native caret blinked on protected `END PGM`. Tapping `M99` in
+`LP PR+50 PA+45 FMAX M99` opened the LP editor rather than the M editor.
+Incremental polar examples such as `LP IPA+60` and
+`CP IPA+360 IZ+5 DR+` were rejected or produced no supported helix.
+
+### Root cause
+The textarea and highlight overlay had no matching bottom clearance, and the
+protected-row path retained native focus. Line editing classified only the
+leading block token, so an embedded M token could not own the edit. The parser
+implemented Cartesian incremental coordinates but not the documented modal
+polar state, incremental polar angle, incremental CC center, or simultaneous
+polar/tool-axis helix.
+
+### Attempts and accepted fix
+- Attempt 1 reserved equal mobile bottom space in the textarea and overlay,
+  blurred protected BEGIN/END rows, and hit-tested/replaced embedded M tokens
+  before whole-block editing.
+- Attempt 2 implemented the locally stored TNC 640 semantics: `CC IX/IY`
+  relative to the last tool position, omitted modal LP radius/angle, `LP IPA`,
+  and `CP IPA` with simultaneous `IZ`, preserved revolutions and matching
+  IPA/DR direction. Unsupported `IPR` remains rejected.
+- Focused editor/parser tests, both complete suites, JavaScript syntax checks
+  and the 38-case cross-repository cutting reference passed.
+
+**Cross-reference:** Android `BUG_HISTORY.md`, C28.
+
 ## 2026-07-18 — coloured leftover cut surfaces when re-running without Reset
 **Repos:** web `tnc-sim` v0.878; deliberately ported to Android in APP_VERSION 1.0.61.
 **Resolved:** 2026-07-18.
