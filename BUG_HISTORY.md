@@ -15,6 +15,40 @@ Newest first.
 
 ---
 
+## C32 — Valid BLK FORM dimensions above 500 mm were rejected
+**Repos:** web `tnc-sim` v0.901. Android implementation remains open for device
+acceptance in `tnc-sim-android` TODO C32. **Accepted:** 2026-07-25.
+
+### Reported symptom
+A valid elongated box such as `1600 × 100 × 50 mm`, or a cylinder whose
+diameter or height exceeded 500 mm, was blocked before simulation even when
+its voxel grid fitted the browser memory budget. An allowed 500 mm cube was
+already coarsened by a separate guard, so the fixed millimetre ceiling did not
+describe the real resource cost.
+
+### Root cause
+Validation treated each physical dimension as a memory proxy while live
+cutting and Refine independently estimated voxel counts. Their one-shot
+cube-root scaling could also leave the rounded grid slightly above its stated
+budget. Separately, the fixed camera far plane and an unbounded visual table
+grid made otherwise valid large scenes unreliable.
+
+### Attempts and accepted fix
+- Attempt 1 replaced the fixed box/cylinder limit with one deterministic,
+  isotropic planner shared by live cutting and Refine. It preserves the
+  selected detail profile when it fits and binary-searches only the required
+  coarser cell size, guaranteeing the rounded grid stays within the web
+  24M/64M budgets.
+- Valid large blanks now remain runnable and show the effective Default
+  mm/voxel as a warning when detail must be reduced. Non-finite, non-positive
+  and reversed dimensions remain blocking errors.
+- The camera far plane follows the framed workpiece and only the visual table
+  grid is capped; voxel and collision detail are unaffected by that render cap.
+- The private v0.901 preview was accepted after all 70 JavaScript syntax checks
+  and 29 web test files passed.
+
+**Cross-reference:** Android `TODO.md`, C32.
+
 ## C28 — Mobile editor footer and incremental polar blocks
 **Repos:** web `tnc-sim` v0.900 and Android `tnc-sim-android`
 APP_VERSION 1.0.89. **Accepted:** 2026-07-23.

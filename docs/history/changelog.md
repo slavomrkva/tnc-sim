@@ -20,6 +20,8 @@ History through v0.845 is preserved in
   unbounded helper geometry.
 - Added focused box, cylinder, budget, quality, camera and invalid-input
   regressions and bumped the offline cache.
+- Accepted the v0.901 web preview and archived web C32; Android C32 remains
+  open until the APK behavior is accepted on a real device.
 
 ## v0.900 — incremental polar editing and mobile footer
 

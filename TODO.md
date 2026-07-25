@@ -8,32 +8,6 @@
 
 ## Open bugs
 
-## C32 — Valid BLK FORM dimensions above 500 mm were rejected
-**Reported:** 2026-07-24. **Repro:** use a valid elongated box such as
-`1600 × 100 × 50 mm`, or a cylinder with diameter above 500 mm, then press Run.
-### Symptom
-The validator blocked every box side, cylinder diameter and cylinder height
-above 500 mm even when the actual voxel grid fit the browser memory budget. At
-the same time, an allowed 500 mm cube was already automatically coarsened by
-the separate voxel guard, so the fixed dimension limit did not describe the
-real resource cost.
-### Attempts
-- Attempt 1 — web v0.901 replaces the fixed limit with one adaptive, isotropic
-  planner shared by live cutting and Refine. It preserves each quality profile
-  when it fits, deterministically coarsens only when required, and guarantees
-  the rounded grid stays within the 24M/64M web budgets. Default-quality
-  coarsening is a visible warning rather than a Run blocker. Non-finite,
-  non-positive and reversed dimensions remain errors. The camera far plane now
-  follows the framed blank and the visual table grid is capped independently
-  of voxel/collision detail.
-### Status
-All 70 JavaScript syntax checks and 29 web test files pass, including focused
-coverage for elongated boxes, large cubes, cylinders, invalid dimensions, all
-quality budgets, camera range and table-grid bounds. Keep open until the web
-preview is accepted with a large box and cylinder, including the displayed
-warning and expected coarse small-feature fidelity. The corresponding Android
-implementation is on `agent/adaptive-blk-form-limits` as APP_VERSION 1.0.91.
-
 ## C27 — Terminal 180-degree CHF departure was rejected as an inside corner
 **Reported:** 2026-07-23. **Repro:** finish an RL contour with `CHF 3`,
 `L IX+3.02`, then cancel on `L IY+10 R0` using a 10 mm end mill.
