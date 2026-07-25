@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.902 — repository cleanup
+
+- Preserved the former open-work list in a dated historical snapshot and reset
+  the current `TODO.md` to no open items after `main` was confirmed as the
+  accepted source of truth.
+- Bumped the offline cache for the required per-push application version.
+
 ## v0.901 — adaptive BLK FORM dimensions
 
 - Replaced the arbitrary 500 mm box/cylinder rejection with one shared,
