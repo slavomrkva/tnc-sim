@@ -25,26 +25,10 @@ function vxInit(prog){
   if(VX && VX.mesh){ scene.remove(VX.mesh); vxDisposeObject(VX.mesh,true); }
   var min=prog.blkMin, max=prog.blkMax;
   var w=max.x-min.x, d=max.y-min.y, h=max.z-min.z;
-  // Isotropic cells: cell size derived from the longest axis / VX_RES, so dx~=dy~=dz.
-  var maxDim = Math.max(w, d, h);
-  var cell = maxDim / (VX_RES - 1);
-  // Large blanks must not lose detail: cap the cell size so resolution stays usable.
-  // The cap scales with quality (low/med/high) but never lets a cell exceed it.
-  var CELL_CAP = [1.0, 0.7, 0.5][VX_QUALITY!==undefined?VX_QUALITY:1] || 0.7; // mm
-  if(cell > CELL_CAP) cell = CELL_CAP;
-  var nx=Math.max(4, Math.round(w/cell)+1);
-  var ny=Math.max(4, Math.round(d/cell)+1);
-  var nz=Math.max(4, Math.round(h/cell)+1);
-  // Memory guard: clamp total voxel count so the browser can't be killed by a huge blank.
-  // If over budget, grow the cell uniformly (keeps cells cubic — just coarser).
-  var VOXEL_BUDGET = 24000000; // ~24 MB grid + ~24 MB cut = ~48 MB, safe in-browser
-  if(nx*ny*nz > VOXEL_BUDGET){
-    var scale = Math.cbrt((nx*ny*nz) / VOXEL_BUDGET);
-    cell = cell * scale;
-    nx=Math.max(4, Math.round(w/cell)+1);
-    ny=Math.max(4, Math.round(d/cell)+1);
-    nz=Math.max(4, Math.round(h/cell)+1);
-  }
+  // The shared planner preserves isotropic cells and owns the browser budget.
+  var vxPlan=planLiveVoxelGrid(w,d,h,VX_QUALITY);
+  if(!vxPlan){ VX=null; return; }
+  var nx=vxPlan.nx, ny=vxPlan.ny, nz=vxPlan.nz;
   var dx=w/(nx-1), dy=d/(ny-1), dz=h/(nz-1);
   // grid: 1=material, 0=empty  (Uint8Array for memory efficiency)
   var grid=new Uint8Array(nx*ny*nz);
@@ -61,7 +45,7 @@ function vxInit(prog){
     grid[iz*ny*nx+iy*nx+ix]=(border||!inShape)?0:1;
   }
   var cut=new Uint8Array(nx*ny*nz); // tool number that cut this voxel (0=uncut)
-  VX={grid:grid,cut:cut,nx:nx,ny:ny,nz:nz,ox:min.x,oy:min.y,oz:min.z,dx:dx,dy:dy,dz:dz,minZ:min.z,maxZ:max.z,w:w,d:d,h:h,mesh:null,chunks:null,material:null,chunked:false,dirty:false,hasCut:false,blkCyl:cylVx};
+  VX={grid:grid,cut:cut,nx:nx,ny:ny,nz:nz,ox:min.x,oy:min.y,oz:min.z,dx:dx,dy:dy,dz:dz,minZ:min.z,maxZ:max.z,w:w,d:d,h:h,mesh:null,chunks:null,material:null,chunked:false,dirty:false,hasCut:false,blkCyl:cylVx,gridPlan:vxPlan};
   VX.mesh=vxBuildMesh();
   scene.add(VX.mesh);
 }

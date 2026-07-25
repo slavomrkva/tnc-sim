@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.900';
+var APP_VERSION = '0.901';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -310,9 +310,9 @@ var HELP_MAP = {
   'step':     {title:'▶▶ Step', desc:'Executes one block at a time. Each click advances to the next NC block. Useful for inspecting individual moves.', ex:''},
   'stop':     {title:'⏸ Stop', desc:'Pauses the simulation at the current position. Press Run to continue. After stopping you can also trigger Refine to see the high-resolution mesh.', ex:''},
   'reset':    {title:'↺ Reset', desc:'Resets the simulation back to the beginning. The workpiece returns to its original shape and the tool goes to the start position.', ex:''},
-  'q-low':    {title:'Quality: Low (100 vox)', desc:'Voxel grid 100×100 with cells up to 1mm. Fastest option for weaker devices and quick toolpath checks. Fine features below ~1mm may not appear. Refine uses up to 300 voxels and 0.5mm cells.', ex:''},
-  'q-med':    {title:'Quality: Default (150 vox)', desc:'Balanced voxel grid 150×150 with cells up to 0.7mm. Recommended for normal simulation. Refine uses up to 400 voxels and 0.4mm cells.', ex:''},
-  'q-high':   {title:'Quality: High (200 vox)', desc:'Voxel grid 200×200 with cells up to 0.5mm for finer live detail. It needs more memory and processing time. Refine uses up to 500 voxels and 0.3mm cells.', ex:''},
+  'q-low':    {title:'Quality: Low (100 vox)', desc:'Targets cells up to 1mm. Fastest option for weaker devices and quick toolpath checks. Fine features below ~1mm may not appear. Refine targets up to 300 voxels and 0.5mm cells; very large blanks adapt to the memory budget.', ex:''},
+  'q-med':    {title:'Quality: Default (150 vox)', desc:'Targets balanced 0.7mm cells and up to 150 voxels on the longest side. Recommended for normal simulation. Refine targets 400 voxels and 0.4mm cells; very large blanks adapt to the memory budget.', ex:''},
+  'q-high':   {title:'Quality: High (200 vox)', desc:'Targets 0.5mm cells and up to 200 voxels on the longest side for finer live detail. It needs more memory and processing time. Refine targets 500 voxels and 0.3mm cells; very large blanks adapt to the memory budget.', ex:''},
   'view-3d':  {title:'3D view', desc:'Interactive 3D rendering of the workpiece and tool. Drag to orbit, scroll to zoom, right-drag to pan. Use Refine after simulation for a high-resolution mesh.', ex:''},
   'view-2d':  {title:'XY toolpath', desc:'Top-down 2D view of the tool path. Orange = feed moves, blue = rapid moves. Useful for verifying the tool path geometry before running the full simulation.', ex:''},
   'view-tools':{title:'Tool Table', desc:'Define tools with their geometry: radius R, length L, cutting edge length, tip angle, ball nose radius R2, DL/DR offsets. Tools are referenced by number in TOOL CALL.', ex:'TOOL CALL 1 Z S3000 F800'},
@@ -401,9 +401,9 @@ var HELP_MAP_DE = {
   'step':     {title:'▶▶ Schritt', desc:'Führt jeweils einen Satz aus. Jeder Klick springt zum nächsten NC-Satz. Nützlich, um einzelne Bewegungen zu prüfen.'},
   'stop':     {title:'⏸ Stopp', desc:'Hält die Simulation an der aktuellen Position an. Zum Fortsetzen Start drücken. Nach dem Anhalten kannst du auch Verfeinern auslösen, um das hochauflösende Netz zu sehen.'},
   'reset':    {title:'↺ Reset', desc:'Setzt die Simulation an den Anfang zurück. Das Werkstück nimmt wieder seine Ausgangsform an und das Werkzeug fährt auf die Startposition.'},
-  'q-low':    {title:'Qualität: Niedrig (100 vox)', desc:'Voxelgitter 100×100 mit Zellen bis 1 mm. Schnellste Option für schwächere Geräte und rasche Bahnprüfungen. Feine Details unter ~1 mm erscheinen evtl. nicht. Verfeinern nutzt bis zu 300 Voxel und 0,5-mm-Zellen.'},
-  'q-med':    {title:'Qualität: Standard (150 vox)', desc:'Ausgewogenes Voxelgitter 150×150 mit Zellen bis 0,7 mm. Empfohlen für die normale Simulation. Verfeinern nutzt bis zu 400 Voxel und 0,4-mm-Zellen.'},
-  'q-high':   {title:'Qualität: Hoch (200 vox)', desc:'Voxelgitter 200×200 mit Zellen bis 0,5 mm für feinere Live-Details. Braucht mehr Speicher und Rechenzeit. Verfeinern nutzt bis zu 500 Voxel und 0,3-mm-Zellen.'},
+  'q-low':    {title:'Qualität: Niedrig (100 vox)', desc:'Zielt auf Zellen bis 1 mm. Schnellste Option für schwächere Geräte und rasche Bahnprüfungen. Feine Details unter ~1 mm erscheinen evtl. nicht. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
+  'q-med':    {title:'Qualität: Standard (150 vox)', desc:'Zielt auf ausgewogene 0,7-mm-Zellen und bis zu 150 Voxel an der längsten Seite. Empfohlen für die normale Simulation. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
+  'q-high':   {title:'Qualität: Hoch (200 vox)', desc:'Zielt auf 0,5-mm-Zellen und bis zu 200 Voxel an der längsten Seite. Braucht mehr Speicher und Rechenzeit. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
   'view-3d':  {title:'3D-Ansicht', desc:'Interaktive 3D-Darstellung von Werkstück und Werkzeug. Ziehen zum Drehen, Scrollen zum Zoomen, Rechtsziehen zum Verschieben. Nach der Simulation Verfeinern für ein hochauflösendes Netz nutzen.'},
   'view-2d':  {title:'XY-Werkzeugbahn', desc:'Draufsicht (2D) der Werkzeugbahn. Orange = Vorschubwege, Blau = Eilgangwege. Nützlich, um die Bahngeometrie vor der vollen Simulation zu prüfen.'},
   'view-tools':{title:'Werkzeugtabelle', desc:'Werkzeuge mit ihrer Geometrie definieren: Radius R, Länge L, Schneidenlänge, Spitzenwinkel, Kugelradius R2, DL/DR-Aufmaße. Werkzeuge werden im TOOL CALL über die Nummer aufgerufen.'},

@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.901 — adaptive BLK FORM dimensions
+
+- Replaced the arbitrary 500 mm box/cylinder rejection with one shared,
+  deterministic voxel-grid planner for live cutting and Refine; rounded grids
+  are now guaranteed to remain inside the web 24M/64M memory budgets.
+- Kept invalid, non-finite and reversed BLK dimensions blocking, while valid
+  large blanks remain runnable and show their effective Default mm/voxel when
+  memory requires coarser detail.
+- Made the 3D camera far plane follow the framed workpiece and capped only the
+  visual table-grid line count so larger blanks remain visible without
+  unbounded helper geometry.
+- Added focused box, cylinder, budget, quality, camera and invalid-input
+  regressions and bumped the offline cache.
+
 ## v0.900 — incremental polar editing and mobile footer
 
 - Added documented `CC IX/IY`, modal LP radius/angle, `LP IPA`, and helical

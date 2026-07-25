@@ -140,6 +140,57 @@ function cycleQ(cy, num, def){
   return (v !== undefined && v !== null) ? v : def;
 }
 
+// One deterministic grid planner owns both live cutting and Refine. A fixed
+// BLK FORM side limit is a poor memory guard: a long, thin blank can be cheap
+// while a smaller cube can be expensive. Keep the requested isotropic detail
+// whenever it fits, then binary-search the smallest coarser cell whose rounded
+// dimensions stay inside the browser budget.
+var LIVE_VOXEL_BUDGET = 24000000;
+var REFINE_VOXEL_BUDGET = 64000000;
+
+function planVoxelGrid(w,d,h,targetResolution,cellCap,budget){
+  var vals=[w,d,h,targetResolution,cellCap,budget];
+  for(var vi=0;vi<vals.length;vi++) if(!isFinite(vals[vi])) return null;
+  if(w<=0||d<=0||h<=0||targetResolution<2||cellCap<=0||budget<64) return null;
+  var maxDim=Math.max(w,d,h);
+  var detailCell=Math.min(maxDim/(targetResolution-1),cellCap);
+  if(!isFinite(detailCell)||detailCell<=0) return null;
+  function atCell(cell){
+    var nx=Math.max(4,Math.round(w/cell)+1);
+    var ny=Math.max(4,Math.round(d/cell)+1);
+    var nz=Math.max(4,Math.round(h/cell)+1);
+    return {cell:cell,nx:nx,ny:ny,nz:nz,total:nx*ny*nz};
+  }
+  var plan=atCell(detailCell);
+  var limited=plan.total>budget;
+  if(limited){
+    var low=detailCell, high=maxDim;
+    // `high=maxDim` always produces the 4x4x4 minimum grid, so the upper
+    // bound is known to fit. Fixed iterations make the result reproducible.
+    for(var bi=0;bi<56;bi++){
+      var mid=(low+high)/2;
+      if(atCell(mid).total>budget) low=mid;
+      else high=mid;
+    }
+    plan=atCell(high);
+  }
+  plan.detailCell=detailCell;
+  plan.effectiveCell=Math.max(w/(plan.nx-1),d/(plan.ny-1),h/(plan.nz-1));
+  plan.limited=limited;
+  plan.budget=budget;
+  return plan;
+}
+
+function planLiveVoxelGrid(w,d,h,quality){
+  quality=Math.max(0,Math.min(2,quality===undefined?1:quality));
+  return planVoxelGrid(w,d,h,[100,150,200][quality],[1.0,0.7,0.5][quality],LIVE_VOXEL_BUDGET);
+}
+
+function planRefineVoxelGrid(w,d,h,quality){
+  quality=Math.max(0,Math.min(2,quality===undefined?1:quality));
+  return planVoxelGrid(w,d,h,[300,400,500][quality],[0.5,0.4,0.3][quality],REFINE_VOXEL_BUDGET);
+}
+
 // Effective radius compensation, exactly like the real control:
 //   R(table) + DR(table) + DR(TOOL CALL)
 // This single value drives BOTH the final wall path and the radial stepover in
@@ -374,10 +425,19 @@ function validateProgram(code, liveEdit){
         // This 0.2 line is the cylinder's radius (X) and top Z — check diameter & height, not box sides.
         var _crl=u.match(/X([+-]?\d+\.?\d*)/), _cz1l=u.match(/Z([+-]?\d+\.?\d*)/);
         if(!_crl||!_cz1l) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER 0.2 incomplete \u2014 define radius X and top Z'});
-        if(_crl&&parseFloat(_crl[1])<=0) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER radius X must be greater than 0'});
-        if(_cz1l&&parseFloat(_cz1l[1])<=_cylZ0_val) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER top Z must be greater than bottom Z'});
-        if(_crl){ var _dia=Math.abs(parseFloat(_crl[1]))*2; if(_dia>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder diameter ('+_dia.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
-        if(_cz1l){ var _ch=Math.abs(parseFloat(_cz1l[1])-_cylZ0_val); if(_ch>500) probs.push({line:srcI,sev:'err',msg:'BLK FORM: cylinder height ('+_ch.toFixed(0)+' mm) exceeds the 500 mm limit'}); }
+        var _crv=_crl?parseFloat(_crl[1]):NaN, _cz1v=_cz1l?parseFloat(_cz1l[1]):NaN;
+        if((_crl&&!isFinite(_crv))||(_cz1l&&!isFinite(_cz1v))||!isFinite(_cylZ0_val))
+          probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER dimensions must be finite numbers'});
+        else {
+          if(_crl&&_crv<=0) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER radius X must be greater than 0'});
+          if(_cz1l&&_cz1v<=_cylZ0_val) probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER top Z must be greater than bottom Z'});
+          if(_crl&&_cz1l&&_crv>0&&_cz1v>_cylZ0_val){
+            var _dia=Math.abs(_crv)*2, _ch=Math.abs(_cz1v-_cylZ0_val);
+            var _cylPlan=planLiveVoxelGrid(_dia,_dia,_ch,1);
+            if(_cylPlan&&_cylPlan.limited)
+              probs.push({line:srcI,sev:'warn',msg:'BLK FORM: Default 3D detail will be reduced to about '+_cylPlan.effectiveCell.toFixed(2)+' mm/voxel to stay within browser memory limits'});
+          }
+        }
         _cylPending=false;
       }
       else if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!/Z[+-]?\d/.test(u))
@@ -386,22 +446,34 @@ function validateProgram(code, liveEdit){
         var _bx=u.match(/X([+-]?\d+\.?\d*)/),_by=u.match(/Y([+-]?\d+\.?\d*)/),_bz=u.match(/Z([+-]?\d+\.?\d*)/);
         if(_bx) blkMax1.x=parseFloat(_bx[1]); if(_by) blkMax1.y=parseFloat(_by[1]); if(_bz) blkMax1.z=parseFloat(_bz[1]);
         var _zeroBox = blkMin1.x===0&&blkMin1.y===0&&blkMin1.z===0&&blkMax1.x===0&&blkMax1.y===0&&blkMax1.z===0;
-        // Side length = max corner (0.2) - min corner (0.1). Limit each side to 500 mm.
-        var MAX_SIDE = 500;
-        if(_bx&&blkMin1.x!==null){ var _sx=Math.abs(parseFloat(_bx[1])-blkMin1.x); if(_sx>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X side ('+_sx.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
-        if(_by&&blkMin1.y!==null){ var _sy=Math.abs(parseFloat(_by[1])-blkMin1.y); if(_sy>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y side ('+_sy.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
-        if(_bz&&blkMin1.z!==null){ var _sz=Math.abs(parseFloat(_bz[1])-blkMin1.z); if(_sz>MAX_SIDE) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z side ('+_sz.toFixed(0)+' mm) exceeds the '+MAX_SIDE+' mm limit'}); }
-        if(!_zeroBox&&blkMin1.x!==null&&_bx&&parseFloat(_bx[1])<=blkMin1.x) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X max ('+_bx[1]+') must be > X min ('+blkMin1.x+')'});
-        if(!_zeroBox&&blkMin1.y!==null&&_by&&parseFloat(_by[1])<=blkMin1.y) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y max ('+_by[1]+') must be > Y min ('+blkMin1.y+')'});
-        if(!_zeroBox&&blkMin1.z!==null&&_bz&&parseFloat(_bz[1])<=blkMin1.z) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z max ('+_bz[1]+') must be > Z min ('+blkMin1.z+')'});
+        var _boxComplete=blkMin1.x!==null&&blkMin1.y!==null&&blkMin1.z!==null&&
+          blkMax1.x!==null&&blkMax1.y!==null&&blkMax1.z!==null;
+        var _boxFinite=_boxComplete&&isFinite(blkMin1.x)&&isFinite(blkMin1.y)&&isFinite(blkMin1.z)&&
+          isFinite(blkMax1.x)&&isFinite(blkMax1.y)&&isFinite(blkMax1.z);
+        if(_boxComplete){
+          if(!_boxFinite) probs.push({line:srcI,sev:'err',msg:'BLK FORM dimensions must be finite numbers'});
+          else {
+            var _sx=Math.abs(blkMax1.x-blkMin1.x), _sy=Math.abs(blkMax1.y-blkMin1.y), _sz=Math.abs(blkMax1.z-blkMin1.z);
+            if(!_zeroBox&&blkMax1.x<=blkMin1.x) probs.push({line:srcI,sev:'err',msg:'BLK FORM: X max ('+_bx[1]+') must be > X min ('+blkMin1.x+')'});
+            if(!_zeroBox&&blkMax1.y<=blkMin1.y) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Y max ('+_by[1]+') must be > Y min ('+blkMin1.y+')'});
+            if(!_zeroBox&&blkMax1.z<=blkMin1.z) probs.push({line:srcI,sev:'err',msg:'BLK FORM: Z max ('+_bz[1]+') must be > Z min ('+blkMin1.z+')'});
+            if(!_zeroBox&&blkMax1.x>blkMin1.x&&blkMax1.y>blkMin1.y&&blkMax1.z>blkMin1.z){
+              var _boxPlan=planLiveVoxelGrid(_sx,_sy,_sz,1);
+              if(_boxPlan&&_boxPlan.limited)
+                probs.push({line:srcI,sev:'warn',msg:'BLK FORM: Default 3D detail will be reduced to about '+_boxPlan.effectiveCell.toFixed(2)+' mm/voxel to stay within browser memory limits'});
+            }
+          }
+        }
       }
 
     } else if(u.indexOf('BLK FORM CYLINDER')===0){
       // Cylinder header: 0.1-style line holds center + Z0. Radius/height checked on the next 0.2 line.
       hasBlk1=true;
-      var _czl=u.match(/Z([+-]?\d+\.?\d*)/);
+      var _cxl=u.match(/X([+-]?\d+\.?\d*)/), _cyl=u.match(/Y([+-]?\d+\.?\d*)/), _czl=u.match(/Z([+-]?\d+\.?\d*)/);
       if(!/X[+-]?\d/.test(u)||!/Y[+-]?\d/.test(u)||!_czl)
         probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER incomplete \u2014 define center X, Y and bottom Z'});
+      if(_cxl&&_cyl&&_czl&&(!isFinite(parseFloat(_cxl[1]))||!isFinite(parseFloat(_cyl[1]))||!isFinite(parseFloat(_czl[1]))))
+        probs.push({line:srcI,sev:'err',msg:'BLK FORM CYLINDER dimensions must be finite numbers'});
       _cylZ0_val = _czl?parseFloat(_czl[1]):0; _cylPending=true;
 
     } else if(u.indexOf('BLK FORM')===0){
@@ -2593,26 +2665,16 @@ function triggerRefine(){
   _showRefineIndicator('Refining mesh\u2026');
   updateStatus('\u2699\ufe0f Initialising refine\u2026', false);
 
-  var HI_LEVELS = [300, 400, 500];
-  var HI = HI_LEVELS[VX_QUALITY];
   var min = prog.blkMin, max = prog.blkMax;
   var w = max.x-min.x, d = max.y-min.y, h = max.z-min.z;
-  // Isotropic cells, capped so large blanks keep detail (same logic as vxInit).
-  var hiCell = Math.max(w, d, h) / (HI - 1);
-  var HI_CELL_CAP = [0.5, 0.4, 0.3][VX_QUALITY!==undefined?VX_QUALITY:1] || 0.4; // finer than live sim
-  if(hiCell > HI_CELL_CAP) hiCell = HI_CELL_CAP;
-  var nx = Math.max(4, Math.round(w/hiCell)+1);
-  var ny = Math.max(4, Math.round(d/hiCell)+1);
-  var nz = Math.max(4, Math.round(h/hiCell)+1);
-  // Memory guard — refine runs in a worker but still allocates two grids; cap total.
-  var HI_VOXEL_BUDGET = 64000000; // worker thread, larger budget than live sim
-  if(nx*ny*nz > HI_VOXEL_BUDGET){
-    var hiScale = Math.cbrt((nx*ny*nz) / HI_VOXEL_BUDGET);
-    hiCell = hiCell * hiScale;
-    nx = Math.max(4, Math.round(w/hiCell)+1);
-    ny = Math.max(4, Math.round(d/hiCell)+1);
-    nz = Math.max(4, Math.round(h/hiCell)+1);
+  var hiPlan=planRefineVoxelGrid(w,d,h,VX_QUALITY);
+  if(!hiPlan){
+    if(btn){ btn.disabled=false; btn.textContent='◆ Refine'; }
+    _hideRefineIndicator();
+    updateStatus('Refine could not plan a valid voxel grid', false);
+    return;
   }
+  var nx=hiPlan.nx, ny=hiPlan.ny, nz=hiPlan.nz;
   var dx = w/(nx-1), dy = d/(ny-1), dz = h/(nz-1);
 
   // Build tools map

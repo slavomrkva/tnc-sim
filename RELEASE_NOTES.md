@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.901 (web test)
+- BLK FORM is no longer rejected merely because one box side, cylinder
+  diameter or cylinder height exceeds 500 mm. Large valid blanks now adapt 3D
+  detail to the browser memory budget and warn when Default quality becomes
+  coarser; invalid or reversed dimensions are still blocked.
+- Larger workpieces are framed with an adaptive 3D viewing range instead of
+  disappearing beyond the old fixed camera limit.
+
 ## v0.900 (web test)
 - Added documented incremental polar programming: `LP IPA`, `CP IPA` with
   simultaneous `IZ`, incremental `CC IX/IY`, and modal omitted LP coordinates.

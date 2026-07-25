@@ -45,9 +45,12 @@ Detailed module-split history is in the archived project notes linked above.
    executes it again. Do not combine both accidentally in lessons or demos.
 2. **Zero is a valid Q value:** use `Q !== undefined ? Q : default`, never
    `Q || default` for cycle parameters.
-3. **Voxel detail and budgets:** Low/Default/High are 100/150/200 with
-   1/0.7/0.5 mm caps; Refine is 300/400/500 with 0.5/0.4/0.3 mm caps. Keep web
-   guards at 24M live and 64M Refine voxels.
+3. **Voxel detail and budgets:** Low/Default/High target 100/150/200 with
+   1/0.7/0.5 mm detail caps; Refine targets 300/400/500 with 0.5/0.4/0.3 mm
+   caps. One deterministic isotropic planner must preserve those profiles when
+   they fit, then coarsen only enough for the rounded grid to remain at or
+   below 24M live / 64M Refine voxels. Valid BLK dimensions have no fixed
+   millimetre ceiling; keep finite, positive and max-greater-than-min checks.
 4. **Responsive layout:** single-column mode is
    `(max-width:1024px), (max-height:600px)`. Use `_isMTab()`; do not introduce a
    width-only variant. See

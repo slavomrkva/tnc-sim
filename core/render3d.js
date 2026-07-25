@@ -288,7 +288,9 @@ function buildScene(prog){
   // table grid at Z=min.z
   if(scene.userData.grid){ scene.remove(scene.userData.grid); }
   var gridSize = Math.max(w,d)*2;
-  var gridDivisions = Math.round(gridSize/10);
+  // Bound only the rendered guide lines; voxel and collision detail are
+  // independent from this visual table grid.
+  var gridDivisions = Math.max(2,Math.min(400,Math.round(gridSize/10)));
   var gridColors = _gridColors();
   var grid = new THREE.GridHelper(gridSize, gridDivisions, gridColors[0], gridColors[1]);
   grid.userData.divisions = gridDivisions;
@@ -350,6 +352,9 @@ function buildScene(prog){
   controls.target.set(cx, cy, cz);
   var dist = Math.max(w,d,h)*1.9 + 60;
   camera.position.set(cx+dist*0.8, cy-dist, cz+dist*0.7);
+  // The old fixed 5000 far plane clipped otherwise valid large workpieces.
+  camera.far=Math.max(5000,dist*4);
+  camera.updateProjectionMatrix();
   controls.update();
 
   bufClear(feedBuf); bufClear(rapidBuf);
