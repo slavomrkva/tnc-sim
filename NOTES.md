@@ -133,7 +133,9 @@ Detailed module-split history is in the archived project notes linked above.
     Start/Continue practice is available only on the final information slide.
     Every graded task exposes an answer range: insertion tasks reserve
     highlighted blank blocks, while direct-edit tasks highlight the existing
-    source blocks that must be changed.
+    source blocks that must be changed. In desktop practice the host mirrors
+    the current task into the banner above the editor and visually hides the
+    core task card; mobile continues to use the core-rendered task card.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

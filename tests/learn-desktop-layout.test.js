@@ -22,12 +22,14 @@ assert.ok(!/installDesktopLearnWorkspace/.test(app),
   'web does not reassemble the shared Learn DOM');
 assert.match(app, /window\.learnHostUpdate\s*=/,
   'web synchronizes the external editor chrome through a narrow host hook');
+assert.match(app, /title\.innerHTML = task \? task\.prompt/,
+  'desktop task prompt is mirrored into the banner above the editor');
 assert.match(core, /function _learnPracticeHtml/, 'core owns the task-first practice workspace');
 assert.match(core, /<details class="lp-theory"/, 'info slides use an accessible disclosure');
 assert.match(core, /L\.slides\[LEARN\.slide\]\.html\(\)/,
   'practice theory remains a navigable slide instead of one long document');
-assert.match(app, /code\.setAttribute\('aria-describedby', 'learnAnswerTitle'\)/,
-  'the answer editor is associated with its unique external answer direction');
+assert.match(app, /code\.setAttribute\('aria-describedby', 'learnAnswerTitle learnAnswerDirection'\)/,
+  'the answer editor is associated with the task and answer direction');
 assert.match(core, /function learnCheck\(\)[\s\S]*LEARN\.theoryOpen = false/,
   'checking collapses info slides so feedback is visible');
 assert.match(core, /var onLastSlide = LEARN\.slide === L\.slides\.length - 1/,
@@ -43,8 +45,12 @@ assert.match(css, /@media \(min-width:1025px\) and \(min-height:601px\)/,
   'new workspace is limited to desktop-sized viewports');
 assert.match(css, /body\.learn-desktop-practice \.learn-answer-head[\s\S]*display:flex/,
   'answer header is visible only in focused desktop practice');
-assert.match(css, /body\.learn-desktop-practice \.lp-task/,
-  'assignment has a dedicated visual card');
+assert.match(css, /body\.learn-desktop-practice #learnPanel\{[^}]*width:clamp\(430px,34vw,520px\)/,
+  'desktop lesson panel is widened for readable reference slides');
+assert.match(css, /body\.learn-desktop-practice \.editor-panel\{[^}]*width:clamp\(400px,32vw,500px\)/,
+  'desktop answer editor is intentionally narrower');
+assert.match(css, /body\.learn-desktop-practice \.lp-task\{[^}]*display:none/,
+  'the duplicate task card is removed from the desktop lesson panel');
 assert.match(css, /\.lp-theory-sum/,
   'info disclosure has an explicit interactive summary');
 assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,

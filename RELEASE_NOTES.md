@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.906 (web test)
+- Desktop practice gives more space to the lesson panel and uses a narrower
+  answer editor. The complete task now appears as a clear banner immediately
+  above the editor instead of being repeated in the lesson panel.
+
 ## v0.905 (web test)
 - Information slides again use prominent previous/next arrows, and practice
   unlocks only on the final slide.

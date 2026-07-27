@@ -858,43 +858,45 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 .lp-theory-slides .learn-prog{flex:1;margin-bottom:0;}
 .lp-theory-slides .lp-slide-view{padding:2px 2px 0;}
 
-/* Desktop practice: the question stays in the course panel and the answer
-   surface gets an unmistakable header and accent edge. Core still renders the
-   practice once; this block only styles the existing host columns. */
+/* Desktop practice: give the lesson reference more room and keep the editor
+   intentionally compact. The external answer header mirrors the task directly
+   above the code; core still renders practice once for every layout. */
 @media (min-width:1025px) and (min-height:601px){
   body.learn-desktop-practice #learnPanel{
-    width:clamp(360px,28vw,420px);
-    min-width:360px;
-    max-width:420px;
+    width:clamp(430px,34vw,520px);
+    min-width:430px;
+    max-width:520px;
     background:var(--surface);
   }
   body.learn-desktop-practice .editor-panel{
-    width:clamp(480px,44vw,760px);
-    max-width:760px;
+    width:clamp(400px,32vw,500px);
+    min-width:400px;
+    max-width:500px;
     border-right-color:rgba(var(--accent-rgb),.55);
   }
   body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
   body.learn-desktop-practice .learn-answer-head{
     display:flex;
-    min-height:54px;
+    min-height:96px;
     flex-shrink:0;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    padding:8px 14px 8px 16px;
+    align-items:flex-start;
+    padding:11px 15px 12px 17px;
     box-sizing:border-box;
     background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.05) 70%,transparent);
     border-top:1px solid rgba(var(--accent-rgb),.45);
     border-bottom:1px solid rgba(var(--accent-rgb),.65);
   }
-  .learn-answer-head .lah-copy{display:flex;min-width:0;flex-direction:column;gap:3px;}
+  .learn-answer-head .lah-copy{display:flex;min-width:0;width:100%;flex-direction:column;gap:5px;}
+  .learn-answer-head .lah-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .learn-answer-head .lah-kicker{font-family:var(--mono);font-size:10px;line-height:1;font-weight:800;
     letter-spacing:.14em;color:var(--accent);}
-  .learn-answer-head .lah-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    font-family:var(--sans);font-size:13px;line-height:1.35;font-weight:650;color:var(--text);}
-  .learn-answer-head .lah-task{flex-shrink:0;border:1px solid rgba(var(--accent-rgb),.55);border-radius:999px;
-    padding:4px 9px;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-family:var(--mono);
-    font-size:10px;font-weight:700;letter-spacing:.04em;}
+  .learn-answer-head .lah-title{font-family:var(--sans);font-size:15px;line-height:1.42;font-weight:650;color:var(--text);}
+  .learn-answer-head .lah-title code{font-family:var(--mono);font-size:.9em;color:var(--text);
+    background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 4px;}
+  .learn-answer-head .lah-direction{font-family:var(--mono);font-size:10.5px;line-height:1.35;color:var(--text3);}
+  .learn-answer-head .lah-task{flex-shrink:0;border:1px solid var(--accent);border-radius:999px;
+    padding:4px 9px;background:var(--accent);color:#fff;font-family:var(--mono);
+    font-size:10px;font-weight:800;letter-spacing:.05em;}
   body.learn-desktop-practice .editor-wrap{
     border-top:0;
     box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);
@@ -905,11 +907,9 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
   }
   body.learn-desktop-practice #learnPanel .lp-body{padding:12px;}
   body.learn-desktop-practice .lp-task{
-    padding:13px 14px 12px;
-    background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.045) 72%);
-    box-shadow:0 5px 18px rgba(0,0,0,.13);
+    display:none;
   }
-  body.learn-desktop-practice .lp-task .lp-prompt{font-size:16px;font-weight:650;}
+  body.learn-desktop-practice .lp-theory{margin-top:0;}
   body.learn-desktop-practice .lp-goals{
     padding:10px 11px;
     border-color:rgba(var(--accent-rgb),.28);

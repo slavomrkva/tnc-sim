@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.906 — wider lesson reference and task banner above editor
+
+- Rebalanced the desktop Learn workspace from the previous 28/44 percent
+  lesson/editor proportions to 34/32 percent, capped at 520/500 px, leaving
+  the remaining width to the 3D result.
+- Mirrored the trusted current task prompt into the external answer header,
+  added the answer direction to its accessible description and hid the
+  duplicate core task card only in desktop practice.
+- Kept the mobile practice card unchanged, verified all 46 task prompts at
+  1440x900 and 1100x700 with no clipping or console errors, and advanced the
+  offline cache to `v66`.
+
 ## v0.905 — explicit Learn answer zones and final-slide practice gate
 
 - Added a shared answer-range planner for every graded Learn task: insertion
