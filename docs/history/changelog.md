@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.911 — time-limited What’s New popup
+
+- Added a compact, lime-accented `What’s new` action to the top-right header
+  and an accessible popup summarizing the redesigned Learn flow.
+- Added equivalent English and German popup content, click-outside and Escape
+  dismissal, focus return, and responsive top-right placement.
+- Kept the feature offline by storing an explicit production `mergedAt`
+  timestamp in `web/whats-new.js`; `_whatsNewIsActive()` shows the action for
+  exactly 10 days and fails closed for invalid metadata.
+- Added a focused release-window/UI contract test and advanced the offline
+  cache to `v71`.
+
 ## v0.910 — Check-only verdicts and robust comment editing
 
 - Restored the requirements as `_learnResultsHtml()` output only when

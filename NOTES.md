@@ -33,6 +33,10 @@ Detailed module-split history is in the archived project notes linked above.
   meaningful user-visible change.
 - When runtime assets change, keep the service-worker cache version and
   precache list synchronized.
+- `web/whats-new.js` keeps announcements offline and deterministic: set its
+  explicit `mergedAt` value to the real production merge time. The header
+  button is visible globally for the following 10 days, then hides itself
+  without relying on GitHub or another runtime service.
 - Push to GitHub; Cloudflare Workers Builds deploys `wrangler.jsonc`, combining
   the Worker API with the existing Static Assets site. `/api/report` lives in
   `worker/report-worker.mjs`; its GitHub and Turnstile credentials are encrypted

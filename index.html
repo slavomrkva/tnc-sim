@@ -73,6 +73,10 @@
     </h1>
   </div>
   <div class="header-badges">
+    <button id="whatsNewBtn" class="whats-new-btn" type="button" onclick="openWhatsNew()" aria-haspopup="dialog" aria-controls="whatsNewOverlay" aria-expanded="false" hidden>
+      <span class="whats-new-dot" aria-hidden="true"></span>
+      <span data-i18n="whatsNew.button">What’s new</span>
+    </button>
     <button id="langToggle" onclick="I18N.cycleLang()" title="Language / Sprache" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;"><span id="langLabel">EN</span></button>
     <button id="themeToggle" onclick="toggleTheme()" title="Toggle dark / light mode" data-i18n-title="theme.title" style="font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;">
       <span id="themeIcon">&#9789;</span><span id="themeLabel">Dark</span>
@@ -448,6 +452,22 @@ END PGM PROGRAM MM</textarea>
   </div>
 </div>
 
+<div class="whats-new-overlay" id="whatsNewOverlay" role="dialog" aria-modal="true" aria-labelledby="whatsNewTitle" onclick="if(event.target===this)closeWhatsNew()" hidden>
+  <section class="whats-new-card">
+    <div class="whats-new-head">
+      <div>
+        <span class="whats-new-eyebrow" id="whatsNewMeta"></span>
+        <h2 id="whatsNewTitle"></h2>
+      </div>
+      <button class="whats-new-close" type="button" onclick="closeWhatsNew()" aria-label="Close">&times;</button>
+    </div>
+    <div class="whats-new-body">
+      <p id="whatsNewIntro"></p>
+      <ul id="whatsNewItems"></ul>
+    </div>
+  </section>
+</div>
+
 <!-- Three.js r128 vendored locally (vendor/) — no CDN dependency, works offline
      on the web (service worker) and inside the Android app bundle. -->
 <script src="vendor/three.min.js"></script>
@@ -486,6 +506,7 @@ END PGM PROGRAM MM</textarea>
 <script src="web/layout.js" defer></script>
 <script src="web/panels.js" defer></script>
 <script src="web/app.js" defer></script>
+<script src="web/whats-new.js" defer></script>
 <script src="web/analytics.js" defer></script>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="683107a3-589f-4490-927e-ff60ef848347"></script>
 

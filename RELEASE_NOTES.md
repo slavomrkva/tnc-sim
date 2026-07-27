@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.911 (web test)
+- Added a compact **What’s new** button in the top-right header. For 10 days
+  after the recorded production merge it opens a short, localized summary of
+  the redesigned Learn experience, then hides automatically.
+
 ## v0.910 (web test)
 - The requirement checklist stays hidden until Check, then shows green and red
   results and hides again on editing. The question guidance is now quiet text

@@ -26,6 +26,7 @@
       'theme.title': 'Hell/Dunkel umschalten',
       'about.title': 'Über TNC Sim',
       'about.label': 'ⓘ Über',
+      'whatsNew.button': 'Was ist neu?',
 
       // editor panel header
       'panel.learn': 'Lernen',
