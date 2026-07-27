@@ -71,8 +71,8 @@ assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,
   'slide arrows retain large, stable previous/next hit targets');
 assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:rgba\(240,169,74/,
   'answer blocks have a full-width amber highlight');
-assert.match(css, /\.lp-btn\.chk\{[^}]*background:#c6df4a/,
-  'Check uses a distinct yellow-green action colour');
+assert.match(css, /\.lp-btn\.chk\{[^}]*background:#5dcaa5/,
+  'Check and Start practice use the restored green action colour');
 assert.match(css, /\.learn-answer-head \.lah-direction\{[^}]*font-size:10px;[^}]*font-weight:400/,
   'answer-to-Check guidance stays visually quiet inside the question panel');
 assert.match(app, /var answerRange = typeof learnAnswerLineRange[\s\S]*atProtectedStart[\s\S]*atProtectedEnd/,

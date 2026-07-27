@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.912 (web test)
+- Restored the established green treatment for both **Check** and
+  **Start/Continue practice**.
+
 ## v0.911 (web test)
 - Added a compact **What’s new** button in the top-right header. For 10 days
   after the recorded production merge it opens a short, localized summary of

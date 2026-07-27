@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.912 — restored green lesson actions
+
+- Returned the shared `.lp-btn.chk` action style to the original green family,
+  so both Check and Start/Continue practice again use the same clear positive
+  action colour in dark and light themes.
+- Updated the Learn layout contract test and advanced the offline cache to
+  `v72`.
+
 ## v0.911 — time-limited What’s New popup
 
 - Added a compact, lime-accented `What’s new` action to the top-right header

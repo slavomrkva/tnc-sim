@@ -667,8 +667,8 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .lp-btn{font-family:var(--mono);font-size:12.5px;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
 .lp-btn:hover{border-color:var(--text3);color:var(--text);}
 .lp-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
-.lp-btn.chk{background:#c6df4a;border-color:#d8f265;color:#142006;font-weight:800;}
-html[data-theme="light"] .lp-btn.chk{background:#afca32;border-color:#839c1c;color:#142006;}
+.lp-btn.chk{background:#5dcaa5;border-color:#5dcaa5;color:#04342c;font-weight:700;}
+html[data-theme="light"] .lp-btn.chk{background:#45b992;border-color:#27866d;color:#042c25;}
 .lp-btn.grow{flex:1;text-align:center;}
 .lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;}
 .lp-slide-view{padding-right:2px;}

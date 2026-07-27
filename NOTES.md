@@ -144,7 +144,8 @@ Detailed module-split history is in the archived project notes linked above.
     three desktop practice columns remain equal thirds, and the mirrored task
     uses a distinct question surface rather than answer-area styling. Lesson
     selection and pre-practice views retain that same one-third panel width.
-    Amber connects the question and exact answer range; Check is yellow-green.
+    Amber connects the question and exact answer range; Check and Start practice
+    use the established green action colour.
     The question surface ends with a small regular-weight `After writing your
     answer, press Check.` instruction without a divider or separate strip.
     Answer-row Backspace/Delete may edit text but must never merge the outer
