@@ -6,7 +6,15 @@
 
 ## Open bugs
 
-None.
+- **Mobile bottom tabs can leave the visible viewport while scrolling in
+  Learn practice / Editor.** Attempt 1 in web v0.914 moves the tab bar into the
+  bounded mobile flex layout, sizes that layout from `visualViewport`, and
+  prevents browser-chrome resizing without text focus from being mistaken for
+  the software keyboard. Pending real-device acceptance.
+- **Start Here mobile guidance points to practice instead of Learn for Info
+  Slides.** Attempt 1 in web v0.914 sends the coach's Info Slides step to the
+  Learn tab and names Learn explicitly in the mobile slide copy. Pending
+  real-device acceptance.
 
 ## Open work
 

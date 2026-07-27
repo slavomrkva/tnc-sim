@@ -18,7 +18,9 @@ var LESSONS_DE = {
   title:'Los geht’s — deine erste Minute',
   slides:[
     { html:function(){ return ''
-      + '<p>Lies die <b>INFO-FOLIEN</b> mit den Pfeiltasten. Starte die Übung auf der letzten Folie. Während der Übung kannst du die Folien jederzeit wieder öffnen.</p>'; } },
+      + '<p>Lies die <b>INFO-FOLIEN</b> mit den Pfeiltasten. Starte die Übung auf der letzten Folie. Während der Übung kannst du die Folien jederzeit wieder öffnen.'
+      + (typeof _isMTab==='function' && _isMTab() ? ' Auf Mobilgeräten findest du sie wieder im Bereich <b>Lernen</b>.' : '')
+      + '</p>'; } },
     { html:function(){ return ''
       + '<p>Das Fragefeld zeigt die <b>Aufgabe</b>. Schreibe nur in die hervorgehobene Antwortzeile. Jeder Druck auf Hinweis zeigt eine weitere Hilfestufe:</p>'
       + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
@@ -28,7 +30,7 @@ var LESSONS_DE = {
       + '</div>'; } },
     { html:function(){ return ''
       + '<p>Die Übung nutzt den echten Editor. Drücke danach die grüne Taste <b>Prüfen</b>. Die Anforderungen erscheinen grün oder rot; beim Bearbeiten werden sie wieder ausgeblendet.'
-      + (typeof _isMTab==='function' && _isMTab() ? ' Wechsle jederzeit zwischen Editor und 3D-Ansicht.' : '')
+      + (typeof _isMTab==='function' && _isMTab() ? ' Mit Lernen, Editor und 3D unten wechselst du zwischen Lektion, Antwort und Ergebnis.' : '')
       + '</p>'; } }
   ],
   tasks:[

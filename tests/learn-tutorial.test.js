@@ -41,7 +41,8 @@ assert.strictEqual(intro.tasks[0].answerPrefix, '; ', 'Start here exposes a real
 assert.strictEqual(intro.tasks[0].checks.length, 2, 'Start here demonstrates the post-Check verdict');
 assert.ok(context.learnEvalChecks(solutionFor(intro.tasks[0]), intro.tasks[0]).every(result => result.ok),
   'Start here has a working example solution');
-assert.match(read('core/data-tables.js'), /Switch between the Editor and 3D view at any time/);
+assert.match(read('core/data-tables.js'), /return to the <b>Learn<\/b> section/);
+assert.match(read('core/data-tables.js'), /Learn, Editor and 3D sections at the bottom/);
 const coachSource = read('core/learn-coach.js');
 assert.match(coachSource, /key === 'prompt'[\s\S]*learnAnswerHead/,
   'desktop tutorial targets the visible question panel instead of the hidden task card');
@@ -49,6 +50,10 @@ assert.match(coachSource, /key === 'answer'[\s\S]*#hlLayer \.learn-answer-line/,
   'tutorial targets the exact highlighted answer row');
 assert.match(coachSource, /key === 'theory'[\s\S]*\.lp-theory-sum/,
   'tutorial explains that Info Slides remain available during practice');
+assert.match(coachSource, /key === 'theory'\) \? 'learn' : 'editor'/,
+  'mobile tutorial opens the Learn section for its Info Slides step');
+assert.match(coachSource, /Open Learn for Info Slides/,
+  'mobile tutorial names the Learn section instead of generic practice');
 
 for(const lesson of context.LESSONS){
   for(let i=0; i<lesson.tasks.length; i++){

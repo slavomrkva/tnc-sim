@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.914 (web test)
+- Kept the mobile Editor/3D/Learn bar inside the visible app viewport while
+  scrolling in a lesson.
+- Updated Start Here on mobile to point back to Learn for Info Slides.
+
 ## v0.913 (web test)
 - Updated the Start Here tutorial for the redesigned lesson layout, including a
   real highlighted answer row and guidance for Info Slides and Check results.

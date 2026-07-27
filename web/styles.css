@@ -726,14 +726,18 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
      its content height and leaving a strip of bare near-black page background
      below it. lp-body then flexes to fill (was capped at an arbitrary
      100svh-220px, which is what left the dead space at the bottom). */
-  body[data-mtab="learn"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  /* Once a mobile section is active, the bottom tabs are the final flex row
+     instead of a viewport-fixed overlay. This keeps them visible while mobile
+     browser chrome expands/collapses and lets --vvh track the true viewport. */
+  body[data-mtab] .mtab-bar{position:relative;left:auto;right:auto;bottom:auto;flex-shrink:0;transform:none;}
+  body[data-mtab="learn"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="learn"]){overflow:hidden;height:100%;}
   body[data-mtab="learn"] .sim-container,
   body[data-mtab="learn"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
   body[data-mtab="learn"] #learnPanel{flex:1;min-height:0;}
   body[data-mtab="learn"] #learnPanel .lp-body{max-height:none;flex:1;min-height:0;}
   /* 3D tab = fixed app-like layout (no page scroll). */
-  body[data-mtab="view"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  body[data-mtab="view"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="view"]){overflow:hidden;height:100%;}
   body[data-mtab="view"] .sim-container,
   body[data-mtab="view"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
@@ -744,13 +748,14 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
      viewport. The text begins below the controls and cannot pass behind them;
      opening/closing a context or practice row simply changes the remaining
      editor height. --- */
-  body[data-mtab="editor"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  body[data-mtab="editor"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="editor"]){overflow:hidden;height:100%;}
   body[data-mtab="editor"] .sim-container,
   body[data-mtab="editor"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
   /* Fixed editor column — the textarea below is the only scroll owner. */
   body[data-mtab="editor"] .editor-panel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0;box-sizing:border-box;width:100%;}
   html.kbd-open body[data-mtab="editor"]{height:var(--vvh,100svh);padding-bottom:0;}
+  html.kbd-open .mtab-bar{display:none;}
   /* Code fills exactly the space left between controls and bottom tabs. */
   body[data-mtab="editor"] .editor-wrap{display:flex;flex:1;height:auto !important;min-height:0;max-height:none !important;overflow:hidden !important;overscroll-behavior:contain !important;}
   body[data-mtab="editor"] .line-nums{min-height:0 !important;}

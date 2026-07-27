@@ -57,7 +57,11 @@ Detailed module-split history is in the archived project notes linked above.
    millimetre ceiling; keep finite, positive and max-greater-than-min checks.
 4. **Responsive layout:** single-column mode is
    `(max-width:1024px), (max-height:600px)`. Use `_isMTab()`; do not introduce a
-   width-only variant. See
+   width-only variant. In that mode Editor, 3D and Learn are bounded flex
+   layouts sized from `visualViewport`; the bottom tab bar is their final
+   in-flow row, not a viewport-fixed overlay. A viewport-height drop alone is
+   not proof that the software keyboard opened: require active text focus and
+   keep ordinary browser-chrome changes below the keyboard threshold. See
    [`docs/history/layout-and-renderer-rationale.md`](docs/history/layout-and-renderer-rationale.md).
 5. **Mobile WebGL:** keep defensive renderer creation, context-loss handling,
    and the touch-device avoidance of unconditional `high-performance`.

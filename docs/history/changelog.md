@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.914 — stable mobile tabs and correct Learn guidance
+
+- Moved the mobile tab bar from a viewport-fixed overlay into the bounded app
+  flex layout, whose height follows `visualViewport` through `--vvh`.
+- Made the in-flow tab row release its space while the on-screen keyboard is
+  open, while requiring text focus before a viewport shrink can be classified
+  as the keyboard rather than browser chrome.
+- Changed the Start Here mobile copy and coach so Info Slides explicitly open
+  in the Learn section, then return to Editor for Hint and Check.
+- Added focused mobile layout/tutorial regressions and advanced the offline
+  cache to `v74`.
+
 ## v0.913 — tutorial aligned with the redesigned Learn layout
 
 - Reworked L00 into a real comment warm-up with an editable `; ` answer row,

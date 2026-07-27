@@ -32,19 +32,21 @@ function _coachTarget(key){
     : document.getElementById('learnAnswerHead');
   if(key === 'answer') return document.querySelector('#hlLayer .learn-answer-line')
     || document.getElementById('code');
-  if(key === 'theory') return root.querySelector('.lp-theory-sum');
+  if(key === 'theory') return mob
+    ? document.querySelector('#learnPanel .lp-theory-sum')
+    : root.querySelector('.lp-theory-sum');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
   if(key === 'solve')  return root.querySelector('.lp-solve');
   return null;
 }
 
-/* closeLearn/backToList need the mobile Learn tab active; every other step
-   needs the Editor tab (where the pinned practice strip / real editor live).
+/* closeLearn/backToList and Info Slides need the mobile Learn tab active; every
+   other step needs the Editor tab (where the practice strip / real editor live).
    No-op on desktop, where both live in the same always-visible panel. */
 function _coachEnsureTabFor(key){
   if(!(_isMTab && _isMTab()) || typeof mtabSwitch !== 'function') return;
-  var want = (key === 'closeLearn' || key === 'backToList') ? 'learn' : 'editor';
+  var want = (key === 'closeLearn' || key === 'backToList' || key === 'theory') ? 'learn' : 'editor';
   if(document.body.getAttribute('data-mtab') !== want) mtabSwitch(want);
 }
 
@@ -57,13 +59,16 @@ function learnCoachMaybeStart(force){
 }
 
 function learnCoachStart(){
+  var mobile = _isMTab && _isMTab();
   COACH.steps = [
     { k:'prompt', t:'1. Read the question',
       d:'The question panel above the editor always shows the current task.' },
     { k:'answer', t:'2. Type in the highlighted row',
       d:'This is the real editor. The amber answer row marks exactly where to work.' },
-    { k:'theory', t:'3. Reopen Info Slides',
-      d:'The lesson explanation stays available throughout practice.' },
+    { k:'theory', t:mobile ? '3. Open Learn for Info Slides' : '3. Reopen Info Slides',
+      d:mobile
+        ? 'Return to the Learn section whenever you want to review the lesson explanation.'
+        : 'The lesson explanation stays available throughout practice.' },
     { k:'hint',   t:'4. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
     { k:'check',  t:'5. Check when ready',

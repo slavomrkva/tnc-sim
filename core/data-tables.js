@@ -87,7 +87,9 @@ var LESSONS = [
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p>Read the <b>INFO SLIDES</b> with the arrow buttons. Start practice from the final slide. You can reopen these slides at any time during practice.</p>'; } },
+      + '<p>Read the <b>INFO SLIDES</b> with the arrow buttons. Start practice from the final slide. You can reopen these slides at any time during practice.'
+      + (typeof _isMTab==='function' && _isMTab() ? ' On mobile, return to the <b>Learn</b> section to find them.' : '')
+      + '</p>'; } },
     { html:function(){ return ''
       + '<p>The question panel shows the <b>task</b>. Type only in the highlighted answer row. If you need help, each press of Hint reveals one more level:</p>'
       + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
@@ -97,7 +99,7 @@ var LESSONS = [
       + '</div>'; } },
     { html:function(){ return ''
       + '<p>Practice uses the real editor. Press the green <b>Check</b> button when ready. The requirements then appear in green or red; editing hides them again.'
-      + (typeof _isMTab==='function' && _isMTab() ? ' Switch between the Editor and 3D view at any time.' : '')
+      + (typeof _isMTab==='function' && _isMTab() ? ' Use the Learn, Editor and 3D sections at the bottom to move between the lesson, your answer and the result.' : '')
       + '</p>'; } }
   ],
   tasks:[
