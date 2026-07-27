@@ -59,6 +59,7 @@
       'learn.answerWhole': 'Schreibe deine Antwort in den hervorgehobenen Editor.',
       'learn.infoSlides': 'INFO-FOLIEN',
       'learn.reviewTheory': 'Lektionstheorie jederzeit ansehen',
+      'learn.doneWhen': 'FERTIG, WENN',
       'learn.hint': 'TIPP',
       'learn.answer': 'L\u00d6SUNG',
       'learn.hintBtn': 'Tipp',

@@ -60,7 +60,7 @@ function learnCoachStart(){
     { k:'hint',   t:'3. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
     { k:'check',  t:'4. Check when ready',
-      d:'After writing your answer, press Check. It is free — use it as often as you like.' }
+      d:'After writing your answer, press Check. The requirements then appear with green and red results; edit again to hide them.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

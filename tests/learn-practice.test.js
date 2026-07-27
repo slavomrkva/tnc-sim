@@ -44,11 +44,13 @@ assert.ok(!/\.lp-slide-view\{[^}]*overflow-y:auto/.test(css),
 assert.match(core, /L\.slides\[LEARN\.slide\]\.html\(\)/,
   'expanded theory keeps the lesson slide structure instead of one long wall');
 
-/* ── grading stays internal until Check ── */
-assert.ok(!/_learnGoalsHtml|lp-goals|learn\.doneWhen/.test(core),
-  'practice renders no DONE WHEN checklist');
+/* ── grading requirements appear only as a Check verdict ── */
+assert.ok(!/_learnGoalsHtml|lp-goals/.test(core),
+  'practice has no always-visible goals component');
+assert.match(core, /function _learnResultsHtml[\s\S]*if\(!res \|\| !T\.checks\.length\) return ''/,
+  'the requirement checklist stays hidden until Check supplies a verdict');
 assert.match(core, /codeEl\.addEventListener\('input', learnCodeChanged\)/,
-  'typing clears a stale Check verdict without exposing a checklist');
+  'typing clears a stale Check verdict');
 
 const context = {
   console, Math, JSON, RegExp, Date, parseFloat, parseInt, isFinite,
@@ -90,14 +92,23 @@ for(const lesson of context.LESSONS){
 
     if(plan.mode === 'insert'){
       inserted++;
-      assert.ok(injected.includes('; >>> YOUR ANSWER — TASK ' + (i+1) + '/' + lesson.tasks.length),
-        `${lesson.id}.${i+1} carries a concise answer cue in the program`);
-      assert.ok(!/>>> write here/.test(injected),
-        `${lesson.id}.${i+1} replaced the placeholder marker`);
-      assert.strictEqual(injected.split('\n').filter(l => /;\s*>>>/.test(l)).length, 1,
-        `${lesson.id}.${i+1} uses one short marker line instead of duplicating the assignment`);
-      assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).every(line => line === ''),
-        `${lesson.id}.${i+1} begins with visibly empty answer blocks`);
+      if(task.answerPrefix !== undefined){
+        assert.strictEqual(injected.split('\n')[plan.start], task.answerPrefix,
+          `${lesson.id}.${i+1} starts with its editable answer prefix`);
+        assert.strictEqual(plan.caretColumn, task.answerPrefix.length,
+          `${lesson.id}.${i+1} places the caret after the answer prefix`);
+        assert.ok(!/;\s*>>>/.test(injected),
+          `${lesson.id}.${i+1} avoids a marker that could be mistaken for the requested comment`);
+      } else {
+        assert.ok(injected.includes('; >>> YOUR ANSWER — TASK ' + (i+1) + '/' + lesson.tasks.length),
+          `${lesson.id}.${i+1} carries a concise answer cue in the program`);
+        assert.ok(!/>>> write here/.test(injected),
+          `${lesson.id}.${i+1} replaced the placeholder marker`);
+        assert.strictEqual(injected.split('\n').filter(l => /;\s*>>>/.test(l)).length, 1,
+          `${lesson.id}.${i+1} uses one short marker line instead of duplicating the assignment`);
+        assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).every(line => line === ''),
+          `${lesson.id}.${i+1} begins with visibly empty answer blocks`);
+      }
     } else {
       edited++;
       assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).some(Boolean),
@@ -106,8 +117,8 @@ for(const lesson of context.LESSONS){
 
     // Grading must be blind to the cue and the extra visual blank rows.
     assert.deepStrictEqual(
-      context._learnStripTaskMarks(injected).replace(/\n+/g, '\n'),
-      context._learnStripTaskMarks(task.starter).replace(/\n+/g, '\n'),
+      context._learnExecutableCode(injected).replace(/\n+/g, '\n'),
+      context._learnExecutableCode(task.starter).replace(/\n+/g, '\n'),
       `${lesson.id}.${i+1} answer zoning changes no executable Klartext`);
 
     const solvedCode = context._learnSolvedCode(lesson, i);
@@ -129,5 +140,25 @@ assert.ok(commentTask.checks.some(c => c.t === 'has_comment'), 'L01.1 grades a c
 const onlyMarker = 'BEGIN PGM A MM\n; >>> YOUR ANSWER — TASK 1/3\nEND PGM A MM';
 assert.ok(!context.learnEvalChecks(onlyMarker, commentTask).some(r => r.ok && r.label.match(/comment/i)),
   'the injected answer marker cannot satisfy has_comment');
+const emptyComment = 'BEGIN PGM A MM\n; \nBLK FORM 0.1 Z X+0 Y+0 Z-20\nEND PGM A MM';
+assert.ok(!context.learnEvalChecks(emptyComment, commentTask).some(r => r.ok && r.label.match(/comment/i)),
+  'an empty comment prefix cannot borrow text from the next NC block');
+
+/* The old requirements panel is now a verdict rendered only after Check. */
+context.LEARN = {lastResults:null};
+assert.strictEqual(context._learnResultsHtml(commentTask), '',
+  'requirements are hidden before Check');
+context.LEARN.lastResults = commentTask.checks.map((check, i) => ({
+  ok:i !== 0, label:check.label, hint:check.hint
+}));
+const failedResult = context._learnResultsHtml(commentTask);
+assert.match(failedResult, /DONE WHEN/, 'Check reveals the requirement panel');
+assert.match(failedResult, /lp-check bad/, 'failed requirements are red verdict rows');
+assert.match(failedResult, /lp-check ok/, 'met requirements are green verdict rows');
+context.LEARN.lastResults = commentTask.checks.map(check => ({
+  ok:true, label:check.label, hint:check.hint
+}));
+assert.match(context._learnResultsHtml(commentTask), /lp-results all-ok/,
+  'an all-correct Check renders a green result panel');
 
 console.log(`Learn practice contract passed (${inserted} insert ranges, ${edited} edit ranges)`);

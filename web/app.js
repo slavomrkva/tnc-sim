@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.909';
+var APP_VERSION = '0.910';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1146,6 +1146,24 @@ if(codeEl){
       var row=model.rows[idx], block=blockAt(idx);
       return !!(row && row.kind!=='trailing-artifact' &&
         (row.kind==='continuation'||(block&&(block.type==='cycle'||block.type==='begin'||block.type==='end'))));
+    }
+
+    // A Learn answer row stays a row. Characters inside it use native editing,
+    // but Backspace/Delete at its outer edge must not merge it with a protected
+    // BEGIN/BLK/END neighbour and shift the highlighted answer range.
+    var answerRange = typeof learnAnswerLineRange === 'function' ? learnAnswerLineRange() : null;
+    if(isDeletion && s === en && answerRange){
+      var answerLine = lineIdxAt(s);
+      var answerStart = lineStartOffset(answerLine);
+      var answerEnd = answerStart + (lines[answerLine] || '').length;
+      var atProtectedStart = type === 'deleteContentBackward'
+        && answerLine === answerRange.start && s === answerStart;
+      var atProtectedEnd = type === 'deleteContentForward'
+        && answerLine === answerRange.end && s === answerEnd;
+      if(atProtectedStart || atProtectedEnd){
+        e.preventDefault();
+        return;
+      }
     }
 
     // ---- Path 1: a whole-line (or whole multi-line) selection touching a

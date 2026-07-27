@@ -817,6 +817,7 @@ function _learnStarterPlan(L, ti){
   var code = starter;
   var start = -1;
   var mode = 'edit';
+  var caretColumn = 0;
 
   if(/^[ \t]*;[ \t]*>>>/m.test(starter)){
     code = starter.replace(/^[ \t]*;[ \t]*>>>.*$(?:\n[ \t]*)*/m,
@@ -837,9 +838,17 @@ function _learnStarterPlan(L, ti){
       var newLines = replacement.split('\n').length;
       if(newLines > oldLines && replacement.slice(-oldText.length) === oldText){
         var lineAt = starter.lastIndexOf('\n', at - 1) + 1;
-        code = starter.slice(0, lineAt) + cue + '\n'.repeat(count + 1)
-          + starter.slice(lineAt);
-        start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+        if(T.answerPrefix !== undefined){
+          var prefix = String(T.answerPrefix);
+          code = starter.slice(0, lineAt) + prefix + '\n'.repeat(count)
+            + starter.slice(lineAt);
+          start = _learnLineIndexAt(code, lineAt);
+          caretColumn = prefix.length;
+        } else {
+          code = starter.slice(0, lineAt) + cue + '\n'.repeat(count + 1)
+            + starter.slice(lineAt);
+          start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+        }
         mode = 'insert';
       } else {
         start = _learnLineIndexAt(starter, at);
@@ -848,7 +857,7 @@ function _learnStarterPlan(L, ti){
     }
   }
 
-  return {code:code, start:start, count:count, mode:mode};
+  return {code:code, start:start, count:count, mode:mode, caretColumn:caretColumn};
 }
 
 function _learnStarterFor(L, ti){
@@ -1029,8 +1038,10 @@ function learnEvalChecks(code, task){
       }
       else if(ch.t === 'has_comment'){
         // any line containing ';' followed by some real text — the injected
-        // assignment marker is not the student's own comment
-        ok = /;\s*\S/.test(_learnStripTaskMarks(code));
+        // assignment marker is not the student's own comment. Horizontal
+        // whitespace only: an empty `; ` line must not borrow text from the
+        // next NC block across a newline.
+        ok = /;[ \t]*\S/.test(_learnStripTaskMarks(code));
       }
       else if(ch.t === 'blk_axis'){
         ok = /BLK\s+FORM\s+0\.1\s+Z\b/i.test(code);
@@ -1160,7 +1171,9 @@ function learnStartTask(ti){
   codeEl.value = plan.code;
   LEARN.answerStartLine = plan.start;
   LEARN.answerLineCount = plan.count;
-  var caretAt = plan.start >= 0 ? _learnLineOffset(codeEl.value, plan.start) : 0;
+  var caretAt = plan.start >= 0
+    ? _learnLineOffset(codeEl.value, plan.start) + (plan.caretColumn || 0)
+    : 0;
   if(typeof syncEditorSelection==='function') syncEditorSelection(caretAt, caretAt);
   else if(codeEl.setSelectionRange) codeEl.setSelectionRange(caretAt, caretAt);
   dirty = true; if(typeof _undoPush==='function') _undoPush();
@@ -1200,9 +1213,8 @@ function learnCheck(){
   learnRender();
 }
 
-/* Editing after Check clears that verdict so the action returns to Check.
-   Requirements stay internal to grading; practice intentionally exposes no
-   separate checklist alongside the question. */
+/* Editing after Check clears and hides the verdict so the action returns to
+   Check. Requirements are never shown as a live checklist before grading. */
 var _learnLiveTimer = null;
 
 function learnCodeChanged(){
@@ -1297,6 +1309,29 @@ function _learnHead(L){
     + '" aria-label="' + _lt('learn.close', 'Close Learn') + '">&#10005;</button></div>';
 }
 
+/* Requirements stay out of the way until Check. The resulting checklist is a
+   verdict, not a live task preview: green confirms a met requirement and red
+   explains what is still missing. Editing hides it again. */
+function _learnResultsHtml(T){
+  var res = LEARN.lastResults;
+  if(!res || !T.checks.length) return '';
+  var done = 0;
+  var rows = T.checks.map(function(ch, i){
+    var r = res[i];
+    var ok = !!(r && r.ok);
+    if(ok) done++;
+    return '<div class="lp-check ' + (ok ? 'ok' : 'bad') + '">'
+      + '<span class="c-ic">' + (ok ? '&#10003;' : '&#10007;') + '</span>'
+      + '<span class="c-lb">' + ch.label
+      + (!ok && ch.hint ? '<span class="c-hint">&#128161; ' + ch.hint + '</span>' : '')
+      + '</span></div>';
+  }).join('');
+  return '<div class="lp-results' + (done === T.checks.length ? ' all-ok' : '') + '">'
+    + '<div class="lp-results-cap">' + _lt('learn.doneWhen', 'DONE WHEN')
+    + '<span class="lp-results-n">' + done + '/' + T.checks.length + '</span></div>'
+    + rows + '</div>';
+}
+
 /* Theory stays available during practice, but keeps its slide structure. This
    avoids one long reference wall and lets the learner return to the exact
    explanation or diagram they need. */
@@ -1349,6 +1384,7 @@ function _learnPracticeHtml(L){
     + '</div>';
 
   body += _learnTheoryHtml(L);
+  body += _learnResultsHtml(T);
 
   if(shown > 0){
     body += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){

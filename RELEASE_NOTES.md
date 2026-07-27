@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.910 (web test)
+- The requirement checklist stays hidden until Check, then shows green and red
+  results and hides again on editing. The question guidance is now quiet text
+  inside the yellow panel.
+- The first comment exercise starts with an editable `; ` line; Backspace and
+  Delete edit it normally without collapsing it into neighbouring NC blocks.
+
 ## v0.909 (web test)
 - Removed the `DONE WHEN` checklist from every lesson. Collapsed information
   slides now have a subtle green surface, the question ends with a prominent

@@ -134,6 +134,7 @@ var LESSONS = [
   tasks:[
     {
       prompt:'Add a comment to the program \u2014 e.g. describe the blank',
+      answerPrefix:'; ',
       hints:[
         'A comment is a note for a human; the control skips it. Which character starts one? Slide 1 shows it.',
         'Put a new line of your own <b>above</b> the first BLK FORM line. It has to start with <code>;</code> \u2014 everything after that is free text.',

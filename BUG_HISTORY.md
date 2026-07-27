@@ -15,6 +15,38 @@ Newest first.
 
 ---
 
+## C33 — First Learn comment answer could collapse into protected NC blocks
+**Repos:** web `tnc-sim` v0.910. Android port remains deferred in `TODO.md`.
+**Fixed:** 2026-07-27.
+
+### Reported symptom
+In the first real lesson, text could be entered into the highlighted comment
+answer but Backspace/Delete appeared to stop working. The injected
+`; >>> YOUR ANSWER` cue was also easy to mistake for the requested comment.
+
+### Root cause
+Native character Backspace worked, but deleting through the outer edge of the
+blank answer row could merge it with the neighbouring structural/BLK row.
+Subsequent input then entered the editor's protected block path. Separately,
+the `has_comment` check used `\s*`, which could cross a newline and incorrectly
+treat an empty `; ` prefix plus the next NC block as a non-empty comment.
+
+### Attempts and accepted fix
+- Reproduced real `keydown`, `beforeinput` and `input` events in Chromium.
+  Interior Backspace was not prevented, ruling out a blanket deletion lock.
+- Replaced the marker for L01.1 with one editable `; ` answer prefix and placed
+  the caret after it. The task still fails until text exists on that same line.
+- Added Learn-only outer-boundary guards: text deletion remains native, while
+  Backspace/Delete cannot merge the answer row with adjacent NC blocks.
+- Restored requirements only as a post-Check verdict and covered hidden,
+  failed, successful and edit-to-hide states in the Learn contract tests.
+
+### Verification
+Browser automation confirms interior Backspace changes the text, boundary
+Backspace is safely ignored, forward Delete preserves the following BLK FORM,
+and the edited answer remains `; test` with field mode inactive. All Learn
+solutions and the full web regression suite pass.
+
 ## C32 — Valid BLK FORM dimensions above 500 mm were rejected
 **Repos:** web `tnc-sim` v0.901. Android implementation remains open for device
 acceptance in `tnc-sim-android` TODO C32. **Accepted:** 2026-07-25.

@@ -7,6 +7,22 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.910 — Check-only verdicts and robust comment editing
+
+- Restored the requirements as `_learnResultsHtml()` output only when
+  `LEARN.lastResults` exists: Check reveals green/red rows and failed hints,
+  while the existing edit invalidation hides the verdict again.
+- Reduced the answer-to-Check instruction to 10 px regular text inside the
+  yellow question surface, without a divider or separate background strip.
+- Gave L01.1 an explicit editable `; ` answer prefix with the caret after it,
+  removed its misleading answer-marker comment, and protected the outer answer
+  row boundaries while leaving character deletion native.
+- Fixed `has_comment` to accept horizontal whitespace only after `;`, preventing
+  an empty comment from borrowing text from the following NC block.
+- Browser-tested character Backspace, whole-text deletion, boundary Backspace
+  and forward Delete; visually verified failed and 3/3 Check results, and
+  advanced the offline cache to `v70`.
+
 ## v0.909 — simplified Learn task flow without DONE WHEN
 
 - Removed the DONE WHEN checklist from shared Learn markup, its live repaint

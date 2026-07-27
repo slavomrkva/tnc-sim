@@ -57,8 +57,10 @@ assert.match(app, /t\('learn\.question', 'QUESTION'\)[\s\S]*LEARN\.task \+ 1/,
   'question banner identifies the current task number');
 assert.match(app, /t\('learn\.answerThenCheck'[\s\S]*After writing your answer, press Check/,
   'question banner ends with the answer-to-check instruction');
-assert.ok(!/_learnGoalsHtml|lp-goals|learn\.doneWhen/.test(core),
-  'DONE WHEN is absent from every rendered lesson');
+assert.ok(!/_learnGoalsHtml|lp-goals/.test(core),
+  'DONE WHEN is not rendered as an always-visible goals component');
+assert.match(core, /function _learnResultsHtml[\s\S]*if\(!res \|\| !T\.checks\.length\) return ''/,
+  'DONE WHEN results remain hidden until Check');
 assert.match(css, /body\.learn-desktop-practice \.lp-task\{[^}]*display:none/,
   'the duplicate task card is removed from the desktop lesson panel');
 assert.match(css, /\.lp-theory-sum/,
@@ -71,6 +73,10 @@ assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:rgba\(240,169,7
   'answer blocks have a full-width amber highlight');
 assert.match(css, /\.lp-btn\.chk\{[^}]*background:#c6df4a/,
   'Check uses a distinct yellow-green action colour');
+assert.match(css, /\.learn-answer-head \.lah-direction\{[^}]*font-size:10px;[^}]*font-weight:400/,
+  'answer-to-Check guidance stays visually quiet inside the question panel');
+assert.match(app, /var answerRange = typeof learnAnswerLineRange[\s\S]*atProtectedStart[\s\S]*atProtectedEnd/,
+  'Learn answer rows keep their boundaries while allowing native text deletion');
 assert.match(css, /@media\(max-width:1024px\), \(max-height:600px\)/,
   'the existing mobile/short viewport breakpoint remains present');
 

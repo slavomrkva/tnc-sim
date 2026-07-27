@@ -127,10 +127,10 @@ Detailed module-split history is in the archived project notes linked above.
     `{body, foot}` for every layout; web code may synchronize external editor
     chrome but must never re-parent or rebuild the rendered practice DOM.
     `; >>>` is a reserved answer marker and must be stripped anywhere it could
-    affect grading. Grading requirements remain internal: never render a
-    separate DONE WHEN checklist. Check determines the verdict, and editing
-    clears a stale verdict. During practice, theory remains a collapsible
-    slide-by-slide reference rather than a second long document.
+    affect grading. Requirements stay hidden until Check, which renders the
+    DONE WHEN verdict with green/red rows and failed hints; editing clears the
+    verdict and hides that checklist again. During practice, theory remains a
+    collapsible slide-by-slide reference rather than a second long document.
     Start/Continue practice is available only on the final information slide.
     Every graded task exposes an answer range: insertion tasks reserve
     highlighted blank blocks, while direct-edit tasks highlight the existing
@@ -141,8 +141,10 @@ Detailed module-split history is in the archived project notes linked above.
     uses a distinct question surface rather than answer-area styling. Lesson
     selection and pre-practice views retain that same one-third panel width.
     Amber connects the question and exact answer range; Check is yellow-green.
-    The question surface ends with the explicit `After writing your answer,
-    press Check.` instruction.
+    The question surface ends with a small regular-weight `After writing your
+    answer, press Check.` instruction without a divider or separate strip.
+    Answer-row Backspace/Delete may edit text but must never merge the outer
+    highlighted boundaries into neighbouring program blocks.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
