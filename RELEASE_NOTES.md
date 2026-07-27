@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.902 (web test)
+- Desktop lessons now separate the assignment from the answer editor: the task
+  and success criteria stay clear on the left, the real editor is explicitly
+  labelled as the answer area, and the lesson's information slides remain
+  available in a collapsible review panel throughout practice.
+
 ## v0.901 (web test)
 - BLK FORM is no longer rejected merely because one box side, cylinder
   diameter or cylinder height exceeds 500 mm. Large valid blanks now adapt 3D

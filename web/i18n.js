@@ -46,6 +46,19 @@
       'autosave.lesson': 'Lektion – Änderungen werden nicht gespeichert',
       'autosave.error': 'Speichern fehlgeschlagen',
 
+      // focused desktop Learn workspace
+      'learn.answerKicker': 'DEINE ANTWORT',
+      'learn.answerDefault': 'Bearbeite das Startprogramm unten',
+      'learn.taskKicker': 'DEINE AUFGABE',
+      'learn.task': 'Aufgabe',
+      'learn.of': 'von',
+      'learn.answerDirection': 'Schreibe deine Antwort in den hervorgehobenen Editor rechts.',
+      'learn.infoSlides': 'INFO-FOLIEN',
+      'learn.infoReview': 'Lektionstheorie jederzeit nachlesen',
+      'learn.slide': 'Folie',
+      'learn.successCriteria': 'ERFOLGSKRITERIEN',
+      'learn.notChecked': 'noch nicht geprüft',
+
       // toolbar
       'toolbar.stale': '⚠ neu ausführen',
       'toolbar.run': 'Start',

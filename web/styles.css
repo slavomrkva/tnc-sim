@@ -644,6 +644,243 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 .lp-divider:before,.lp-divider:after{content:'';flex:1;height:1px;background:var(--border);}
 .lp-divider span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;}
 .lp-practice-btns{display:flex;gap:8px;margin-top:12px;}
+.learn-answer-head{display:none;}
+
+/* Wide-screen practice is a focused workspace: task on the left, the student's
+   answer in the centre, live result on the right. The existing mobile/short
+   viewport flow below remains the source of truth at <=1024px or <=600px. */
+@media (min-width:1025px) and (min-height:601px){
+  body.learn-desktop-practice #learnPanel{
+    width:clamp(340px,28vw,420px);
+    min-width:340px;
+    max-width:420px;
+    background:var(--surface);
+  }
+  body.learn-desktop-practice .editor-panel{
+    width:clamp(440px,44vw,760px);
+    max-width:760px;
+    border-right-color:rgba(var(--accent-rgb),.55);
+  }
+  body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
+  body.learn-desktop-practice .learn-answer-head{
+    display:flex;
+    min-height:54px;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:8px 14px 8px 16px;
+    box-sizing:border-box;
+    flex-shrink:0;
+    background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.05) 70%,transparent);
+    border-top:1px solid rgba(var(--accent-rgb),.45);
+    border-bottom:1px solid rgba(var(--accent-rgb),.65);
+  }
+  .learn-answer-head .lah-copy{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .learn-answer-head .lah-kicker{
+    font-family:var(--mono);
+    font-size:10px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.14em;
+    color:var(--accent);
+  }
+  .learn-answer-head .lah-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-family:var(--sans);
+    font-size:13px;
+    line-height:1.35;
+    font-weight:650;
+    color:var(--text);
+  }
+  .learn-answer-head .lah-task{
+    flex-shrink:0;
+    border:1px solid rgba(var(--accent-rgb),.55);
+    border-radius:999px;
+    padding:4px 9px;
+    background:rgba(var(--accent-rgb),.12);
+    color:var(--accent);
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.04em;
+  }
+  body.learn-desktop-practice .editor-wrap{
+    border-top:0;
+    box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);
+  }
+  body.learn-desktop-practice .line-nums{background:rgba(var(--accent-rgb),.045);}
+  body.learn-desktop-practice .code-area-wrap{background:linear-gradient(180deg,rgba(var(--accent-rgb),.035),transparent 120px),var(--surface);}
+
+  body.learn-desktop-practice #learnPanel .lp-body{
+    padding:12px;
+    scroll-padding-top:12px;
+  }
+  body.learn-desktop-practice .lp-practice-workspace{
+    display:flex;
+    min-height:100%;
+    flex-direction:column;
+    gap:10px;
+  }
+  body.learn-desktop-practice .lp-assignment-card{
+    padding:13px 14px 12px;
+    border:1px solid rgba(var(--accent-rgb),.65);
+    border-left:4px solid var(--accent);
+    border-radius:9px;
+    background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.045) 70%);
+    box-shadow:0 5px 18px rgba(0,0,0,.13);
+  }
+  body.learn-desktop-practice .lp-assignment-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:9px;
+  }
+  body.learn-desktop-practice .lp-assignment-kicker{
+    font-family:var(--mono);
+    font-size:10px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.14em;
+    color:var(--accent);
+  }
+  body.learn-desktop-practice .lp-task-badge{
+    margin:0;
+    padding:3px 8px;
+    background:var(--accent);
+    font-size:9.5px;
+  }
+  body.learn-desktop-practice .lp-prompt{
+    margin:0;
+    font-size:16px;
+    line-height:1.5;
+    font-weight:650;
+  }
+  body.learn-desktop-practice .lp-answer-direction{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    padding-top:9px;
+    border-top:1px solid rgba(var(--accent-rgb),.28);
+    color:var(--text2);
+    font-family:var(--mono);
+    font-size:10.5px;
+    line-height:1.4;
+  }
+  body.learn-desktop-practice .lp-answer-direction>span:first-child{
+    display:inline-flex;
+    width:20px;
+    height:20px;
+    flex:0 0 20px;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+  }
+  body.learn-desktop-practice .lp-theory-drawer{
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:var(--surface2);
+  }
+  body.learn-desktop-practice .lp-theory-summary{
+    display:flex;
+    min-height:52px;
+    align-items:center;
+    gap:10px;
+    padding:9px 38px 9px 12px;
+    position:relative;
+    cursor:pointer;
+    user-select:none;
+    list-style:none;
+  }
+  body.learn-desktop-practice .lp-theory-summary::-webkit-details-marker{display:none;}
+  body.learn-desktop-practice .lp-theory-summary:hover{background:rgba(var(--accent-rgb),.08);}
+  body.learn-desktop-practice .lp-theory-summary:focus-visible{outline:3px solid var(--accent3);outline-offset:-3px;}
+  body.learn-desktop-practice .lp-theory-summary:after{
+    content:'›';
+    position:absolute;
+    right:14px;
+    top:50%;
+    color:var(--accent);
+    font-family:var(--mono);
+    font-size:22px;
+    line-height:1;
+    transform:translateY(-50%) rotate(90deg);
+    transition:transform .16s ease;
+  }
+  body.learn-desktop-practice .lp-theory-drawer[open]>.lp-theory-summary:after{
+    transform:translateY(-50%) rotate(-90deg);
+  }
+  body.learn-desktop-practice .lp-theory-summary-copy{
+    display:flex;
+    min-width:0;
+    flex:1;
+    flex-direction:column;
+    gap:2px;
+  }
+  body.learn-desktop-practice .lp-theory-summary-title{
+    color:var(--accent);
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.12em;
+  }
+  body.learn-desktop-practice .lp-theory-summary-sub{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:var(--text2);
+    font-family:var(--sans);
+    font-size:12px;
+  }
+  body.learn-desktop-practice .lp-theory-summary-meta{
+    flex-shrink:0;
+    color:var(--text3);
+    font-family:var(--mono);
+    font-size:9.5px;
+  }
+  body.learn-desktop-practice .lp-theory-drawer>.lp-slides{
+    margin:0;
+    padding:12px;
+    border:0;
+    border-top:1px solid var(--border);
+    border-radius:0;
+    background:var(--bg);
+  }
+  body.learn-desktop-practice .lp-theory-drawer .lp-sec-cap{display:none;}
+  body.learn-desktop-practice .lp-theory-drawer .lp-slide-view{max-height:330px;}
+  body.learn-desktop-practice .lp-goals{
+    margin:0;
+    padding:10px 11px;
+    border-color:rgba(var(--accent-rgb),.28);
+    background:rgba(var(--accent-rgb),.035);
+  }
+  body.learn-desktop-practice .lp-goals-cap{
+    color:var(--text2);
+    font-size:10px;
+    font-weight:700;
+  }
+  body.learn-desktop-practice .lp-practice-btns{
+    position:sticky;
+    bottom:-12px;
+    z-index:2;
+    margin-top:auto;
+    padding:12px 0 4px;
+    background:linear-gradient(180deg,transparent 0,var(--surface) 22px,var(--surface) 100%);
+  }
+  body.learn-desktop-practice #ctxPanel:has(#_idleUndo)>* span,
+  body.learn-desktop-practice #_idleDemo,
+  body.learn-desktop-practice #_idleReset,
+  body.learn-desktop-practice #_idleClear{display:none;}
+}
+
 @media(pointer:coarse){ .lp-btn{min-height:40px;padding:8px 12px;} .learn-li{padding:13px 12px;} }
 @media(max-width:1024px), (max-height:600px){
   #learnPanel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:2px solid var(--accent);}

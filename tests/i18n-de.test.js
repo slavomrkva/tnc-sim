@@ -14,6 +14,7 @@ const vmRunExpr = (src) => vm.runInNewContext(src);
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const i18n = fs.readFileSync(path.join(root, 'web/i18n.js'), 'utf8');
 const panels = fs.readFileSync(path.join(root, 'web/panels.js'), 'utf8');
+const webApp = fs.readFileSync(path.join(root, 'web/app.js'), 'utf8');
 const bugReport = fs.readFileSync(path.join(root, 'core/bug-report.js'), 'utf8');
 const programAutosave = fs.readFileSync(path.join(root, 'core/program-autosave.js'), 'utf8');
 
@@ -27,7 +28,7 @@ for (const m of html.matchAll(/data-i18n(?:-html|-title|-aria|-ph)?="([^"]+)"/g)
 
 // keys referenced via t('key', ...) in web-only JS
 const jsKeys = new Set();
-for (const src of [panels]) for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
+for (const src of [panels, webApp]) for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 // bug-report.js localizes through the _bugT('key', english) helper
 for (const m of bugReport.matchAll(/_bugT\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 // program-autosave.js localizes through the _programAutosaveT helper
