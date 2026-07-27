@@ -158,6 +158,33 @@ header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(-
 .badge{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);color:var(--text2);}
 .badge.green{border-color:var(--accent2);color:var(--accent2);}
 .badge.blue{border-color:var(--accent3);color:var(--accent3);}
+.whats-new-btn{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--border);
+  border-radius:4px;background:var(--surface2);color:var(--text2);cursor:pointer;
+  font-family:var(--mono);font-size:10px;font-weight:500;white-space:nowrap;}
+.whats-new-btn[hidden]{display:none;}
+.whats-new-btn:hover{background:var(--surface);border-color:var(--text3);color:var(--text);}
+.whats-new-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12);}
+.whats-new-overlay{position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,.42);}
+.whats-new-overlay[hidden]{display:none;}
+.whats-new-card{position:absolute;top:64px;right:20px;width:min(420px,calc(100vw - 40px));
+  max-height:calc(100vh - 84px);overflow-y:auto;background:var(--surface2);
+  border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 14px 45px rgba(0,0,0,.5);}
+.whats-new-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding:16px 18px 13px;border-bottom:1px solid var(--border);}
+.whats-new-eyebrow{display:block;margin-bottom:4px;font-family:var(--mono);font-size:9px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+.whats-new-head h2{font-size:19px;line-height:1.25;color:var(--text);}
+.whats-new-close{margin:-5px -4px 0 0;padding:2px 5px;border:0;background:none;
+  color:var(--text3);font-size:22px;line-height:1;cursor:pointer;}
+.whats-new-close:hover{color:var(--text);}
+.whats-new-body{padding:15px 18px 18px;}
+.whats-new-body>p{margin:0 0 11px;color:var(--text2);font-size:13px;line-height:1.5;}
+.whats-new-body ul{display:flex;flex-direction:column;gap:9px;list-style:none;}
+.whats-new-body li{display:flex;align-items:flex-start;gap:9px;color:var(--text2);
+  font-family:var(--mono);font-size:11px;line-height:1.5;}
+.whats-new-body li>span:first-child{color:var(--accent);font-weight:800;flex:0 0 auto;}
 .sim-container{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
 .sim-main{display:flex;flex:1;overflow:hidden;min-height:0;}
 .editor-panel{width:580px;min-width:260px;max-width:700px;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);position:relative;flex-shrink:0;container-type:inline-size;}
@@ -192,6 +219,14 @@ header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(-
 .code-area-wrap{position:relative;flex:1;min-width:0;overflow:hidden;background:var(--surface);}
 #hlLayer{position:absolute;inset:0;margin:0;padding:10px 12px;font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;white-space:pre;overflow:hidden;pointer-events:none;tab-size:2;color:var(--text);z-index:1;}
 textarea#code{position:absolute;inset:0;width:100%;height:100%;z-index:2;padding:10px 12px;font-family:var(--mono);font-size:var(--editor-fs);line-height:1.8;background:transparent;color:transparent;caret-color:var(--text);border:none;outline:none;resize:none;tab-size:2;min-height:0;white-space:pre;overflow-x:auto;word-wrap:normal;overflow-wrap:normal;-webkit-text-size-adjust:none;text-size-adjust:none;}
+#hlLayer .learn-answer-line{display:inline-block;min-width:calc(100% + 24px);margin-left:-12px;padding-left:12px;
+  box-sizing:border-box;background:rgba(240,169,74,.17);box-shadow:inset 4px 0 0 #f0a94a,inset 0 1px rgba(240,169,74,.30);}
+#hlLayer .learn-answer-line.learn-answer-first{border-radius:0 6px 0 0;}
+#hlLayer .learn-answer-line.learn-answer-last{border-radius:0 0 6px 0;box-shadow:inset 4px 0 0 #f0a94a,inset 0 -1px rgba(240,169,74,.42);}
+.line-nums .ln.learn-target{background:rgba(240,169,74,.22);color:#f0a94a;
+  box-shadow:inset 3px 0 0 #f0a94a;font-weight:700;}
+html[data-theme="light"] #hlLayer .learn-answer-line{background:rgba(201,133,11,.16);}
+html[data-theme="light"] .line-nums .ln.learn-target{background:rgba(201,133,11,.18);color:#9a6100;}
 @media(pointer:fine){textarea#code{resize:both;min-height:80px;}}
 textarea#code::selection{background:rgba(20,184,166,0.3);}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
@@ -589,7 +624,7 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .lp-head .lp-title{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--text);flex:1;line-height:1.35;}
 .lp-head .lp-x{background:none;border:0;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0;}
 .lp-body{flex:1;overflow-y:auto;padding:14px;}
-.lp-foot{display:flex;align-items:center;gap:6px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.lp-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface2);flex-shrink:0;}
 .lp-body p{font-size:14.5px;line-height:1.65;color:var(--text2);margin:0 0 11px;font-family:var(--sans);}
 .lp-body p b{color:var(--text);font-weight:600;}
 .lp-body code{font-family:var(--mono);font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;}
@@ -617,33 +652,32 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .learn-summary{font-family:var(--mono);font-size:12px;color:var(--text2);padding:8px 10px;margin:0 0 10px;border-radius:7px;background:rgba(var(--accent-rgb),.10);border:1px solid rgba(var(--accent-rgb),.35);}
 .lp-task-badge{display:inline-block;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:9px;letter-spacing:.04em;}
 .lp-prompt{font-size:15.5px;line-height:1.55;color:var(--text);font-weight:600;margin:0 0 8px;font-family:var(--sans);}
-.lp-editor-hint{font-family:var(--mono);font-size:11.5px;color:var(--text3);margin:0 0 12px;line-height:1.5;}
-.lp-checks{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
-.lp-check{display:flex;gap:8px;font-size:13px;color:var(--text2);align-items:flex-start;font-family:var(--mono);line-height:1.45;}
+.lp-check{display:flex;gap:8px;font-size:13px;color:var(--text2);align-items:flex-start;font-family:var(--mono);line-height:1.45;padding:3px 0;}
 .lp-check .c-ic{width:14px;flex-shrink:0;text-align:center;}
-.lp-check .c-hint{color:#f0a94a;font-size:12px;margin-top:2px;}
+.lp-check .c-lb{flex:1;min-width:0;}
+.lp-check.ok .c-ic{color:#5dcaa5;}
+.lp-check.bad .c-ic{color:#e24b4a;}
+.lp-check .c-hint{display:block;color:#f0a94a;font-size:12px;margin-top:3px;line-height:1.4;}
 .lp-success{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 13px;border-radius:7px;background:rgba(93,202,165,.14);border:1px solid rgba(93,202,165,.5);color:#5dcaa5;font-size:13.5px;font-weight:600;font-family:var(--sans);line-height:1.45;}
 .lp-btn{font-family:var(--mono);font-size:12.5px;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
 .lp-btn:hover{border-color:var(--text3);color:var(--text);}
 .lp-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
-.lp-btn.chk{background:#5dcaa5;border-color:#5dcaa5;color:#04342c;font-weight:600;}
+.lp-btn.chk{background:#5dcaa5;border-color:#5dcaa5;color:#04342c;font-weight:700;}
+html[data-theme="light"] .lp-btn.chk{background:#45b992;border-color:#27866d;color:#042c25;}
 .lp-btn.grow{flex:1;text-align:center;}
-.lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 12px 8px;}
-.lp-sec-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:8px;}
-.lp-slide-view{max-height:390px;overflow-y:auto;padding-right:4px;}
-@media(max-width:1024px), (max-height:600px){ .lp-slide-view{max-height:300px;} }
+.lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.lp-slide-view{padding-right:2px;}
+.lp-slide-n{font-family:var(--mono);font-size:11px;color:var(--text3);flex-shrink:0;}
 .lp-slides-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .lp-slides-nav .lp-btn{padding:6px 14px;font-size:16px;font-weight:700;color:var(--accent);border-color:var(--accent);line-height:1;}
+.lp-slides-nav .learn-prog{flex:1;margin:0;}
+.lp-slides-nav .lp-slide-arrow{width:44px;min-width:44px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:22px;}
 .lp-slides-nav .lp-btn:hover:not(:disabled){background:var(--accent);color:#fff;}
 .lp-slides-nav .lp-btn:disabled{opacity:.35;cursor:default;}
 html[data-theme="light"] .learn-svg [fill="#f0a94a"]{fill:#945000;}
 html[data-theme="light"] .learn-svg [stroke="#f0a94a"]{stroke:#945000;}
 html[data-theme="light"] .learn-svg [fill="#5dcaa5"]{fill:#176b58;}
 html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
-.lp-divider{display:flex;align-items:center;gap:10px;margin:14px 0 12px;}
-.lp-divider:before,.lp-divider:after{content:'';flex:1;height:1px;background:var(--border);}
-.lp-divider span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;}
-.lp-practice-btns{display:flex;gap:8px;margin-top:12px;}
 @media(pointer:coarse){ .lp-btn{min-height:40px;padding:8px 12px;} .learn-li{padding:13px 12px;} }
 @media(max-width:1024px), (max-height:600px){
   #learnPanel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:2px solid var(--accent);}
@@ -692,14 +726,18 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
      its content height and leaving a strip of bare near-black page background
      below it. lp-body then flexes to fill (was capped at an arbitrary
      100svh-220px, which is what left the dead space at the bottom). */
-  body[data-mtab="learn"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  /* Once a mobile section is active, the bottom tabs are the final flex row
+     instead of a viewport-fixed overlay. This keeps them visible while mobile
+     browser chrome expands/collapses and lets --vvh track the true viewport. */
+  body[data-mtab] .mtab-bar{position:relative;left:auto;right:auto;bottom:auto;flex-shrink:0;transform:none;}
+  body[data-mtab="learn"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="learn"]){overflow:hidden;height:100%;}
   body[data-mtab="learn"] .sim-container,
   body[data-mtab="learn"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
   body[data-mtab="learn"] #learnPanel{flex:1;min-height:0;}
   body[data-mtab="learn"] #learnPanel .lp-body{max-height:none;flex:1;min-height:0;}
   /* 3D tab = fixed app-like layout (no page scroll). */
-  body[data-mtab="view"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  body[data-mtab="view"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="view"]){overflow:hidden;height:100%;}
   body[data-mtab="view"] .sim-container,
   body[data-mtab="view"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
@@ -710,13 +748,14 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
      viewport. The text begins below the controls and cannot pass behind them;
      opening/closing a context or practice row simply changes the remaining
      editor height. --- */
-  body[data-mtab="editor"]{height:100svh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;}
+  body[data-mtab="editor"]{height:100svh;height:var(--vvh,100dvh);overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;box-sizing:border-box;}
   html:has(body[data-mtab="editor"]){overflow:hidden;height:100%;}
   body[data-mtab="editor"] .sim-container,
   body[data-mtab="editor"] .sim-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
   /* Fixed editor column — the textarea below is the only scroll owner. */
   body[data-mtab="editor"] .editor-panel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0;box-sizing:border-box;width:100%;}
   html.kbd-open body[data-mtab="editor"]{height:var(--vvh,100svh);padding-bottom:0;}
+  html.kbd-open .mtab-bar{display:none;}
   /* Code fills exactly the space left between controls and bottom tabs. */
   body[data-mtab="editor"] .editor-wrap{display:flex;flex:1;height:auto !important;min-height:0;max-height:none !important;overflow:hidden !important;overscroll-behavior:contain !important;}
   body[data-mtab="editor"] .line-nums{min-height:0 !important;}
@@ -733,9 +772,9 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
   body[data-mtab="editor"] .ctx-panel,
   body[data-mtab="editor"] #learnMobileBar.on{position:relative;top:auto;flex-shrink:0;}
   /* Interactive editing panels stay in normal flow below the keypad. */
-  #learnMobileBar.on .lp-prompt{color:var(--text);font-size:13px;line-height:1.3;margin:0;}
-  #learnMobileBar.on .lp-divider{margin:0 0 5px;}
-  #learnMobileBar .lp-practice-btns{margin-top:7px;}
+  #learnMobileBar.on .lp-prompt{color:var(--text);font-size:13.5px;line-height:1.35;margin:0;}
+  #learnMobileBar.on .lp-theory{display:none;}
+  #learnMobileBar .lp-foot{margin:7px -12px -8px;border-radius:0;}
   /* When the on-screen keyboard is open, hide the practice task panel so the
      editor is fully visible while typing. It reappears automatically the moment
      the keyboard is dismissed. Rides on the same visualViewport detection that
@@ -748,10 +787,7 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 }
 
 
-/* ── Learn: goals, progressive hints, first-run coach ───────────────── */
-.lp-goals{border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin:10px 0 0;}
-.lp-goals-cap{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text3);margin-bottom:6px;}
-.lp-goals.checked{border-color:var(--accent);}
+/* ── Learn: progressive hints and first-run coach ───────────────────── */
 .lp-hints{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
 .lp-hint-row{display:flex;gap:8px;align-items:flex-start;background:rgba(240,169,74,.07);
   border-left:2px solid #f0a94a;border-radius:0 6px 6px 0;padding:7px 9px;}
@@ -786,3 +822,140 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:2px solid transparent;background-clip:content-box;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);border:2px solid transparent;background-clip:content-box;}
+
+/* ── Learn practice: one task card, one goal list, one pinned action row ──
+   Colour carries meaning and nothing else: teal = structure and navigation,
+   green = a goal that is met, amber = a hint. The task card is the only
+   filled surface in the panel, so "what am I being asked?" is answered by
+   looking, not by reading captions. */
+.lp-head .lp-back{padding:2px 9px;font-size:17px;line-height:1;color:var(--accent);border-color:transparent;background:none;}
+.lp-head .lp-back:hover{border-color:var(--accent);}
+.lp-head .lp-cap{font-size:15px;}
+
+.lp-task{border:1px solid rgba(var(--accent-rgb),.55);border-left:4px solid var(--accent);border-radius:9px;
+  background:rgba(var(--accent-rgb),.10);padding:11px 13px 10px;}
+.lp-task-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.lp-task .lp-prompt{margin:0;font-size:15.5px;line-height:1.5;}
+.lp-where{margin-top:8px;padding-top:8px;border-top:1px solid rgba(var(--accent-rgb),.25);
+  font-family:var(--mono);font-size:11px;line-height:1.45;color:var(--text3);}
+.lp-where code{font-size:11px;padding:0 3px;}
+
+/* Theory during practice: reference behind one disclosure, never a slideshow */
+.lp-theory{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden;}
+.lp-theory:not([open]){background:rgba(93,202,165,.075);border-color:rgba(93,202,165,.30);}
+.lp-theory:not([open])>.lp-theory-sum{background:linear-gradient(90deg,rgba(93,202,165,.08),transparent);}
+html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);border-color:rgba(23,107,88,.28);}
+.lp-theory-sum{padding:9px 12px;cursor:pointer;list-style:none;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;color:var(--text2);user-select:none;}
+.lp-theory-sum::-webkit-details-marker{display:none;}
+.lp-theory-sum:before{content:'\203A';display:inline-block;width:12px;color:var(--accent);
+  transform:rotate(90deg);transition:transform .15s;}
+.lp-theory[open]>.lp-theory-sum:before{transform:rotate(-90deg);}
+.lp-theory-sum:hover{color:var(--text);}
+.lp-theory-sum:focus-visible{outline:3px solid var(--accent3);outline-offset:-3px;}
+.lp-theory-body{padding:4px 12px 10px;border-top:1px solid var(--border);background:var(--bg);}
+.lp-theory-sep{height:1px;background:var(--border);margin:14px 0;}
+
+.lp-results{margin-top:10px;border:1px solid rgba(226,75,74,.42);border-radius:8px;padding:9px 10px;background:rgba(226,75,74,.045);}
+.lp-results.all-ok{border-color:rgba(93,202,165,.45);background:rgba(93,202,165,.06);}
+.lp-results-cap{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--text3);}
+.lp-results-n{font-weight:800;letter-spacing:0;color:#e24b4a;}
+.lp-results.all-ok .lp-results-n{color:#5dcaa5;}
+
+.lp-foot .lp-solve{opacity:.22;border-color:transparent;padding:8px 7px;}
+.lp-foot .lp-solve:hover{opacity:.5;}
+.lp-practice-locked{justify-content:center;color:var(--text3);font-family:var(--mono);
+  font-size:10.5px;text-align:center;line-height:1.4;}
+.lp-quiet{font-size:11px;color:var(--text3);border-color:transparent;}
+.learn-reset-row{text-align:center;margin-top:14px;}
+
+.li-st.done{color:#5dcaa5;}
+.li-st.part{color:var(--accent);}
+.li-st.assisted{color:#f0a94a;}
+
+.learn-answer-head{display:none;}
+.lp-where{display:flex;align-items:center;gap:8px;}
+.lp-where-arrow{display:inline-flex;width:20px;height:20px;flex:0 0 20px;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:800;}
+.lp-theory-sum{display:flex;align-items:center;gap:8px;min-height:52px;box-sizing:border-box;}
+.lp-theory-sum-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:2px;}
+.lp-theory-sum-title{color:var(--accent);font-weight:800;}
+.lp-theory-sum-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);
+  font-family:var(--sans);font-size:12px;letter-spacing:0;}
+.lp-theory-sum-meta{flex-shrink:0;color:var(--text3);font-family:var(--mono);font-size:9.5px;letter-spacing:0;}
+.lp-theory-body{padding:10px;}
+.lp-theory-slides{margin:0;border:0;border-radius:6px;background:transparent;padding:0;}
+.lp-theory-slides .learn-prog{flex:1;margin-bottom:0;}
+.lp-theory-slides .lp-slide-view{padding:2px 2px 0;}
+
+/* Desktop practice: lesson, editor and result are equal thirds. The external
+   question header mirrors the task directly above the code; core still renders
+   practice once for every layout. */
+@media (min-width:1025px) and (min-height:601px){
+  body.learn-desktop-open:not(.learn-desktop-practice) #learnPanel{
+    width:33.333333% !important;
+    min-width:0;
+    max-width:none;
+    box-sizing:border-box;
+  }
+  body.learn-desktop-practice #learnPanel,
+  body.learn-desktop-practice .editor-panel,
+  body.learn-desktop-practice .canvas-panel{
+    width:33.333333% !important;
+    min-width:0;
+    max-width:none;
+    flex:0 0 33.333333%;
+    box-sizing:border-box;
+  }
+  body.learn-desktop-practice #learnPanel{
+    background:var(--surface);
+  }
+  body.learn-desktop-practice .editor-panel{
+    border-right-color:rgba(var(--accent-rgb),.55);
+  }
+  body.learn-desktop-practice .panel-resize{display:none;}
+  body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
+  body.learn-desktop-practice .learn-answer-head{
+    display:flex;
+    min-height:96px;
+    flex-shrink:0;
+    align-items:flex-start;
+    padding:11px 15px 12px 17px;
+    box-sizing:border-box;
+    background:linear-gradient(135deg,rgba(240,169,74,.30),rgba(240,169,74,.12) 78%);
+    border-top:1px solid rgba(240,169,74,.72);
+    border-bottom:1px solid rgba(240,169,74,.85);
+    box-shadow:inset 5px 0 0 #f0a94a;
+  }
+  .learn-answer-head .lah-copy{display:flex;min-width:0;width:100%;flex-direction:column;gap:5px;}
+  .learn-answer-head .lah-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .learn-answer-head .lah-kicker{display:inline-flex;align-self:flex-start;font-family:var(--mono);
+    font-size:10px;line-height:1;font-weight:800;letter-spacing:.12em;color:#17120a;
+    background:#f0a94a;border:1px solid #ffc868;border-radius:999px;padding:5px 9px;}
+  .learn-answer-head .lah-title{font-family:var(--sans);font-size:15px;line-height:1.42;font-weight:650;color:var(--text);}
+  .learn-answer-head .lah-title code{font-family:var(--mono);font-size:.9em;color:var(--text);
+    background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 4px;}
+  .learn-answer-head .lah-direction{display:block;margin-top:5px;padding:0;
+    border:0;background:none;font-family:var(--mono);font-size:10px;
+    line-height:1.35;font-weight:400;color:rgba(255,224,163,.78);}
+  html[data-theme="light"] body.learn-desktop-practice .learn-answer-head{
+    background:linear-gradient(135deg,#fff0ad,#fff8d9 78%);
+    border-color:#b97708;
+    box-shadow:inset 5px 0 0 #c9850b;
+  }
+  html[data-theme="light"] .learn-answer-head .lah-direction{color:#73551e;}
+  body.learn-desktop-practice .editor-wrap{
+    border-top:0;
+    box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);
+  }
+  body.learn-desktop-practice .line-nums{background:rgba(var(--accent-rgb),.045);}
+  body.learn-desktop-practice .code-area-wrap{
+    background:linear-gradient(180deg,rgba(var(--accent-rgb),.035),transparent 120px),var(--surface);
+  }
+  body.learn-desktop-practice #learnPanel .lp-body{padding:12px;}
+  body.learn-desktop-practice .lp-task{
+    display:none;
+  }
+  body.learn-desktop-practice .lp-theory{margin-top:0;}
+}

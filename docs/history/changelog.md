@@ -7,6 +7,168 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.914 — stable mobile tabs and correct Learn guidance
+
+- Moved the mobile tab bar from a viewport-fixed overlay into the bounded app
+  flex layout, whose height follows `visualViewport` through `--vvh`.
+- Made the in-flow tab row release its space while the on-screen keyboard is
+  open, while requiring text focus before a viewport shrink can be classified
+  as the keyboard rather than browser chrome.
+- Changed the Start Here mobile copy and coach so Info Slides explicitly open
+  in the Learn section, then return to Editor for Hint and Check.
+- Added focused mobile layout/tutorial regressions and advanced the offline
+  cache to `v74`.
+- Accepted the complete Learn redesign for production, moved the two resolved
+  mobile reports to bug history and started the 10-day What's New window from
+  the v0.914 main merge.
+
+## v0.913 — tutorial aligned with the redesigned Learn layout
+
+- Reworked L00 into a real comment warm-up with an editable `; ` answer row,
+  two Check requirements and matching English/German slides and hints.
+- Updated the coach to target the visible desktop question banner instead of
+  the hidden legacy task card, spotlight the exact answer overlay, explain
+  reopenable Info Slides, and identify the green Check result flow.
+- Changed What’s New from lime promotion styling to the standard neutral header
+  treatment and reduced the popup to three short bullets.
+- Added tutorial target/content regressions and advanced the offline cache to
+  `v73`.
+
+## v0.912 — restored green lesson actions
+
+- Returned the shared `.lp-btn.chk` action style to the original green family,
+  so both Check and Start/Continue practice again use the same clear positive
+  action colour in dark and light themes.
+- Updated the Learn layout contract test and advanced the offline cache to
+  `v72`.
+
+## v0.911 — time-limited What’s New popup
+
+- Added a compact, lime-accented `What’s new` action to the top-right header
+  and an accessible popup summarizing the redesigned Learn flow.
+- Added equivalent English and German popup content, click-outside and Escape
+  dismissal, focus return, and responsive top-right placement.
+- Kept the feature offline by storing an explicit production `mergedAt`
+  timestamp in `web/whats-new.js`; `_whatsNewIsActive()` shows the action for
+  exactly 10 days and fails closed for invalid metadata.
+- Added a focused release-window/UI contract test and advanced the offline
+  cache to `v71`.
+
+## v0.910 — Check-only verdicts and robust comment editing
+
+- Restored the requirements as `_learnResultsHtml()` output only when
+  `LEARN.lastResults` exists: Check reveals green/red rows and failed hints,
+  while the existing edit invalidation hides the verdict again.
+- Reduced the answer-to-Check instruction to 10 px regular text inside the
+  yellow question surface, without a divider or separate background strip.
+- Gave L01.1 an explicit editable `; ` answer prefix with the caret after it,
+  removed its misleading answer-marker comment, and protected the outer answer
+  row boundaries while leaving character deletion native.
+- Fixed `has_comment` to accept horizontal whitespace only after `;`, preventing
+  an empty comment from borrowing text from the following NC block.
+- Browser-tested character Backspace, whole-text deletion, boundary Backspace
+  and forward Delete; visually verified failed and 3/3 Check results, and
+  advanced the offline cache to `v70`.
+
+## v0.909 — simplified Learn task flow without DONE WHEN
+
+- Removed the DONE WHEN checklist from shared Learn markup, its live repaint
+  path, German key, CSS and contract tests; grading requirements remain
+  internal and Check still determines completion.
+- Removed the obsolete goals step from the shared first-run coach and updated
+  its answer guidance from teal to the current amber answer range.
+- Added a subtle green background only to collapsed INFO SLIDES disclosures,
+  turned the question instruction into a prominent bottom strip with the exact
+  `After writing your answer, press Check.` wording, and changed Check to a
+  high-contrast yellow-green in both themes.
+- Verified no goals component is rendered on desktop or mobile, all 46 task
+  banners remain unclipped, browser console output is clean, and advanced the
+  offline cache to `v69`.
+
+## v0.908 — continuous amber question-to-check flow
+
+- Added a host `learn-desktop-open` state so lesson selection and pre-practice
+  information views retain the same one-third desktop panel width as practice.
+- Changed answer-range overlays and their line-number gutter cells from teal
+  to amber in both themes, and matched the Check button and its ready focus
+  ring to the same visual language.
+- Replaced the banner's generic answer direction with the localized instruction
+  `Write in the highlighted area, then press Check.`, separated at the bottom
+  of the yellow question surface.
+- Verified the selection panel at 480/1440 px, equal 480 px practice columns,
+  desktop/narrow/mobile screenshots with no console errors, and advanced the
+  offline cache to `v68`.
+
+## v0.907 — equal Learn columns and amber question banner
+
+- Locked the desktop practice lesson, editor and result columns to equal
+  box-sized thirds and disabled the editor resize handle during practice so a
+  prior inline width cannot break the balance.
+- Replaced the external `YOUR ANSWER` heading and duplicate task badge with one
+  localized `QUESTION n/m` identifier, while retaining the answer cue inside
+  the highlighted code range.
+- Restyled the complete question block with a distinct amber surface, border
+  and accent for dark mode plus a high-contrast pale-yellow light-mode variant.
+- Verified exact 480/480/480 px columns at 1440x900, exact 367/367/367 px
+  columns at 1100x700, all 46 task prompts without clipping, and advanced the
+  offline cache to `v67`.
+
+## v0.906 — wider lesson reference and task banner above editor
+
+- Rebalanced the desktop Learn workspace from the previous 28/44 percent
+  lesson/editor proportions to 34/32 percent, capped at 520/500 px, leaving
+  the remaining width to the 3D result.
+- Mirrored the trusted current task prompt into the external answer header,
+  added the answer direction to its accessible description and hid the
+  duplicate core task card only in desktop practice.
+- Kept the mobile practice card unchanged, verified all 46 task prompts at
+  1440x900 and 1100x700 with no clipping or console errors, and advanced the
+  offline cache to `v66`.
+
+## v0.905 — explicit Learn answer zones and final-slide practice gate
+
+- Added a shared answer-range planner for every graded Learn task: insertion
+  tasks receive enough highlighted blank blocks for the reference answer,
+  while direct-edit tasks highlight the existing source blocks to change.
+- Synchronized the answer range with both the syntax overlay and line-number
+  gutter, and placed the caret at its first block when practice starts.
+- Restored prominent previous/next slide controls and moved Start/Continue
+  practice exclusively to the final information slide.
+- Extended the Learn contracts across all lessons, visually verified desktop,
+  narrow and mobile layouts with a clean browser console, and advanced the
+  offline cache to `v65`.
+- Left the deliberate Android core/editor/style port as follow-up work after
+  this web test layout is accepted.
+
+## v0.904 — shared Learn practice renderer and hybrid answer workspace
+
+- Replaced the desktop-only post-render DOM rewrite with one core
+  `_learnPracticeHtml()` builder shared by desktop and narrow layouts; the web
+  host hook now synchronizes only the external `YOUR ANSWER` editor band.
+- Added debounced live goal evaluation, a pinned action footer and a concise
+  reserved `; >>> YOUR ANSWER` marker that is stripped before grading; marked
+  tasks place the caret directly below the cue.
+- Kept the task card and highlighted answer editor from the first layout while
+  retaining slide navigation inside the collapsible theory reference. Check
+  closes the reference so verdicts and hints return into view.
+- Added Learn practice and hybrid desktop layout contracts, verified all 30
+  Node regression files plus 1440x900, 1100x700 and 390x844 browser layouts,
+  and advanced the offline cache to `v64`.
+- Left the deliberate Android core/style port as follow-up work after this web
+  test layout is accepted.
+
+## v0.903 — focused desktop Learn workspace
+
+- Reworked desktop practice into a task-first three-pane workspace with an
+  explicit assignment card, success criteria, a labelled answer editor and the
+  live 3D result alongside it.
+- Kept lesson information slides available during practice in an accessible
+  collapsible review panel that preserves slide navigation and collapses after
+  Check so validation feedback stays visible.
+- Preserved the existing mobile/short-viewport flow, added German labels,
+  responsive browser coverage and a layout-contract regression, and bumped the
+  offline cache.
+
 ## v0.902 — repository cleanup
 
 - Preserved the former open-work list in a dated historical snapshot and reset

@@ -1,15 +1,20 @@
 // keyboard -- web-specific (diverged from or absent in the other repo).
 
-/* Keep the mobile bottom tab bar pinned to the true visible viewport.
-   position:fixed tracks the *layout* viewport, but mobile browsers resize it
-   only after the address-bar show/hide animation finishes — that lag is the
-   visible "jump". We follow visualViewport continuously with a rAF loop that
-   runs while scrolling/resizing, so the bar stays glued the whole time. */
+/* Keep the mobile app layout matched to the true visible viewport.
+   The bottom tab bar is an in-flow flex row, so updating --vvh keeps it visible
+   while mobile browser chrome expands/collapses. The same measurement detects
+   the on-screen keyboard and temporarily hides the tab row. */
 (function(){
   if(!window.visualViewport) return;
   var bar = null, raf = 0, idleTicks = 0, last = -1;
   var baseline = window.visualViewport.height;
   var keyboardOpen = false;
+  function hasTextFocus(){
+    var active = document.activeElement;
+    if(!active) return false;
+    var tag = active.tagName;
+    return active.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA';
+  }
   function apply(){
     if(!bar) bar = document.querySelector('.mtab-bar');
     var vv = window.visualViewport;
@@ -22,8 +27,10 @@
     // repeatedly toggling during the keyboard/address-bar animation. The
     // baseline fallback also covers browsers where innerHeight shrinks with
     // visualViewport and the old offset therefore stayed near zero.
-    if(!keyboardOpen && drop > 140) keyboardOpen = true;
-    else if(keyboardOpen && drop < 80) keyboardOpen = false;
+    // Browser chrome can also reduce visualViewport height while scrolling.
+    // Only a focused text control can legitimately open the soft keyboard.
+    if(!keyboardOpen && drop > 200 && hasTextFocus()) keyboardOpen = true;
+    else if(keyboardOpen && drop < 160) keyboardOpen = false;
     var kbdOpen = keyboardOpen;
     // expose the true visible height + keyboard state to CSS so the editor
     // layout can shrink to fit the space actually left above the keyboard
@@ -36,10 +43,7 @@
       idleTicks = 0;
     }
     if(kbdOpen){ return; }
-    // Do NOT transform the bar during scrolling. Plain position:fixed tracks
-    // the layout viewport smoothly on its own (the Learn tab proves this) —
-    // chasing visualViewport with transforms is what caused the jitter. The
-    // only thing we handle is hiding the bar while the keyboard is open.
+    // The bar stays in normal flex flow; no transform/counter-lift is needed.
     if(last !== 0){ last = 0; bar.style.transform = ''; }
   }
   function loop(){

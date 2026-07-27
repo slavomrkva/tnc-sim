@@ -10,6 +10,70 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.914
+- Kept the mobile Editor/3D/Learn bar inside the visible app viewport while
+  scrolling in a lesson.
+- Updated Start Here on mobile to point back to Learn for Info Slides.
+
+## v0.913 (web test)
+- Updated the Start Here tutorial for the redesigned lesson layout, including a
+  real highlighted answer row and guidance for Info Slides and Check results.
+- Made **What’s new** a standard neutral header action and shortened its popup.
+
+## v0.912 (web test)
+- Restored the established green treatment for both **Check** and
+  **Start/Continue practice**.
+
+## v0.911 (web test)
+- Added a compact **What’s new** button in the top-right header. For 10 days
+  after the recorded production merge it opens a short, localized summary of
+  the redesigned Learn experience, then hides automatically.
+
+## v0.910 (web test)
+- The requirement checklist stays hidden until Check, then shows green and red
+  results and hides again on editing. The question guidance is now quiet text
+  inside the yellow panel.
+- The first comment exercise starts with an editable `; ` line; Backspace and
+  Delete edit it normally without collapsing it into neighbouring NC blocks.
+
+## v0.909 (web test)
+- Removed the `DONE WHEN` checklist from every lesson. Collapsed information
+  slides now have a subtle green surface, the question ends with a prominent
+  “After writing your answer, press Check.” strip, and Check is yellow-green.
+
+## v0.908 (web test)
+- Lesson selection now uses the same one-third desktop width as practice.
+  Yellow answer rows and a yellow Check button visually connect the question
+  to the required action, reinforced by a short instruction below the prompt.
+
+## v0.907 (web test)
+- Desktop practice now divides the lesson, answer editor and 3D result into
+  equal thirds. The task is identified as `QUESTION n/m` in a strongly
+  contrasting yellow banner above the editor.
+
+## v0.906 (web test)
+- Desktop practice gives more space to the lesson panel and uses a narrower
+  answer editor. The complete task now appears as a clear banner immediately
+  above the editor instead of being repeated in the lesson panel.
+
+## v0.905 (web test)
+- Information slides again use prominent previous/next arrows, and practice
+  unlocks only on the final slide.
+- Every graded task now highlights the exact editor block intended for the
+  answer, including multi-line answers and tasks that modify existing code.
+
+## v0.904 (web test)
+- Lesson practice combines a clearly labelled answer editor with concise
+  in-program answer markers, live goal ticks and an always-visible action row.
+  Information slides remain available during practice as a collapsible,
+  slide-by-slide reference instead of one long document.
+
+## v0.903 (web test)
+- Desktop lessons now separate the assignment from the answer editor: the task
+  and success criteria stay clear on the left, the real editor is explicitly
+  labelled as the answer area, and the lesson's information slides remain
+  available in a collapsible review panel throughout practice.
+
 ## v0.901 (web test)
 - BLK FORM is no longer rejected merely because one box side, cylinder
   diameter or cylinder height exceeds 500 mm. Large valid blanks now adapt 3D

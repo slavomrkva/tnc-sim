@@ -33,6 +33,10 @@ Detailed module-split history is in the archived project notes linked above.
   meaningful user-visible change.
 - When runtime assets change, keep the service-worker cache version and
   precache list synchronized.
+- `web/whats-new.js` keeps announcements offline and deterministic: set its
+  explicit `mergedAt` value to the real production merge time. The header
+  button is visible globally for the following 10 days, then hides itself
+  without relying on GitHub or another runtime service.
 - Push to GitHub; Cloudflare Workers Builds deploys `wrangler.jsonc`, combining
   the Worker API with the existing Static Assets site. `/api/report` lives in
   `worker/report-worker.mjs`; its GitHub and Turnstile credentials are encrypted
@@ -53,7 +57,11 @@ Detailed module-split history is in the archived project notes linked above.
    millimetre ceiling; keep finite, positive and max-greater-than-min checks.
 4. **Responsive layout:** single-column mode is
    `(max-width:1024px), (max-height:600px)`. Use `_isMTab()`; do not introduce a
-   width-only variant. See
+   width-only variant. In that mode Editor, 3D and Learn are bounded flex
+   layouts sized from `visualViewport`; the bottom tab bar is their final
+   in-flow row, not a viewport-fixed overlay. A viewport-height drop alone is
+   not proof that the software keyboard opened: require active text focus and
+   keep ordinary browser-chrome changes below the keyboard threshold. See
    [`docs/history/layout-and-renderer-rationale.md`](docs/history/layout-and-renderer-rationale.md).
 5. **Mobile WebGL:** keep defensive renderer creation, context-loss handling,
    and the touch-device avoidance of unconditional `high-performance`.
@@ -122,6 +130,32 @@ Detailed module-split history is in the archived project notes linked above.
     through `insertProgramBlock()`. On web, never reclassify desktop multi-line
     paste/drop as Enter and never intercept Enter while an IME composition is
     active.
+
+20. **Learn practice is rendered once in core:** `_learnPracticeHtml()` returns
+    `{body, foot}` for every layout; web code may synchronize external editor
+    chrome but must never re-parent or rebuild the rendered practice DOM.
+    `; >>>` is a reserved answer marker and must be stripped anywhere it could
+    affect grading. Requirements stay hidden until Check, which renders the
+    DONE WHEN verdict with green/red rows and failed hints; editing clears the
+    verdict and hides that checklist again. During practice, theory remains a
+    collapsible slide-by-slide reference rather than a second long document.
+    Start/Continue practice is available only on the final information slide.
+    Every graded task exposes an answer range: insertion tasks reserve
+    highlighted blank blocks, while direct-edit tasks highlight the existing
+    source blocks that must be changed. In desktop practice the host mirrors
+    the current task into the banner above the editor and visually hides the
+    core task card; mobile continues to use the core-rendered task card. The
+    three desktop practice columns remain equal thirds, and the mirrored task
+    uses a distinct question surface rather than answer-area styling. Lesson
+    selection and pre-practice views retain that same one-third panel width.
+    Amber connects the question and exact answer range; Check and Start practice
+    use the established green action colour.
+    The question surface ends with a small regular-weight `After writing your
+    answer, press Check.` instruction without a divider or separate strip.
+    Answer-row Backspace/Delete may edit text but must never merge the outer
+    highlighted boundaries into neighbouring program blocks. The Start Here
+    tutorial must exercise this real flow and target only visible UI: question
+    panel, highlighted answer row, Info Slides, Hint, then Check.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

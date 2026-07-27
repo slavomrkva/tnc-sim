@@ -41,6 +41,7 @@ function updateLineNums(){
   var blockNums = computeBlockNumbers(lines);
   var selectedRow = model.rows[_selectedLine];
   var selectedBlock = selectedRow ? selectedRow.blockIndex : null;
+  var answer = typeof learnAnswerLineRange === 'function' ? learnAnswerLineRange() : null;
   var marks = {};
   for(var k=0;k<problemsData.length;k++){
     var pr=problemsData[k];
@@ -53,6 +54,7 @@ function updateLineNums(){
   for(var i=0;i<lines.length;i++){
     var cls='ln'; if(marks[i]==='err')cls+=' err'; else if(marks[i]==='warn')cls+=' warn'; else if(marks[i]==='fixed')cls+=' fixed';
     if(selectedBlock!==null && model.rows[i] && model.rows[i].blockIndex===selectedBlock) cls+=' selected';
+    if(answer && i>=answer.start && i<=answer.end) cls+=' learn-target';
     var numLabel = blockNums[i]===null ? '' : blockNums[i];
     var rowBlock=model.rows[i]&&model.rows[i].blockIndex!==null ? model.blocks[model.rows[i].blockIndex] : null;
     var deleteBtn=rowBlock&&rowBlock.type!=='begin'&&rowBlock.type!=='end'

@@ -1,10 +1,9 @@
 // learn-coach -- first-run guided tour for PRACTICE. Shared core: keep this file
 // byte-for-byte identical between the web and android repos.
 //
-// A practice task shows an assignment, a goal checklist, a Hint button and a
-// Check button spread over two panels (and, on mobile, over two tabs). A first
-// time user has no idea which of those is "the thing you do next", so the very
-// first time practice is opened we walk them through it with a spotlight.
+// A practice task shows a question, highlighted answer range, reopenable Info
+// Slides, Hint and Check. The first time practice opens, a spotlight explains
+// that short flow across desktop panels or mobile tabs.
 //
 // No dependency: the spotlight hole is a plain div with a huge box-shadow, and
 // it is re-measured on every step / resize / scroll.
@@ -23,26 +22,31 @@ function _coachMarkSeen(){ try { localStorage.setItem('tnc_learn_coach', '1'); }
    _coachPaint() switches the mobile tab before measuring so it's on screen. */
 function _coachTarget(key){
   if(key === 'closeLearn') return document.querySelector('#learnPanel .lp-x');
-  if(key === 'backToList') return document.querySelector('#learnPanel .lp-hamburger');
+  if(key === 'backToList') return document.querySelector('#learnPanel .lp-back');
   var mob = _isMTab && _isMTab();
   var root = mob ? document.getElementById('learnMobileBar') : document.getElementById('learnPanel');
   if(!root) return null;
   if(key === 'editor') return document.getElementById('code');
-  if(key === 'prompt') return root.querySelector('.lp-prompt');
-  if(key === 'goals')  return root.querySelector('.lp-goals');
+  if(key === 'prompt') return mob
+    ? root.querySelector('.lp-task')
+    : document.getElementById('learnAnswerHead');
+  if(key === 'answer') return document.querySelector('#hlLayer .learn-answer-line')
+    || document.getElementById('code');
+  if(key === 'theory') return mob
+    ? document.querySelector('#learnPanel .lp-theory-sum')
+    : root.querySelector('.lp-theory-sum');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
-  if(key === 'giveUp') return root.querySelector('.lp-exit');
   if(key === 'solve')  return root.querySelector('.lp-solve');
   return null;
 }
 
-/* closeLearn/backToList need the mobile Learn tab active; every other step
-   needs the Editor tab (where the pinned practice strip / real editor live).
+/* closeLearn/backToList and Info Slides need the mobile Learn tab active; every
+   other step needs the Editor tab (where the practice strip / real editor live).
    No-op on desktop, where both live in the same always-visible panel. */
 function _coachEnsureTabFor(key){
   if(!(_isMTab && _isMTab()) || typeof mtabSwitch !== 'function') return;
-  var want = (key === 'closeLearn' || key === 'backToList') ? 'learn' : 'editor';
+  var want = (key === 'closeLearn' || key === 'backToList' || key === 'theory') ? 'learn' : 'editor';
   if(document.body.getAttribute('data-mtab') !== want) mtabSwitch(want);
 }
 
@@ -55,17 +59,20 @@ function learnCoachMaybeStart(force){
 }
 
 function learnCoachStart(){
+  var mobile = _isMTab && _isMTab();
   COACH.steps = [
-    { k:'prompt', t:'1. Read the assignment',
-      d:'One clear action. This warm-up asks you to add a comment before END PGM.' },
-    { k:'editor', t:'2. Make the edit here',
-      d:'This is the real editor with a safe starter program. Add your own line; nothing is submitted until you choose Check.' },
-    { k:'goals',  t:'3. Know what counts',
-      d:'Every graded goal is visible from the start. Grey means not checked yet; green means passed.' },
+    { k:'prompt', t:'1. Read the question',
+      d:'The question panel above the editor always shows the current task.' },
+    { k:'answer', t:'2. Type in the highlighted row',
+      d:'This is the real editor. The amber answer row marks exactly where to work.' },
+    { k:'theory', t:mobile ? '3. Open Learn for Info Slides' : '3. Reopen Info Slides',
+      d:mobile
+        ? 'Return to the Learn section whenever you want to review the lesson explanation.'
+        : 'The lesson explanation stays available throughout practice.' },
     { k:'hint',   t:'4. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
-    { k:'check',  t:'5. Check and improve',
-      d:'Press Check whenever you like. You will see exactly what passed and what still needs work.' }
+    { k:'check',  t:'5. Check when ready',
+      d:'Press the green Check button. Requirements then appear in green or red; edit again to hide them.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

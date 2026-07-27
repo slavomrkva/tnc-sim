@@ -15,6 +15,91 @@ Newest first.
 
 ---
 
+## C35 — Mobile bottom tabs disappeared while scrolling Learn practice
+**Repo:** web `tnc-sim` v0.914. **Fixed and accepted:** 2026-07-27.
+
+### Reported symptom
+On a phone, the Editor / 3D / Learn bar could disappear when the user scrolled
+to the bottom of the editor during a lesson practice.
+
+### Root cause
+The bar was a `position:fixed` overlay tied to the layout viewport while the
+editor used a separately bounded mobile layout. Mobile browser chrome changed
+the visual viewport during scrolling. The keyboard detector could also treat a
+large browser-chrome resize as an open software keyboard and hide the bar even
+without an active text field.
+
+### Attempts and accepted fix
+- Attempt 1 moved the tab bar into the mobile app's flex layout as its final
+  in-flow row and sized Editor, 3D and Learn from `visualViewport` through
+  `--vvh`.
+- Keyboard-open detection now requires active text focus and uses hysteresis
+  above ordinary browser-chrome height changes. The in-flow row releases its
+  space while the real keyboard is open and returns after it closes.
+
+### Verification
+Headless mobile checks at 390×844 confirmed the bar bottom stayed equal to the
+visible viewport bottom before and after scrolling. Resizing to 390×700 kept it
+visible; a focused keyboard-size drop hid it and restoring 390×700 showed it
+again with focus retained. The full 32-test suite passed, and the user accepted
+the test branch by requesting the web merge.
+
+## C34 — Start Here sent mobile users to practice instead of Learn for Info Slides
+**Repo:** web `tnc-sim` v0.914. **Fixed and accepted:** 2026-07-27.
+
+### Reported symptom
+The mobile Start Here tutorial referred the learner back to practice when the
+reopenable Info Slides actually live in the Learn section.
+
+### Root cause
+The coach treated the theory step like the other practice-strip controls and
+kept the Editor tab active. Its mobile target therefore resolved from the
+practice strip instead of the visible Learn panel.
+
+### Attempts and accepted fix
+- Attempt 1 routes the Info Slides coach step to the Learn tab and targets the
+  visible `#learnPanel` disclosure.
+- The mobile English and German slides now explicitly name Learn and describe
+  Learn / Editor / 3D as lesson / answer / result.
+- The following Hint and Check steps still return to Editor automatically.
+
+### Verification
+The mobile coach sequence was exercised as Editor → Editor → Learn → Editor;
+the Info Slides target had non-zero visible dimensions. Tutorial, localization
+and full regression tests passed, and the user requested the production merge.
+
+## C33 — First Learn comment answer could collapse into protected NC blocks
+**Repos:** web `tnc-sim` v0.910. Android port remains deferred in `TODO.md`.
+**Fixed:** 2026-07-27.
+
+### Reported symptom
+In the first real lesson, text could be entered into the highlighted comment
+answer but Backspace/Delete appeared to stop working. The injected
+`; >>> YOUR ANSWER` cue was also easy to mistake for the requested comment.
+
+### Root cause
+Native character Backspace worked, but deleting through the outer edge of the
+blank answer row could merge it with the neighbouring structural/BLK row.
+Subsequent input then entered the editor's protected block path. Separately,
+the `has_comment` check used `\s*`, which could cross a newline and incorrectly
+treat an empty `; ` prefix plus the next NC block as a non-empty comment.
+
+### Attempts and accepted fix
+- Reproduced real `keydown`, `beforeinput` and `input` events in Chromium.
+  Interior Backspace was not prevented, ruling out a blanket deletion lock.
+- Replaced the marker for L01.1 with one editable `; ` answer prefix and placed
+  the caret after it. The task still fails until text exists on that same line.
+- Added Learn-only outer-boundary guards: text deletion remains native, while
+  Backspace/Delete cannot merge the answer row with adjacent NC blocks.
+- Restored requirements only as a post-Check verdict and covered hidden,
+  failed, successful and edit-to-hide states in the Learn contract tests.
+
+### Verification
+Browser automation confirms interior Backspace changes the text, boundary
+Backspace is safely ignored, forward Delete preserves the following BLK FORM,
+and the edited answer remains `; test` with field mode inactive. All Learn
+solutions and the full web regression suite pass.
+
 ## C32 — Valid BLK FORM dimensions above 500 mm were rejected
 **Repos:** web `tnc-sim` v0.901. Android implementation remains open for device
 acceptance in `tnc-sim-android` TODO C32. **Accepted:** 2026-07-25.

@@ -2,11 +2,41 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.902';
+var APP_VERSION = '0.914';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
 })();
+
+/* Core owns all Learn markup. The web host only synchronizes the editor chrome
+   that sits outside #learnPanel, so no rendered lesson DOM is moved or rebuilt. */
+window.learnHostUpdate = function(){
+  var open = typeof LEARN !== 'undefined' && LEARN.open;
+  var active = open && LEARN.lesson >= 0 && LEARN.task >= 0;
+  document.body.classList.toggle('learn-desktop-open', open);
+  document.body.classList.toggle('learn-desktop-practice', active);
+
+  var head = document.getElementById('learnAnswerHead');
+  var code = document.getElementById('code');
+  if(code){
+    if(active) code.setAttribute('aria-describedby', 'learnAnswerTitle learnAnswerDirection');
+    else code.removeAttribute('aria-describedby');
+  }
+  if(!head) return;
+  head.setAttribute('aria-hidden', active ? 'false' : 'true');
+  if(!active) return;
+
+  var lesson = LESSONS[LEARN.lesson];
+  var task = lesson && lesson.tasks[LEARN.task];
+  var kicker = document.getElementById('learnAnswerKicker');
+  var title = document.getElementById('learnAnswerTitle');
+  var direction = document.getElementById('learnAnswerDirection');
+  if(kicker) kicker.textContent = t('learn.question', 'QUESTION') + ' '
+    + (LEARN.task + 1) + '/' + lesson.tasks.length;
+  if(title) title.innerHTML = task ? task.prompt : '';
+  if(direction) direction.textContent = t('learn.answerThenCheck',
+    'After writing your answer, press Check.');
+};
 
 // ===== constants.js =====
 // TNC Sim — Constants: CYCLES, BUILDERS, KEYS, defaults
@@ -1116,6 +1146,24 @@ if(codeEl){
       var row=model.rows[idx], block=blockAt(idx);
       return !!(row && row.kind!=='trailing-artifact' &&
         (row.kind==='continuation'||(block&&(block.type==='cycle'||block.type==='begin'||block.type==='end'))));
+    }
+
+    // A Learn answer row stays a row. Characters inside it use native editing,
+    // but Backspace/Delete at its outer edge must not merge it with a protected
+    // BEGIN/BLK/END neighbour and shift the highlighted answer range.
+    var answerRange = typeof learnAnswerLineRange === 'function' ? learnAnswerLineRange() : null;
+    if(isDeletion && s === en && answerRange){
+      var answerLine = lineIdxAt(s);
+      var answerStart = lineStartOffset(answerLine);
+      var answerEnd = answerStart + (lines[answerLine] || '').length;
+      var atProtectedStart = type === 'deleteContentBackward'
+        && answerLine === answerRange.start && s === answerStart;
+      var atProtectedEnd = type === 'deleteContentForward'
+        && answerLine === answerRange.end && s === answerEnd;
+      if(atProtectedStart || atProtectedEnd){
+        e.preventDefault();
+        return;
+      }
     }
 
     // ---- Path 1: a whole-line (or whole multi-line) selection touching a

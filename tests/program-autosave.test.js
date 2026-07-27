@@ -141,10 +141,12 @@ const openBody = learnSource.slice(learnSource.indexOf('function openLearn'), le
 assert.ok(openBody.indexOf('programAutosaveSuspendForLearn()') < openBody.indexOf('LEARN.open = true'));
 const exitBody = learnSource.slice(learnSource.indexOf('function learnExit'), learnSource.indexOf('function _learnEndEditorInput'));
 assert.match(exitBody, /!LEARN\.open[^\n]+programAutosaveResumeAfterLearn/);
-assert.match(learnSource, /onclick="closeLearn\(\)" title="Exit practice/,
-  'the practice close button must fully close Learn so autosave resumes immediately');
-assert.doesNotMatch(learnSource, /onclick="learnExit\(\)" title="Exit practice/,
-  'the practice close button must not leave Learn open with autosave suspended');
+// Leaving Learn from the UI must go through closeLearn() so autosave resumes
+// immediately; learnExit() alone leaves Learn open with autosave suspended.
+assert.match(learnSource, /onclick="closeLearn\(\)"/,
+  'the Learn close control must fully close Learn so autosave resumes immediately');
+assert.doesNotMatch(learnSource, /onclick="learnExit\(\)"/,
+  'no rendered control may call learnExit() and leave autosave suspended');
 
 const tabsSource = fs.readFileSync(path.join(root, 'core', 'mobile-tabs.js'), 'utf8');
 assert.match(tabsSource, /LEARN\.open = false;\s*\n\s*learnExit\(\)/);
