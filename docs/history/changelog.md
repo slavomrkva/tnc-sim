@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.907 — equal Learn columns and amber question banner
+
+- Locked the desktop practice lesson, editor and result columns to equal
+  box-sized thirds and disabled the editor resize handle during practice so a
+  prior inline width cannot break the balance.
+- Replaced the external `YOUR ANSWER` heading and duplicate task badge with one
+  localized `QUESTION n/m` identifier, while retaining the answer cue inside
+  the highlighted code range.
+- Restyled the complete question block with a distinct amber surface, border
+  and accent for dark mode plus a high-contrast pale-yellow light-mode variant.
+- Verified exact 480/480/480 px columns at 1440x900, exact 367/367/367 px
+  columns at 1100x700, all 46 task prompts without clipping, and advanced the
+  offline cache to `v67`.
+
 ## v0.906 — wider lesson reference and task banner above editor
 
 - Rebalanced the desktop Learn workspace from the previous 28/44 percent

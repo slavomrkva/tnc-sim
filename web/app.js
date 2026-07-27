@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.906';
+var APP_VERSION = '0.907';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -30,13 +30,11 @@ window.learnHostUpdate = function(){
   var kicker = document.getElementById('learnAnswerKicker');
   var title = document.getElementById('learnAnswerTitle');
   var direction = document.getElementById('learnAnswerDirection');
-  var badge = document.getElementById('learnAnswerTask');
-  if(kicker) kicker.textContent = t('learn.answerKicker', 'YOUR ANSWER');
+  if(kicker) kicker.textContent = t('learn.question', 'QUESTION') + ' '
+    + (LEARN.task + 1) + '/' + lesson.tasks.length;
   if(title) title.innerHTML = task ? task.prompt : '';
   if(direction) direction.textContent = t('learn.answerHighlighted',
     'Write only in the highlighted area below.');
-  if(badge) badge.textContent = t('learn.task', 'TASK') + ' '
-    + (LEARN.task + 1) + '/' + lesson.tasks.length;
 };
 
 // ===== constants.js =====

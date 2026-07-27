@@ -135,7 +135,9 @@ Detailed module-split history is in the archived project notes linked above.
     highlighted blank blocks, while direct-edit tasks highlight the existing
     source blocks that must be changed. In desktop practice the host mirrors
     the current task into the banner above the editor and visually hides the
-    core task card; mobile continues to use the core-rendered task card.
+    core task card; mobile continues to use the core-rendered task card. The
+    three desktop practice columns remain equal thirds, and the mirrored task
+    uses a distinct question surface rather than answer-area styling.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

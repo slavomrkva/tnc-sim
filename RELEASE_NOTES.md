@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.907 (web test)
+- Desktop practice now divides the lesson, answer editor and 3D result into
+  equal thirds. The task is identified as `QUESTION n/m` in a strongly
+  contrasting yellow banner above the editor.
+
 ## v0.906 (web test)
 - Desktop practice gives more space to the lesson panel and uses a narrower
   answer editor. The complete task now appears as a clear banner immediately

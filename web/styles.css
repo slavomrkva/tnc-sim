@@ -858,22 +858,26 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 .lp-theory-slides .learn-prog{flex:1;margin-bottom:0;}
 .lp-theory-slides .lp-slide-view{padding:2px 2px 0;}
 
-/* Desktop practice: give the lesson reference more room and keep the editor
-   intentionally compact. The external answer header mirrors the task directly
-   above the code; core still renders practice once for every layout. */
+/* Desktop practice: lesson, editor and result are equal thirds. The external
+   question header mirrors the task directly above the code; core still renders
+   practice once for every layout. */
 @media (min-width:1025px) and (min-height:601px){
+  body.learn-desktop-practice #learnPanel,
+  body.learn-desktop-practice .editor-panel,
+  body.learn-desktop-practice .canvas-panel{
+    width:33.333333% !important;
+    min-width:0;
+    max-width:none;
+    flex:0 0 33.333333%;
+    box-sizing:border-box;
+  }
   body.learn-desktop-practice #learnPanel{
-    width:clamp(430px,34vw,520px);
-    min-width:430px;
-    max-width:520px;
     background:var(--surface);
   }
   body.learn-desktop-practice .editor-panel{
-    width:clamp(400px,32vw,500px);
-    min-width:400px;
-    max-width:500px;
     border-right-color:rgba(var(--accent-rgb),.55);
   }
+  body.learn-desktop-practice .panel-resize{display:none;}
   body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
   body.learn-desktop-practice .learn-answer-head{
     display:flex;
@@ -882,21 +886,26 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
     align-items:flex-start;
     padding:11px 15px 12px 17px;
     box-sizing:border-box;
-    background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.05) 70%,transparent);
-    border-top:1px solid rgba(var(--accent-rgb),.45);
-    border-bottom:1px solid rgba(var(--accent-rgb),.65);
+    background:linear-gradient(135deg,rgba(240,169,74,.30),rgba(240,169,74,.12) 78%);
+    border-top:1px solid rgba(240,169,74,.72);
+    border-bottom:1px solid rgba(240,169,74,.85);
+    box-shadow:inset 5px 0 0 #f0a94a;
   }
   .learn-answer-head .lah-copy{display:flex;min-width:0;width:100%;flex-direction:column;gap:5px;}
   .learn-answer-head .lah-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-  .learn-answer-head .lah-kicker{font-family:var(--mono);font-size:10px;line-height:1;font-weight:800;
-    letter-spacing:.14em;color:var(--accent);}
+  .learn-answer-head .lah-kicker{display:inline-flex;align-self:flex-start;font-family:var(--mono);
+    font-size:10px;line-height:1;font-weight:800;letter-spacing:.12em;color:#17120a;
+    background:#f0a94a;border:1px solid #ffc868;border-radius:999px;padding:5px 9px;}
   .learn-answer-head .lah-title{font-family:var(--sans);font-size:15px;line-height:1.42;font-weight:650;color:var(--text);}
   .learn-answer-head .lah-title code{font-family:var(--mono);font-size:.9em;color:var(--text);
     background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 4px;}
   .learn-answer-head .lah-direction{font-family:var(--mono);font-size:10.5px;line-height:1.35;color:var(--text3);}
-  .learn-answer-head .lah-task{flex-shrink:0;border:1px solid var(--accent);border-radius:999px;
-    padding:4px 9px;background:var(--accent);color:#fff;font-family:var(--mono);
-    font-size:10px;font-weight:800;letter-spacing:.05em;}
+  html[data-theme="light"] body.learn-desktop-practice .learn-answer-head{
+    background:linear-gradient(135deg,#fff0ad,#fff8d9 78%);
+    border-color:#b97708;
+    box-shadow:inset 5px 0 0 #c9850b;
+  }
+  html[data-theme="light"] .learn-answer-head .lah-direction{color:#73551e;}
   body.learn-desktop-practice .editor-wrap{
     border-top:0;
     box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);

@@ -45,10 +45,12 @@ assert.match(css, /@media \(min-width:1025px\) and \(min-height:601px\)/,
   'new workspace is limited to desktop-sized viewports');
 assert.match(css, /body\.learn-desktop-practice \.learn-answer-head[\s\S]*display:flex/,
   'answer header is visible only in focused desktop practice');
-assert.match(css, /body\.learn-desktop-practice #learnPanel\{[^}]*width:clamp\(430px,34vw,520px\)/,
-  'desktop lesson panel is widened for readable reference slides');
-assert.match(css, /body\.learn-desktop-practice \.editor-panel\{[^}]*width:clamp\(400px,32vw,500px\)/,
-  'desktop answer editor is intentionally narrower');
+assert.match(css, /body\.learn-desktop-practice #learnPanel,[\s\S]*body\.learn-desktop-practice \.canvas-panel\{[^}]*width:33\.333333% !important;[^}]*flex:0 0 33\.333333%/,
+  'lesson, editor and result use equal desktop thirds');
+assert.match(css, /body\.learn-desktop-practice \.learn-answer-head\{[^}]*background:linear-gradient\(135deg,rgba\(240,169,74/,
+  'question banner uses a clearly distinct amber background');
+assert.match(app, /t\('learn\.question', 'QUESTION'\)[\s\S]*LEARN\.task \+ 1/,
+  'question banner identifies the current task number');
 assert.match(css, /body\.learn-desktop-practice \.lp-task\{[^}]*display:none/,
   'the duplicate task card is removed from the desktop lesson panel');
 assert.match(css, /\.lp-theory-sum/,
