@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.915 (web test)
+- Values in the desktop programming panel can now be selected and edited
+  directly for path functions, polar functions, labels and TOOL CALL.
+- Fixed TOOL CALL highlighting selecting the wrong characters after its fixed
+  `Z` spindle-axis token.
+
 ## v0.914
 - Kept the mobile Editor/3D/Learn bar inside the visible app viewport while
   scrolling in a lesson.

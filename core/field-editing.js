@@ -281,6 +281,53 @@ function focusMobileInput(){
   }
 }
 
+function _fieldPanelSanitize(value,f){
+  var v=String(value==null?'':value);
+  if(!f) return v;
+  if(f.type==='coord'||f.type==='num'||f.type==='feed') return sanitizeVal(v,f.type);
+  if(f.type==='mval') return v.replace(/\D/g,'');
+  if(f.type==='qval') return v.replace(/q/g,'Q').replace(/[^0-9.+\-QAUTOauto]/g,'');
+  return v;
+}
+
+function _fieldPanelAttr(value){
+  return String(value==null?'':value)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function focusFieldPanelInput(selectAll){
+  if(isMobile() || !FM.active) return;
+  var input=document.getElementById('fbarVal');
+  if(!input || input.tagName!=='INPUT') return;
+  try{ input.focus({preventScroll:true}); }catch(e){ input.focus(); }
+  if(selectAll!==false){ try{ input.select(); }catch(e2){} }
+}
+
+function fieldPanelInput(input){
+  if(!FM.active || !input) return;
+  var f=FM.fields[FM.idx];
+  var value=_fieldPanelSanitize(input.value,f);
+  if(input.value!==value) input.value=value;
+  f.val=(value===''&&f.opt)?null:value;
+  FM.typing=true;
+  writeLine();
+}
+
+function fieldPanelKeydown(e){
+  if(!FM.active || !e) return;
+  if(e.key==='Escape'){
+    e.preventDefault(); e.stopPropagation(); exitFieldMode(); return;
+  }
+  if(e.key==='Enter'){
+    e.preventDefault(); e.stopPropagation(); exitFieldMode(); return;
+  }
+  if(e.key==='Tab'){
+    e.preventDefault(); e.stopPropagation();
+    e.shiftKey ? fieldPrev() : fieldNext();
+  }
+}
+
 function selectField(i){
   FM.idx=i;
   FM.typing=false;
@@ -296,7 +343,8 @@ function selectField(i){
     lineNums.scrollTop=savedScroll;
   }
   renderFbar();
-  focusMobileInput();
+  if(isMobile()) focusMobileInput();
+  else focusFieldPanelInput(true);
 }
 
 function renderFbar(){
@@ -329,7 +377,14 @@ function renderFbar(){
     var rcSkipCls='fbar-drbtn'+(f.val===''?' sel':'');
     html+='<div class="fbar-dr">'+rcBtn('RL',f.val)+rcBtn('R0',f.val)+rcBtn('RR',f.val)+'<button class="'+rcSkipCls+'" onclick="setFieldVal(\'\')">—</button></div>';
   } else {
-    html+='<span class="fbar-pfx">'+(f.lbl||f.p||'')+'</span><span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':f.val)+'</span>';
+    html+='<span class="fbar-pfx">'+(f.lbl||f.p||'')+'</span>';
+    if(isMobile()){
+      html+='<span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':f.val)+'</span>';
+    } else {
+      html+='<input class="fbar-val" id="fbarVal" type="text" value="'+_fieldPanelAttr(f.val)+'" placeholder="\u2014"'
+        +' aria-label="'+_fieldPanelAttr(f.prompt||f.p||'Value')+'" autocomplete="off" spellcheck="false"'
+        +' oninput="fieldPanelInput(this)" onkeydown="fieldPanelKeydown(event)">';
+    }
     if(f.type==='feed'){
       // Feed has 4 extra actions (Q ref, FMAX, FAUTO, skip) — as separate
       // buttons they wrapped this row on mobile and grew the panel height
@@ -389,7 +444,12 @@ function refreshSelection(){
     lineNums.scrollTop=savedScroll;
   }
   var el=document.getElementById('fbarVal');
-  if(el){ var fv=FM.fields[FM.idx]; el.textContent=fv.val===null?'—':fv.val; el.style.color=fv.val===null?'var(--text3)':''; }
+  if(el){
+    var fv=FM.fields[FM.idx];
+    if(el.tagName==='INPUT') el.value=fv.val===null?'':fv.val;
+    else el.textContent=fv.val===null?'—':fv.val;
+    el.style.color=fv.val===null?'var(--text3)':'';
+  }
 }
 
 function setFieldVal(v){ FM.fields[FM.idx].val=v; FM.typing=true; selectField(FM.idx); }

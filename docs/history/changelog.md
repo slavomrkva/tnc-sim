@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.915 — directly editable programming fields
+
+- Replaced the desktop field panel's display-only value span with a focused,
+  selectable input shared by L/C/CC/CR/CT, polar, incremental, label and TOOL
+  CALL numeric fields; mobile keeps its established hidden-input ownership.
+- Kept special choices such as the tool picker, DR direction and RL/RR/R0 as
+  explicit controls, while direct input updates the real program immediately.
+- Calculated field ranges from the final postprocessed line, fixing TOOL CALL
+  S/F/DL/DR ranges shifted by the inserted `Z` token.
+- Added generic builder/range regressions, browser-tested direct desktop edits
+  across representative functions and advanced the offline cache to `v75`.
+
 ## v0.914 — stable mobile tabs and correct Learn guidance
 
 - Moved the mobile tab bar from a viewport-fixed overlay into the bounded app

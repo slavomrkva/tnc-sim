@@ -28,11 +28,15 @@ function render(isMobile){
 }
 
 const desktop = render(false);
+assert.match(desktop, /<input class="fbar-val" id="fbarVal" type="text" value="100"/);
+assert.match(desktop, /oninput="fieldPanelInput\(this\)"/);
 assert.match(desktop, /id="feedModeButton"/);
 assert.match(desktop, /id="feedModeMenu"/);
 assert.doesNotMatch(desktop, /<select class="fbar-feedmode"/);
 
 const mobile = render(true);
+assert.match(mobile, /<span class="fbar-val" id="fbarVal"/);
+assert.doesNotMatch(mobile, /<input class="fbar-val"/);
 assert.match(mobile, /<select class="fbar-feedmode"/);
 assert.doesNotMatch(mobile, /id="feedModeMenu"/);
 

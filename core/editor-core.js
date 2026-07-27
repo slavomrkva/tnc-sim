@@ -586,15 +586,26 @@ function sanitizeVal(v,type){
 }
 
 function lineParts(){
-  var text=FM.cmd, ranges=[];
+  var text=FM.cmd, tokens=[];
   for(var i=0;i<FM.fields.length;i++){
     var tok=tokenFor(FM.fields[i]);
-    if(tok===''){ ranges.push({s:-1,e:-1}); continue; } // optional empty field (e.g. rc not set)
-    text+=' ';
-    var s=text.length; text+=tok; ranges.push({s:s,e:text.length});
+    tokens.push(tok);
+    if(tok==='') continue; // optional empty field (e.g. rc not set)
+    text+=' '+tok;
   }
   var schemaLP=BUILDERS[FM.builderKey];
   if(schemaLP && schemaLP.postprocess) text=schemaLP.postprocess(text);
+  // Calculate ranges from the FINAL line. TOOL CALL's postprocess inserts the
+  // fixed spindle-axis token "Z" after the tool number; ranges calculated
+  // before that transform pointed two characters early (S3000 -> "Z S30").
+  var ranges=[], searchFrom=FM.cmd.length;
+  for(var j=0;j<tokens.length;j++){
+    var token=tokens[j];
+    if(token===''){ ranges.push({s:-1,e:-1}); continue; }
+    var at=text.indexOf(token,searchFrom);
+    ranges.push(at<0 ? {s:-1,e:-1} : {s:at,e:at+token.length});
+    if(at>=0) searchFrom=at+token.length;
+  }
   return {text:text, ranges:ranges};
 }
 

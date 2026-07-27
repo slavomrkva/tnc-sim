@@ -157,6 +157,15 @@ Detailed module-split history is in the archived project notes linked above.
     tutorial must exercise this real flow and target only visible UI: question
     panel, highlighted answer row, Info Slides, Hint, then Check.
 
+21. **Desktop guided values are real inputs:** every generic numeric/text value
+    rendered by the desktop field panel uses the shared `#fbarVal` input, so
+    its current value can be selected, partially replaced and edited directly
+    for L/C/CC/CR/CT, polar/incremental blocks, labels and TOOL CALL. Mobile
+    retains the established hidden-input owner and special choices remain
+    buttons/pickers. `lineParts()` must calculate field ranges from the final
+    postprocessed line; otherwise fixed tokens such as TOOL CALL's inserted
+    `Z` shift S/F/DL/DR highlighting away from their real text.
+
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
 the technical log belong in `docs/history/`.

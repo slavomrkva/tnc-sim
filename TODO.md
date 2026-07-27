@@ -6,7 +6,13 @@
 
 ## Open bugs
 
-None.
+- **Desktop field-panel values cannot be selected and edited directly.**
+  `#fbarVal` is rendered as a non-editable span and the panel mouseup handler
+  returns focus to the program textarea. In addition, TOOL CALL inserts its
+  fixed `Z` token after calculating field ranges, so activating `S3000`
+  selects `Z S30` in the underlying editor. Reproduced on current v0.914.
+  Fix all generic field values through one real desktop input, preserve mobile
+  input ownership, and calculate ranges from the final postprocessed line.
 
 ## Open work
 

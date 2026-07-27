@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.914';
+var APP_VERSION = '0.915';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1320,9 +1320,15 @@ document.getElementById('ctxPanel').addEventListener('mousedown', function(e){
      (FM.active || _qpPanelOpen())) e.preventDefault();
   saveLastSel();
 });
-document.getElementById('ctxPanel').addEventListener('mouseup', function(){
+document.getElementById('ctxPanel').addEventListener('mouseup', function(e){
+  if(e.target && e.target.closest && e.target.closest('#fbarVal')) return;
   if(FM.active && !isMobile()){
-    setTimeout(function(){ codeEl.focus(); }, 0);
+    setTimeout(function(){
+      // Crumb/nav/mode actions may have opened and focused the real field
+      // input during their click handler. Do not steal that focus back.
+      if(document.activeElement && document.activeElement.id==='fbarVal') return;
+      codeEl.focus();
+    }, 0);
   }
 });
 
