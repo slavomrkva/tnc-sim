@@ -10,7 +10,7 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.902 (web test)
+## v0.903 (web test)
 - Desktop lessons now separate the assignment from the answer editor: the task
   and success criteria stay clear on the left, the real editor is explicitly
   labelled as the answer area, and the lesson's information slides remain

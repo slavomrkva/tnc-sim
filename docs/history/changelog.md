@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.903 — focused desktop Learn workspace
+
+- Reworked desktop practice into a task-first three-pane workspace with an
+  explicit assignment card, success criteria, a labelled answer editor and the
+  live 3D result alongside it.
+- Kept lesson information slides available during practice in an accessible
+  collapsible review panel that preserves slide navigation and collapses after
+  Check so validation feedback stays visible.
+- Preserved the existing mobile/short-viewport flow, added German labels,
+  responsive browser coverage and a layout-contract regression, and bumped the
+  offline cache.
+
 ## v0.902 — repository cleanup
 
 - Preserved the former open-work list in a dated historical snapshot and reset
