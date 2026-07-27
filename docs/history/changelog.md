@@ -7,6 +7,23 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.904 — shared Learn practice renderer and hybrid answer workspace
+
+- Replaced the desktop-only post-render DOM rewrite with one core
+  `_learnPracticeHtml()` builder shared by desktop and narrow layouts; the web
+  host hook now synchronizes only the external `YOUR ANSWER` editor band.
+- Added debounced live goal evaluation, a pinned action footer and a concise
+  reserved `; >>> YOUR ANSWER` marker that is stripped before grading; marked
+  tasks place the caret directly below the cue.
+- Kept the task card and highlighted answer editor from the first layout while
+  retaining slide navigation inside the collapsible theory reference. Check
+  closes the reference so verdicts and hints return into view.
+- Added Learn practice and hybrid desktop layout contracts, verified all 30
+  Node regression files plus 1440x900, 1100x700 and 390x844 browser layouts,
+  and advanced the offline cache to `v64`.
+- Left the deliberate Android core/style port as follow-up work after this web
+  test layout is accepted.
+
 ## v0.903 — focused desktop Learn workspace
 
 - Reworked desktop practice into a task-first three-pane workspace with an

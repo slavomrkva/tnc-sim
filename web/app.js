@@ -2,11 +2,42 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.903';
+var APP_VERSION = '0.904';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
 })();
+
+/* Core owns all Learn markup. The web host only synchronizes the editor chrome
+   that sits outside #learnPanel, so no rendered lesson DOM is moved or rebuilt. */
+window.learnHostUpdate = function(){
+  var active = typeof LEARN !== 'undefined' && LEARN.open
+    && LEARN.lesson >= 0 && LEARN.task >= 0;
+  document.body.classList.toggle('learn-desktop-practice', active);
+
+  var head = document.getElementById('learnAnswerHead');
+  var code = document.getElementById('code');
+  if(code){
+    if(active) code.setAttribute('aria-describedby', 'learnAnswerTitle');
+    else code.removeAttribute('aria-describedby');
+  }
+  if(!head) return;
+  head.setAttribute('aria-hidden', active ? 'false' : 'true');
+  if(!active) return;
+
+  var lesson = LESSONS[LEARN.lesson];
+  var task = lesson && lesson.tasks[LEARN.task];
+  var marked = !!(task && /^[ \t]*;[ \t]*>>>/m.test(task.starter || ''));
+  var kicker = document.getElementById('learnAnswerKicker');
+  var title = document.getElementById('learnAnswerTitle');
+  var badge = document.getElementById('learnAnswerTask');
+  if(kicker) kicker.textContent = t('learn.answerKicker', 'YOUR ANSWER');
+  if(title) title.textContent = marked
+    ? t('learn.answerMarkedShort', 'Type below the marked ; >>> line')
+    : t('learn.answerWholeShort', 'Write your answer in the editor below');
+  if(badge) badge.textContent = t('learn.task', 'TASK') + ' '
+    + (LEARN.task + 1) + '/' + lesson.tasks.length;
+};
 
 // ===== constants.js =====
 // TNC Sim — Constants: CYCLES, BUILDERS, KEYS, defaults
@@ -2003,188 +2034,6 @@ if(THREE_OK){
 
 /* ── State + persistence ────────────────────────────────────── */
 var LEARN = { open:false, lesson:-1, slide:0, task:-1, savedCode:null, lastResults:null };
-
-/* Desktop Learn workspace. The shared Learn renderer stays untouched so Android
-   and the mobile tab layout keep their current contract. On wide/tall web
-   viewports, enhance the freshly rendered DOM into a task-first workspace:
-   assignment first, reviewable theory in a native disclosure, and an explicit
-   answer header above the real editor. */
-(function installDesktopLearnWorkspace(){
-  if(typeof window.learnRender !== 'function') return;
-
-  var renderBase = window.learnRender;
-  var closeBase = window.closeLearn;
-  var checkBase = window.learnCheck;
-  var desktopMode = null;
-  var resizeQueued = false;
-
-  function isDesktopLearnLayout(){
-    return typeof _isMTab === 'function'
-      ? !_isMTab()
-      : window.innerWidth > 1024 && window.innerHeight > 600;
-  }
-
-  function setAnswerHeader(active, lesson, taskIndex){
-    var head = document.getElementById('learnAnswerHead');
-    var title = document.getElementById('learnAnswerTitle');
-    var task = document.getElementById('learnAnswerTask');
-    var editor = document.querySelector('.editor-panel');
-    var code = document.getElementById('code');
-    if(!head || !title || !task || !editor || !code) return;
-
-    head.setAttribute('aria-hidden', active ? 'false' : 'true');
-    editor.classList.toggle('learn-answer-active', !!active);
-    if(active){
-      title.textContent = lesson.title;
-      task.textContent = t('learn.task', 'Task') + ' ' + (taskIndex + 1)
-        + ' ' + t('learn.of', 'of') + ' ' + lesson.tasks.length;
-      code.setAttribute('aria-labelledby', 'learnAnswerTitle');
-      code.setAttribute('aria-describedby', 'learnTaskPrompt');
-    } else {
-      title.textContent = t('learn.answerDefault', 'Edit the starter program below');
-      task.textContent = '';
-      code.removeAttribute('aria-labelledby');
-      code.removeAttribute('aria-describedby');
-    }
-  }
-
-  function span(className, text){
-    var el = document.createElement('span');
-    el.className = className;
-    el.textContent = text;
-    return el;
-  }
-
-  function enhanceDesktopLearn(){
-    var desktop = isDesktopLearnLayout();
-    var lesson = LEARN.lesson >= 0 ? LESSONS[LEARN.lesson] : null;
-    var active = !!(desktop && LEARN.open && lesson && LEARN.task >= 0);
-    document.body.classList.toggle('learn-desktop-practice', active);
-    setAnswerHeader(active, lesson, LEARN.task);
-    if(!active) return;
-
-    var panel = document.getElementById('learnPanel');
-    var body = panel && panel.querySelector('.lp-body');
-    var slides = body && body.querySelector('.lp-slides');
-    var divider = body && body.querySelector('.lp-divider');
-    var badge = body && body.querySelector('.lp-task-badge');
-    var prompt = body && body.querySelector('.lp-prompt');
-    var goals = body && body.querySelector('.lp-goals');
-    var hints = body && body.querySelector('.lp-hints');
-    var success = body && body.querySelector('.lp-success');
-    var actions = body && body.querySelector('.lp-practice-btns');
-    if(!body || !slides || !badge || !prompt || !goals || !actions) return;
-
-    var goalsCap = goals.querySelector('.lp-goals-cap');
-    if(goalsCap){
-      goalsCap.textContent = t('learn.successCriteria', 'SUCCESS CRITERIA')
-        + (LEARN.lastResults ? '' : ' \u00b7 ' + t('learn.notChecked', 'not checked yet'));
-    }
-
-    var taskKey = lesson.id + ':' + LEARN.task;
-    if(LEARN.desktopTheoryTaskKey !== taskKey){
-      LEARN.desktopTheoryTaskKey = taskKey;
-      LEARN.desktopTheoryOpen = false;
-    }
-
-    var workspace = document.createElement('section');
-    workspace.className = 'lp-practice-workspace';
-    workspace.setAttribute('aria-labelledby', 'learnTaskPrompt');
-
-    var assignment = document.createElement('div');
-    assignment.className = 'lp-assignment-card';
-
-    var assignmentHead = document.createElement('div');
-    assignmentHead.className = 'lp-assignment-head';
-    assignmentHead.appendChild(span('lp-assignment-kicker', t('learn.taskKicker', 'YOUR TASK')));
-    badge.textContent = t('learn.task', 'TASK') + ' ' + (LEARN.task + 1)
-      + ' ' + t('learn.of', 'OF') + ' ' + lesson.tasks.length;
-    assignmentHead.appendChild(badge);
-    assignment.appendChild(assignmentHead);
-
-    prompt.id = 'learnTaskPrompt';
-    prompt.setAttribute('role', 'heading');
-    prompt.setAttribute('aria-level', '2');
-    assignment.appendChild(prompt);
-
-    var direction = document.createElement('div');
-    direction.className = 'lp-answer-direction';
-    direction.innerHTML = '<span aria-hidden="true">&#8594;</span>'
-      + '<span>' + t(
-        'learn.answerDirection',
-        'Write your answer in the highlighted editor to the right.'
-      ) + '</span>';
-    assignment.appendChild(direction);
-    workspace.appendChild(assignment);
-
-    var theory = document.createElement('details');
-    theory.className = 'lp-theory-drawer';
-    theory.open = !!LEARN.desktopTheoryOpen;
-    theory.addEventListener('toggle', function(){
-      LEARN.desktopTheoryOpen = theory.open;
-    });
-
-    var summary = document.createElement('summary');
-    summary.className = 'lp-theory-summary';
-    var summaryCopy = document.createElement('span');
-    summaryCopy.className = 'lp-theory-summary-copy';
-    summaryCopy.appendChild(span('lp-theory-summary-title', t('learn.infoSlides', 'INFO SLIDES')));
-    summaryCopy.appendChild(span(
-      'lp-theory-summary-sub',
-      t('learn.infoReview', 'Review the lesson theory at any time')
-    ));
-    summary.appendChild(summaryCopy);
-    summary.appendChild(span(
-      'lp-theory-summary-meta',
-      t('learn.slide', 'Slide') + ' ' + (LEARN.slide + 1)
-        + ' ' + t('learn.of', 'of') + ' ' + lesson.slides.length
-    ));
-    theory.appendChild(summary);
-    theory.appendChild(slides);
-    workspace.appendChild(theory);
-
-    workspace.appendChild(goals);
-    if(hints) workspace.appendChild(hints);
-    if(success) workspace.appendChild(success);
-    workspace.appendChild(actions);
-
-    if(divider) divider.remove();
-    body.insertBefore(workspace, body.firstChild);
-  }
-
-  window.learnRender = function(){
-    renderBase();
-    enhanceDesktopLearn();
-  };
-
-  window.closeLearn = function(){
-    closeBase();
-    document.body.classList.remove('learn-desktop-practice');
-    setAnswerHeader(false, null, -1);
-  };
-
-  window.learnCheck = function(){
-    LEARN.desktopTheoryOpen = false;
-    checkBase();
-  };
-
-  desktopMode = isDesktopLearnLayout();
-  window.addEventListener('resize', function(){
-    if(resizeQueued) return;
-    resizeQueued = true;
-    requestAnimationFrame(function(){
-      resizeQueued = false;
-      var nextMode = isDesktopLearnLayout();
-      if(nextMode === desktopMode) return;
-      desktopMode = nextMode;
-      if(LEARN.open) window.learnRender();
-      else {
-        document.body.classList.remove('learn-desktop-practice');
-        setAnswerHeader(false, null, -1);
-      }
-    });
-  });
-})();
 
 /* ── UI: docked Learn panel (list / slides / task in one column) ── */
 

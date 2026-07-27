@@ -589,7 +589,7 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .lp-head .lp-title{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--text);flex:1;line-height:1.35;}
 .lp-head .lp-x{background:none;border:0;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0;}
 .lp-body{flex:1;overflow-y:auto;padding:14px;}
-.lp-foot{display:flex;align-items:center;gap:6px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.lp-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface2);flex-shrink:0;}
 .lp-body p{font-size:14.5px;line-height:1.65;color:var(--text2);margin:0 0 11px;font-family:var(--sans);}
 .lp-body p b{color:var(--text);font-weight:600;}
 .lp-body code{font-family:var(--mono);font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;}
@@ -617,21 +617,19 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .learn-summary{font-family:var(--mono);font-size:12px;color:var(--text2);padding:8px 10px;margin:0 0 10px;border-radius:7px;background:rgba(var(--accent-rgb),.10);border:1px solid rgba(var(--accent-rgb),.35);}
 .lp-task-badge{display:inline-block;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:9px;letter-spacing:.04em;}
 .lp-prompt{font-size:15.5px;line-height:1.55;color:var(--text);font-weight:600;margin:0 0 8px;font-family:var(--sans);}
-.lp-editor-hint{font-family:var(--mono);font-size:11.5px;color:var(--text3);margin:0 0 12px;line-height:1.5;}
-.lp-checks{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
-.lp-check{display:flex;gap:8px;font-size:13px;color:var(--text2);align-items:flex-start;font-family:var(--mono);line-height:1.45;}
-.lp-check .c-ic{width:14px;flex-shrink:0;text-align:center;}
-.lp-check .c-hint{color:#f0a94a;font-size:12px;margin-top:2px;}
+.lp-check{display:flex;gap:8px;font-size:13px;color:var(--text3);align-items:flex-start;font-family:var(--mono);line-height:1.45;padding:3px 0;transition:color .15s;}
+.lp-check .c-ic{width:14px;flex-shrink:0;text-align:center;color:var(--text3);}
+.lp-check .c-lb{flex:1;min-width:0;}
+.lp-check .c-hint{display:block;color:#f0a94a;font-size:12px;margin-top:3px;line-height:1.4;}
 .lp-success{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 13px;border-radius:7px;background:rgba(93,202,165,.14);border:1px solid rgba(93,202,165,.5);color:#5dcaa5;font-size:13.5px;font-weight:600;font-family:var(--sans);line-height:1.45;}
 .lp-btn{font-family:var(--mono);font-size:12.5px;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
 .lp-btn:hover{border-color:var(--text3);color:var(--text);}
 .lp-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
 .lp-btn.chk{background:#5dcaa5;border-color:#5dcaa5;color:#04342c;font-weight:600;}
 .lp-btn.grow{flex:1;text-align:center;}
-.lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 12px 8px;}
-.lp-sec-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:8px;}
-.lp-slide-view{max-height:390px;overflow-y:auto;padding-right:4px;}
-@media(max-width:1024px), (max-height:600px){ .lp-slide-view{max-height:300px;} }
+.lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.lp-slide-view{padding-right:2px;}
+.lp-slide-n{font-family:var(--mono);font-size:11px;color:var(--text3);flex-shrink:0;}
 .lp-slides-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .lp-slides-nav .lp-btn{padding:6px 14px;font-size:16px;font-weight:700;color:var(--accent);border-color:var(--accent);line-height:1;}
 .lp-slides-nav .lp-btn:hover:not(:disabled){background:var(--accent);color:#fff;}
@@ -640,247 +638,6 @@ html[data-theme="light"] .learn-svg [fill="#f0a94a"]{fill:#945000;}
 html[data-theme="light"] .learn-svg [stroke="#f0a94a"]{stroke:#945000;}
 html[data-theme="light"] .learn-svg [fill="#5dcaa5"]{fill:#176b58;}
 html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
-.lp-divider{display:flex;align-items:center;gap:10px;margin:14px 0 12px;}
-.lp-divider:before,.lp-divider:after{content:'';flex:1;height:1px;background:var(--border);}
-.lp-divider span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--accent);font-weight:600;}
-.lp-practice-btns{display:flex;gap:8px;margin-top:12px;}
-.learn-answer-head{display:none;}
-
-/* Wide-screen practice is a focused workspace: task on the left, the student's
-   answer in the centre, live result on the right. The existing mobile/short
-   viewport flow below remains the source of truth at <=1024px or <=600px. */
-@media (min-width:1025px) and (min-height:601px){
-  body.learn-desktop-practice #learnPanel{
-    width:clamp(340px,28vw,420px);
-    min-width:340px;
-    max-width:420px;
-    background:var(--surface);
-  }
-  body.learn-desktop-practice .editor-panel{
-    width:clamp(440px,44vw,760px);
-    max-width:760px;
-    border-right-color:rgba(var(--accent-rgb),.55);
-  }
-  body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
-  body.learn-desktop-practice .learn-answer-head{
-    display:flex;
-    min-height:54px;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    padding:8px 14px 8px 16px;
-    box-sizing:border-box;
-    flex-shrink:0;
-    background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.05) 70%,transparent);
-    border-top:1px solid rgba(var(--accent-rgb),.45);
-    border-bottom:1px solid rgba(var(--accent-rgb),.65);
-  }
-  .learn-answer-head .lah-copy{display:flex;flex-direction:column;gap:2px;min-width:0;}
-  .learn-answer-head .lah-kicker{
-    font-family:var(--mono);
-    font-size:10px;
-    line-height:1;
-    font-weight:800;
-    letter-spacing:.14em;
-    color:var(--accent);
-  }
-  .learn-answer-head .lah-title{
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-family:var(--sans);
-    font-size:13px;
-    line-height:1.35;
-    font-weight:650;
-    color:var(--text);
-  }
-  .learn-answer-head .lah-task{
-    flex-shrink:0;
-    border:1px solid rgba(var(--accent-rgb),.55);
-    border-radius:999px;
-    padding:4px 9px;
-    background:rgba(var(--accent-rgb),.12);
-    color:var(--accent);
-    font-family:var(--mono);
-    font-size:10px;
-    font-weight:700;
-    letter-spacing:.04em;
-  }
-  body.learn-desktop-practice .editor-wrap{
-    border-top:0;
-    box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);
-  }
-  body.learn-desktop-practice .line-nums{background:rgba(var(--accent-rgb),.045);}
-  body.learn-desktop-practice .code-area-wrap{background:linear-gradient(180deg,rgba(var(--accent-rgb),.035),transparent 120px),var(--surface);}
-
-  body.learn-desktop-practice #learnPanel .lp-body{
-    padding:12px;
-    scroll-padding-top:12px;
-  }
-  body.learn-desktop-practice .lp-practice-workspace{
-    display:flex;
-    min-height:100%;
-    flex-direction:column;
-    gap:10px;
-  }
-  body.learn-desktop-practice .lp-assignment-card{
-    padding:13px 14px 12px;
-    border:1px solid rgba(var(--accent-rgb),.65);
-    border-left:4px solid var(--accent);
-    border-radius:9px;
-    background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.045) 70%);
-    box-shadow:0 5px 18px rgba(0,0,0,.13);
-  }
-  body.learn-desktop-practice .lp-assignment-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:9px;
-  }
-  body.learn-desktop-practice .lp-assignment-kicker{
-    font-family:var(--mono);
-    font-size:10px;
-    line-height:1;
-    font-weight:800;
-    letter-spacing:.14em;
-    color:var(--accent);
-  }
-  body.learn-desktop-practice .lp-task-badge{
-    margin:0;
-    padding:3px 8px;
-    background:var(--accent);
-    font-size:9.5px;
-  }
-  body.learn-desktop-practice .lp-prompt{
-    margin:0;
-    font-size:16px;
-    line-height:1.5;
-    font-weight:650;
-  }
-  body.learn-desktop-practice .lp-answer-direction{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-top:10px;
-    padding-top:9px;
-    border-top:1px solid rgba(var(--accent-rgb),.28);
-    color:var(--text2);
-    font-family:var(--mono);
-    font-size:10.5px;
-    line-height:1.4;
-  }
-  body.learn-desktop-practice .lp-answer-direction>span:first-child{
-    display:inline-flex;
-    width:20px;
-    height:20px;
-    flex:0 0 20px;
-    align-items:center;
-    justify-content:center;
-    border-radius:50%;
-    background:var(--accent);
-    color:#fff;
-    font-size:14px;
-    font-weight:800;
-  }
-  body.learn-desktop-practice .lp-theory-drawer{
-    overflow:hidden;
-    border:1px solid var(--border);
-    border-radius:9px;
-    background:var(--surface2);
-  }
-  body.learn-desktop-practice .lp-theory-summary{
-    display:flex;
-    min-height:52px;
-    align-items:center;
-    gap:10px;
-    padding:9px 38px 9px 12px;
-    position:relative;
-    cursor:pointer;
-    user-select:none;
-    list-style:none;
-  }
-  body.learn-desktop-practice .lp-theory-summary::-webkit-details-marker{display:none;}
-  body.learn-desktop-practice .lp-theory-summary:hover{background:rgba(var(--accent-rgb),.08);}
-  body.learn-desktop-practice .lp-theory-summary:focus-visible{outline:3px solid var(--accent3);outline-offset:-3px;}
-  body.learn-desktop-practice .lp-theory-summary:after{
-    content:'›';
-    position:absolute;
-    right:14px;
-    top:50%;
-    color:var(--accent);
-    font-family:var(--mono);
-    font-size:22px;
-    line-height:1;
-    transform:translateY(-50%) rotate(90deg);
-    transition:transform .16s ease;
-  }
-  body.learn-desktop-practice .lp-theory-drawer[open]>.lp-theory-summary:after{
-    transform:translateY(-50%) rotate(-90deg);
-  }
-  body.learn-desktop-practice .lp-theory-summary-copy{
-    display:flex;
-    min-width:0;
-    flex:1;
-    flex-direction:column;
-    gap:2px;
-  }
-  body.learn-desktop-practice .lp-theory-summary-title{
-    color:var(--accent);
-    font-family:var(--mono);
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.12em;
-  }
-  body.learn-desktop-practice .lp-theory-summary-sub{
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    color:var(--text2);
-    font-family:var(--sans);
-    font-size:12px;
-  }
-  body.learn-desktop-practice .lp-theory-summary-meta{
-    flex-shrink:0;
-    color:var(--text3);
-    font-family:var(--mono);
-    font-size:9.5px;
-  }
-  body.learn-desktop-practice .lp-theory-drawer>.lp-slides{
-    margin:0;
-    padding:12px;
-    border:0;
-    border-top:1px solid var(--border);
-    border-radius:0;
-    background:var(--bg);
-  }
-  body.learn-desktop-practice .lp-theory-drawer .lp-sec-cap{display:none;}
-  body.learn-desktop-practice .lp-theory-drawer .lp-slide-view{max-height:330px;}
-  body.learn-desktop-practice .lp-goals{
-    margin:0;
-    padding:10px 11px;
-    border-color:rgba(var(--accent-rgb),.28);
-    background:rgba(var(--accent-rgb),.035);
-  }
-  body.learn-desktop-practice .lp-goals-cap{
-    color:var(--text2);
-    font-size:10px;
-    font-weight:700;
-  }
-  body.learn-desktop-practice .lp-practice-btns{
-    position:sticky;
-    bottom:-12px;
-    z-index:2;
-    margin-top:auto;
-    padding:12px 0 4px;
-    background:linear-gradient(180deg,transparent 0,var(--surface) 22px,var(--surface) 100%);
-  }
-  body.learn-desktop-practice #ctxPanel:has(#_idleUndo)>* span,
-  body.learn-desktop-practice #_idleDemo,
-  body.learn-desktop-practice #_idleReset,
-  body.learn-desktop-practice #_idleClear{display:none;}
-}
-
 @media(pointer:coarse){ .lp-btn{min-height:40px;padding:8px 12px;} .learn-li{padding:13px 12px;} }
 @media(max-width:1024px), (max-height:600px){
   #learnPanel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:2px solid var(--accent);}
@@ -970,9 +727,9 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
   body[data-mtab="editor"] .ctx-panel,
   body[data-mtab="editor"] #learnMobileBar.on{position:relative;top:auto;flex-shrink:0;}
   /* Interactive editing panels stay in normal flow below the keypad. */
-  #learnMobileBar.on .lp-prompt{color:var(--text);font-size:13px;line-height:1.3;margin:0;}
-  #learnMobileBar.on .lp-divider{margin:0 0 5px;}
-  #learnMobileBar .lp-practice-btns{margin-top:7px;}
+  #learnMobileBar.on .lp-prompt{color:var(--text);font-size:13.5px;line-height:1.35;margin:0;}
+  #learnMobileBar.on .lp-theory{display:none;}
+  #learnMobileBar .lp-foot{margin:7px -12px -8px;border-radius:0;}
   /* When the on-screen keyboard is open, hide the practice task panel so the
      editor is fully visible while typing. It reappears automatically the moment
      the keyboard is dismissed. Rides on the same visualViewport detection that
@@ -1023,3 +780,129 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:2px solid transparent;background-clip:content-box;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);border:2px solid transparent;background-clip:content-box;}
+
+/* ── Learn practice: one task card, one goal list, one pinned action row ──
+   Colour carries meaning and nothing else: teal = structure and navigation,
+   green = a goal that is met, amber = a hint. The task card is the only
+   filled surface in the panel, so "what am I being asked?" is answered by
+   looking, not by reading captions. */
+.lp-head .lp-back{padding:2px 9px;font-size:17px;line-height:1;color:var(--accent);border-color:transparent;background:none;}
+.lp-head .lp-back:hover{border-color:var(--accent);}
+.lp-head .lp-cap{font-size:15px;}
+
+.lp-task{border:1px solid rgba(var(--accent-rgb),.55);border-left:4px solid var(--accent);border-radius:9px;
+  background:rgba(var(--accent-rgb),.10);padding:11px 13px 10px;}
+.lp-task-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.lp-task .lp-prompt{margin:0;font-size:15.5px;line-height:1.5;}
+.lp-where{margin-top:8px;padding-top:8px;border-top:1px solid rgba(var(--accent-rgb),.25);
+  font-family:var(--mono);font-size:11px;line-height:1.45;color:var(--text3);}
+.lp-where code{font-size:11px;padding:0 3px;}
+
+/* Theory during practice: reference behind one disclosure, never a slideshow */
+.lp-theory{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden;}
+.lp-theory-sum{padding:9px 12px;cursor:pointer;list-style:none;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;color:var(--text2);user-select:none;}
+.lp-theory-sum::-webkit-details-marker{display:none;}
+.lp-theory-sum:before{content:'\203A';display:inline-block;width:12px;color:var(--accent);
+  transform:rotate(90deg);transition:transform .15s;}
+.lp-theory[open]>.lp-theory-sum:before{transform:rotate(-90deg);}
+.lp-theory-sum:hover{color:var(--text);}
+.lp-theory-sum:focus-visible{outline:3px solid var(--accent3);outline-offset:-3px;}
+.lp-theory-body{padding:4px 12px 10px;border-top:1px solid var(--border);background:var(--bg);}
+.lp-theory-sep{height:1px;background:var(--border);margin:14px 0;}
+
+/* Goals are live: they tick green while you type. A red cross only ever comes
+   from pressing Check, so nothing turns hostile mid-keystroke. */
+.lp-goals{margin-top:10px;}
+.lp-goals-cap{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);
+  font-size:10px;letter-spacing:.12em;color:var(--text3);margin-bottom:6px;}
+.lp-goals-n{font-weight:700;color:var(--text2);letter-spacing:0;}
+.lp-goals.all-ok .lp-goals-n{color:#5dcaa5;}
+.lp-check.ok{color:var(--text2);}
+.lp-check.ok .c-ic{color:#5dcaa5;}
+.lp-check.bad{color:var(--text2);}
+.lp-check.bad .c-ic{color:#e24b4a;}
+
+.lp-foot .lp-solve{opacity:.22;border-color:transparent;padding:8px 7px;}
+.lp-foot .lp-solve:hover{opacity:.5;}
+.lp-btn.chk.ready{box-shadow:0 0 0 3px rgba(93,202,165,.28);}
+.lp-quiet{font-size:11px;color:var(--text3);border-color:transparent;}
+.learn-reset-row{text-align:center;margin-top:14px;}
+
+.li-st.done{color:#5dcaa5;}
+.li-st.part{color:var(--accent);}
+.li-st.assisted{color:#f0a94a;}
+
+.learn-answer-head{display:none;}
+.lp-where{display:flex;align-items:center;gap:8px;}
+.lp-where-arrow{display:inline-flex;width:20px;height:20px;flex:0 0 20px;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:800;}
+.lp-theory-sum{display:flex;align-items:center;gap:8px;min-height:52px;box-sizing:border-box;}
+.lp-theory-sum-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:2px;}
+.lp-theory-sum-title{color:var(--accent);font-weight:800;}
+.lp-theory-sum-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);
+  font-family:var(--sans);font-size:12px;letter-spacing:0;}
+.lp-theory-sum-meta{flex-shrink:0;color:var(--text3);font-family:var(--mono);font-size:9.5px;letter-spacing:0;}
+.lp-theory-body{padding:10px;}
+.lp-theory-slides{margin:0;border:0;border-radius:6px;background:transparent;padding:0;}
+.lp-theory-slides .learn-prog{flex:1;margin-bottom:0;}
+.lp-theory-slides .lp-slide-view{padding:2px 2px 0;}
+
+/* Desktop practice: the question stays in the course panel and the answer
+   surface gets an unmistakable header and accent edge. Core still renders the
+   practice once; this block only styles the existing host columns. */
+@media (min-width:1025px) and (min-height:601px){
+  body.learn-desktop-practice #learnPanel{
+    width:clamp(360px,28vw,420px);
+    min-width:360px;
+    max-width:420px;
+    background:var(--surface);
+  }
+  body.learn-desktop-practice .editor-panel{
+    width:clamp(480px,44vw,760px);
+    max-width:760px;
+    border-right-color:rgba(var(--accent-rgb),.55);
+  }
+  body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
+  body.learn-desktop-practice .learn-answer-head{
+    display:flex;
+    min-height:54px;
+    flex-shrink:0;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:8px 14px 8px 16px;
+    box-sizing:border-box;
+    background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.05) 70%,transparent);
+    border-top:1px solid rgba(var(--accent-rgb),.45);
+    border-bottom:1px solid rgba(var(--accent-rgb),.65);
+  }
+  .learn-answer-head .lah-copy{display:flex;min-width:0;flex-direction:column;gap:3px;}
+  .learn-answer-head .lah-kicker{font-family:var(--mono);font-size:10px;line-height:1;font-weight:800;
+    letter-spacing:.14em;color:var(--accent);}
+  .learn-answer-head .lah-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-family:var(--sans);font-size:13px;line-height:1.35;font-weight:650;color:var(--text);}
+  .learn-answer-head .lah-task{flex-shrink:0;border:1px solid rgba(var(--accent-rgb),.55);border-radius:999px;
+    padding:4px 9px;background:rgba(var(--accent-rgb),.12);color:var(--accent);font-family:var(--mono);
+    font-size:10px;font-weight:700;letter-spacing:.04em;}
+  body.learn-desktop-practice .editor-wrap{
+    border-top:0;
+    box-shadow:inset 4px 0 0 var(--accent),inset 0 0 0 1px rgba(var(--accent-rgb),.22);
+  }
+  body.learn-desktop-practice .line-nums{background:rgba(var(--accent-rgb),.045);}
+  body.learn-desktop-practice .code-area-wrap{
+    background:linear-gradient(180deg,rgba(var(--accent-rgb),.035),transparent 120px),var(--surface);
+  }
+  body.learn-desktop-practice #learnPanel .lp-body{padding:12px;}
+  body.learn-desktop-practice .lp-task{
+    padding:13px 14px 12px;
+    background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.045) 72%);
+    box-shadow:0 5px 18px rgba(0,0,0,.13);
+  }
+  body.learn-desktop-practice .lp-task .lp-prompt{font-size:16px;font-weight:650;}
+  body.learn-desktop-practice .lp-goals{
+    padding:10px 11px;
+    border-color:rgba(var(--accent-rgb),.28);
+    background:rgba(var(--accent-rgb),.035);
+  }
+}

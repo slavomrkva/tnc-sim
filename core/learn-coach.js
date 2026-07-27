@@ -23,7 +23,7 @@ function _coachMarkSeen(){ try { localStorage.setItem('tnc_learn_coach', '1'); }
    _coachPaint() switches the mobile tab before measuring so it's on screen. */
 function _coachTarget(key){
   if(key === 'closeLearn') return document.querySelector('#learnPanel .lp-x');
-  if(key === 'backToList') return document.querySelector('#learnPanel .lp-hamburger');
+  if(key === 'backToList') return document.querySelector('#learnPanel .lp-back');
   var mob = _isMTab && _isMTab();
   var root = mob ? document.getElementById('learnMobileBar') : document.getElementById('learnPanel');
   if(!root) return null;
@@ -32,7 +32,6 @@ function _coachTarget(key){
   if(key === 'goals')  return root.querySelector('.lp-goals');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
-  if(key === 'giveUp') return root.querySelector('.lp-exit');
   if(key === 'solve')  return root.querySelector('.lp-solve');
   return null;
 }
@@ -58,14 +57,14 @@ function learnCoachStart(){
   COACH.steps = [
     { k:'prompt', t:'1. Read the assignment',
       d:'One clear action. This warm-up asks you to add a comment before END PGM.' },
-    { k:'editor', t:'2. Make the edit here',
-      d:'This is the real editor with a safe starter program. Add your own line; nothing is submitted until you choose Check.' },
-    { k:'goals',  t:'3. Know what counts',
-      d:'Every graded goal is visible from the start. Grey means not checked yet; green means passed.' },
+    { k:'editor', t:'2. Answer here',
+      d:'This is the real editor. The teal answer band and border mark where to work; tasks with one exact insertion point also show a ; >>> cue.' },
+    { k:'goals',  t:'3. Watch the goals',
+      d:'Every graded goal is listed from the start and ticks green by itself as your code satisfies it. Nothing here is hidden.' },
     { k:'hint',   t:'4. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
-    { k:'check',  t:'5. Check and improve',
-      d:'Press Check whenever you like. You will see exactly what passed and what still needs work.' }
+    { k:'check',  t:'5. Check when ready',
+      d:'Check gives the final verdict and marks anything still missing in red. It is free — press it as often as you like.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

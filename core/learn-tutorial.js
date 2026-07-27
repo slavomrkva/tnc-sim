@@ -758,6 +758,40 @@ function learnSvgDrill(){
 
 /* Text checks grade executable Klartext only.  A student may explain an answer
    in a comment, but a commented-out TOOL CALL/CYCL DEF must never earn a tick. */
+/* Optional UI string lookup. The web layer defines t(); Android does not, so
+   every caller must survive with the English fallback. */
+function _lt(key, fallback){
+  try { return (typeof t === 'function') ? t(key, fallback) : fallback; }
+  catch(e){ return fallback; }
+}
+
+/* Marked starters get a concise Klartext answer cue at the intended insertion
+   point. `; >>>` is reserved and stripped before grading so the cue can never
+   satisfy a check by itself. */
+var LEARN_TASK_MARK = '; >>> ';
+var _LEARN_MARK_RE  = /^[ \t]*;[ \t]*>>>.*$/gm;
+
+function _learnStripTaskMarks(code){
+  return String(code || '').replace(_LEARN_MARK_RE, '');
+}
+
+/* Keep the in-program cue short. The full assignment remains in the task card;
+   the marker only answers "where do I type?" without turning the NC program
+   into a second copy of the lesson text. */
+function _learnTaskComment(L, ti){
+  return LEARN_TASK_MARK + _lt('learn.answerMarker', 'YOUR ANSWER \u2014 TASK')
+    + ' ' + (ti + 1) + '/' + L.tasks.length;
+}
+
+/* Starter program with the assignment written in at the marker line. Starters
+   without a `; >>>` marker are left exactly as authored — those lessons ask the
+   student to write the whole program, so there is no single "answer line". */
+function _learnStarterFor(L, ti){
+  var starter = L.tasks[ti].starter || '';
+  if(!/^[ \t]*;[ \t]*>>>/m.test(starter)) return starter;
+  return starter.replace(/^[ \t]*;[ \t]*>>>.*$/m, _learnTaskComment(L, ti));
+}
+
 function _learnExecutableCode(code){
   return String(code || '').split('\n').map(function(line){
     var semi = line.indexOf(';');
@@ -787,10 +821,15 @@ function _learnCycleBlocks(code, num, after){
   return out;
 }
 
+/* Set by every learnEvalChecks() run. Live grading uses it to leave the last
+   good state on screen while the program is momentarily unparseable. */
+var _learnParseOk = true;
+
 function learnEvalChecks(code, task){
   var execCode = _learnExecutableCode(code);
   var parsed = null, parseErr = null;
   try { parsed = parseProgram(code); } catch(e){ parseErr = e; }
+  _learnParseOk = !parseErr;
   return task.checks.map(function(ch){
     var ok = false;
     try {
@@ -903,8 +942,9 @@ function learnEvalChecks(code, task){
         }
       }
       else if(ch.t === 'has_comment'){
-        // any line containing ';' followed by some real text
-        ok = /;\s*\S/.test(code);
+        // any line containing ';' followed by some real text — the injected
+        // assignment marker is not the student's own comment
+        ok = /;\s*\S/.test(_learnStripTaskMarks(code));
       }
       else if(ch.t === 'blk_axis'){
         ok = /BLK\s+FORM\s+0\.1\s+Z\b/i.test(code);
@@ -949,6 +989,7 @@ function learnUpdateBlank(){
 
 function openLearn(){
   _learnEndEditorInput();
+  _learnBindLive();
   if(typeof programAutosaveSuspendForLearn === 'function') programAutosaveSuspendForLearn();
   LEARN.open = true;
   // Stash the user's own program right away and start with an EMPTY editor —
@@ -979,11 +1020,12 @@ function closeLearn(){
   if(_mb){ _mb.classList.remove('on'); _mb.innerHTML=''; document.body.classList.remove('practice-on'); }
   if(_isMTab()) mtabSwitch('editor');
   runValidation(); // validator back on
+  _learnNotifyHost();
 }
 
 function learnOpenLesson(i){
   LEARN.lesson = i; LEARN.slide = 0; LEARN.task = -1;
-  LEARN.lastResults = null; LEARN.hint = 0; LEARN.view = 'lesson';
+  LEARN.lastResults = null; LEARN.hint = 0; LEARN.live = null; LEARN.view = 'lesson';
   learnRender();
 }
 
@@ -999,7 +1041,7 @@ function learnSolve(){
   var pw = prompt('Password:');
   if(pw !== '1234') return;
   var T = LESSONS[LEARN.lesson].tasks[LEARN.task];
-  var code = T.starter;
+  var code = _learnStarterFor(LESSONS[LEARN.lesson], LEARN.task);
   if(T.solRepl) code = code.replace(T.solRepl[0], T.solRepl[1]);
   else if(T.sol !== undefined) code = code.replace('\n\n', '\n' + T.sol + '\n');
   codeEl.value = code;
@@ -1030,8 +1072,16 @@ function learnStartTask(ti){
   if(LEARN.savedCode === null) LEARN.savedCode = codeEl.value; // stash user's work once
   LEARN.task = ti; LEARN.lastResults = null; LEARN.view = 'lesson';
   LEARN.hint = 0;                        // progressive hints start closed
-  codeEl.value = L.tasks[ti].starter;
-  if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
+  LEARN.live = null; LEARN.theoryOpen = false;
+  codeEl.value = _learnStarterFor(L, ti);
+  var markAt = codeEl.value.search(/^[ \t]*;[ \t]*>>>/m);
+  var caretAt = 0;
+  if(markAt >= 0){
+    var markEnd = codeEl.value.indexOf('\n', markAt);
+    caretAt = markEnd >= 0 ? markEnd + 1 : codeEl.value.length;
+  }
+  if(typeof syncEditorSelection==='function') syncEditorSelection(caretAt, caretAt);
+  else if(codeEl.setSelectionRange) codeEl.setSelectionRange(caretAt, caretAt);
   dirty = true; if(typeof _undoPush==='function') _undoPush();
   updateLineNums(); runValidation();
   if(typeof renderIdlePanel==='function') renderIdlePanel();
@@ -1063,15 +1113,105 @@ function learnCheck(){
   var L = LESSONS[LEARN.lesson];
   runValidation(); // refresh problem gutter (lesson-specific mutes applied)
   LEARN.lastResults = learnEvalChecks(codeEl.value, L.tasks[LEARN.task]);
+  LEARN.live = LEARN.lastResults;
+  LEARN.theoryOpen = false; // bring the verdict and any failed-goal hints back into view
   if(LEARN.lastResults.every(function(r){ return r.ok; })) learnTaskDone(L.id, LEARN.task);
   learnRender();
+}
+
+/* ── Live grading ────────────────────────────────────────────────────
+   The single biggest source of "what does it even want from me?" was that the
+   goal list only meant anything AFTER pressing Check. It is now continuous:
+   goals tick green while you type. Live state is deliberately one-directional
+   — a goal is either met (green) or still pending (grey). A red cross is a
+   verdict, and a verdict is only ever produced by pressing Check. */
+
+var _learnLiveTimer = null;
+
+function _learnLiveResults(){
+  if(!LEARN.open || LEARN.lesson < 0 || LEARN.task < 0) return null;
+  if(LEARN.lastResults) return LEARN.lastResults;   // an explicit verdict wins
+  return LEARN.live || null;
+}
+
+/* Paint the goal rows of every mounted practice container (the desktop panel
+   and, on mobile, the pinned strip above the editor) without re-rendering. A
+   full render during typing would rebuild the DOM under the coach spotlight
+   and reset the panel scroll on every keystroke. */
+function learnPaintGoals(){
+  var res = _learnLiveResults();
+  var verdict = !!LEARN.lastResults;
+  var done = 0, total = 0;
+  Array.prototype.forEach.call(document.querySelectorAll('.lp-goals'), function(box){
+    Array.prototype.forEach.call(box.querySelectorAll('.lp-check'), function(row){
+      var i = parseInt(row.getAttribute('data-ci'), 10);
+      var r = res ? res[i] : null;
+      var ok = !!(r && r.ok);
+      row.classList.toggle('ok', ok);
+      row.classList.toggle('bad', verdict && !ok);
+      var ic = row.querySelector('.c-ic');
+      if(ic) ic.innerHTML = ok ? '&#10003;' : (verdict ? '&#10007;' : '&#9675;');
+      var hint = row.querySelector('.c-hint');
+      if(hint) hint.style.display = (verdict && !ok) ? '' : 'none';
+    });
+    var rows = box.querySelectorAll('.lp-check');
+    total = rows.length;
+    done = box.querySelectorAll('.lp-check.ok').length;
+    var n = box.querySelector('.lp-goals-n');
+    if(n) n.textContent = done + '/' + total;
+    box.classList.toggle('all-ok', total > 0 && done === total);
+  });
+  // A fully satisfied goal list makes Check the obvious next move.
+  var ready = total > 0 && done === total && !verdict;
+  Array.prototype.forEach.call(document.querySelectorAll('.lp-btn.chk'), function(b){
+    b.classList.toggle('ready', ready);
+  });
+}
+
+function learnLiveEval(){
+  if(!LEARN.open || LEARN.lesson < 0 || LEARN.task < 0) return;
+  var L = LESSONS[LEARN.lesson];
+  var res = learnEvalChecks(codeEl.value, L.tasks[LEARN.task]);
+  // Mid-keystroke the program often does not parse and every check would drop
+  // to false. Keep the previous live state instead of flashing the list empty.
+  if(!_learnParseOk && LEARN.live) return;
+  LEARN.live = res;
+  learnPaintGoals();
+}
+
+/* Editing invalidates a previous Check verdict. Dropping it needs one real
+   render (the success banner and the footer button both change), after which
+   further keystrokes only repaint the goal rows. */
+function learnCodeChanged(){
+  if(!LEARN.open || LEARN.task < 0) return;
+  if(_learnLiveTimer) clearTimeout(_learnLiveTimer);
+  _learnLiveTimer = setTimeout(function(){
+    _learnLiveTimer = null;
+    if(LEARN.lastResults){
+      LEARN.lastResults = null;
+      learnLiveEval();
+      learnRender();
+    } else {
+      learnLiveEval();
+    }
+  }, 400);
+}
+
+/* codeEl is created by the host app after this module loads, so bind lazily on
+   the first Learn open rather than at parse time. */
+var _learnLiveBound = false;
+function _learnBindLive(){
+  if(_learnLiveBound) return;
+  if(typeof codeEl === 'undefined' || !codeEl || !codeEl.addEventListener) return;
+  codeEl.addEventListener('input', learnCodeChanged);
+  _learnLiveBound = true;
 }
 
 function learnFinishLesson(){
   _learnEndEditorInput();
   // Keep LEARN.savedCode until Learn closes. The completed exercise may stay
   // visible inside Learn, but it must never replace the autosaved main program.
-  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0;
+  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0; LEARN.live = null;
   LEARN.view = 'list'; LEARN.lesson = -1;
   runValidation();
   learnRender();
@@ -1090,7 +1230,7 @@ function learnExit(){
     if(typeof renderIdlePanel==='function') renderIdlePanel();
     if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();
   }
-  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0;
+  LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0; LEARN.live = null;
   if(LEARN.open){ LEARN.view = 'list'; LEARN.lesson = -1; learnRender(); }
   learnUpdateBlank();
   // Mobile: hide the pinned practice strip and restore the normal editor idle
@@ -1118,153 +1258,250 @@ function _learnEndEditorInput(){
    real course still reads 1..N. Intro lessons return 0. */
 function _learnNo(i){ var n=0; for(var k=0;k<=i;k++){ if(!LESSONS[k].intro) n++; } return LESSONS[i].intro ? 0 : n; }
 
+/* ── Rendering ───────────────────────────────────────────────────────
+   One renderer for both layouts. The desktop panel and the mobile strip get
+   the SAME practice markup; only the surrounding chrome differs. Anything that
+   re-composes this HTML from outside will drift, so it is built once here. */
+
+function _learnHead(L){
+  var title = L ? (L.intro ? L.title : (_lt('learn.lesson', 'Lesson') + ' ' + _learnNo(LEARN.lesson) + ' \u00b7 ' + L.title))
+                : _lt('learn.title', 'Learn \u2014 Heidenhain basics');
+  var back = L
+    ? '<button class="lp-btn lp-back" onclick="learnBackToList()" title="' + _lt('learn.allLessons', 'All lessons')
+      + '" aria-label="' + _lt('learn.allLessons', 'All lessons') + '">&#8249;</button>'
+    : '<span class="lp-cap" aria-hidden="true">&#127891;</span>';
+  return '<div class="lp-head">' + back
+    + '<span class="lp-title">' + title + '</span>'
+    + '<button class="lp-x" onclick="closeLearn()" title="' + _lt('learn.close', 'Close Learn')
+    + '" aria-label="' + _lt('learn.close', 'Close Learn') + '">&#10005;</button></div>';
+}
+
+/* Goal rows carry no inline colours: state lives in .ok / .bad classes so
+   learnPaintGoals() can repaint them on every keystroke without a re-render. */
+function _learnGoalsHtml(T){
+  var res = _learnLiveResults();
+  var verdict = !!LEARN.lastResults;
+  var done = 0;
+  var rows = T.checks.map(function(ch, i){
+    var r = res ? res[i] : null;
+    var ok = !!(r && r.ok);
+    if(ok) done++;
+    var cls = 'lp-check' + (ok ? ' ok' : (verdict ? ' bad' : ''));
+    var ic  = ok ? '&#10003;' : (verdict ? '&#10007;' : '&#9675;');
+    var hid = (verdict && !ok) ? '' : ' style="display:none;"';
+    return '<div class="' + cls + '" data-ci="' + i + '">'
+      + '<span class="c-ic">' + ic + '</span>'
+      + '<span class="c-lb">' + ch.label
+      + (ch.hint ? '<span class="c-hint"' + hid + '>&#128161; ' + ch.hint + '</span>' : '')
+      + '</span></div>';
+  }).join('');
+  var all = T.checks.length > 0 && done === T.checks.length;
+  return '<div class="lp-goals' + (all ? ' all-ok' : '') + '">'
+    + '<div class="lp-goals-cap">' + _lt('learn.doneWhen', 'DONE WHEN')
+    + '<span class="lp-goals-n">' + done + '/' + T.checks.length + '</span></div>'
+    + rows + '</div>';
+}
+
+/* Theory stays available during practice, but keeps its slide structure. This
+   avoids one long reference wall and lets the learner return to the exact
+   explanation or diagram they need. */
+function _learnTheoryHtml(L){
+  var dots = L.slides.map(function(_, i){
+    return '<button type="button" class="' + (i === LEARN.slide ? 'on' : '') + '"'
+      + ' onclick="LEARN.slide=' + i + ';LEARN.theoryOpen=true;learnRender();"'
+      + ' aria-label="' + _lt('learn.slide', 'Slide') + ' ' + (i + 1) + '/' + L.slides.length + '"'
+      + ' aria-current="' + (i === LEARN.slide ? 'step' : 'false') + '"></button>';
+  }).join('');
+  var slides = '<div class="lp-slides lp-theory-slides">'
+    + '<div class="lp-slides-nav">'
+    + '<button class="lp-btn" onclick="LEARN.theoryOpen=true;learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"'
+    + (LEARN.slide === 0 ? ' disabled' : '') + '>&#8249;</button>'
+    + '<div class="learn-prog">' + dots + '</div>'
+    + '<button class="lp-btn" onclick="LEARN.theoryOpen=true;learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"'
+    + (LEARN.slide === L.slides.length - 1 ? ' disabled' : '') + '>&#8250;</button>'
+    + '<span class="lp-slide-n">' + (LEARN.slide + 1) + '/' + L.slides.length + '</span>'
+    + '</div><div class="lp-slide-view">' + L.slides[LEARN.slide].html() + '</div></div>';
+  return '<details class="lp-theory"' + (LEARN.theoryOpen ? ' open' : '')
+    + ' ontoggle="LEARN.theoryOpen=this.open;">'
+    + '<summary class="lp-theory-sum">'
+    + '<span class="lp-theory-sum-copy"><span class="lp-theory-sum-title">'
+    + _lt('learn.infoSlides', 'INFO SLIDES') + '</span><span class="lp-theory-sum-sub">'
+    + _lt('learn.reviewTheory', 'Review the lesson theory at any time') + '</span></span>'
+    + '<span class="lp-theory-sum-meta">' + _lt('learn.slide', 'Slide') + ' '
+    + (LEARN.slide + 1) + '/' + L.slides.length + '</span></summary>'
+    + '<div class="lp-theory-body">' + slides + '</div></details>';
+}
+
+/* The practice block, returned as body + footer so both layouts can mount the
+   footer where it belongs (pinned on desktop, inline on the mobile strip). */
+function _learnPracticeHtml(L){
+  var T = L.tasks[LEARN.task];
+  var res = LEARN.lastResults;
+  var allOk = res && res.every(function(r){ return r.ok; });
+  var lastTask = LEARN.task === L.tasks.length - 1;
+  var nHints = (T.hints && T.hints.length) || 0;
+  var shown  = Math.min(LEARN.hint || 0, nHints);
+  var marked = /^[ \t]*;[ \t]*>>>/m.test(T.starter || '');
+
+  var body = '<div class="lp-task">'
+    + '<div class="lp-task-top">'
+    +   '<span class="lp-task-badge">' + _lt('learn.task', 'TASK') + ' ' + (LEARN.task + 1) + '/' + L.tasks.length + '</span>'
+    + '</div>'
+    + '<div class="lp-prompt" role="heading" aria-level="2">' + T.prompt + '</div>'
+    + '<div class="lp-where"><span class="lp-where-arrow" aria-hidden="true">&#8594;</span><span>' + (marked
+        ? _lt('learn.answerAtMark', 'Type directly below the marked <code>; &gt;&gt;&gt;</code> line in the highlighted editor.')
+        : _lt('learn.answerWhole', 'Write your answer in the highlighted editor.')) + '</span></div>'
+    + '</div>';
+
+  body += _learnTheoryHtml(L);
+  body += _learnGoalsHtml(T);
+
+  if(shown > 0){
+    body += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){
+      return '<div class="lp-hint-row"><span class="lp-hint-n">'
+        + (i === nHints - 1 ? _lt('learn.answer', 'ANSWER') : _lt('learn.hint', 'HINT') + ' ' + (i + 1)) + '</span>'
+        + '<div class="lp-hint-b">' + h + '</div></div>';
+    }).join('') + '</div>';
+  }
+  if(allOk){
+    body += '<div class="lp-success">&#127881;<span>' + _lt('learn.passed', 'All goals met \u2014 well done!')
+      + (lastTask
+          ? ' ' + _lt('learn.lessonDone', 'Lesson complete.') + '<br>&#9654; '
+            + _lt('learn.pressRun', 'Press <b>Run</b> and watch your program in 3D.')
+          : ' ' + _lt('learn.readyNext', 'Ready for the next task.')) + '</span></div>';
+  }
+
+  var foot = '<div class="lp-foot">'
+    + (L.intro ? '' : '<button class="lp-btn lp-solve" onclick="learnSolve()" aria-label="Reveal solution" title="">&#8943;</button>')
+    + '<button class="lp-btn" onclick="learnStartTask(' + LEARN.task + ')" title="'
+    +   _lt('learn.resetTask', 'Reload the starter program') + '">' + _lt('learn.reset', 'Reset') + '</button>'
+    + (!allOk && nHints
+        ? '<button class="lp-btn hint' + (shown >= nHints ? ' spent' : '') + '" onclick="learnHint()"'
+          + (shown >= nHints ? ' disabled' : '') + ' title="' + _lt('learn.hintMore', 'Reveal one more hint') + '">&#128161; '
+          + (shown === nHints - 1 ? _lt('learn.showAnswer', 'Show answer') : _lt('learn.hintBtn', 'Hint'))
+          + (shown ? ' ' + shown + '/' + nHints : '') + '</button>'
+        : '')
+    + (allOk
+        ? (lastTask
+            ? '<button class="lp-btn pri grow" onclick="learnFinishLesson()">' + _lt('learn.finish', 'Finish lesson') + ' &#10003;</button>'
+            : '<button class="lp-btn pri grow" onclick="learnStartTask(' + (LEARN.task + 1) + ')">' + _lt('learn.next', 'Next') + ' &#8594;</button>')
+        : '<button class="lp-btn chk grow" onclick="learnCheck()">' + _lt('learn.check', 'Check') + '</button>')
+    + '</div>';
+
+  return { body: body, foot: foot };
+}
+
 function learnRender(){
   var p = _lpEl();
   if(!p) return;
   var L = LEARN.lesson >= 0 ? LESSONS[LEARN.lesson] : null;
-  var title = L ? (L.intro ? L.title : ('Lesson ' + _learnNo(LEARN.lesson) + ' \u00b7 ' + L.title)) : 'Learn \u2014 Heidenhain basics';
-  var head = '<div class="lp-head"><span style="font-size:15px;">&#127891;</span>'
-    + '<span class="lp-title">' + title + '</span>'
-    + '<button class="lp-x" onclick="closeLearn()" title="Close Learn" aria-label="Close Learn">&#10005;</button></div>';
-  var body = '';
+  var head = _learnHead(L);
+  var mb = document.getElementById('learnMobileBar');
 
+  function clearMobileBar(){
+    if(!mb) return;
+    mb.classList.remove('on'); mb.innerHTML = '';
+    document.body.classList.remove('practice-on');
+  }
+
+  /* ── lesson list ── */
   if(LEARN.view === 'list' || !L){
     var prog = learnProgress();
-    var num = 0;                                    // running number of real (non-intro) lessons
+    var num = 0;
     var rows = LESSONS.map(function(Ls, i){
-      var done = (prog[Ls.id]||0) >= Ls.tasks.length;
-      var started = (prog[Ls.id]||0) > 0;
-      var assisted = !!prog[Ls.id + '#solved'];   // finished with the password button
-      var tickCol = assisted ? '#f0a94a' : '#5dcaa5';
-      var st = done ? '<span class="li-st" style="color:'+tickCol+';"'+(assisted?' title="Solved with assistance"':'')+'>&#10003;</span>'
-             : started ? '<span class="li-st" style="color:'+(assisted?'#f0a94a':'var(--accent)')+';">'+prog[Ls.id]+'/'+Ls.tasks.length+'</span>'
-             : '<span class="li-st" style="color:var(--text3);">&#9675;</span>';
+      var done = (prog[Ls.id] || 0) >= Ls.tasks.length;
+      var started = (prog[Ls.id] || 0) > 0;
+      var assisted = !!prog[Ls.id + '#solved'];
+      var stCls = 'li-st' + (done ? (assisted ? ' assisted' : ' done') : (started ? ' part' : ''));
+      var st = done ? '<span class="' + stCls + '"' + (assisted ? ' title="Solved with assistance"' : '') + '>&#10003;</span>'
+             : started ? '<span class="' + stCls + '">' + prog[Ls.id] + '/' + Ls.tasks.length + '</span>'
+             : '<span class="' + stCls + '">&#9675;</span>';
       if(Ls.intro){
-        // highlighted, un-numbered "Start here" card that sits apart from the course
-        return '<button type="button" class="learn-li intro" onclick="learnOpenLesson('+i+')">'
+        return '<button type="button" class="learn-li intro" onclick="learnOpenLesson(' + i + ')">'
           + '<span class="li-num intro">&#9658;</span>'
-          + '<span class="li-t"><span class="li-eyebrow">START HERE</span>'+Ls.title+'</span>'+st+'</button>';
+          + '<span class="li-t"><span class="li-eyebrow">' + _lt('learn.startHere', 'START HERE') + '</span>' + Ls.title + '</span>' + st + '</button>';
       }
       num++;
-      return '<button type="button" class="learn-li" onclick="learnOpenLesson('+i+')">'
-        + '<span class="li-num">'+num+'</span><span class="li-t">'+Ls.title+'</span>'+st+'</button>';
+      return '<button type="button" class="learn-li" onclick="learnOpenLesson(' + i + ')">'
+        + '<span class="li-num">' + num + '</span><span class="li-t">' + Ls.title + '</span>' + st + '</button>';
     }).join('');
     var realLessons = LESSONS.filter(function(x){ return !x.intro; });
-    var completeLessons = realLessons.filter(function(x){ return (prog[x.id]||0) >= x.tasks.length; }).length;
-    var more = '<div class="learn-li lock"><span class="li-num">&#127942;</span><span class="li-t">Finish the final integrated project to complete the course. Then try changing dimensions or repairing a deliberate mistake without opening the answer.</span><span class="li-st"></span></div>';
-    body = '<p>Short lessons with small practice exercises solved in the <b>real editor</b> \u2014 the simulator checks your code. Progress is saved.</p>'
-      + '<div class="learn-summary" aria-live="polite"><b>'+completeLessons+'/'+realLessons.length+'</b> lessons complete</div>'
+    var completeLessons = realLessons.filter(function(x){ return (prog[x.id] || 0) >= x.tasks.length; }).length;
+    var more = '<div class="learn-li lock"><span class="li-num">&#127942;</span><span class="li-t">'
+      + _lt('learn.finalNote', 'Finish the final integrated project to complete the course. Then try changing dimensions or repairing a deliberate mistake without opening the answer.')
+      + '</span><span class="li-st"></span></div>';
+    var body = '<p>' + _lt('learn.intro', 'Short lessons with small practice exercises solved in the <b>real editor</b> \u2014 the simulator checks your code. Progress is saved.') + '</p>'
+      + '<div class="learn-summary" aria-live="polite"><b>' + completeLessons + '/' + realLessons.length + '</b> '
+      + _lt('learn.complete', 'lessons complete') + '</div>'
       + '<div class="learn-list">' + rows + more + '</div>'
-      + '<div style="text-align:center;margin-top:14px;"><button class="lp-btn" style="font-size:11px;color:var(--text3);" onclick="learnResetProgress()">&#8634; Reset progress</button></div>';
-    p.innerHTML = head + '<div class="lp-body">'+body+'</div>';
-    var _mb0 = document.getElementById('learnMobileBar');
-    if(_mb0){ _mb0.classList.remove('on'); _mb0.innerHTML=''; document.body.classList.remove('practice-on'); }
+      + '<div class="learn-reset-row"><button class="lp-btn lp-quiet" onclick="learnResetProgress()">&#8634; '
+      + _lt('learn.resetProgress', 'Reset progress') + '</button></div>';
+    p.innerHTML = head + '<div class="lp-body">' + body + '</div>';
+    clearMobileBar();
+    _learnNotifyHost();
     return;
   }
 
-  /* \u2500\u2500 combined lesson view: slides pinned on top, practice below \u2500\u2500 */
+  /* ── active practice ── */
+  if(LEARN.task >= 0){
+    var pr = _learnPracticeHtml(L);
+    p.innerHTML = head + '<div class="lp-body">' + pr.body + '</div>' + pr.foot;
+    if(mb){
+      mb.innerHTML = pr.body + pr.foot;
+      mb.classList.add('on');
+      document.body.classList.add('practice-on');
+      if(typeof window._growCode === 'function') requestAnimationFrame(window._growCode);
+    }
+    _learnLabelDiagrams(p, L);
+    _learnNotifyHost();
+    return;
+  }
+
+  /* ── reading mode: slide-by-slide, practice always available ── */
   var dots = L.slides.map(function(_, i){
-    return '<button type="button" class="'+(i===LEARN.slide?'on':'')+'" onclick="LEARN.slide='+i+';learnRender();" aria-label="Theory slide '+(i+1)+' of '+L.slides.length+'" aria-current="'+(i===LEARN.slide?'step':'false')+'"></button>';
+    return '<button type="button" class="' + (i === LEARN.slide ? 'on' : '') + '" onclick="LEARN.slide=' + i + ';learnRender();"'
+      + ' aria-label="' + _lt('learn.slide', 'Slide') + ' ' + (i + 1) + '/' + L.slides.length + '"'
+      + ' aria-current="' + (i === LEARN.slide ? 'step' : 'false') + '"></button>';
   }).join('');
-  var slides = '<div class="lp-slides">'
-    + '<div class="lp-sec-cap">&#128214; THEORY</div>'
+  var read = '<div class="lp-slides">'
     + '<div class="lp-slides-nav">'
-    + '<button class="lp-btn lp-hamburger" onclick="learnBackToList()" title="All lessons" aria-label="All lessons">&#9776;</button>'
-    + '<button class="lp-btn" onclick="learnNav(-1)" aria-label="Previous theory slide"'+(LEARN.slide===0?' disabled':'')+'>&#8249;</button>'
-    + '<div class="learn-prog" style="flex:1;margin:0;">'+dots+'</div>'
-    + '<button class="lp-btn" onclick="learnNav(1)" aria-label="Next theory slide"'+(LEARN.slide===L.slides.length-1?' disabled':'')+'>&#8250;</button>'
-    + '<span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+(LEARN.slide+1)+'/'+L.slides.length+'</span>'
+    + '<button class="lp-btn" onclick="learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"' + (LEARN.slide === 0 ? ' disabled' : '') + '>&#8249;</button>'
+    + '<div class="learn-prog">' + dots + '</div>'
+    + '<button class="lp-btn" onclick="learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"' + (LEARN.slide === L.slides.length - 1 ? ' disabled' : '') + '>&#8250;</button>'
+    + '<span class="lp-slide-n">' + (LEARN.slide + 1) + '/' + L.slides.length + '</span>'
     + '</div>'
     + '<div class="lp-slide-view">' + L.slides[LEARN.slide].html() + '</div>'
     + '</div>';
 
-  var practice = '<div class="lp-divider"><span>PRACTICE</span></div>';
-  if(LEARN.task < 0){
-    if(LEARN.slide === L.slides.length - 1){
-      var prog2 = learnProgress();
-      var doneN = prog2[L.id]||0;
-      practice += '<button class="lp-btn chk" style="width:100%;text-align:center;padding:11px;font-size:13.5px;" onclick="learnStartTask('+(doneN < L.tasks.length ? doneN : 0)+')">'
-        + (doneN>0 && doneN<L.tasks.length ? 'Continue practice ('+doneN+'/'+L.tasks.length+' done) \u2192' : 'Start practice \u2192') + '</button>';
-    } else {
-      practice += '<div style="font-family:var(--mono);font-size:11.5px;color:var(--text3);text-align:center;padding:4px 0 2px;">&#128274; Read through the slides \u2014 practice unlocks on the last one</div>';
-    }
-  } else {
-    var T = L.tasks[LEARN.task];
-    var res = LEARN.lastResults;
-    var allOk = res && res.every(function(r){ return r.ok; });
-    var lastTask = LEARN.task === L.tasks.length - 1;
-    var nHints = (T.hints && T.hints.length) || 0;
-    var shown  = Math.min(LEARN.hint||0, nHints);
-    practice += '<span class="lp-task-badge">PRACTICE '+(LEARN.task+1)+' / '+L.tasks.length+'</span>'
-      + '<div class="lp-prompt">'+T.prompt+'</div>';
-    // Goals are visible from the start — grey/pending before the first Check, then
-    // green/red. Guessing what is graded is not the exercise; writing the code is.
-    practice += '<div class="lp-goals'+(res?' checked':'')+'">'
-      + '<div class="lp-goals-cap">GOALS'+(res?'':' \u00b7 not checked yet')+'</div>'
-      + T.checks.map(function(ch, i){
-          var r = res ? res[i] : null;
-          var col = !r ? 'var(--text3)' : (r.ok ? '#5dcaa5' : 'var(--text2)');
-          var ic  = !r ? '&#9675;' : (r.ok ? '&#10003;' : '&#10007;');
-          var icc = !r ? 'var(--text3)' : (r.ok ? '#5dcaa5' : '#e24b4a');
-          return '<div class="lp-check" style="color:'+col+';">'
-            + '<span class="c-ic" style="color:'+icc+';">'+ic+'</span>'
-            + '<span>'+ch.label
-            + (r && !r.ok && ch.hint ? '<div class="c-hint">&#128161; '+ch.hint+'</div>' : '')
-            + '</span></div>';
-        }).join('')
-      + '</div>';
-    // progressive hints, revealed one press at a time
-    if(shown > 0){
-      practice += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){
-        return '<div class="lp-hint-row"><span class="lp-hint-n">'+(i===nHints-1?'ANSWER':'HINT '+(i+1))+'</span>'
-          + '<div class="lp-hint-b">'+h+'</div></div>';
-      }).join('') + '</div>';
-    }
-    if(allOk){
-      practice += '<div class="lp-success">&#127881;<span>All checks passed \u2014 well done!'
-        + (lastTask
-            ? ' Lesson complete.<br>&#9654; Press <b>Run</b> and watch what your program does in 3D.'
-            : ' Ready for the next task.') + '</span></div>';
-    }
-    practice += '<div class="lp-practice-btns">'
-      + '<button class="lp-btn lp-exit" style="padding:8px 10px;" onclick="closeLearn()" title="Exit practice \u2014 back to editor">&#10005;</button>'
-      + (L.intro ? '' : '<button class="lp-btn lp-solve" style="opacity:.25;padding:8px 8px;border-color:transparent;" onclick="learnSolve()" title="">&#8943;</button>')
-      + '<button class="lp-btn" onclick="learnStartTask('+LEARN.task+')" title="Reload starter code">Reset</button>'
-      + (!allOk && nHints
-          ? '<button class="lp-btn hint'+(shown>=nHints?' spent':'')+'" onclick="learnHint()"'
-            + (shown>=nHints?' disabled':'')+' title="Reveal one more hint">&#128161; '+(shown===nHints-1?'Show answer':'Hint')
-            + (shown ? ' '+shown+'/'+nHints : '') + '</button>'
-          : '')
-      + (allOk
-          ? (lastTask
-              ? '<button class="lp-btn pri grow" onclick="learnFinishLesson()">Finish lesson &#10003;</button>'
-              : '<button class="lp-btn pri grow" onclick="learnStartTask('+(LEARN.task+1)+')">Next \u2192</button>')
-          : '<button class="lp-btn chk grow" onclick="learnCheck()">Check</button>')
-      + '</div>';
-  }
+  var doneN = learnProgress()[L.id] || 0;
+  var startFoot = '<div class="lp-foot">'
+    + '<button class="lp-btn chk grow" onclick="learnStartTask(' + (doneN < L.tasks.length ? doneN : 0) + ')">'
+    + (doneN > 0 && doneN < L.tasks.length
+        ? _lt('learn.continuePractice', 'Continue practice') + ' (' + doneN + '/' + L.tasks.length + ') \u2192'
+        : _lt('learn.startPractice', 'Start practice') + ' \u2192')
+    + '</button></div>';
 
-  p.innerHTML = head + '<div class="lp-body">' + slides + practice + '</div>';
+  p.innerHTML = head + '<div class="lp-body">' + read + '</div>' + startFoot;
+  clearMobileBar();
+  _learnLabelDiagrams(p, L);
+  _learnNotifyHost();
+}
 
-  /* Inline lesson diagrams need a usable text alternative even when their
-     individual geometry is generated dynamically from the example program. */
+/* Optional host chrome (the web editor's YOUR ANSWER band) is synchronized
+   after core has finished rendering. Android has no hook and remains untouched. */
+function _learnNotifyHost(){
+  try {
+    if(typeof window !== 'undefined' && typeof window.learnHostUpdate === 'function'){
+      window.learnHostUpdate();
+    }
+  } catch(e){}
+}
+
+/* Inline lesson diagrams need a usable text alternative even when their
+   individual geometry is generated dynamically from the example program. */
+function _learnLabelDiagrams(p, L){
   Array.prototype.forEach.call(p.querySelectorAll('.learn-svg'), function(svg, i){
     svg.setAttribute('role', 'img');
-    if(!svg.hasAttribute('aria-label')) svg.setAttribute('aria-label', L.title + ' diagram ' + (i+1));
+    if(!svg.hasAttribute('aria-label')) svg.setAttribute('aria-label', L.title + ' diagram ' + (i + 1));
   });
-
-  // Mobile: pin the ACTIVE practice above the editor (Editor tab), so the
-  // assignment is visible while typing. Slides stay on the Learn tab.
-  var mb = document.getElementById('learnMobileBar');
-  if(mb){
-    if(LEARN.task >= 0){
-      var core = practice.replace('<div class="lp-divider"><span>PRACTICE</span></div>', '');
-      mb.innerHTML = core;
-      mb.classList.add('on');
-      document.body.classList.add('practice-on');
-    } else {
-      mb.classList.remove('on'); mb.innerHTML='';
-      document.body.classList.remove('practice-on');
-    }
-    if(typeof window._growCode==='function') requestAnimationFrame(window._growCode);
-  }
 }

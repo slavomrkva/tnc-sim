@@ -17,6 +17,7 @@ const panels = fs.readFileSync(path.join(root, 'web/panels.js'), 'utf8');
 const webApp = fs.readFileSync(path.join(root, 'web/app.js'), 'utf8');
 const bugReport = fs.readFileSync(path.join(root, 'core/bug-report.js'), 'utf8');
 const programAutosave = fs.readFileSync(path.join(root, 'core/program-autosave.js'), 'utf8');
+const learnTutorial = fs.readFileSync(path.join(root, 'core/learn-tutorial.js'), 'utf8');
 
 let failures = 0;
 const fail = (m) => { console.error('✗ ' + m); failures++; };
@@ -33,6 +34,8 @@ for (const src of [panels, webApp]) for (const m of src.matchAll(/\bt\(\s*'([a-z
 for (const m of bugReport.matchAll(/_bugT\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 // program-autosave.js localizes through the _programAutosaveT helper
 for (const m of programAutosave.matchAll(/_programAutosaveT\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
+// core/learn-tutorial.js localizes through its own _lt() wrapper (Android has no t())
+for (const m of learnTutorial.matchAll(/_lt\(\s*'([a-zA-Z0-9.]+)'/g)) jsKeys.add(m[1]);
 
 // keys defined in the German map
 const deStart = i18n.indexOf('de: {');

@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.904 (web test)
+- Lesson practice combines a clearly labelled answer editor with concise
+  in-program answer markers, live goal ticks and an always-visible action row.
+  Information slides remain available during practice as a collapsible,
+  slide-by-slide reference instead of one long document.
+
 ## v0.903 (web test)
 - Desktop lessons now separate the assignment from the answer editor: the task
   and success criteria stay clear on the left, the real editor is explicitly

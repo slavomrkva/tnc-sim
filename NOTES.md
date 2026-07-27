@@ -123,6 +123,14 @@ Detailed module-split history is in the archived project notes linked above.
     paste/drop as Enter and never intercept Enter while an IME composition is
     active.
 
+20. **Learn practice is rendered once in core:** `_learnPracticeHtml()` returns
+    `{body, foot}` for every layout; web code may synchronize external editor
+    chrome but must never re-parent or rebuild the rendered practice DOM.
+    `; >>>` is a reserved answer marker and must be stripped anywhere it could
+    affect grading. Live grading may show only pending/met states while typing;
+    failed verdicts appear only after Check. During practice, theory remains a
+    collapsible slide-by-slide reference rather than a second long document.
+
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
 the technical log belong in `docs/history/`.
