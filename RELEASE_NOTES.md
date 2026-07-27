@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.909 (web test)
+- Removed the `DONE WHEN` checklist from every lesson. Collapsed information
+  slides now have a subtle green surface, the question ends with a prominent
+  “After writing your answer, press Check.” strip, and Check is yellow-green.
+
 ## v0.908 (web test)
 - Lesson selection now uses the same one-third desktop width as practice.
   Yellow answer rows and a yellow Check button visually connect the question

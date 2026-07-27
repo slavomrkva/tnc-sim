@@ -625,16 +625,12 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .learn-summary{font-family:var(--mono);font-size:12px;color:var(--text2);padding:8px 10px;margin:0 0 10px;border-radius:7px;background:rgba(var(--accent-rgb),.10);border:1px solid rgba(var(--accent-rgb),.35);}
 .lp-task-badge{display:inline-block;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:9px;letter-spacing:.04em;}
 .lp-prompt{font-size:15.5px;line-height:1.55;color:var(--text);font-weight:600;margin:0 0 8px;font-family:var(--sans);}
-.lp-check{display:flex;gap:8px;font-size:13px;color:var(--text3);align-items:flex-start;font-family:var(--mono);line-height:1.45;padding:3px 0;transition:color .15s;}
-.lp-check .c-ic{width:14px;flex-shrink:0;text-align:center;color:var(--text3);}
-.lp-check .c-lb{flex:1;min-width:0;}
-.lp-check .c-hint{display:block;color:#f0a94a;font-size:12px;margin-top:3px;line-height:1.4;}
 .lp-success{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 13px;border-radius:7px;background:rgba(93,202,165,.14);border:1px solid rgba(93,202,165,.5);color:#5dcaa5;font-size:13.5px;font-weight:600;font-family:var(--sans);line-height:1.45;}
 .lp-btn{font-family:var(--mono);font-size:12.5px;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
 .lp-btn:hover{border-color:var(--text3);color:var(--text);}
 .lp-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
-.lp-btn.chk{background:#f0a94a;border-color:#f0a94a;color:#17120a;font-weight:700;}
-html[data-theme="light"] .lp-btn.chk{background:#d89218;border-color:#b97708;color:#17120a;}
+.lp-btn.chk{background:#c6df4a;border-color:#d8f265;color:#142006;font-weight:800;}
+html[data-theme="light"] .lp-btn.chk{background:#afca32;border-color:#839c1c;color:#142006;}
 .lp-btn.grow{flex:1;text-align:center;}
 .lp-slides{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;}
 .lp-slide-view{padding-right:2px;}
@@ -753,10 +749,7 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 }
 
 
-/* ── Learn: goals, progressive hints, first-run coach ───────────────── */
-.lp-goals{border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin:10px 0 0;}
-.lp-goals-cap{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text3);margin-bottom:6px;}
-.lp-goals.checked{border-color:var(--accent);}
+/* ── Learn: progressive hints and first-run coach ───────────────────── */
 .lp-hints{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
 .lp-hint-row{display:flex;gap:8px;align-items:flex-start;background:rgba(240,169,74,.07);
   border-left:2px solid #f0a94a;border-radius:0 6px 6px 0;padding:7px 9px;}
@@ -811,6 +804,9 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 
 /* Theory during practice: reference behind one disclosure, never a slideshow */
 .lp-theory{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden;}
+.lp-theory:not([open]){background:rgba(93,202,165,.075);border-color:rgba(93,202,165,.30);}
+.lp-theory:not([open])>.lp-theory-sum{background:linear-gradient(90deg,rgba(93,202,165,.08),transparent);}
+html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);border-color:rgba(23,107,88,.28);}
 .lp-theory-sum{padding:9px 12px;cursor:pointer;list-style:none;font-family:var(--mono);font-size:11px;
   letter-spacing:.1em;color:var(--text2);user-select:none;}
 .lp-theory-sum::-webkit-details-marker{display:none;}
@@ -822,21 +818,8 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 .lp-theory-body{padding:4px 12px 10px;border-top:1px solid var(--border);background:var(--bg);}
 .lp-theory-sep{height:1px;background:var(--border);margin:14px 0;}
 
-/* Goals are live: they tick green while you type. A red cross only ever comes
-   from pressing Check, so nothing turns hostile mid-keystroke. */
-.lp-goals{margin-top:10px;}
-.lp-goals-cap{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);
-  font-size:10px;letter-spacing:.12em;color:var(--text3);margin-bottom:6px;}
-.lp-goals-n{font-weight:700;color:var(--text2);letter-spacing:0;}
-.lp-goals.all-ok .lp-goals-n{color:#5dcaa5;}
-.lp-check.ok{color:var(--text2);}
-.lp-check.ok .c-ic{color:#5dcaa5;}
-.lp-check.bad{color:var(--text2);}
-.lp-check.bad .c-ic{color:#e24b4a;}
-
 .lp-foot .lp-solve{opacity:.22;border-color:transparent;padding:8px 7px;}
 .lp-foot .lp-solve:hover{opacity:.5;}
-.lp-btn.chk.ready{box-shadow:0 0 0 3px rgba(240,169,74,.34);}
 .lp-practice-locked{justify-content:center;color:var(--text3);font-family:var(--mono);
   font-size:10.5px;text-align:center;line-height:1.4;}
 .lp-quiet{font-size:11px;color:var(--text3);border-color:transparent;}
@@ -908,9 +891,10 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
   .learn-answer-head .lah-title{font-family:var(--sans);font-size:15px;line-height:1.42;font-weight:650;color:var(--text);}
   .learn-answer-head .lah-title code{font-family:var(--mono);font-size:.9em;color:var(--text);
     background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 4px;}
-  .learn-answer-head .lah-direction{display:block;margin-top:3px;padding-top:8px;
-    border-top:1px solid rgba(240,169,74,.36);font-family:var(--mono);
-    font-size:10.5px;line-height:1.35;font-weight:650;color:#e2bb76;}
+  .learn-answer-head .lah-direction{display:block;margin:7px -15px -12px -17px;
+    padding:9px 15px 10px 17px;border-top:1px solid rgba(240,169,74,.58);
+    background:rgba(20,14,5,.18);font-family:var(--mono);font-size:12px;
+    line-height:1.35;font-weight:800;color:#ffe0a3;}
   html[data-theme="light"] body.learn-desktop-practice .learn-answer-head{
     background:linear-gradient(135deg,#fff0ad,#fff8d9 78%);
     border-color:#b97708;
@@ -930,9 +914,4 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
     display:none;
   }
   body.learn-desktop-practice .lp-theory{margin-top:0;}
-  body.learn-desktop-practice .lp-goals{
-    padding:10px 11px;
-    border-color:rgba(var(--accent-rgb),.28);
-    background:rgba(var(--accent-rgb),.035);
-  }
 }

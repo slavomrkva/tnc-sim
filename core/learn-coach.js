@@ -1,10 +1,9 @@
 // learn-coach -- first-run guided tour for PRACTICE. Shared core: keep this file
 // byte-for-byte identical between the web and android repos.
 //
-// A practice task shows an assignment, a goal checklist, a Hint button and a
-// Check button spread over two panels (and, on mobile, over two tabs). A first
-// time user has no idea which of those is "the thing you do next", so the very
-// first time practice is opened we walk them through it with a spotlight.
+// A practice task shows an assignment, a highlighted answer range, a Hint
+// button and a Check button spread over two panels (and, on mobile, over two
+// tabs). The first time practice opens, a spotlight explains that short flow.
 //
 // No dependency: the spotlight hole is a plain div with a huge box-shadow, and
 // it is re-measured on every step / resize / scroll.
@@ -29,7 +28,6 @@ function _coachTarget(key){
   if(!root) return null;
   if(key === 'editor') return document.getElementById('code');
   if(key === 'prompt') return root.querySelector('.lp-prompt');
-  if(key === 'goals')  return root.querySelector('.lp-goals');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
   if(key === 'solve')  return root.querySelector('.lp-solve');
@@ -58,13 +56,11 @@ function learnCoachStart(){
     { k:'prompt', t:'1. Read the assignment',
       d:'One clear action. This warm-up asks you to add a comment before END PGM.' },
     { k:'editor', t:'2. Answer here',
-      d:'This is the real editor. The teal answer band and border mark where to work; tasks with one exact insertion point also show a ; >>> cue.' },
-    { k:'goals',  t:'3. Watch the goals',
-      d:'Every graded goal is listed from the start and ticks green by itself as your code satisfies it. Nothing here is hidden.' },
-    { k:'hint',   t:'4. Ask for help when needed',
+      d:'This is the real editor. The amber answer band marks where to work; tasks with one exact insertion point also show a ; >>> cue.' },
+    { k:'hint',   t:'3. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
-    { k:'check',  t:'5. Check when ready',
-      d:'Check gives the final verdict and marks anything still missing in red. It is free — press it as often as you like.' }
+    { k:'check',  t:'4. Check when ready',
+      d:'After writing your answer, press Check. It is free — use it as often as you like.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

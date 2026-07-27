@@ -55,18 +55,22 @@ assert.match(css, /body\.learn-desktop-practice \.learn-answer-head\{[^}]*backgr
   'question banner uses a clearly distinct amber background');
 assert.match(app, /t\('learn\.question', 'QUESTION'\)[\s\S]*LEARN\.task \+ 1/,
   'question banner identifies the current task number');
-assert.match(app, /t\('learn\.answerThenCheck'[\s\S]*then press Check/,
+assert.match(app, /t\('learn\.answerThenCheck'[\s\S]*After writing your answer, press Check/,
   'question banner ends with the answer-to-check instruction');
+assert.ok(!/_learnGoalsHtml|lp-goals|learn\.doneWhen/.test(core),
+  'DONE WHEN is absent from every rendered lesson');
 assert.match(css, /body\.learn-desktop-practice \.lp-task\{[^}]*display:none/,
   'the duplicate task card is removed from the desktop lesson panel');
 assert.match(css, /\.lp-theory-sum/,
   'info disclosure has an explicit interactive summary');
+assert.match(css, /\.lp-theory:not\(\[open\]\)\{[^}]*background:rgba\(93,202,165/,
+  'collapsed info slides have a subtle green background');
 assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,
   'slide arrows retain large, stable previous/next hit targets');
 assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:rgba\(240,169,74/,
   'answer blocks have a full-width amber highlight');
-assert.match(css, /\.lp-btn\.chk\{[^}]*background:#f0a94a/,
-  'Check continues the amber question-and-answer flow');
+assert.match(css, /\.lp-btn\.chk\{[^}]*background:#c6df4a/,
+  'Check uses a distinct yellow-green action colour');
 assert.match(css, /@media\(max-width:1024px\), \(max-height:600px\)/,
   'the existing mobile/short viewport breakpoint remains present');
 

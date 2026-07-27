@@ -1200,69 +1200,11 @@ function learnCheck(){
   learnRender();
 }
 
-/* ── Live grading ────────────────────────────────────────────────────
-   The single biggest source of "what does it even want from me?" was that the
-   goal list only meant anything AFTER pressing Check. It is now continuous:
-   goals tick green while you type. Live state is deliberately one-directional
-   — a goal is either met (green) or still pending (grey). A red cross is a
-   verdict, and a verdict is only ever produced by pressing Check. */
-
+/* Editing after Check clears that verdict so the action returns to Check.
+   Requirements stay internal to grading; practice intentionally exposes no
+   separate checklist alongside the question. */
 var _learnLiveTimer = null;
 
-function _learnLiveResults(){
-  if(!LEARN.open || LEARN.lesson < 0 || LEARN.task < 0) return null;
-  if(LEARN.lastResults) return LEARN.lastResults;   // an explicit verdict wins
-  return LEARN.live || null;
-}
-
-/* Paint the goal rows of every mounted practice container (the desktop panel
-   and, on mobile, the pinned strip above the editor) without re-rendering. A
-   full render during typing would rebuild the DOM under the coach spotlight
-   and reset the panel scroll on every keystroke. */
-function learnPaintGoals(){
-  var res = _learnLiveResults();
-  var verdict = !!LEARN.lastResults;
-  var done = 0, total = 0;
-  Array.prototype.forEach.call(document.querySelectorAll('.lp-goals'), function(box){
-    Array.prototype.forEach.call(box.querySelectorAll('.lp-check'), function(row){
-      var i = parseInt(row.getAttribute('data-ci'), 10);
-      var r = res ? res[i] : null;
-      var ok = !!(r && r.ok);
-      row.classList.toggle('ok', ok);
-      row.classList.toggle('bad', verdict && !ok);
-      var ic = row.querySelector('.c-ic');
-      if(ic) ic.innerHTML = ok ? '&#10003;' : (verdict ? '&#10007;' : '&#9675;');
-      var hint = row.querySelector('.c-hint');
-      if(hint) hint.style.display = (verdict && !ok) ? '' : 'none';
-    });
-    var rows = box.querySelectorAll('.lp-check');
-    total = rows.length;
-    done = box.querySelectorAll('.lp-check.ok').length;
-    var n = box.querySelector('.lp-goals-n');
-    if(n) n.textContent = done + '/' + total;
-    box.classList.toggle('all-ok', total > 0 && done === total);
-  });
-  // A fully satisfied goal list makes Check the obvious next move.
-  var ready = total > 0 && done === total && !verdict;
-  Array.prototype.forEach.call(document.querySelectorAll('.lp-btn.chk'), function(b){
-    b.classList.toggle('ready', ready);
-  });
-}
-
-function learnLiveEval(){
-  if(!LEARN.open || LEARN.lesson < 0 || LEARN.task < 0) return;
-  var L = LESSONS[LEARN.lesson];
-  var res = learnEvalChecks(codeEl.value, L.tasks[LEARN.task]);
-  // Mid-keystroke the program often does not parse and every check would drop
-  // to false. Keep the previous live state instead of flashing the list empty.
-  if(!_learnParseOk && LEARN.live) return;
-  LEARN.live = res;
-  learnPaintGoals();
-}
-
-/* Editing invalidates a previous Check verdict. Dropping it needs one real
-   render (the success banner and the footer button both change), after which
-   further keystrokes only repaint the goal rows. */
 function learnCodeChanged(){
   if(!LEARN.open || LEARN.task < 0) return;
   if(_learnLiveTimer) clearTimeout(_learnLiveTimer);
@@ -1270,10 +1212,8 @@ function learnCodeChanged(){
     _learnLiveTimer = null;
     if(LEARN.lastResults){
       LEARN.lastResults = null;
-      learnLiveEval();
+      LEARN.live = null;
       learnRender();
-    } else {
-      learnLiveEval();
     }
   }, 400);
 }
@@ -1357,32 +1297,6 @@ function _learnHead(L){
     + '" aria-label="' + _lt('learn.close', 'Close Learn') + '">&#10005;</button></div>';
 }
 
-/* Goal rows carry no inline colours: state lives in .ok / .bad classes so
-   learnPaintGoals() can repaint them on every keystroke without a re-render. */
-function _learnGoalsHtml(T){
-  var res = _learnLiveResults();
-  var verdict = !!LEARN.lastResults;
-  var done = 0;
-  var rows = T.checks.map(function(ch, i){
-    var r = res ? res[i] : null;
-    var ok = !!(r && r.ok);
-    if(ok) done++;
-    var cls = 'lp-check' + (ok ? ' ok' : (verdict ? ' bad' : ''));
-    var ic  = ok ? '&#10003;' : (verdict ? '&#10007;' : '&#9675;');
-    var hid = (verdict && !ok) ? '' : ' style="display:none;"';
-    return '<div class="' + cls + '" data-ci="' + i + '">'
-      + '<span class="c-ic">' + ic + '</span>'
-      + '<span class="c-lb">' + ch.label
-      + (ch.hint ? '<span class="c-hint"' + hid + '>&#128161; ' + ch.hint + '</span>' : '')
-      + '</span></div>';
-  }).join('');
-  var all = T.checks.length > 0 && done === T.checks.length;
-  return '<div class="lp-goals' + (all ? ' all-ok' : '') + '">'
-    + '<div class="lp-goals-cap">' + _lt('learn.doneWhen', 'DONE WHEN')
-    + '<span class="lp-goals-n">' + done + '/' + T.checks.length + '</span></div>'
-    + rows + '</div>';
-}
-
 /* Theory stays available during practice, but keeps its slide structure. This
    avoids one long reference wall and lets the learner return to the exact
    explanation or diagram they need. */
@@ -1435,7 +1349,6 @@ function _learnPracticeHtml(L){
     + '</div>';
 
   body += _learnTheoryHtml(L);
-  body += _learnGoalsHtml(T);
 
   if(shown > 0){
     body += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){

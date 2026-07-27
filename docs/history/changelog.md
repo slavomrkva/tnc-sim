@@ -7,6 +7,21 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.909 — simplified Learn task flow without DONE WHEN
+
+- Removed the DONE WHEN checklist from shared Learn markup, its live repaint
+  path, German key, CSS and contract tests; grading requirements remain
+  internal and Check still determines completion.
+- Removed the obsolete goals step from the shared first-run coach and updated
+  its answer guidance from teal to the current amber answer range.
+- Added a subtle green background only to collapsed INFO SLIDES disclosures,
+  turned the question instruction into a prominent bottom strip with the exact
+  `After writing your answer, press Check.` wording, and changed Check to a
+  high-contrast yellow-green in both themes.
+- Verified no goals component is rendered on desktop or mobile, all 46 task
+  banners remain unclipped, browser console output is clean, and advanced the
+  offline cache to `v69`.
+
 ## v0.908 — continuous amber question-to-check flow
 
 - Added a host `learn-desktop-open` state so lesson selection and pre-practice

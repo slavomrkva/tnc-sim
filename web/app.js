@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.908';
+var APP_VERSION = '0.909';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -35,7 +35,7 @@ window.learnHostUpdate = function(){
     + (LEARN.task + 1) + '/' + lesson.tasks.length;
   if(title) title.innerHTML = task ? task.prompt : '';
   if(direction) direction.textContent = t('learn.answerThenCheck',
-    'Write in the highlighted area, then press Check.');
+    'After writing your answer, press Check.');
 };
 
 // ===== constants.js =====

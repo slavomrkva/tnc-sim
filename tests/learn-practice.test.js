@@ -44,10 +44,11 @@ assert.ok(!/\.lp-slide-view\{[^}]*overflow-y:auto/.test(css),
 assert.match(core, /L\.slides\[LEARN\.slide\]\.html\(\)/,
   'expanded theory keeps the lesson slide structure instead of one long wall');
 
-/* ── live grading semantics ── */
-assert.match(core, /function learnPaintGoals/, 'goals repaint without a full re-render');
+/* ── grading stays internal until Check ── */
+assert.ok(!/_learnGoalsHtml|lp-goals|learn\.doneWhen/.test(core),
+  'practice renders no DONE WHEN checklist');
 assert.match(core, /codeEl\.addEventListener\('input', learnCodeChanged\)/,
-  'typing re-evaluates the goal list');
+  'typing clears a stale Check verdict without exposing a checklist');
 
 const context = {
   console, Math, JSON, RegExp, Date, parseFloat, parseInt, isFinite,
@@ -128,20 +129,5 @@ assert.ok(commentTask.checks.some(c => c.t === 'has_comment'), 'L01.1 grades a c
 const onlyMarker = 'BEGIN PGM A MM\n; >>> YOUR ANSWER — TASK 1/3\nEND PGM A MM';
 assert.ok(!context.learnEvalChecks(onlyMarker, commentTask).some(r => r.ok && r.label.match(/comment/i)),
   'the injected answer marker cannot satisfy has_comment');
-
-/* ── goals render grey/green while typing, red only after Check ── */
-const goalTask = context.LESSONS[4].tasks[1];
-context.LEARN = {open:true, lesson:4, task:1, live:null, lastResults:null, theoryOpen:false};
-const pending = context._learnGoalsHtml(goalTask);
-assert.ok(!/&#10007;/.test(pending), 'an unchecked goal list shows no crosses');
-assert.match(pending, /data-ci="0"/, 'goal rows are addressable for in-place repaint');
-
-context.LEARN.live = goalTask.checks.map((c, i) => ({ok: i === 0, label: c.label, hint: c.hint}));
-const live = context._learnGoalsHtml(goalTask);
-assert.ok(!/&#10007;/.test(live), 'live progress never shows a cross');
-assert.match(live, /lp-check ok/, 'a satisfied goal ticks green while typing');
-
-context.LEARN.lastResults = context.LEARN.live;
-assert.match(context._learnGoalsHtml(goalTask), /&#10007;/, 'Check produces the verdict');
 
 console.log(`Learn practice contract passed (${inserted} insert ranges, ${edited} edit ranges)`);
