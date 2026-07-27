@@ -22,6 +22,8 @@ assert.ok(!/installDesktopLearnWorkspace/.test(app),
   'web does not reassemble the shared Learn DOM');
 assert.match(app, /window\.learnHostUpdate\s*=/,
   'web synchronizes the external editor chrome through a narrow host hook');
+assert.match(app, /classList\.toggle\('learn-desktop-open', open\)/,
+  'web identifies every open desktop Learn view, including lesson selection');
 assert.match(app, /title\.innerHTML = task \? task\.prompt/,
   'desktop task prompt is mirrored into the banner above the editor');
 assert.match(core, /function _learnPracticeHtml/, 'core owns the task-first practice workspace');
@@ -47,18 +49,24 @@ assert.match(css, /body\.learn-desktop-practice \.learn-answer-head[\s\S]*displa
   'answer header is visible only in focused desktop practice');
 assert.match(css, /body\.learn-desktop-practice #learnPanel,[\s\S]*body\.learn-desktop-practice \.canvas-panel\{[^}]*width:33\.333333% !important;[^}]*flex:0 0 33\.333333%/,
   'lesson, editor and result use equal desktop thirds');
+assert.match(css, /body\.learn-desktop-open:not\(\.learn-desktop-practice\) #learnPanel\{[^}]*width:33\.333333% !important/,
+  'lesson selection retains the same one-third desktop width');
 assert.match(css, /body\.learn-desktop-practice \.learn-answer-head\{[^}]*background:linear-gradient\(135deg,rgba\(240,169,74/,
   'question banner uses a clearly distinct amber background');
 assert.match(app, /t\('learn\.question', 'QUESTION'\)[\s\S]*LEARN\.task \+ 1/,
   'question banner identifies the current task number');
+assert.match(app, /t\('learn\.answerThenCheck'[\s\S]*then press Check/,
+  'question banner ends with the answer-to-check instruction');
 assert.match(css, /body\.learn-desktop-practice \.lp-task\{[^}]*display:none/,
   'the duplicate task card is removed from the desktop lesson panel');
 assert.match(css, /\.lp-theory-sum/,
   'info disclosure has an explicit interactive summary');
 assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,
   'slide arrows retain large, stable previous/next hit targets');
-assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:/,
-  'answer blocks have a full-width visual highlight');
+assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:rgba\(240,169,74/,
+  'answer blocks have a full-width amber highlight');
+assert.match(css, /\.lp-btn\.chk\{[^}]*background:#f0a94a/,
+  'Check continues the amber question-and-answer flow');
 assert.match(css, /@media\(max-width:1024px\), \(max-height:600px\)/,
   'the existing mobile/short viewport breakpoint remains present');
 

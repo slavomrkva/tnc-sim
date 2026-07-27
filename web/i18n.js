@@ -54,7 +54,7 @@
       'learn.task': 'AUFGABE',
       'learn.answerMarker': 'DEINE ANTWORT \u2014 AUFGABE',
       'learn.question': 'FRAGE',
-      'learn.answerHighlighted': 'Schreibe nur in den markierten Bereich darunter.',
+      'learn.answerThenCheck': 'Schreibe in den markierten Bereich und dr\u00fccke danach Pr\u00fcfen.',
       'learn.answerAtMark': 'Tippe direkt unter der markierten <code>; &gt;&gt;&gt;</code> Zeile im hervorgehobenen Editor.',
       'learn.answerWhole': 'Schreibe deine Antwort in den hervorgehobenen Editor.',
       'learn.infoSlides': 'INFO-FOLIEN',

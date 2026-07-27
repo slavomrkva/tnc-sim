@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.907';
+var APP_VERSION = '0.908';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -11,8 +11,9 @@ var APP_VERSION = '0.907';
 /* Core owns all Learn markup. The web host only synchronizes the editor chrome
    that sits outside #learnPanel, so no rendered lesson DOM is moved or rebuilt. */
 window.learnHostUpdate = function(){
-  var active = typeof LEARN !== 'undefined' && LEARN.open
-    && LEARN.lesson >= 0 && LEARN.task >= 0;
+  var open = typeof LEARN !== 'undefined' && LEARN.open;
+  var active = open && LEARN.lesson >= 0 && LEARN.task >= 0;
+  document.body.classList.toggle('learn-desktop-open', open);
   document.body.classList.toggle('learn-desktop-practice', active);
 
   var head = document.getElementById('learnAnswerHead');
@@ -33,8 +34,8 @@ window.learnHostUpdate = function(){
   if(kicker) kicker.textContent = t('learn.question', 'QUESTION') + ' '
     + (LEARN.task + 1) + '/' + lesson.tasks.length;
   if(title) title.innerHTML = task ? task.prompt : '';
-  if(direction) direction.textContent = t('learn.answerHighlighted',
-    'Write only in the highlighted area below.');
+  if(direction) direction.textContent = t('learn.answerThenCheck',
+    'Write in the highlighted area, then press Check.');
 };
 
 // ===== constants.js =====

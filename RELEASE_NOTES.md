@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.908 (web test)
+- Lesson selection now uses the same one-third desktop width as practice.
+  Yellow answer rows and a yellow Check button visually connect the question
+  to the required action, reinforced by a short instruction below the prompt.
+
 ## v0.907 (web test)
 - Desktop practice now divides the lesson, answer editor and 3D result into
   equal thirds. The task is identified as `QUESTION n/m` in a strongly

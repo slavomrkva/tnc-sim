@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.908 — continuous amber question-to-check flow
+
+- Added a host `learn-desktop-open` state so lesson selection and pre-practice
+  information views retain the same one-third desktop panel width as practice.
+- Changed answer-range overlays and their line-number gutter cells from teal
+  to amber in both themes, and matched the Check button and its ready focus
+  ring to the same visual language.
+- Replaced the banner's generic answer direction with the localized instruction
+  `Write in the highlighted area, then press Check.`, separated at the bottom
+  of the yellow question surface.
+- Verified the selection panel at 480/1440 px, equal 480 px practice columns,
+  desktop/narrow/mobile screenshots with no console errors, and advanced the
+  offline cache to `v68`.
+
 ## v0.907 — equal Learn columns and amber question banner
 
 - Locked the desktop practice lesson, editor and result columns to equal

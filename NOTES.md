@@ -137,7 +137,10 @@ Detailed module-split history is in the archived project notes linked above.
     the current task into the banner above the editor and visually hides the
     core task card; mobile continues to use the core-rendered task card. The
     three desktop practice columns remain equal thirds, and the mirrored task
-    uses a distinct question surface rather than answer-area styling.
+    uses a distinct question surface rather than answer-area styling. Lesson
+    selection and pre-practice views retain that same one-third panel width.
+    Amber connects the question, exact answer range and Check action; the
+    question surface ends with the brief answer-then-Check instruction.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
