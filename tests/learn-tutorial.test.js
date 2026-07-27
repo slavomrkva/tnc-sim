@@ -32,14 +32,23 @@ function solutionFor(task){
 
 const intro = context.LESSONS.find(lesson => lesson.id === 'L00');
 assert.strictEqual(intro.slides.length, 3, 'Start here has three information slides');
-assert.match(intro.slides[0].html(), /theory you will need for the test/);
-assert.match(intro.slides[1].html(), /Each press reveals the next level of help/);
+assert.match(intro.slides[0].html(), /reopen these slides at any time during practice/);
+assert.match(intro.slides[1].html(), /question panel[\s\S]*highlighted answer row/);
 assert.match(intro.slides[1].html(), /Hint 1[\s\S]*Hint 2[\s\S]*Hint 3/, 'Hint levels render in order');
-assert.match(intro.slides[2].html(), /real editor/);
-assert.strictEqual(intro.tasks[0].prompt, 'Your challenge appears here. Complete it in the editor and press Check');
-assert.strictEqual(intro.tasks[0].checks.length, 0, 'Start here is not a graded task');
-assert.strictEqual(solutionFor(intro.tasks[0]), null, 'Start here has no solution');
+assert.match(intro.slides[2].html(), /green[\s\S]*Check[\s\S]*green or red/);
+assert.strictEqual(intro.tasks[0].prompt, 'Type a short comment on the highlighted line');
+assert.strictEqual(intro.tasks[0].answerPrefix, '; ', 'Start here exposes a real highlighted answer row');
+assert.strictEqual(intro.tasks[0].checks.length, 2, 'Start here demonstrates the post-Check verdict');
+assert.ok(context.learnEvalChecks(solutionFor(intro.tasks[0]), intro.tasks[0]).every(result => result.ok),
+  'Start here has a working example solution');
 assert.match(read('core/data-tables.js'), /Switch between the Editor and 3D view at any time/);
+const coachSource = read('core/learn-coach.js');
+assert.match(coachSource, /key === 'prompt'[\s\S]*learnAnswerHead/,
+  'desktop tutorial targets the visible question panel instead of the hidden task card');
+assert.match(coachSource, /key === 'answer'[\s\S]*#hlLayer \.learn-answer-line/,
+  'tutorial targets the exact highlighted answer row');
+assert.match(coachSource, /key === 'theory'[\s\S]*\.lp-theory-sum/,
+  'tutorial explains that Info Slides remain available during practice');
 
 for(const lesson of context.LESSONS){
   for(let i=0; i<lesson.tasks.length; i++){

@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.913 — tutorial aligned with the redesigned Learn layout
+
+- Reworked L00 into a real comment warm-up with an editable `; ` answer row,
+  two Check requirements and matching English/German slides and hints.
+- Updated the coach to target the visible desktop question banner instead of
+  the hidden legacy task card, spotlight the exact answer overlay, explain
+  reopenable Info Slides, and identify the green Check result flow.
+- Changed What’s New from lime promotion styling to the standard neutral header
+  treatment and reduced the popup to three short bullets.
+- Added tutorial target/content regressions and advanced the offline cache to
+  `v73`.
+
 ## v0.912 — restored green lesson actions
 
 - Returned the shared `.lp-btn.chk` action style to the original green family,

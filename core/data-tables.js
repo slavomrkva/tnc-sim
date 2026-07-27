@@ -87,29 +87,36 @@ var LESSONS = [
   muteProbs:[/No TOOL CALL/i, /no (cutting|tool) (moves?|movement)/i],
   slides:[
     { html:function(){ return ''
-      + '<p>Every lesson begins with three information slides. They explain the theory you will need for the test. Read them carefully before starting practice.</p>'; } },
+      + '<p>Read the <b>INFO SLIDES</b> with the arrow buttons. Start practice from the final slide. You can reopen these slides at any time during practice.</p>'; } },
     { html:function(){ return ''
-      + '<p>Need help during practice? Use Hint. Each press reveals the next level of help:</p>'
+      + '<p>The question panel shows the <b>task</b>. Type only in the highlighted answer row. If you need help, each press of Hint reveals one more level:</p>'
       + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.06);"><b style="color:var(--accent);">&#128161; Hint 1</b><span>a small nudge</span></div>'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.10);"><b style="color:var(--accent);">&#128161; Hint 2</b><span>the structure</span></div>'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--accent);border-radius:6px;background:rgba(74,158,255,.16);"><b style="color:var(--accent);">&#128161; Hint 3</b><span>the full answer</span></div>'
       + '</div>'; } },
     { html:function(){ return ''
-      + '<p>Practice uses the real editor. As soon as you make a valid change to the code, you can see the result in the 3D view.'
+      + '<p>Practice uses the real editor. Press the green <b>Check</b> button when ready. The requirements then appear in green or red; editing hides them again.'
       + (typeof _isMTab==='function' && _isMTab() ? ' Switch between the Editor and 3D view at any time.' : '')
       + '</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Your challenge appears here. Complete it in the editor and press Check',
+      prompt:'Type a short comment on the highlighted line',
+      answerPrefix:'; ',
       hints:[
-        'Use Hint whenever you need help. It gives you a nudge without changing your code.',
-        'Each press reveals a little more help: first a nudge, then the structure, then the full answer.',
-        'Hints are optional. Use them whenever you need them.'
+        'A comment is a short note for a human.',
+        'Type your text after the semicolon on the highlighted line.',
+        'For example: <code>; hello</code>'
       ],
-      starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM HELLO MM',
-      checks:[]
+      solRepl:['END PGM HELLO','; hello\nEND PGM HELLO'],
+      starter:'BEGIN PGM HELLO MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nEND PGM HELLO MM',
+      checks:[
+        {t:'has_comment', label:'Comment contains text after ;',
+         hint:'Type a word after the semicolon on the highlighted line.'},
+        {t:'begin_end', name:'HELLO', label:'Program skeleton still valid',
+         hint:'Keep BEGIN PGM HELLO and END PGM HELLO unchanged.'}
+      ]
     }
   ]
 },

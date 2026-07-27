@@ -1,9 +1,9 @@
 // learn-coach -- first-run guided tour for PRACTICE. Shared core: keep this file
 // byte-for-byte identical between the web and android repos.
 //
-// A practice task shows an assignment, a highlighted answer range, a Hint
-// button and a Check button spread over two panels (and, on mobile, over two
-// tabs). The first time practice opens, a spotlight explains that short flow.
+// A practice task shows a question, highlighted answer range, reopenable Info
+// Slides, Hint and Check. The first time practice opens, a spotlight explains
+// that short flow across desktop panels or mobile tabs.
 //
 // No dependency: the spotlight hole is a plain div with a huge box-shadow, and
 // it is re-measured on every step / resize / scroll.
@@ -27,7 +27,12 @@ function _coachTarget(key){
   var root = mob ? document.getElementById('learnMobileBar') : document.getElementById('learnPanel');
   if(!root) return null;
   if(key === 'editor') return document.getElementById('code');
-  if(key === 'prompt') return root.querySelector('.lp-prompt');
+  if(key === 'prompt') return mob
+    ? root.querySelector('.lp-task')
+    : document.getElementById('learnAnswerHead');
+  if(key === 'answer') return document.querySelector('#hlLayer .learn-answer-line')
+    || document.getElementById('code');
+  if(key === 'theory') return root.querySelector('.lp-theory-sum');
   if(key === 'hint')   return root.querySelector('.lp-btn.hint');
   if(key === 'check')  return root.querySelector('.lp-btn.chk');
   if(key === 'solve')  return root.querySelector('.lp-solve');
@@ -53,14 +58,16 @@ function learnCoachMaybeStart(force){
 
 function learnCoachStart(){
   COACH.steps = [
-    { k:'prompt', t:'1. Read the assignment',
-      d:'One clear action. This warm-up asks you to add a comment before END PGM.' },
-    { k:'editor', t:'2. Answer here',
-      d:'This is the real editor. The amber answer band marks where to work; tasks with one exact insertion point also show a ; >>> cue.' },
-    { k:'hint',   t:'3. Ask for help when needed',
+    { k:'prompt', t:'1. Read the question',
+      d:'The question panel above the editor always shows the current task.' },
+    { k:'answer', t:'2. Type in the highlighted row',
+      d:'This is the real editor. The amber answer row marks exactly where to work.' },
+    { k:'theory', t:'3. Reopen Info Slides',
+      d:'The lesson explanation stays available throughout practice.' },
+    { k:'hint',   t:'4. Ask for help when needed',
       d:'Hints progress from a small nudge to the complete answer. They are free and never erase your code.' },
-    { k:'check',  t:'4. Check when ready',
-      d:'After writing your answer, press Check. The requirements then appear with green and red results; edit again to hide them.' }
+    { k:'check',  t:'5. Check when ready',
+      d:'Press the green Check button. Requirements then appear in green or red; edit again to hide them.' }
   ].filter(function(s){ return !!_coachTarget(s.k); });
   if(!COACH.steps.length) return;
   COACH.on = true; COACH.step = 0;

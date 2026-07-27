@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.913 (web test)
+- Updated the Start Here tutorial for the redesigned lesson layout, including a
+  real highlighted answer row and guidance for Info Slides and Check results.
+- Made **What’s new** a standard neutral header action and shortened its popup.
+
 ## v0.912 (web test)
 - Restored the established green treatment for both **Check** and
   **Start/Continue practice**.

@@ -131,8 +131,8 @@ for(const lesson of context.LESSONS){
       `${lesson.id}.${i+1} the empty answer range must not pass the task by itself`);
   }
 }
-assert.ok(inserted > 40 && edited > 0 && none === 1,
-  `answer zoning covers the course (${inserted} insert ranges, ${edited} edit ranges, ${none} ungraded)`);
+assert.ok(inserted > 40 && edited > 0 && none === 0,
+  `every task now has answer zoning (${inserted} insert ranges, ${edited} edit ranges, ${none} ungraded)`);
 
 /* An answer marker is never the student's own comment. */
 const commentTask = context.LESSONS.find(l => l.id === 'L01').tasks[0];

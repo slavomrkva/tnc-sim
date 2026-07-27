@@ -18,28 +18,33 @@ var LESSONS_DE = {
   title:'Los geht’s — deine erste Minute',
   slides:[
     { html:function(){ return ''
-      + '<p>Jede Lektion beginnt mit drei Informationsfolien. Sie erklären die Theorie, die du für den Test brauchst. Lies sie sorgfältig, bevor du mit dem Üben startest.</p>'; } },
+      + '<p>Lies die <b>INFO-FOLIEN</b> mit den Pfeiltasten. Starte die Übung auf der letzten Folie. Während der Übung kannst du die Folien jederzeit wieder öffnen.</p>'; } },
     { html:function(){ return ''
-      + '<p>Brauchst du beim Üben Hilfe? Nutze Hinweis. Jeder Druck zeigt die nächste Hilfestufe:</p>'
+      + '<p>Das Fragefeld zeigt die <b>Aufgabe</b>. Schreibe nur in die hervorgehobene Antwortzeile. Jeder Druck auf Hinweis zeigt eine weitere Hilfestufe:</p>'
       + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.06);"><b style="color:var(--accent);">&#128161; Hinweis 1</b><span>ein kleiner Anstoß</span></div>'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.10);"><b style="color:var(--accent);">&#128161; Hinweis 2</b><span>die Struktur</span></div>'
       + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--accent);border-radius:6px;background:rgba(74,158,255,.16);"><b style="color:var(--accent);">&#128161; Hinweis 3</b><span>die vollständige Lösung</span></div>'
       + '</div>'; } },
     { html:function(){ return ''
-      + '<p>Das Üben nutzt den echten Editor. Sobald du eine gültige Änderung am Code machst, siehst du das Ergebnis in der 3D-Ansicht.'
+      + '<p>Die Übung nutzt den echten Editor. Drücke danach die grüne Taste <b>Prüfen</b>. Die Anforderungen erscheinen grün oder rot; beim Bearbeiten werden sie wieder ausgeblendet.'
       + (typeof _isMTab==='function' && _isMTab() ? ' Wechsle jederzeit zwischen Editor und 3D-Ansicht.' : '')
       + '</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Deine Aufgabe erscheint hier. Löse sie im Editor und drücke Prüfen',
+      prompt:'Schreibe einen kurzen Kommentar in die hervorgehobene Zeile',
       hints:[
-        'Nutze Hinweis, wann immer du Hilfe brauchst. Er gibt dir einen Anstoß, ohne deinen Code zu ändern.',
-        'Jeder Druck zeigt etwas mehr Hilfe: zuerst einen Anstoß, dann die Struktur, dann die vollständige Lösung.',
-        'Hinweise sind optional. Nutze sie, wann immer du sie brauchst.'
+        'Ein Kommentar ist eine kurze Notiz für Menschen.',
+        'Schreibe deinen Text nach dem Semikolon in die hervorgehobene Zeile.',
+        'Zum Beispiel: <code>; Hallo</code>'
       ],
-      checks:[]
+      checks:[
+        {label:'Kommentar enthält Text nach ;',
+         hint:'Schreibe ein Wort nach dem Semikolon in die hervorgehobene Zeile.'},
+        {label:'Programmgerüst weiterhin gültig',
+         hint:'Lass BEGIN PGM HELLO und END PGM HELLO unverändert.'}
+      ]
     }
   ]
 },

@@ -37,7 +37,9 @@ assert.ok(index.indexOf('web/whats-new.js') > index.indexOf('web/app.js'),
   'the announcement loads after APP_VERSION is initialized');
 assert.match(css, /\.whats-new-card\{[^}]*position:absolute;[^}]*right:20px/,
   'the desktop popup is anchored at the top right');
-assert.ok(release.content.en.items.length >= 3 && release.content.de.items.length === release.content.en.items.length,
+assert.match(css, /\.whats-new-btn\{[^}]*border:1px solid var\(--border\);[^}]*background:var\(--surface2\);[^}]*color:var\(--text2\)/,
+  'What’s New uses the standard neutral header treatment');
+assert.ok(release.content.en.items.length === 3 && release.content.de.items.length === release.content.en.items.length,
   'English and German summaries contain the same concise set of changes');
 
 console.log('What’s New release-window and popup contract passed');

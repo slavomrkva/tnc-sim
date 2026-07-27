@@ -2,32 +2,30 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Update `mergedAt` when the branch is merged to production.
 var WHATS_NEW_RELEASE = {
-  version: '0.911',
+  version: '0.913',
   mergedAt: '2026-07-27T14:04:35+02:00',
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.911 · Learn update',
+      meta: 'v0.913 · Learn',
       title: 'What’s new',
       close: 'Close',
-      intro: 'Lessons are now easier to scan and complete:',
+      intro: 'A clearer Learn experience:',
       items: [
-        'A clearer three-column desktop layout with the task directly above the editor.',
-        'Highlighted questions and answer rows make it obvious where to type.',
-        'Info slides stay available during practice, and results appear only after Check.',
-        'Comment answers now edit reliably with Backspace and Delete.'
+        'Balanced three-column lesson layout.',
+        'Questions and answer rows are clearly highlighted.',
+        'Info slides stay available; Check reveals the results.'
       ]
     },
     de: {
-      meta: 'v0.911 · Lern-Update',
+      meta: 'v0.913 · Lernen',
       title: 'Was ist neu?',
       close: 'Schließen',
-      intro: 'Lektionen sind jetzt übersichtlicher und einfacher zu bearbeiten:',
+      intro: 'Lernen ist jetzt übersichtlicher:',
       items: [
-        'Klareres Desktop-Layout mit drei Spalten und der Aufgabe direkt über dem Editor.',
-        'Hervorgehobene Fragen und Antwortzeilen zeigen deutlich, wo du schreiben sollst.',
-        'Info-Folien bleiben während der Übung verfügbar; Ergebnisse erscheinen erst nach Prüfen.',
-        'Kommentarantworten lassen sich zuverlässig mit Rücktaste und Entf bearbeiten.'
+        'Ausgewogenes Lektionslayout mit drei Spalten.',
+        'Fragen und Antwortzeilen sind klar hervorgehoben.',
+        'Info-Folien bleiben verfügbar; Prüfen zeigt die Ergebnisse.'
       ]
     }
   }

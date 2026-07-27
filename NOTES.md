@@ -149,7 +149,9 @@ Detailed module-split history is in the archived project notes linked above.
     The question surface ends with a small regular-weight `After writing your
     answer, press Check.` instruction without a divider or separate strip.
     Answer-row Backspace/Delete may edit text but must never merge the outer
-    highlighted boundaries into neighbouring program blocks.
+    highlighted boundaries into neighbouring program blocks. The Start Here
+    tutorial must exercise this real flow and target only visible UI: question
+    panel, highlighted answer row, Info Slides, Hint, then Check.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
