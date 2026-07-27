@@ -416,8 +416,18 @@ function updateHighlightOverlay(){
   if(!hl) return;
   var lines = codeEl.value.split('\n');
   var cycleState = {v:false};
+  var answer = typeof learnAnswerLineRange === 'function' ? learnAnswerLineRange() : null;
   var html = '';
-  for(var i=0;i<lines.length;i++){ html += _synHighlightLine(lines[i], cycleState) + '\n'; }
+  for(var i=0;i<lines.length;i++){
+    var lineHtml = _synHighlightLine(lines[i], cycleState);
+    if(answer && i >= answer.start && i <= answer.end){
+      var edge = (i === answer.start ? ' learn-answer-first' : '')
+        + (i === answer.end ? ' learn-answer-last' : '');
+      lineHtml = '<span class="learn-answer-line' + edge + '">'
+        + (lineHtml || '&#8203;') + '</span>';
+    }
+    html += lineHtml + '\n';
+  }
   hl.innerHTML = html;
   hl.scrollTop = codeEl.scrollTop;
   hl.scrollLeft = codeEl.scrollLeft;

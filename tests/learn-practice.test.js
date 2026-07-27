@@ -68,53 +68,59 @@ vm.runInContext(read('core/data-tables.js'), context, {filename:'data-tables.js'
 vm.runInContext(read('core/parser-engine.js'), context, {filename:'parser-engine.js'});
 vm.runInContext(read('core/learn-tutorial.js'), context, {filename:'learn-tutorial.js'});
 
-function solutionFor(task, starter){
-  if(task.solRepl) return starter.replace(task.solRepl[0], task.solRepl[1]);
-  if(task.sol !== undefined) return starter.replace('\n\n', '\n' + task.sol + '\n');
-  return null;
-}
-
-/* ── a concise answer cue is written into marked starter programs ── */
-let marked = 0, plain = 0;
+/* ── every real task exposes a visible answer range in the editor ── */
+let inserted = 0, edited = 0, none = 0;
 for(const lesson of context.LESSONS){
   for(let i = 0; i < lesson.tasks.length; i++){
     const task = lesson.tasks[i];
-    const injected = context._learnStarterFor(lesson, i);
-    const hasMark = /^[ \t]*;[ \t]*>>>/m.test(task.starter || '');
+    const plan = context._learnStarterPlan(lesson, i);
+    const injected = plan.code;
 
-    if(!hasMark){
-      plain++;
-      assert.strictEqual(injected, task.starter,
-        `${lesson.id}.${i+1} has no answer line, so its starter must be untouched`);
+    if(plan.start < 0){
+      none++;
+      assert.strictEqual(task.checks.length, 0,
+        `${lesson.id}.${i+1} may omit an answer range only when it has no graded task`);
       continue;
     }
-    marked++;
 
-    assert.ok(injected.includes('; >>> YOUR ANSWER — TASK ' + (i+1) + '/' + lesson.tasks.length),
-      `${lesson.id}.${i+1} carries a concise answer cue in the program`);
-    assert.ok(!/>>> write here/.test(injected),
-      `${lesson.id}.${i+1} replaced the placeholder marker`);
-    assert.strictEqual(injected.split('\n').filter(l => /;\s*>>>/.test(l)).length, 1,
-      `${lesson.id}.${i+1} uses one short marker line instead of duplicating the assignment`);
+    assert.ok(plan.count >= 1, `${lesson.id}.${i+1} highlights at least one answer block`);
+    assert.ok(plan.start + plan.count <= injected.split('\n').length,
+      `${lesson.id}.${i+1} answer range stays inside the starter program`);
 
-    // grading must be blind to the injected comment
+    if(plan.mode === 'insert'){
+      inserted++;
+      assert.ok(injected.includes('; >>> YOUR ANSWER — TASK ' + (i+1) + '/' + lesson.tasks.length),
+        `${lesson.id}.${i+1} carries a concise answer cue in the program`);
+      assert.ok(!/>>> write here/.test(injected),
+        `${lesson.id}.${i+1} replaced the placeholder marker`);
+      assert.strictEqual(injected.split('\n').filter(l => /;\s*>>>/.test(l)).length, 1,
+        `${lesson.id}.${i+1} uses one short marker line instead of duplicating the assignment`);
+      assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).every(line => line === ''),
+        `${lesson.id}.${i+1} begins with visibly empty answer blocks`);
+    } else {
+      edited++;
+      assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).some(Boolean),
+        `${lesson.id}.${i+1} highlights the existing blocks that must be edited`);
+    }
+
+    // Grading must be blind to the cue and the extra visual blank rows.
     assert.deepStrictEqual(
       context._learnStripTaskMarks(injected).replace(/\n+/g, '\n'),
       context._learnStripTaskMarks(task.starter).replace(/\n+/g, '\n'),
-      `${lesson.id}.${i+1} injection changes nothing but the marker line`);
+      `${lesson.id}.${i+1} answer zoning changes no executable Klartext`);
 
-    const solved = context.learnEvalChecks(solutionFor(task, injected) || injected, task);
-    if(solutionFor(task, injected)){
-      assert.ok(solved.every(r => r.ok),
-        `${lesson.id}.${i+1} official solution still passes with the assignment injected: `
-        + solved.filter(r => !r.ok).map(r => r.label).join(', '));
-    }
+    const solvedCode = context._learnSolvedCode(lesson, i);
+    const solved = context.learnEvalChecks(solvedCode, task);
+    assert.ok(solved.every(r => r.ok),
+      `${lesson.id}.${i+1} official solution still passes in the answer range: `
+      + solved.filter(r => !r.ok).map(r => r.label).join(', '));
     const fresh = context.learnEvalChecks(injected, task);
     assert.ok(!fresh.every(r => r.ok),
-      `${lesson.id}.${i+1} the injected assignment must not pass the task by itself`);
+      `${lesson.id}.${i+1} the empty answer range must not pass the task by itself`);
   }
 }
-assert.ok(marked > 25 && plain > 0, `injection covers the marked starters (${marked} marked, ${plain} plain)`);
+assert.ok(inserted > 40 && edited > 0 && none === 1,
+  `answer zoning covers the course (${inserted} insert ranges, ${edited} edit ranges, ${none} ungraded)`);
 
 /* An answer marker is never the student's own comment. */
 const commentTask = context.LESSONS.find(l => l.id === 'L01').tasks[0];
@@ -138,4 +144,4 @@ assert.match(live, /lp-check ok/, 'a satisfied goal ticks green while typing');
 context.LEARN.lastResults = context.LEARN.live;
 assert.match(context._learnGoalsHtml(goalTask), /&#10007;/, 'Check produces the verdict');
 
-console.log(`Learn practice contract passed (${marked} injected starters, ${plain} free-form)`);
+console.log(`Learn practice contract passed (${inserted} insert ranges, ${edited} edit ranges)`);

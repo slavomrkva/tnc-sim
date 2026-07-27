@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.905 (web test)
+- Information slides again use prominent previous/next arrows, and practice
+  unlocks only on the final slide.
+- Every graded task now highlights the exact editor block intended for the
+  answer, including multi-line answers and tasks that modify existing code.
+
 ## v0.904 (web test)
 - Lesson practice combines a clearly labelled answer editor with concise
   in-program answer markers, live goal ticks and an always-visible action row.

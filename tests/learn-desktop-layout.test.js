@@ -9,6 +9,8 @@ const html = read('index.html');
 const app = read('web/app.js');
 const css = read('web/styles.css');
 const core = read('core/learn-tutorial.js');
+const editorCore = read('core/editor-core.js');
+const panels = read('web/panels.js');
 
 const answerHeadAt = html.indexOf('id="learnAnswerHead"');
 const editorAt = html.indexOf('class="editor-wrap"');
@@ -28,6 +30,14 @@ assert.match(app, /code\.setAttribute\('aria-describedby', 'learnAnswerTitle'\)/
   'the answer editor is associated with its unique external answer direction');
 assert.match(core, /function learnCheck\(\)[\s\S]*LEARN\.theoryOpen = false/,
   'checking collapses info slides so feedback is visible');
+assert.match(core, /var onLastSlide = LEARN\.slide === L\.slides\.length - 1/,
+  'practice is offered only after the final information slide');
+assert.match(core, /lp-slide-arrow lp-slide-prev[\s\S]*lp-slide-arrow lp-slide-next/,
+  'information slides expose dedicated previous and next controls');
+assert.match(editorCore, /learn-answer-line/,
+  'the syntax overlay paints the intended answer blocks');
+assert.match(panels, /cls\+=' learn-target'/,
+  'the answer blocks are also marked in the line-number gutter');
 
 assert.match(css, /@media \(min-width:1025px\) and \(min-height:601px\)/,
   'new workspace is limited to desktop-sized viewports');
@@ -37,6 +47,10 @@ assert.match(css, /body\.learn-desktop-practice \.lp-task/,
   'assignment has a dedicated visual card');
 assert.match(css, /\.lp-theory-sum/,
   'info disclosure has an explicit interactive summary');
+assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,
+  'slide arrows retain large, stable previous/next hit targets');
+assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:/,
+  'answer blocks have a full-width visual highlight');
 assert.match(css, /@media\(max-width:1024px\), \(max-height:600px\)/,
   'the existing mobile/short viewport breakpoint remains present');
 

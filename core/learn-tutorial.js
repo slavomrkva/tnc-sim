@@ -783,13 +783,99 @@ function _learnTaskComment(L, ti){
     + ' ' + (ti + 1) + '/' + L.tasks.length;
 }
 
-/* Starter program with the assignment written in at the marker line. Starters
-   without a `; >>>` marker are left exactly as authored — those lessons ask the
-   student to write the whole program, so there is no single "answer line". */
+function _learnAnswerLineCount(T){
+  if(T.sol !== undefined) return Math.max(1, String(T.sol).split('\n').length);
+  if(T.solRepl){
+    var oldN = String(T.solRepl[0]).split('\n').length;
+    var newN = String(T.solRepl[1]).split('\n').length;
+    return Math.max(1, newN > oldN ? newN - oldN : oldN);
+  }
+  return 1;
+}
+
+function _learnLineIndexAt(code, offset){
+  return String(code || '').slice(0, Math.max(0, offset)).split('\n').length - 1;
+}
+
+function _learnLineOffset(code, line){
+  var rows = String(code || '').split('\n');
+  var offset = 0;
+  for(var i = 0; i < line && i < rows.length; i++) offset += rows[i].length + 1;
+  return Math.min(offset, String(code || '').length);
+}
+
+/* Build both the starter and its visual answer range. Existing `; >>>` cues
+   become a short marker followed by enough blank blocks for the official
+   solution. A task that inserts at the first blank gap gets the same treatment.
+   Direct replacement tasks keep their source intact and highlight the blocks
+   that should be edited. */
+function _learnStarterPlan(L, ti){
+  var T = L.tasks[ti];
+  var starter = T.starter || '';
+  var count = _learnAnswerLineCount(T);
+  var cue = _learnTaskComment(L, ti);
+  var code = starter;
+  var start = -1;
+  var mode = 'edit';
+
+  if(/^[ \t]*;[ \t]*>>>/m.test(starter)){
+    code = starter.replace(/^[ \t]*;[ \t]*>>>.*$(?:\n[ \t]*)*/m,
+      cue + '\n'.repeat(count + 1));
+    start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+    mode = 'insert';
+  } else if(T.sol !== undefined && /\n(?:[ \t]*\n)+/.test(starter)){
+    code = starter.replace(/\n(?:[ \t]*\n)+/,
+      '\n' + cue + '\n'.repeat(count + 1));
+    start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+    mode = 'insert';
+  } else if(T.solRepl){
+    var oldText = String(T.solRepl[0]);
+    var replacement = String(T.solRepl[1]);
+    var at = starter.indexOf(oldText);
+    if(at >= 0){
+      var oldLines = oldText.split('\n').length;
+      var newLines = replacement.split('\n').length;
+      if(newLines > oldLines && replacement.slice(-oldText.length) === oldText){
+        var lineAt = starter.lastIndexOf('\n', at - 1) + 1;
+        code = starter.slice(0, lineAt) + cue + '\n'.repeat(count + 1)
+          + starter.slice(lineAt);
+        start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+        mode = 'insert';
+      } else {
+        start = _learnLineIndexAt(starter, at);
+        count = oldLines;
+      }
+    }
+  }
+
+  return {code:code, start:start, count:count, mode:mode};
+}
+
 function _learnStarterFor(L, ti){
-  var starter = L.tasks[ti].starter || '';
-  if(!/^[ \t]*;[ \t]*>>>/m.test(starter)) return starter;
-  return starter.replace(/^[ \t]*;[ \t]*>>>.*$/m, _learnTaskComment(L, ti));
+  return _learnStarterPlan(L, ti).code;
+}
+
+function learnAnswerLineRange(){
+  if(typeof LEARN === 'undefined' || !LEARN || !LEARN.open
+    || LEARN.lesson < 0 || LEARN.task < 0 || LEARN.answerStartLine < 0) return null;
+  return {
+    start: LEARN.answerStartLine,
+    end: LEARN.answerStartLine + Math.max(1, LEARN.answerLineCount || 1) - 1
+  };
+}
+
+function _learnSolvedCode(L, ti){
+  var T = L.tasks[ti];
+  var plan = _learnStarterPlan(L, ti);
+  var code = plan.code;
+  if(T.sol !== undefined && plan.start >= 0){
+    var lines = code.split('\n');
+    lines.splice.apply(lines, [plan.start, plan.count].concat(String(T.sol).split('\n')));
+    return lines.join('\n');
+  }
+  if(T.solRepl) return code.replace(T.solRepl[0], T.solRepl[1]);
+  if(T.sol !== undefined) return code.replace('\n\n', '\n' + T.sol + '\n');
+  return code;
 }
 
 function _learnExecutableCode(code){
@@ -1040,10 +1126,7 @@ function learnBackToList(){ LEARN.view = 'list'; LEARN.lesson = -1; learnRender(
 function learnSolve(){
   var pw = prompt('Password:');
   if(pw !== '1234') return;
-  var T = LESSONS[LEARN.lesson].tasks[LEARN.task];
-  var code = _learnStarterFor(LESSONS[LEARN.lesson], LEARN.task);
-  if(T.solRepl) code = code.replace(T.solRepl[0], T.solRepl[1]);
-  else if(T.sol !== undefined) code = code.replace('\n\n', '\n' + T.sol + '\n');
+  var code = _learnSolvedCode(LESSONS[LEARN.lesson], LEARN.task);
   codeEl.value = code;
   if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
   dirty = true; updateLineNums();
@@ -1073,13 +1156,11 @@ function learnStartTask(ti){
   LEARN.task = ti; LEARN.lastResults = null; LEARN.view = 'lesson';
   LEARN.hint = 0;                        // progressive hints start closed
   LEARN.live = null; LEARN.theoryOpen = false;
-  codeEl.value = _learnStarterFor(L, ti);
-  var markAt = codeEl.value.search(/^[ \t]*;[ \t]*>>>/m);
-  var caretAt = 0;
-  if(markAt >= 0){
-    var markEnd = codeEl.value.indexOf('\n', markAt);
-    caretAt = markEnd >= 0 ? markEnd + 1 : codeEl.value.length;
-  }
+  var plan = _learnStarterPlan(L, ti);
+  codeEl.value = plan.code;
+  LEARN.answerStartLine = plan.start;
+  LEARN.answerLineCount = plan.count;
+  var caretAt = plan.start >= 0 ? _learnLineOffset(codeEl.value, plan.start) : 0;
   if(typeof syncEditorSelection==='function') syncEditorSelection(caretAt, caretAt);
   else if(codeEl.setSelectionRange) codeEl.setSelectionRange(caretAt, caretAt);
   dirty = true; if(typeof _undoPush==='function') _undoPush();
@@ -1314,10 +1395,10 @@ function _learnTheoryHtml(L){
   }).join('');
   var slides = '<div class="lp-slides lp-theory-slides">'
     + '<div class="lp-slides-nav">'
-    + '<button class="lp-btn" onclick="LEARN.theoryOpen=true;learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"'
+    + '<button class="lp-btn lp-slide-arrow lp-slide-prev" onclick="LEARN.theoryOpen=true;learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"'
     + (LEARN.slide === 0 ? ' disabled' : '') + '>&#8249;</button>'
     + '<div class="learn-prog">' + dots + '</div>'
-    + '<button class="lp-btn" onclick="LEARN.theoryOpen=true;learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"'
+    + '<button class="lp-btn lp-slide-arrow lp-slide-next" onclick="LEARN.theoryOpen=true;learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"'
     + (LEARN.slide === L.slides.length - 1 ? ' disabled' : '') + '>&#8250;</button>'
     + '<span class="lp-slide-n">' + (LEARN.slide + 1) + '/' + L.slides.length + '</span>'
     + '</div><div class="lp-slide-view">' + L.slides[LEARN.slide].html() + '</div></div>';
@@ -1457,7 +1538,7 @@ function learnRender(){
     return;
   }
 
-  /* ── reading mode: slide-by-slide, practice always available ── */
+  /* ── reading mode: slide-by-slide, practice unlocks on the final slide ── */
   var dots = L.slides.map(function(_, i){
     return '<button type="button" class="' + (i === LEARN.slide ? 'on' : '') + '" onclick="LEARN.slide=' + i + ';learnRender();"'
       + ' aria-label="' + _lt('learn.slide', 'Slide') + ' ' + (i + 1) + '/' + L.slides.length + '"'
@@ -1465,21 +1546,25 @@ function learnRender(){
   }).join('');
   var read = '<div class="lp-slides">'
     + '<div class="lp-slides-nav">'
-    + '<button class="lp-btn" onclick="learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"' + (LEARN.slide === 0 ? ' disabled' : '') + '>&#8249;</button>'
+    + '<button class="lp-btn lp-slide-arrow lp-slide-prev" onclick="learnNav(-1)" aria-label="' + _lt('learn.prevSlide', 'Previous slide') + '"' + (LEARN.slide === 0 ? ' disabled' : '') + '>&#8249;</button>'
     + '<div class="learn-prog">' + dots + '</div>'
-    + '<button class="lp-btn" onclick="learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"' + (LEARN.slide === L.slides.length - 1 ? ' disabled' : '') + '>&#8250;</button>'
+    + '<button class="lp-btn lp-slide-arrow lp-slide-next" onclick="learnNav(1)" aria-label="' + _lt('learn.nextSlide', 'Next slide') + '"' + (LEARN.slide === L.slides.length - 1 ? ' disabled' : '') + '>&#8250;</button>'
     + '<span class="lp-slide-n">' + (LEARN.slide + 1) + '/' + L.slides.length + '</span>'
     + '</div>'
     + '<div class="lp-slide-view">' + L.slides[LEARN.slide].html() + '</div>'
     + '</div>';
 
   var doneN = learnProgress()[L.id] || 0;
-  var startFoot = '<div class="lp-foot">'
-    + '<button class="lp-btn chk grow" onclick="learnStartTask(' + (doneN < L.tasks.length ? doneN : 0) + ')">'
-    + (doneN > 0 && doneN < L.tasks.length
-        ? _lt('learn.continuePractice', 'Continue practice') + ' (' + doneN + '/' + L.tasks.length + ') \u2192'
-        : _lt('learn.startPractice', 'Start practice') + ' \u2192')
-    + '</button></div>';
+  var onLastSlide = LEARN.slide === L.slides.length - 1;
+  var startFoot = onLastSlide
+    ? '<div class="lp-foot"><button class="lp-btn chk grow" onclick="learnStartTask('
+      + (doneN < L.tasks.length ? doneN : 0) + ')">'
+      + (doneN > 0 && doneN < L.tasks.length
+          ? _lt('learn.continuePractice', 'Continue practice') + ' (' + doneN + '/' + L.tasks.length + ') \u2192'
+          : _lt('learn.startPractice', 'Start practice') + ' \u2192')
+      + '</button></div>'
+    : '<div class="lp-foot lp-practice-locked"><span>&#128274; '
+      + _lt('learn.practiceUnlock', 'Practice unlocks on the last info slide') + '</span></div>';
 
   p.innerHTML = head + '<div class="lp-body">' + read + '</div>' + startFoot;
   clearMobileBar();

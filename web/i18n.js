@@ -80,6 +80,7 @@
       'learn.nextSlide': 'N\u00e4chste Folie',
       'learn.startPractice': '\u00dcbung starten',
       'learn.continuePractice': '\u00dcbung fortsetzen',
+      'learn.practiceUnlock': 'Die \u00dcbung wird auf der letzten Info-Folie freigeschaltet',
       'learn.startHere': 'HIER STARTEN',
       'learn.complete': 'Lektionen abgeschlossen',
       'learn.resetProgress': 'Fortschritt zur\u00fccksetzen',

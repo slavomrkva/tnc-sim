@@ -7,6 +7,21 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.905 — explicit Learn answer zones and final-slide practice gate
+
+- Added a shared answer-range planner for every graded Learn task: insertion
+  tasks receive enough highlighted blank blocks for the reference answer,
+  while direct-edit tasks highlight the existing source blocks to change.
+- Synchronized the answer range with both the syntax overlay and line-number
+  gutter, and placed the caret at its first block when practice starts.
+- Restored prominent previous/next slide controls and moved Start/Continue
+  practice exclusively to the final information slide.
+- Extended the Learn contracts across all lessons, visually verified desktop,
+  narrow and mobile layouts with a clean browser console, and advanced the
+  offline cache to `v65`.
+- Left the deliberate Android core/editor/style port as follow-up work after
+  this web test layout is accepted.
+
 ## v0.904 — shared Learn practice renderer and hybrid answer workspace
 
 - Replaced the desktop-only post-render DOM rewrite with one core

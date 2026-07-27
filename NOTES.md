@@ -130,6 +130,10 @@ Detailed module-split history is in the archived project notes linked above.
     affect grading. Live grading may show only pending/met states while typing;
     failed verdicts appear only after Check. During practice, theory remains a
     collapsible slide-by-slide reference rather than a second long document.
+    Start/Continue practice is available only on the final information slide.
+    Every graded task exposes an answer range: insertion tasks reserve
+    highlighted blank blocks, while direct-edit tasks highlight the existing
+    source blocks that must be changed.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
