@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.916 — accepted direct field editing
+
+- Recorded acceptance of the desktop programming-value fix, moved the resolved
+  report from `TODO.md` to `BUG_HISTORY.md`, and advanced the offline cache to
+  `v76` for the production merge.
+
 ## v0.915 — directly editable programming fields
 
 - Replaced the desktop field panel's display-only value span with a focused,

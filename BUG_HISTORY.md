@@ -15,6 +15,38 @@ Newest first.
 
 ---
 
+## C36 — Desktop programming values could not be selected and edited directly
+**Repo:** web `tnc-sim` v0.916. **Fixed and accepted:** 2026-07-27.
+
+### Reported symptom
+Values shown in the desktop programming panel, such as `S3000`, could not be
+selected or partially replaced. TOOL CALL could also highlight the wrong
+characters. The expected behaviour was the same direct editing already
+available while defining BLK FORM.
+
+### Root cause
+The generic desktop field value was a display-only `span`, while the panel's
+mouseup handler returned focus to the program textarea. TOOL CALL also inserted
+its fixed `Z` token after field ranges had been calculated, shifting the
+underlying selection for S/F/DL/DR.
+
+### Attempts and accepted fix
+- A first source-level diagnosis covered only the panel focus transfer and did
+  not explain TOOL CALL's shifted selection.
+- Runtime inspection then compared the visible value with the underlying
+  textarea range and exposed the postprocessing offset.
+- The final fix uses one real `#fbarVal` desktop input for generic values,
+  preserving the established hidden-input owner on mobile and the existing
+  button/picker controls for special choices.
+- Field ranges are recalculated from the final postprocessed NC line.
+
+### Verification
+Direct focus, full selection and replacement were exercised in Chromium for
+L/C/CC/CR/CT and TOOL CALL S/F/DL/DR. Builder/range regressions also cover
+polar, incremental, label, M, cycle and related generic values. All 33
+regression tests and all 75 tracked JavaScript syntax checks passed. The user
+accepted the Cloudflare branch preview and requested the merge.
+
 ## C35 — Mobile bottom tabs disappeared while scrolling Learn practice
 **Repo:** web `tnc-sim` v0.914. **Fixed and accepted:** 2026-07-27.
 

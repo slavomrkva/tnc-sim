@@ -10,7 +10,7 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.915 (web test)
+## v0.916
 - Values in the desktop programming panel can now be selected and edited
   directly for path functions, polar functions, labels and TOOL CALL.
 - Fixed TOOL CALL highlighting selecting the wrong characters after its fixed
