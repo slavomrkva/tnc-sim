@@ -475,7 +475,7 @@ function validateProgram(code, liveEdit){
       if(_qNumBad('Q370',function(v){return v<0||(v>0&&v<0.1)||v>1999;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 208: Q370 path overlap must be 0 or within 0.1...1999'});
     } else if(valCycleNum===209){
       if(_qNumBad('Q239',function(v){return v===0||Math.abs(v)>99.9999;})||_qNumBad('Q257',function(v){return v<0;})||_qNumBad('Q256',function(v){return v<0;})||_qNumBad('Q403',function(v){return v<0.0001||v>10;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: invalid pitch, chip-break, or retraction factor'});
-      if(_qNumBad('Q336',function(v){return v< -360||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: Q336 spindle orientation must be within -360...360 degrees'});
+      if(_qNumBad('Q336',function(v){return v<0||v>360;})) probs.push({line:valCycleLine,sev:'err',msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees'});
     }
   }
 
@@ -1690,8 +1690,8 @@ function parseProgram(code){
       }
       var retractFeed = tapFeed * retractFactor;
       var orientation = cycleQ(cy, 336, 0);
-      if(!isFinite(orientation) || orientation < -360 || orientation > 360){
-        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q336 spindle orientation must be within -360...360 degrees — no tapping path generated'});
+      if(!isFinite(orientation) || orientation < 0 || orientation > 360){
+        pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 209: Q336 spindle orientation must be within 0...360 degrees — no tapping path generated'});
         return;
       }
       var tapTool = getToolByNum(toolNum);

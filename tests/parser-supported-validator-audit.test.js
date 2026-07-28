@@ -122,7 +122,7 @@ const cycleDefs = {
   ],
   209: [
     'Q200=+2', 'Q201=-10', 'Q239=+1.25', 'Q203=+0', 'Q204=+10',
-    'Q257=+5', 'Q256=+1', 'Q336=-90', 'Q403=+1'
+    'Q257=+5', 'Q256=+1', 'Q336=+90', 'Q403=+1'
   ]
 };
 
@@ -152,10 +152,10 @@ ${cycleDefs[209].join('\n')}
 L X+0 Y+0 Z+10 FMAX
 CYCL CALL`);
   assert.strictEqual(errors(code).length, 0,
-    'CYCL 209 accepts the documented negative Q336 orientation');
+    'CYCL 209 accepts a documented Q336 orientation');
   assert.ok(H.parse(code).sub.some(segment =>
-    segment.cycleEvent === 'spindle-orientation' && segment.eventValue === -90),
-  'CYCL 209 preserves a negative Q336 orientation in the simulation');
+    segment.cycleEvent === 'spindle-orientation' && segment.eventValue === 90),
+  'CYCL 209 preserves Q336 orientation in the simulation');
 }
 
 console.log('parser-supported-validator-audit.test.js: supported validator scope verified');

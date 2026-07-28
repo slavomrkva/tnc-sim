@@ -10,12 +10,15 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.920
+- Cycle 209 now validates Q336 against the `0...360` range documented for the
+  simulator's target TNC 640 software version.
+
 ## v0.919
 - Fixed false `FAUTO` and `FMAX` errors in supported circular and polar
   positioning blocks; those feeds now drive motion consistently with `L`.
 - Tightened validation for the supported numeric labels and cycles
-  200/201/208/209, including negative Q336, duplicate fields and coordinate
-  sign diagnostics.
+  200/201/208/209, duplicate fields and coordinate sign diagnostics.
 
 ## v0.918
 - Corrected M-function validation against the offline TNC 640 manual. Every

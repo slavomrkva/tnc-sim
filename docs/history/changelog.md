@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.920 — 2026-07-28 — target-version Q336 correction
+
+- Restored Cycle 209 Q336 to `0...360` for the simulator's target TNC 640
+  software 34059x-18 and its 10/2023 machining-cycles manual.
+- Recorded that the brief v0.919 `-360...360` change came from the older
+  01/2021 manual, updated regressions and advanced the offline cache to v80.
+
 ## v0.919 — 2026-07-28 — supported validator and feed audit
 
 - Fixed block-local `FMAX`, `FAUTO` and numeric feed handling across the

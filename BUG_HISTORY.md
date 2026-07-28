@@ -16,8 +16,8 @@ Newest first.
 ---
 
 ## C38 — Supported validator and positioning-feed audit
-**Repos:** web `tnc-sim` v0.919 and Android `tnc-sim-android` APP_VERSION
-1.0.94. **Fixed and accepted:** 2026-07-28.
+**Repos:** web `tnc-sim` v0.920 and Android `tnc-sim-android` APP_VERSION
+1.0.95. **Fixed and accepted:** 2026-07-28.
 
 ### Reported symptoms
 The validator rejected `FAUTO` in a valid `C` block and previously treated
@@ -30,9 +30,8 @@ Circular and polar validator branches accepted only numeric feeds, while the
 parser implemented feed semantics independently in each movement branch.
 Numeric label expansion ran before all documented bounds were enforced.
 Supported cycles accepted incomplete definitions and unknown Q parameters,
-Q336 incorrectly excluded negative values, duplicate positioning fields were
-resolved by regex order, and the sign warning checked a block as a whole
-instead of each coordinate.
+duplicate positioning fields were resolved by regex order, and the sign
+warning checked a block as a whole instead of each coordinate.
 
 ### Attempts and accepted fix
 - The first audit listed every difference from the offline Conversational
@@ -41,6 +40,10 @@ instead of each coordinate.
   extended TOOL DEF/TOOL CALL, STOP and new cycles were deliberately excluded.
 - Two attempts to obtain an additional Claude CLI review timed out or reached
   its turn limit and produced no evidence or code changes.
+- The first Cycle 209 range change used the older 01/2021 manual, where Q336
+  is `-360...360`. The post-merge reference check correctly exposed that the
+  simulator targets software 34059x-18 and its 10/2023 manual, where Q336 is
+  `0...360`; v0.920 restored that target-version range.
 - One shared movement-feed path now handles numeric feed, `FAUTO` and `FMAX`
   for L/C/CR/CT/LP/CP. Numeric label syntax and bounds are strict, repeat
   expansion is bounded, supported cycles enforce their implemented parameter
@@ -50,7 +53,8 @@ instead of each coordinate.
 ### Verification
 Focused regressions cover supported positioning feeds, label bounds, cycle
 parameters, duplicate fields and sign diagnostics. All 36 web test files and
-all 33 Android test files passed before the accepted merge.
+all 33 Android test files passed. The follow-up offline cutting reference also
+passed against both repositories.
 
 **Cross-reference:** Android `BUG_HISTORY.md`, C38.
 
