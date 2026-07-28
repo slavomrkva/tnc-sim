@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.919 — 2026-07-28 — supported validator and feed audit
+
+- Fixed block-local `FMAX`, `FAUTO` and numeric feed handling across the
+  implemented L/C/CR/CT/LP/CP positioning families.
+- Enforced strict numeric LBL/CALL LBL syntax and bounds, bounded REP
+  expansion, duplicate/conflicting positioning fields and per-coordinate sign
+  diagnostics.
+- Validated required/allowed parameters and implemented ranges for cycles
+  200/201/208/209, including negative Q336; expanded focused parser
+  regressions and advanced the offline cache to v79.
+- Deliberately excluded functions the simulator does not expose: named labels,
+  cylinder blanks, FU/FZ, CHF/RND feed extensions, extended TOOL DEF/TOOL
+  CALL, STOP and new cycles.
+
 ## v0.916 — accepted direct field editing
 
 - Recorded acceptance of the desktop programming-value fix, moved the resolved

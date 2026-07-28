@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.919
+- Fixed false `FAUTO` and `FMAX` errors in supported circular and polar
+  positioning blocks; those feeds now drive motion consistently with `L`.
+- Tightened validation for the supported numeric labels and cycles
+  200/201/208/209, including negative Q336, duplicate fields and coordinate
+  sign diagnostics.
+
 ## v0.918
 - Corrected M-function validation against the offline TNC 640 manual. Every
   implemented positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) now accepts

@@ -111,6 +111,7 @@ Q210=+0 ;Verweilzeit oben [s]
 Q203=+20 ;Oberflächen-Koordinate [mm]
 Q204=+50 ;2. Sicherheits-Abstand [mm]
 Q211=+0 ;Verweilzeit unten [s]
+Q395=+0 ;Tiefenbezug (Werkzeugspitze)
 L X+0 Y+0 FMAX M99
 M5
 M9
@@ -153,6 +154,7 @@ Q204=+50 ;2. Sicherheits-Abstand [mm]
 Q257=+11 ;Zustelltiefe für Spanbruch [mm]
 Q256=+0 ;Rückzug bei Spanbruch (0 = vollständiger Rückzug) [mm]
 Q336=+0 ;Spindelwinkel [deg]
+Q403=+1 ;Drehzahlfaktor Rückzug
 L X+0 Y+0 FMAX M99
 M5
 M9

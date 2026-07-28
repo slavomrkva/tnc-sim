@@ -34,8 +34,11 @@ CYCL DEF 200
  Q201=-5
  Q206=+150
  Q202=+5
+ Q210=+0
  Q203=+20
  Q204=+30
+ Q211=+0
+ Q395=+0
 
 Q201=-20
 CYCL CALL`);
@@ -326,11 +329,11 @@ for(const [tcall, effR] of [
   assert.ok(H.validate(code).some(p=>p.sev==='err'&&/CYCL 209/.test(p.msg)), 'Cycle 209: Q403=0 is also a static editor error');
 }
 {
-  const code=H.program(`TOOL CALL 7 Z S200 F250\nM3\nCYCL DEF 209\n Q200=+2\n Q201=-3\n Q239=+1.25\n Q203=+0\n Q204=+20\n Q336=-0.001\nCYCL CALL`);
+  const code=H.program(`TOOL CALL 7 Z S200 F250\nM3\nCYCL DEF 209\n Q200=+2\n Q201=-3\n Q239=+1.25\n Q203=+0\n Q204=+20\n Q336=-360.001\nCYCL CALL`);
   const res=H.parse(code);
-  assert.strictEqual(H.cycleSegments(res,code).length,0, 'Cycle 209: negative Q336 produces no tapping path');
-  assert.ok(res.probs.some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: negative Q336 is a parse-time error');
-  assert.ok(H.validate(code).some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: negative Q336 is a static validation error');
+  assert.strictEqual(H.cycleSegments(res,code).length,0, 'Cycle 209: out-of-range negative Q336 produces no tapping path');
+  assert.ok(res.probs.some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: Q336 below -360 is a parse-time error');
+  assert.ok(H.validate(code).some(p=>p.sev==='err'&&/Q336/.test(p.msg)), 'Cycle 209: Q336 below -360 is a static validation error');
 }
 
 // TOOL CALL feed keeps its decimal precision and L-block FAUTO selects that

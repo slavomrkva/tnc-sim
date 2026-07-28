@@ -108,6 +108,7 @@ Q210=+0 ;Dwell time at top [s]
 Q203=+20 ;Surface coordinate [mm]
 Q204=+50 ;2nd safety clearance [mm]
 Q211=+0 ;Dwell time at depth [s]
+Q395=+0 ;Depth reference (tool tip)
 L X+0 Y+0 FMAX M99
 M5
 M9
@@ -150,6 +151,7 @@ Q204=+50 ;2nd safety clearance [mm]
 Q257=+11 ;Infeed depth for chip breaking [mm]
 Q256=+0 ;Retract for chip breaking (0 = full retract) [mm]
 Q336=+0 ;Spindle angle [deg]
+Q403=+1 ;RPM factor for retraction
 L X+0 Y+0 FMAX M99
 M5
 M9
