@@ -15,6 +15,30 @@ Newest first.
 
 ---
 
+## C52-C53 — M30 playback and omitted radius-compensation serialization
+**Repos:** web `tnc-sim` v0.923 and Android `tnc-sim-android` APP_VERSION
+1.0.98. **Fixed and accepted:** 2026-07-28.
+
+### Reported symptoms
+A manually entered Android program paused at M30 with the M0 message and needed
+a second Run. A later manual `L` block wrote the literal token `null` after
+`NO ENT` skipped optional radius compensation. The same shared implementations
+were present on web.
+
+### Root causes and accepted fixes
+The parser reduced M0/M2/M6/M30 to one boolean playback stop, so playback could
+not distinguish pauses from terminal functions. Segments now retain the exact
+code; M0/M6 pause and M2/M30 complete. The guided RC serializer returned its
+raw JavaScript value, so it now maps `null`/`undefined` to omission.
+
+### Verification
+Focused shared tests preserve all four M identities and their pause/end
+semantics, retain the legacy boolean fallback, and reject literal-null RC
+serialization. The complete Android custom-keyboard program validated, parsed
+and finished in one Run with M30. Full web and Android suites passed.
+
+**Cross-reference:** Android `BUG_HISTORY.md`, C51-C53.
+
 ## C38 — Supported validator and positioning-feed audit
 **Repos:** web `tnc-sim` v0.920 and Android `tnc-sim-android` APP_VERSION
 1.0.95. **Fixed and accepted:** 2026-07-28.

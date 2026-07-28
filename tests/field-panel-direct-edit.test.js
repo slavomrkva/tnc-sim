@@ -65,6 +65,9 @@ function field(p,type,val,opt){
   return {p, type, val, opt:!!opt, incr:false, prompt:p || 'Value'};
 }
 
+assert.strictEqual(context.tokenFor(field('','rc',null,true)),'',
+  'an omitted optional radius-compensation field never serializes as literal null');
+
 function editCase(name, builderKey, cmd, fields, index, next, expected){
   context.BUILDERS[builderKey] = {cmd, fields:[]};
   const initial = (() => {

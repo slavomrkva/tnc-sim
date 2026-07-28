@@ -3,6 +3,11 @@
 var VX_CHUNK_CELLS = 32;
 var VX_EDGE_CORNERS = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
 
+function mControlPauseCode(segment){
+  var code=segment && (segment.stopCode || (segment.stop ? 'M0' : ''));
+  return code==='M0'||code==='M6' ? code : '';
+}
+
 function vxDisposeObject(obj, disposeMaterials){
   if(!obj) return;
   var disposedMaterials=[];
@@ -407,9 +412,12 @@ function advance(dt){
       subProgress = 0;
       // Break loop if ATC animation was triggered
       if(atcAnim){ remaining = 0; break; }
-      if(sm.stop && mode==='running'){
+      var _pauseCode=mControlPauseCode(sm);
+      if(_pauseCode && mode==='running'){
         mode='paused';
-        updateStatus('M0 — program stopped. Press Run to continue.', false);
+        updateStatus(_pauseCode==='M6'
+          ? 'M6 — tool change. Press Run to continue.'
+          : 'M0 — program stopped. Press Run to continue.', false);
         break;
       }
       if(mode==='stepping'){

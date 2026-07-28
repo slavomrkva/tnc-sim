@@ -7,6 +7,15 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.923 — 2026-07-28 — M-control playback and guided omission
+
+- Preserved M0/M2/M6/M30 identity through parser playback; only M0 and M6
+  pause, while M2 and M30 finish the program in one Run.
+- Serialized omitted radius compensation as an empty guided-editor token
+  instead of JavaScript `null`.
+- Added focused parser/playback and editor regressions and advanced the offline
+  cache to v83.
+
 ## v0.922 — 2026-07-28 — import and parser robustness audit
 
 - Made repeated spaces and tabs insignificant in parser, validator, BLK FORM

@@ -630,7 +630,7 @@ function tokenFor(f){
     if(f.val===null || f.val==='') return '';
     return 'M'+f.val+(f.mParams?' '+f.mParams:'');
   }
-  if(f.type==='rc') return f.val; // 'RL','RR','R0' or '' (omit)
+  if(f.type==='rc') return f.val===null || f.val===undefined ? '' : f.val; // 'RL','RR','R0' or omit
   if(f.type==='coord'){ if(f.val===null || f.val==='') return ''; var _cv=(f.val==='+'||f.val==='-')?f.val+'0':f.val; return (f.incr?'I':'')+f.p+signFmt(_cv); }
   if(f.type==='num'){ if(f.val===null || f.val==='') return ''; return f.p+f.val; }
   if(/^Q\d+$/.test(f.p)) return f.p+'='+formatSignedNum(f.val);

@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.923
+- M30 and M2 now finish the program in one Run instead of displaying a false
+  M0 pause; M0 and M6 retain their intended pause behavior.
+- Skipping optional radius compensation no longer inserts an invalid `null`
+  token.
+
 ## v0.922
 - Imported programs tolerate repeated spaces/tabs, Unicode BOMs and mixed line
   endings without changing validation, blank geometry or the simulated path.

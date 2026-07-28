@@ -1227,12 +1227,15 @@ function parseProgram(code){
   }
 
   function finishMControlBlock(codes,srcLine){
-    var stop=codes.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); });
-    if(stop){
+    var stopCode='';
+    for(var mci=0;mci<codes.length;mci++){
+      if(/^(?:M0|M2|M6|M30)$/.test(codes[mci])){ stopCode=codes[mci]; break; }
+    }
+    if(stopCode){
       sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
         rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLine,
         rc:'',spindleOn:spindleOn,spindleDir:spindleDir,coolantOn:coolantOn,
-        toolNum:toolNum,isMseg:true,stop:true});
+        toolNum:toolNum,isMseg:true,stop:true,stopCode:stopCode});
       blockIndex++;
     }
     return codes.indexOf('M2')>=0||codes.indexOf('M30')>=0;

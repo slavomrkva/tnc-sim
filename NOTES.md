@@ -174,9 +174,10 @@ Detailed module-split history is in the archived project notes linked above.
     its current value can be selected, partially replaced and edited directly
     for L/C/CC/CR/CT, polar/incremental blocks, labels and TOOL CALL. Mobile
     retains the established hidden-input owner and special choices remain
-    buttons/pickers. `lineParts()` must calculate field ranges from the final
-    postprocessed line; otherwise fixed tokens such as TOOL CALL's inserted
-    `Z` shift S/F/DL/DR highlighting away from their real text.
+    buttons/pickers. Optional fields serialize omission as an empty token,
+    never JavaScript `null`. `lineParts()` must calculate field ranges from the
+    final postprocessed line; otherwise fixed tokens such as TOOL CALL's
+    inserted `Z` shift S/F/DL/DR highlighting away from their real text.
 22. **Web positioning-block M and validator contract:** every implemented
     positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) accepts at most two
     syntactically valid `M<number>` functions at its end. The official TNC 640
@@ -187,7 +188,8 @@ Detailed module-split history is in the archived project notes linked above.
     rendered tokens remain independently editable; clicking either rendered M
     routes to the complete guided editor of its positioning block and selects
     the corresponding M field, never the standalone M panel. Known shared M
-    functions retain their simulator state effects. Other valid standard or
+    functions retain their simulator state effects: M0 and M6 pause with their
+    own message, while M2 and M30 finish without requiring another Run. Other valid standard or
     machine-specific numbers are preserved and accepted with a warning that
     their machine effect is not simulated; never invent such behavior.
     The persisted validator switch defaults ON and exists only in the bottom Problems row
