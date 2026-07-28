@@ -7,6 +7,20 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.921 — 2026-07-28 — official-program compatibility audit
+
+- Normalized the documented two-token positioning feed `F AUTO` for all
+  supported positioning families and accepted `AUTO`/`FAUTO` only for Q206 in
+  supported Cycles 200, 201 and 208.
+- Extended numeric-label expansion to compact `REP6`, program-section repeats
+  without `LBL 0` and bounded nested sections, retaining the 32-level and
+  200000-block safety limits.
+- Accepted LP as a radius-compensation activation block, implemented
+  angle-less CP as one complete revolution and preserved full/multiple CP
+  turns through analytic compensation joins.
+- Added focused validator, parser, guided-editor and polar compensation
+  regressions; advanced the offline cache to v81.
+
 ## v0.920 — 2026-07-28 — target-version Q336 correction
 
 - Restored Cycle 209 Q336 to `0...360` for the simulator's target TNC 640

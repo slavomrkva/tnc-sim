@@ -145,6 +145,12 @@ editCase('CALL LBL repeat','LBL CALL','CALL LBL',[
   field('','num','2',false),field('REP','num','3',true)
 ],1,'5','CALL LBL 2 REP 5');
 
+const parsedCompactRepeat=context.parseExistingLine('CALL LBL 2 REP6','LBL CALL');
+assert.strictEqual(parsedCompactRepeat[0].val,'2',
+  'CALL LBL editor preserves the label number from compact REP syntax');
+assert.strictEqual(parsedCompactRepeat[1].val,'6',
+  'CALL LBL editor recognizes the documented compact REP6 count');
+
 context.BUILDERS['TOOL CALL']={
   cmd:'TOOL CALL',
   postprocess(text){ return text.replace(/^TOOL CALL (\d+)/,'TOOL CALL $1 Z'); }

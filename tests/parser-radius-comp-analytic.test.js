@@ -159,6 +159,33 @@ L X+10 Y+20 R0`));
   arc.forEach(s=>near(Math.hypot(s.to.x,s.to.y),8,1e-8,'CP tool-center radius'));
 }
 
+// The TNC 640 manual explicitly permits RL/RR on a straight polar LP block.
+// Official NC11101 uses that LP as the approach into its CP helix and finishes
+// the bore floor with an angle-less CP DR+ full circle.
+{
+  const result=H.parse(H.program(`TOOL CALL 23 Z S3000 F500
+L X+0 Y+0 Z+2 R0
+CC
+LP PR+10 PA+0 RL
+CP IPA+9000 Z-30 DR+
+CP DR+
+LP PR+0 R0`));
+  noRadiusError(result,'LP must be a valid radius-compensation activation block');
+  assert.ok(!result.probs.some(p=>/must be activated/.test(p.msg)),
+    'LP activation must not be rejected as a non-linear activation');
+  const activation=result.sub.find(s=>s.rcActivation);
+  assert.ok(activation,'the first compensated LP must remain the activation movement');
+  const helix=result.sub.filter(s=>s.rcGeom&&s.rcGeom.kind==='CP'&&s.srcLine===7);
+  assert.ok(helix.length>=3200,'compensation must preserve all 25 programmed helix turns');
+  near(helix[helix.length-1].to.z,-30,1e-9,'compensated 25-turn helix final Z');
+  helix.forEach(s=>near(Math.hypot(s.to.x,s.to.y),8,1e-8,
+    'LP-activated helix tool-center radius'));
+  const fullCircle=result.sub.filter(s=>s.rcGeom&&s.rcGeom.kind==='CP'&&s.srcLine===8);
+  assert.ok(fullCircle.length>=128,'the compensated angle-less CP must remain a full circle');
+  fullCircle.forEach(s=>near(Math.hypot(s.to.x,s.to.y),8,1e-8,
+    'LP-activated full-circle tool-center radius'));
+}
+
 // A feasible inside L/L corner is trimmed to the exact intersection of the
 // two finite offset lines: (8,2) for a radius-2 RL path.
 {
@@ -218,14 +245,15 @@ L X+186.602540378 Y+50`));
   near(rnd.rcGeom.r,10,1e-12,'shallow RND programmed radius');
 }
 
-// RL/RR cannot first be switched on in a C/CR/CT/CP block; TNC 640 requires L.
+// RL/RR cannot first be switched on in a C/CR/CT/CP block; supported
+// activation blocks are Cartesian L and polar LP.
 {
   const result=H.parse(H.program(`TOOL CALL 23 Z S3000 F500
 L X+0 Y-10 R0
 CC X+0 Y+0
 C X+10 Y+0 DR+ RL
 L X+20 Y+0 R0`));
-  assert.ok(result.probs.some(p=>/must be activated in an L block/.test(p.msg)),'non-L compensation activation must be rejected');
+  assert.ok(result.probs.some(p=>/must be activated in an L or LP block/.test(p.msg)),'non-L/LP compensation activation must be rejected');
   assert.strictEqual(result.sub.filter(s=>s.rc==='RL').length,0,'invalid non-L activation must emit no compensated cut');
 }
 

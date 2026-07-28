@@ -2,48 +2,90 @@
 
 function expandLblLines(lines, issues){
   var lblDefs={};
-  var lblStack=null;
-  var lblStackLine=-1;
-  for(var li=0;li<lines.length;li++){
-    var lu2=lines[li].trim().replace(/;.*$/,'').trim().toUpperCase();
-    if(/^LBL\s+0/.test(lu2)){ lblStack=null; lblStackLine=-1; }
-    else if(/^LBL\s+\d+/.test(lu2)){
-      var lm=lu2.match(/^LBL\s+(\d+)/);
-      if(lm){ lblStack=lm[1]; lblStackLine=li; lblDefs[lblStack]=[]; }
-    } else if(lblStack!==null){
-      lblDefs[lblStack].push({text:lines[li], srcLine:li});
+  var sectionBodiesByCallLine={};
+  var openLabels=[];
+
+  function addToOpenLabels(entry,exceptIndex){
+    for(var oi=0;oi<openLabels.length;oi++){
+      if(oi!==exceptIndex) openLabels[oi].body.push(entry);
     }
   }
-  var expandedLines=[];
+
   for(var li=0;li<lines.length;li++){
-    var lu3=lines[li].trim().replace(/;.*$/,'').trim().toUpperCase();
-    if(/^LBL\s/.test(lu3)||/^CALL LBL/.test(lu3)){
-      if(/^CALL LBL/.test(lu3)){
-        var cm2=lu3.match(/^CALL LBL\s+(\d+)(?:\s+REP\s+(\d+))?\s*$/);
-        if(cm2){
-          var lnum=cm2[1], reps=cm2[2]?parseInt(cm2[2]):1;
-          var lbody=lblDefs[lnum]||[];
-          if(reps<1||reps>65534){
-            if(issues) issues.push({line:li,sev:'err',msg:'REP must be within 1..65534 \u2014 label call ignored'});
-            reps=0;
-          }
-          // A formally valid repeat can still exceed the simulator's practical
-          // expansion budget when the label body is large. Refuse that call
-          // instead of freezing the browser or silently executing a prefix.
-          if(lbody.length*reps>200000-expandedLines.length){
-            if(issues) issues.push({line:li,sev:'err',msg:'Expanded label calls exceed the simulator limit of 200000 blocks \u2014 label call ignored'});
-            reps=0;
-          }
-          // expanded lines use the CALL LBL line number as srcLine
-          for(var ri=0;ri<reps;ri++){
-            for(var bi=0;bi<lbody.length;bi++)
-              expandedLines.push({text:lbody[bi].text, srcLine:li});
-          }
+    var lu2=lines[li].trim().replace(/;.*$/,'').trim().toUpperCase();
+    if(/^LBL\s+0(?:\s|$)/.test(lu2)){
+      if(openLabels.length) openLabels.pop();
+    } else if(/^LBL\s+\d+/.test(lu2)){
+      var lm=lu2.match(/^LBL\s+(\d+)/);
+      if(lm){
+        var marker={text:lines[li],srcLine:li};
+        addToOpenLabels(marker,-1);
+        var opened={number:lm[1],body:[]};
+        openLabels.push(opened);
+        lblDefs[lm[1]]=opened.body;
+      }
+    } else {
+      var sectionEnd=lu2.match(/^CALL LBL\s+(\d+)\s+REP\s*([+-]?\d+)\s*$/);
+      var matchingOpen=-1;
+      if(sectionEnd){
+        for(var si=openLabels.length-1;si>=0;si--){
+          if(openLabels[si].number===sectionEnd[1]){ matchingOpen=si; break; }
         }
       }
-      continue;
+      if(matchingOpen>=0){
+        // Program-section repeat: the matching CALL LBL ... REPn is the end
+        // boundary. This is distinct from a subprogram ending at LBL 0.
+        sectionBodiesByCallLine[li]=openLabels[matchingOpen].body.slice();
+        addToOpenLabels({text:lines[li],srcLine:li},matchingOpen);
+        openLabels.splice(matchingOpen,1);
+      } else {
+        addToOpenLabels({text:lines[li],srcLine:li},-1);
+      }
     }
-    expandedLines.push({text:lines[li], srcLine:li});
+  }
+
+  var expandedLines=[];
+  var expansionLimitReported=false;
+  function pushExpanded(text,srcLine){
+    if(expandedLines.length>=200000){
+      if(issues&&!expansionLimitReported){
+        issues.push({line:srcLine,sev:'err',msg:'Expanded label calls exceed the simulator limit of 200000 blocks — remaining calls ignored'});
+        expansionLimitReported=true;
+      }
+      return false;
+    }
+    expandedLines.push({text:text,srcLine:srcLine});
+    return true;
+  }
+
+  function processEntry(entry,outputSrcLine,depth){
+    var lu3=entry.text.trim().replace(/;.*$/,'').trim().toUpperCase();
+    if(/^LBL\s/.test(lu3)) return true;
+    if(/^CALL LBL/.test(lu3)){
+      var cm2=lu3.match(/^CALL LBL\s+(\d+)(?:\s+REP\s*([+-]?\d+))?\s*$/);
+      if(!cm2) return true;
+      var lnum=cm2[1], reps=cm2[2]?parseInt(cm2[2]):1;
+      if(reps<1||reps>65534){
+        if(issues) issues.push({line:outputSrcLine,sev:'err',msg:'REP must be within 1..65534 — label call ignored'});
+        return true;
+      }
+      if(depth>=32){
+        if(issues) issues.push({line:outputSrcLine,sev:'err',msg:'Nested label calls exceed the simulator limit of 32 levels — label call ignored'});
+        return true;
+      }
+      var lbody=sectionBodiesByCallLine[entry.srcLine]||lblDefs[lnum]||[];
+      for(var ri=0;ri<reps;ri++){
+        for(var bi=0;bi<lbody.length;bi++){
+          if(!processEntry(lbody[bi],outputSrcLine,depth+1)) return false;
+        }
+      }
+      return true;
+    }
+    return pushExpanded(entry.text,outputSrcLine);
+  }
+
+  for(var ti=0;ti<lines.length;ti++){
+    if(!processEntry({text:lines[ti],srcLine:ti},ti,0) && expandedLines.length>=200000) break;
   }
   return expandedLines;
 }
@@ -311,6 +353,17 @@ function positioningTextBeforeM(lineText){
   return analyzed.motionTokens.join(' ');
 }
 
+function normalizePositioningFeedText(lineText){
+  // Official TNC 640 conversational programs render the TOOL CALL feed
+  // selection as "F AUTO". Normalize that documented two-token form before
+  // positioning blocks are tokenized so validation and simulation agree.
+  return String(lineText||'').replace(/\bF\s+AUTO\b/gi,'FAUTO');
+}
+
+function cycleAutoFeedParameter(cycleNum,qName){
+  return (cycleNum===200||cycleNum===201||cycleNum===208) && qName==='Q206';
+}
+
 function validateProgram(code, liveEdit){
   // liveEdit=true suppresses radius-compensation completeness checks (a contour
   // that is still active because R0 has not been typed yet). While editing, an
@@ -442,6 +495,21 @@ function validateProgram(code, liveEdit){
     else valCycleQSeen[name]=true;
     valCycleQ[name]=value;
   }
+  function recordCycleQExpression(name,expr,line){
+    var keyword=String(expr||'').trim().toUpperCase();
+    if(keyword==='AUTO'||keyword==='FAUTO'){
+      if(cycleAutoFeedParameter(valCycleNum,name)) recordCycleQ(name,'FAUTO',line);
+      else probs.push({line:line,sev:'err',msg:name+': AUTO is not supported for this cycle parameter'});
+      return;
+    }
+    if(keyword==='FMAX'){
+      probs.push({line:line,sev:'err',msg:'FMAX is not supported as a cycle Q value'});
+      return;
+    }
+    var inspection=inspectQExpr(expr,qVarsVal);
+    if(!inspection.ok) probs.push({line:line,sev:'err',msg:name+': '+inspection.msg});
+    else recordCycleQ(name,inspection.value,line);
+  }
 
   function finishCycleValidation(){
     if(!valInCycle) return;
@@ -502,7 +570,7 @@ function validateProgram(code, liveEdit){
   }
   for(var _li3=0;_li3<lines.length;_li3++){
     var _callU=lines[_li3].trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim();
-    var _callM=_callU.match(/^CALL\s+LBL\s+(\d+)(?:\s+REP\s+([+-]?\d+))?\s*$/);
+    var _callM=_callU.match(/^CALL\s+LBL\s+(\d+)(?:\s+REP\s*([+-]?\d+))?\s*$/);
     if(/^CALL\s+LBL\b/.test(_callU) && !_callM)
       probs.push({line:_li3,sev:'err',msg:'Faulty block \u2014 expected: CALL LBL <no.> [REP <count>]'});
     else if(_callM){
@@ -513,7 +581,7 @@ function validateProgram(code, liveEdit){
     }
   }
 
-  var expandedVal = expandLblLines(lines);
+  var expandedVal = expandLblLines(lines,probs);
 
   // RND/CHF is a modifier between two contour moves in the implemented
   // parser.  Orphaned or trailing modifiers used to disappear without any
@@ -560,6 +628,7 @@ function validateProgram(code, liveEdit){
       continue;
     }
     if(Object.keys(qVarsVal).length > 0) u = resolveQLine(u, qVarsVal);
+    if(/^(L|C|CR|CT|LP|CP)\b/.test(u)) u = normalizePositioningFeedText(u);
 
     // Undefined Q parameter in a movement line — coordinate would be silently ignored
     if(/^(L|C|CC|RND|CR|CT|LP|CP)\b/.test(u) && /[XYZIJKRP][+-]?Q\d+/.test(u)){
@@ -850,7 +919,6 @@ function validateProgram(code, liveEdit){
       applyValidatorMStart(_cpEmbeddedMs);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before CP'});
       var _vcpa=_cpMotion.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/), _vcipa=_cpMotion.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
-      if(!_vcpa&&!_vcipa) probs.push({line:srcI,sev:'err',msg:'Polar angle PA or IPA missing'});
       if(_vcpa&&_vcipa) probs.push({line:srcI,sev:'err',msg:'CP may contain PA or IPA, not both'});
       if(_cpMotion.indexOf('DR+')<0&&_cpMotion.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
       if(_vcipa){
@@ -861,10 +929,13 @@ function validateProgram(code, liveEdit){
       }
       if(/\bRL\b/.test(_cpMotion)||/\bRR\b/.test(_cpMotion))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. not permitted on a CP block'});
-      if(valCCX!==null&&valCCY!==null&&valLastX!==null&&valLastY!==null&&(_vcpa||_vcipa)){
+      if(valCCX!==null&&valCCY!==null&&valLastX!==null&&valLastY!==null){
         var _vcR=Math.hypot(valLastX-valCCX,valLastY-valCCY);
         var _vcA0=Math.atan2(valLastY-valCCY,valLastX-valCCX);
-        var _vcA1=_vcpa?parseFloat(_vcpa[1])*Math.PI/180:_vcA0+parseFloat(_vcipa[1])*Math.PI/180;
+        // An angle-less CP with DR is the documented/control-generated full
+        // circle form (for example the floor pass in official NC11101).
+        var _vcA1=_vcpa?parseFloat(_vcpa[1])*Math.PI/180:
+          (_vcipa?_vcA0+parseFloat(_vcipa[1])*Math.PI/180:_vcA0);
         valLastX=valCCX+_vcR*Math.cos(_vcA1);
         valLastY=valCCY+_vcR*Math.sin(_vcA1);
         valHasXYTangent=true;
@@ -981,27 +1052,14 @@ function validateProgram(code, liveEdit){
       valCycleQ={}; valCycleQSeen={}; valCycleLine=srcI; valCycleNum=_cnum?parseInt(_cnum[1]):0; valInCycle=true;
       var _inlineQRe=/Q(\d+)\s*=\s*(.*?)(?=\s+Q\d+\s*=|$)/ig, _inlineQm;
       while((_inlineQm=_inlineQRe.exec(u))){
-        var _inlineExpr=_inlineQm[2].trim();
-        if(/^FAUTO$/i.test(_inlineExpr)) recordCycleQ('Q'+_inlineQm[1],'FAUTO',srcI);
-        else if(/^FMAX$/i.test(_inlineExpr)) probs.push({line:srcI,sev:'err',msg:'FMAX is not supported as a cycle Q value'});
-        else {
-          var _inlineInspection=inspectQExpr(_inlineExpr,qVarsVal);
-          if(!_inlineInspection.ok) probs.push({line:srcI,sev:'err',msg:'Q'+_inlineQm[1]+': '+_inlineInspection.msg});
-          else recordCycleQ('Q'+_inlineQm[1],_inlineInspection.value,srcI);
-        }
+        recordCycleQExpression('Q'+_inlineQm[1],_inlineQm[2],srcI);
       }
 
     // ── Q inside CYCL DEF ──
     } else if(/^\s*Q\d+/.test(u) && valInCycle){
       var qpm=u.match(/^Q(\d+)\s*(?:=\s*)?(.+)$/i);
       if(!qpm) probs.push({line:srcI,sev:'err',msg:'Faulty cycle parameter \u2014 expected: Q<number>=<value>'});
-      else if(/^FAUTO$/i.test(qpm[2].trim())) recordCycleQ('Q'+qpm[1],'FAUTO',srcI);
-      else if(/^FMAX$/i.test(qpm[2].trim())) probs.push({line:srcI,sev:'err',msg:'FMAX is not supported as a cycle Q value'});
-      else {
-        var _cycleInspection=inspectQExpr(qpm[2],qVarsVal);
-        if(!_cycleInspection.ok) probs.push({line:srcI,sev:'err',msg:'Q'+qpm[1]+': '+_cycleInspection.msg});
-        else recordCycleQ('Q'+qpm[1],_cycleInspection.value,srcI);
-      }
+      else recordCycleQExpression('Q'+qpm[1],qpm[2],srcI);
 
     // ── CYCL CALL ──
     } else if(u.indexOf('CYCL CALL')===0){
@@ -1024,7 +1082,7 @@ function validateProgram(code, liveEdit){
       if(u.indexOf('CALL LBL')===0){
         var _cm=u.match(/CALL LBL\s+(\d+)/);
         if(_cm && !definedLbls[_cm[1]]) probs.push({line:srcI,sev:'err',msg:'Label number not allocated \u2014 LBL '+_cm[1]+' missing'});
-        var _rep=u.match(/REP\s+(\d+)/);
+        var _rep=u.match(/REP\s*([+-]?\d+)/);
         if(_rep&&parseInt(_rep[1])<1) probs.push({line:srcI,sev:'err',msg:'REP must be at least 1'});
       } else {
         var _ln=u.match(/^LBL\s+(\d+)/);
@@ -1889,6 +1947,7 @@ function parseProgram(code){
       .replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'') // tolerate PASTED machine code with block numbers ("12 TOOL CALL 5") — file import strips them too
       .replace(/(\d),(?=\d)/g,'$1.') // Heidenhain decimal comma -> dot (Q1+0,5774, X+10,5); MUST happen before any regex/eval below
       .trim();
+    if(/^(L|C|CR|CT|LP|CP)\b/.test(line)) line = normalizePositioningFeedText(line);
     if(!line || line.charAt(0)===';'){
       inCycleParamBlock = false;
       continue;
@@ -1911,7 +1970,7 @@ function parseProgram(code){
     // own Q-assignment goes; inCycleParamBlock is then updated for the
     // NEXT line.
     var _wasInCycleParamBlock = inCycleParamBlock;
-    var _isQParamLine = /^Q\d+\s*(?:=|\s+(?:FAUTO|FMAX))/i.test(line);
+    var _isQParamLine = /^Q\d+\s*(?:=|\s+(?:AUTO|FAUTO|FMAX))/i.test(line);
     if(/^CYCL\s+DEF\s+(200|201|208|209)\b/.test(line)) inCycleParamBlock = true;
     else if(!(inCycleParamBlock && _isQParamLine)) inCycleParamBlock = false;
 
@@ -1925,7 +1984,17 @@ function parseProgram(code){
       var _qExpr = _qAssign[2].trim().replace(/;.*$/,'').trim();
       if(activeCycle && _wasInCycleParamBlock){
         // Inside cycle def — update cycle parameter (evalQExpr supports expressions like Q10+5)
-        var _qVal = /FAUTO/i.test(_qExpr)?'FAUTO':(/FMAX/i.test(_qExpr)?9999:evalQExpr(_qExpr, qVars));
+        var _qKeyword=_qExpr.toUpperCase();
+        var _qVal;
+        if(_qKeyword==='AUTO'||_qKeyword==='FAUTO'){
+          if(cycleAutoFeedParameter(activeCycle.type,'Q'+_qNum)) _qVal='FAUTO';
+          else {
+            _qVal=NaN;
+            pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Q'+_qNum+': AUTO is not supported for this cycle parameter'});
+          }
+        } else {
+          _qVal=_qKeyword==='FMAX'?9999:evalQExpr(_qExpr,qVars);
+        }
         activeCycle['Q'+_qNum] = _qVal;
         // Basic sanity: Q200 must be >0, Q201 must be <=0
         if(_qNum===200 && typeof _qVal==='number' && _qVal<=0) console.warn('Q200 safety clearance should be positive, got '+_qVal);
@@ -1939,8 +2008,16 @@ function parseProgram(code){
     }
     else if(/^\s*Q\d+/.test(line)){
       if(activeCycle && _wasInCycleParamBlock){
-        var qpm=line.match(/Q(\d+)\s*=?\s*([+-]?[\d.]+|FAUTO|FMAX)/i);
-        if(qpm) activeCycle['Q'+qpm[1]]=(/FAUTO/i.test(qpm[2])?'FAUTO':(/FMAX/i.test(qpm[2])?9999:pFloat(qpm[2])));
+        var qpm=line.match(/Q(\d+)\s*=?\s*([+-]?[\d.]+|AUTO|FAUTO|FMAX)/i);
+        if(qpm){
+          var _qpmName='Q'+qpm[1], _qpmKeyword=qpm[2].toUpperCase();
+          if(_qpmKeyword==='AUTO'||_qpmKeyword==='FAUTO'){
+            if(cycleAutoFeedParameter(activeCycle.type,_qpmName)) activeCycle[_qpmName]='FAUTO';
+            else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:_qpmName+': AUTO is not supported for this cycle parameter'});
+          } else {
+            activeCycle[_qpmName]=_qpmKeyword==='FMAX'?9999:pFloat(qpm[2]);
+          }
+        }
       }
     }
     else if(line.indexOf('CYCL DEF 200')===0){
@@ -2115,6 +2192,7 @@ function parseProgram(code){
       var pa=_lpCore.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
       var ipa=_lpCore.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
       var fm=_lpCore.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
+      var _priorRcLP=rcState;
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 LP block rejected'});
       if((pr||pa||ipa) && ccx!==null && ccy!==null){
         var curRad=Math.hypot(pos.x-ccx,pos.y-ccy);
@@ -2129,7 +2207,7 @@ function parseProgram(code){
         var tx=ccx+rad*Math.cos(ang), ty=ccy+rad*Math.sin(ang);
         if(/\bRL\b/.test(_lpCore)) rcState='RL'; else if(/\bRR\b/.test(_lpCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_lpCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
         if(!isNaN(feed)&&feed<9000) lastDefinedFeed=feed;
-        var _pendingLP={from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:tx,y:ty,z:pos.z}, rapid:_lpFeedState.rapid, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn,spindleDir:spindleDir, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, m99:_callCycleLP,mCodes:_mCodesLP.slice()};
+        var _pendingLP={from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:tx,y:ty,z:pos.z}, rapid:_lpFeedState.rapid, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn,spindleDir:spindleDir, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, rcActivation:(rcState==='RL'||rcState==='RR')&&rcState!==_priorRcLP, m99:_callCycleLP,mCodes:_mCodesLP.slice()};
         pendingMoves.push(_pendingLP);
         pos={x:tx,y:ty,z:pos.z};
         applyKnownMEnd(_mCodesLP);
@@ -2159,7 +2237,7 @@ function parseProgram(code){
       var dr2=_cpCore.indexOf('DR-')>=0 ? -1 : 1;
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 CP block rejected'});
       if(/\bRL\b/.test(_cpCore)) rcState='RL'; else if(/\bRR\b/.test(_cpCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_cpCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
-      if((pa2||ipa2) && ccx!==null && ccy!==null){
+      if(ccx!==null && ccy!==null){
         var a0cp=Math.atan2(pos.y-ccy, pos.x-ccx);
         var Rcp=Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
         var cpFrom=pointCopy(pos);
@@ -2172,9 +2250,15 @@ function parseProgram(code){
             continue;
           }
           a1cp=a0cp+sw;
-        } else {
+        } else if(pa2) {
           a1cp=parseFloat(pa2[1])*Math.PI/180;
           if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
+        } else {
+          // CP DR+ / CP DR- repeats the current polar radius for one complete
+          // revolution. Keep a full 2π sweep instead of collapsing equal end
+          // coordinates into a zero-length movement.
+          sw=dr2*2*Math.PI;
+          a1cp=a0cp+sw;
         }
         var cpEndZ=cpiz?cpFrom.z+parseFloat(cpiz[1]):(cpz?parseFloat(cpz[1]):cpFrom.z);
         var cpTo={x:ccx+Rcp*Math.cos(a1cp),y:ccy+Rcp*Math.sin(a1cp),z:cpEndZ};
@@ -2455,15 +2539,24 @@ function _rcSetEnd(p,pt){
   if(p.type==='line'){ p.end=_rcPoint(pt); return; }
   if(p.type==='point'){ p.point=_rcPoint(pt); return; }
   var dir=p.sweep>=0?1:-1;
-  p.sweep=_rcDirectedAngle(p.a0,Math.atan2(pt.y-p.cy,pt.x-p.cx),dir);
+  var oldSweep=p.sweep;
+  var remainder=_rcDirectedAngle(p.a0,Math.atan2(pt.y-p.cy,pt.x-p.cx),dir);
+  // Keep the programmed number of complete revolutions when a compensated
+  // CP helix or full circle is joined to its neighbor. Directed-angle
+  // normalization alone collapses 2π (and every additional turn) to zero.
+  var turns=Math.max(0,Math.round((oldSweep-remainder)/(dir*2*Math.PI)));
+  p.sweep=remainder+dir*2*Math.PI*turns;
   p.z1=pt.z;
 }
 function _rcSetStart(p,pt){
   if(p.type==='line'){ p.start=_rcPoint(pt); return; }
   if(p.type==='point'){ p.point=_rcPoint(pt); return; }
   var endAngle=p.a0+p.sweep,dir=p.sweep>=0?1:-1;
+  var oldSweep=p.sweep;
   p.a0=Math.atan2(pt.y-p.cy,pt.x-p.cx);
-  p.sweep=_rcDirectedAngle(p.a0,endAngle,dir);
+  var remainder=_rcDirectedAngle(p.a0,endAngle,dir);
+  var turns=Math.max(0,Math.round((oldSweep-remainder)/(dir*2*Math.PI)));
+  p.sweep=remainder+dir*2*Math.PI*turns;
   p.z0=pt.z;
 }
 function _rcOffsetGeom(g,sideSign,radius){
@@ -2579,7 +2672,7 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
     var unsupported=false;
     for(var ui=a;ui<=b;ui++) if(!sub[ui].rcGeom){ unsupported=true; break; }
     if(unsupported) return _offsetRunPolylineFallback(sub,a,b,side,prevSeg,nextSeg,parseProblems);
-    _rcReport(parseProblems,sub[a]?sub[a].srcLine:0,'Radius compensation must be activated in an L block — compensated cutting run rejected.');
+    _rcReport(parseProblems,sub[a]?sub[a].srcLine:0,'Radius compensation must be activated in an L or LP block — compensated cutting run rejected.');
     sub.splice(a,b-a+1); return 0;
   }
   var radius=_rcEffectiveRadius(activation);

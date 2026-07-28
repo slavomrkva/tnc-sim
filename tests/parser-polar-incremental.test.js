@@ -65,6 +65,29 @@ near(lpSegment.to.y, 5, 'incremental CC polar target Y');
 const badDirection = polarProgram.replace('CP IPA+360 IZ+5 DR+', 'CP IPA+360 IZ+5 DR-');
 assert.ok(errors(badDirection).some(problem => /same sign/.test(problem.msg)),
   'incremental CP must reject an IPA/DR sign mismatch');
+
+const fullCircle = `BEGIN PGM FULLCP MM
+TOOL CALL 1 Z S2000 F200
+M3
+L X+10 Y+0 Z+0 FMAX
+CC X+0 Y+0
+CP DR+ F200
+END PGM FULLCP MM`;
+assert.strictEqual(errors(fullCircle).length, 0,
+  'the official angle-less CP DR+ spelling must validate as a full circle');
+const fullCircleResult = context.parseProgram(fullCircle);
+assert.strictEqual(fullCircleResult.problems.filter(problem => problem.sev === 'err').length, 0,
+  'angle-less CP DR+ must parse without a diagnostic');
+const fullCircleLine = fullCircle.split('\n').findIndex(line => line.startsWith('CP '));
+const fullCircleSegments = fullCircleResult.sub.filter(segment =>
+  segment.srcLine === fullCircleLine && segment.rcGeom && segment.rcGeom.kind === 'CP');
+assert.ok(fullCircleSegments.length >= 64,
+  'angle-less CP DR+ must retain a complete revolution');
+near(fullCircleSegments[fullCircleSegments.length - 1].to.x, 10,
+  'angle-less CP final X');
+near(fullCircleSegments[fullCircleSegments.length - 1].to.y, 0,
+  'angle-less CP final Y');
+
 const unsupportedRadius = polarProgram.replace('LP IPA+90', 'LP IPR+2');
 assert.ok(errors(unsupportedRadius).some(problem => /Unsupported token "IPR\+2"/.test(problem.msg)),
   'ordinary LP must not invent unsupported IPR syntax');

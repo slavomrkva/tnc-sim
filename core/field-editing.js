@@ -618,12 +618,12 @@ function parseExistingLine(lineText, bk){
       {p:'DR', type:'coord', prompt:'DR offset (mm)', opt:true, val:tdr?tdr[1]:null, incr:false},
     ];
   }
-  // Special case: CALL LBL has format "CALL LBL <n> [REP <count>]" — REP is a
-  // separate space-delimited token (not concatenated like F600/S3000), so the
-  // generic p+value matching below can't find it.
+  // Special case: CALL LBL has format "CALL LBL <n> [REP <count>]" or the
+  // documented compact "REP<count>" spelling, so generic field matching is
+  // not sufficient.
   if(bk==='LBL CALL'){
     var lm=lineText.match(/CALL LBL\s+(\d+)/i);
-    var rm=lineText.match(/\bREP\s+(\d+)/i);
+    var rm=lineText.match(/\bREP\s*(\d+)/i);
     return [
       {p:'', type:'num', prompt:'Label number', opt:false, val:lm?lm[1]:'1', incr:false, lbl:null},
       {p:'REP', type:'num', prompt:'Repeat count (omit = run once)', opt:true, val:rm?rm[1]:null, incr:false, lbl:null},

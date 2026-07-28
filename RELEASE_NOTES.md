@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.921
+- Official HEIDENHAIN programs using `F AUTO`, Cycle 200/201/208
+  `Q206=AUTO`, compact `REP6`, program-section repeats and nested label
+  sections now validate and simulate correctly.
+- Polar contours may activate radius compensation in `LP`; angle-less
+  `CP DR+`/`CP DR-` blocks now produce a full circle, and compensated
+  multi-turn CP helices retain every programmed revolution.
+
 ## v0.920
 - Cycle 209 now validates Q336 against the `0...360` range documented for the
   simulator's target TNC 640 software version.

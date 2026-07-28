@@ -45,8 +45,12 @@ Detailed module-split history is in the archived project notes linked above.
 
 ## Current non-obvious invariants
 
-1. **LBL fall-through:** `LBL n ... LBL 0` executes where defined; `CALL LBL n`
-   executes it again. Do not combine both accidentally in lessons or demos.
+1. **LBL fall-through and repeats:** `LBL n ... LBL 0` executes where defined;
+   `CALL LBL n` executes it again. `REP 6` and documented compact `REP6` are
+   equivalent. A matching `CALL LBL n REPn` can end a program-section repeat
+   without `LBL 0`, including a nested section inside a subprogram. Expansion
+   is recursive but must remain bounded to 32 levels and 200000 blocks. Do not
+   combine fall-through and calls accidentally in lessons or demos.
 2. **Zero is a valid Q value:** use `Q !== undefined ? Q : default`, never
    `Q || default` for cycle parameters.
 3. **Voxel detail and budgets:** Low/Default/High target 100/150/200 with
@@ -80,13 +84,18 @@ Detailed module-split history is in the archived project notes linked above.
 12. **Chunked Marching Cubes:** dirty bounds require the one-cell XY dependency
     halo; Measure raycasting stays recursive while the live mesh is a group.
 13. **Cycle feeds and visibility:** cycle `FAUTO` uses the active `TOOL CALL`
-   feed. Cycle 200 retracts stay FMAX; Cycle 209 stays pitch×RPM. Only marked
+   feed. The official `AUTO` spelling is equivalent only for Q206 in supported
+   Cycles 200, 201 and 208; reject it on non-feed Q parameters. Positioning
+   `F AUTO` is equivalent to `FAUTO` in every supported positioning family.
+   Cycle 200 retracts stay FMAX; Cycle 209 stays pitch×RPM. Only marked
    cycle-internal sub-frame reversals get the held midpoint render.
 14. **Radius compensation geometry:** preserve L/C/CR/CT/CP/RND/CHF as exact
-   contour primitives through RL/RR calculation and validation; tessellate only
-   the finished tool-center path. The activating L is one approach movement
-   ending at the following contour's exact offset start, never a nominal move
-   plus a hidden lateral segment.
+   contour primitives through RL/RR calculation and validation; tessellate
+   only the finished tool-center path. The activating L or LP is one approach
+   movement ending at the following contour's exact offset start, never a
+   nominal move plus a hidden lateral segment. An angle-less `CP DR+`/`CP DR-`
+   is one full revolution, and analytic joins must preserve every complete
+   revolution of compensated full/multi-turn CP paths.
 15. **Collision is a warning, never a stop:** a rapid-into-material (FMAX)
    collision must report a pinned warning but must NOT halt the run — real
    machine-proven programs (e.g. a rapid onto a pre-drilled floor) play through

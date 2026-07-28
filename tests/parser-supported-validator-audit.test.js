@@ -39,6 +39,17 @@ for(const block of ['C', 'CR', 'CT', 'LP', 'CP']){
   }
   {
     const code = positioningProgram(block).replace(
+      new RegExp(`^${block} `, 'm'), `${block} F AUTO `);
+    assert.strictEqual(errors(code).length, 0,
+      `${block} accepts the official F AUTO spelling as a positioning feed`);
+    const line = code.split('\n').findIndex(text => text.startsWith(`${block} `));
+    const moves = H.parse(code).sub.filter(segment => segment.srcLine === line && !segment.isMseg);
+    assert.ok(moves.length > 0, `${block} F AUTO produces a positioning move`);
+    assert.ok(moves.every(segment => segment.feed === 420 && !segment.rapid),
+      `${block} F AUTO restores the current TOOL CALL feed after a numeric feed`);
+  }
+  {
+    const code = positioningProgram(block).replace(
       new RegExp(`^${block} `, 'm'), `${block} FMAX `);
     assert.strictEqual(errors(code).length, 0,
       `${block} accepts FMAX as a positioning feed`);
@@ -106,6 +117,81 @@ for(const [body, message] of duplicateCases){
   assert.ok(errors(malformed).some(problem => /expected: LBL/.test(problem.msg)),
     'numeric LBL blocks reject trailing garbage');
 }
+{
+  const compactRepeat = [
+    'BEGIN PGM LABELS MM',
+    'TOOL CALL 1 Z S2000 F100',
+    'M3',
+    'LBL 1',
+    'L IX+1 F100',
+    'LBL 0',
+    'CALL LBL 1 REP6',
+    'END PGM LABELS MM'
+  ].join('\n');
+  assert.strictEqual(errors(compactRepeat).length, 0,
+    'the documented compact REP6 form is valid');
+  const parsed = H.parse(compactRepeat);
+  assert.strictEqual(parsed.resultProblems.filter(problem => problem.sev === 'err').length, 0,
+    'the compact REP6 form has no parser error');
+  assert.strictEqual(parsed.sub[parsed.sub.length - 1].to.x, 7,
+    'REP6 executes six repeats in addition to the label fall-through');
+}
+{
+  const programSectionRepeat = [
+    'BEGIN PGM SECTION MM',
+    'TOOL CALL 1 Z S2000 F100',
+    'M3',
+    'LBL 1',
+    'L IX+1 F100',
+    'CALL LBL 1 REP6',
+    'END PGM SECTION MM'
+  ].join('\n');
+  assert.strictEqual(errors(programSectionRepeat).length, 0,
+    'a program-section repeat ends at its matching CALL LBL REPn without LBL 0');
+  const parsed = H.parse(programSectionRepeat);
+  assert.strictEqual(parsed.resultProblems.filter(problem => problem.sev === 'err').length, 0,
+    'program-section repeat expansion does not absorb END PGM');
+  assert.strictEqual(parsed.sub[parsed.sub.length - 1].to.x, 7,
+    'program-section REP6 executes the fall-through plus six repetitions');
+}
+{
+  const nestedSection = [
+    'BEGIN PGM NESTED MM',
+    'TOOL CALL 1 Z S2000 F100',
+    'M3',
+    'CALL LBL 1',
+    'M30',
+    'LBL 1',
+    'L X+1 F100',
+    'LBL 2',
+    'L IX+1',
+    'CALL LBL 2 REP3',
+    'LBL 0',
+    'END PGM NESTED MM'
+  ].join('\n');
+  assert.strictEqual(errors(nestedSection).length, 0,
+    'a program-section repeat may be nested inside an LBL 0 subprogram');
+  const parsed = H.parse(nestedSection);
+  assert.strictEqual(parsed.resultProblems.filter(problem => problem.sev === 'err').length, 0,
+    'nested section expansion has no parser error');
+  assert.strictEqual(parsed.sub[parsed.sub.length - 1].to.x, 5,
+    'the outer call executes the first move plus the section fall-through and REP3');
+}
+{
+  const recursive = [
+    'BEGIN PGM RECURSE MM',
+    'CALL LBL 1',
+    'M30',
+    'LBL 1',
+    'CALL LBL 1',
+    'LBL 0',
+    'END PGM RECURSE MM'
+  ].join('\n');
+  assert.ok(errors(recursive).some(problem => /32 levels/.test(problem.msg)),
+    'recursive label calls are stopped by the expansion depth guard');
+  assert.ok(H.parse(recursive).resultProblems.some(problem => /32 levels/.test(problem.msg)),
+    'the recursion guard also protects parsing when validation is switched off');
+}
 
 const cycleDefs = {
   200: [
@@ -131,6 +217,12 @@ for(const number of [200, 201, 208, 209]){
   assert.strictEqual(errors(complete).length, 0,
     `complete supported CYCL DEF ${number} remains valid`);
 
+  if(number !== 209){
+    const officialAuto = complete.replace(/Q206=\+\d+(?:\.\d+)?/, 'Q206= AUTO');
+    assert.strictEqual(errors(officialAuto).length, 0,
+      `CYCL DEF ${number} accepts the official AUTO spelling for Q206`);
+  }
+
   const missing = H.program(`CYCL DEF ${number}\n${cycleDefs[number].slice(1).join('\n')}`);
   assert.ok(errors(missing).some(problem => /missing required parameter Q200/.test(problem.msg)),
     `CYCL DEF ${number} rejects a missing required parameter`);
@@ -142,6 +234,30 @@ for(const number of [200, 201, 208, 209]){
   const duplicate = H.program(`CYCL DEF ${number}\n${cycleDefs[number].join('\n')}\nQ200=+3`);
   assert.ok(errors(duplicate).some(problem => /Q200 is programmed more than once/.test(problem.msg)),
     `CYCL DEF ${number} rejects duplicate Q parameters`);
+}
+
+{
+  const code = H.program(`TOOL CALL 1 Z S2000 F420
+M3
+CYCL DEF 200
+${cycleDefs[200].join('\n').replace('Q206=+150', 'Q206= AUTO')}
+L X+0 Y+0 Z+10 FMAX
+CYCL CALL`);
+  assert.strictEqual(errors(code).length, 0,
+    'CYCL 200 accepts the official Q206=AUTO form');
+  const parsed = H.parse(code);
+  const cycleMoves = H.cycleSegments(parsed, code);
+  assert.ok(cycleMoves.length > 0, 'CYCL 200 Q206=AUTO generates its cutting path');
+  assert.ok(cycleMoves.filter(segment => !segment.rapid && segment.to.z < segment.from.z)
+    .every(segment => segment.feed === 420),
+  'CYCL 200 Q206=AUTO uses the current TOOL CALL feed');
+}
+
+{
+  const invalidAuto = H.program(`CYCL DEF 200
+${cycleDefs[200].join('\n').replace('Q200=+2', 'Q200= AUTO')}`);
+  assert.ok(errors(invalidAuto).some(problem => /Q200: AUTO is not supported/.test(problem.msg)),
+    'AUTO remains rejected for non-feed cycle parameters');
 }
 
 {
