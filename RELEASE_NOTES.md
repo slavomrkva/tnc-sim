@@ -10,6 +10,33 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.918
+- Corrected M-function validation against the offline TNC 640 manual. Every
+  implemented positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) now accepts
+  the same tail of up to two M functions, including documented parameter forms.
+- Program-control, spindle, coolant and modal-cycle M functions now use their
+  documented block timing. Valid standard or machine-specific M functions
+  whose machine effect is not simulated remain accepted with an explicit
+  warning instead of a false syntax error.
+- The guided editor now keeps embedded M functions inside the complete editor
+  for their positioning block, including circular and polar blocks.
+
+## v0.917
+- `L` blocks now accept up to two M functions, including custom
+  machine-specific M numbers. Clicking either M opens the complete `L` editor
+  with that first or second M field selected.
+- `C` circular-arc blocks now follow the same two-M behavior and open the
+  complete `C` editor when either embedded M is clicked.
+- Added a persistent **Validator ON/OFF** switch to the bottom error row. It
+  appears only for blocking errors (or while OFF); when off, diagnostics are
+  hidden and do not block Run or Step.
+- Pressing `+` or `-` while editing an active `L`, `C` or `CC` coordinate now
+  changes only its sign, matching Android.
+- New `TOOL CALL` blocks now start with `S10000 F2000`.
+- After **Clear**, Enter can immediately insert the first block after
+  `BEGIN PGM`. The gutter `×` can remove the complete `BEGIN PGM` or
+  `END PGM` block when wanted.
+
 ## v0.916
 - Values in the desktop programming panel can now be selected and edited
   directly for path functions, polar functions, labels and TOOL CALL.

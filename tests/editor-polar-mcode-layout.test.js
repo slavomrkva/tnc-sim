@@ -33,6 +33,7 @@ const context = {
   navigator:{userAgent:'desktop test'},
   location:{search:''},
   requestAnimationFrame(fn){ fn(); },
+  setTimeout(fn){ fn(); },
   codeEl,
   lineNums:{scrollTop:0},
   lastSel:{start:0,end:0},
@@ -112,8 +113,17 @@ assert.strictEqual(codeEl.value,'LP PR+50 PA+45 FMAX M89 ; drill here',
 
 assert.ok(appSource.indexOf("mTokenAt(lineText,posInLine)") < appSource.indexOf('// Tap PAST the text'),
   'embedded M hit-testing must run before the generic end-of-line caret branch');
-assert.match(appSource, /\^\(\?:BEGIN\|END\) PGM\\b[\s\S]{0,220}codeEl\.blur/,
-  'protected BEGIN/END rows must blur the native caret');
+assert.match(appSource,
+  /if\(_clickedM && \/\^\(\?:L\|C\|CR\|CT\|LP\|CP\)\(\?:\\s\|\$\)\/\.test\(lt\)\)\{[\s\S]{0,220}enterFieldModeOnLine\(_pathInfo\)/,
+  'an embedded positioning-block M opens the complete guided path-block editor');
+assert.ok(
+  appSource.indexOf("if(_clickedM && /^(?:L|C|CR|CT|LP|CP)(?:\\s|$)/.test(lt))") <
+    appSource.indexOf("if(_clickedM && typeof openMPanelEdit==='function')"),
+  'L/C-block routing runs before the standalone/other embedded M panel');
+assert.match(appSource, /\^END PGM\\b[\s\S]{0,220}codeEl\.blur/,
+  'protected END PGM keeps the native caret blurred');
+assert.match(appSource, /\^BEGIN PGM\\b[\s\S]{0,300}codeEl\.focus/,
+  'protected BEGIN PGM keeps focus so Enter can insert a following block');
 assert.match(styles, /body\[data-mtab="editor"\] #code\{[^}]*padding-bottom:28px/,
   'mobile editor must reserve space above its horizontal scrollbar');
 assert.match(styles, /body\[data-mtab="editor"\] #hlLayer\{[^}]*padding-bottom:28px/,

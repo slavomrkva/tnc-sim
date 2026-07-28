@@ -57,7 +57,7 @@ function updateLineNums(){
     if(answer && i>=answer.start && i<=answer.end) cls+=' learn-target';
     var numLabel = blockNums[i]===null ? '' : blockNums[i];
     var rowBlock=model.rows[i]&&model.rows[i].blockIndex!==null ? model.blocks[model.rows[i].blockIndex] : null;
-    var deleteBtn=rowBlock&&rowBlock.type!=='begin'&&rowBlock.type!=='end'
+    var deleteBtn=rowBlock
       ? '<button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>' : '';
     html += '<div class="'+cls+'">'+deleteBtn+numLabel+'</div>';
   }

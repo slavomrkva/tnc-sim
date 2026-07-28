@@ -343,6 +343,8 @@ END PGM PROGRAM MM</textarea>
       <div class="problems" id="problems" style="display:none;">
         <div class="problems-head" onclick="toggleProblems()">
           <span id="problemsCount" class="pc-ok">No problems</span>
+          <button id="problemsValidatorToggle" class="problems-validator-toggle"
+            style="display:none;" onclick="event.stopPropagation();toggleValidator()"></button>
         </div>
         <div class="problems-list" id="problemsList"></div>
       </div>

@@ -15,6 +15,49 @@ Newest first.
 
 ---
 
+## C37 — Web programming controls and M-function validation
+**Repo:** web `tnc-sim` v0.918. **Fixed and accepted:** 2026-07-28.
+
+### Reported symptoms
+Valid M functions at the end of positioning blocks were rejected, including
+`M3` in `L` and `C`. Embedded M tokens opened the standalone M editor instead
+of the complete positioning-block editor. The user also requested two M
+functions per implemented positioning block, a conditional validator switch,
+Android-style sign editing, TOOL CALL defaults, reliable Enter after Clear and
+gutter deletion of the structural BEGIN/END rows.
+
+### Root causes
+The validator and parser had separate, narrow M89/M99 exceptions instead of one
+M-tail grammar. Arc and polar branches parsed their complete line as geometry,
+so M parameters could be mistaken for coordinates or feeds. The guided editor
+only modeled M fields for a subset of block families and discarded documented
+parameters when reopening a line. Separately, BEGIN lost focus after Clear and
+the validator control was placed in the idle toolbar instead of the Problems
+row.
+
+### Attempts and accepted fix
+- Attempt 1 added the two-M model to `L`, then extended it to `C` after the
+  manual confirmed that C accepts an M at the block end.
+- The structural-row interpretation changed twice while clarifying the request:
+  native text deletion was briefly enabled, then reverted when the user
+  clarified that deletion meant the gutter `×`. BEGIN/END remain protected
+  against native edits, but both complete rows can be deleted from the gutter.
+- The final M audit replaced branch-specific exceptions with one shared grammar
+  for `L`, `C`, `CR`, `CT`, `LP` and `CP`. It accepts the deliberate simulator
+  limit of two M functions, validates documented parameter forms, preserves
+  parameter tails in the guided editor and models start/end-of-block effects.
+  Valid standard and machine-specific functions whose effects are not modeled
+  are warnings rather than false syntax errors.
+- Validator ON/OFF is persisted and shown only in the Problems row while an
+  error exists or validation is off. Fresh TOOL CALL uses `S10000 F2000`.
+
+### Verification
+Dedicated regressions cover M syntax, parameters, state timing, modal cycle
+calls, all positioning families, complete-block M editing, validator
+persistence, Clear/Enter and structural-row deletion. All 35 top-level test
+files and JavaScript syntax checks passed. The user requested the production
+merge and the corresponding Android port.
+
 ## C36 — Desktop programming values could not be selected and edited directly
 **Repo:** web `tnc-sim` v0.916. **Fixed and accepted:** 2026-07-27.
 

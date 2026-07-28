@@ -309,6 +309,10 @@ function fieldPanelInput(input){
   var f=FM.fields[FM.idx];
   var value=_fieldPanelSanitize(input.value,f);
   if(input.value!==value) input.value=value;
+  // Parameters such as F20 in "M103 F20" belong to the existing M function.
+  // Preserve them while merely opening/navigating the guided block, but clear
+  // them when the M number itself is deliberately changed.
+  if(f.type==='mval') f.mParams='';
   f.val=(value===''&&f.opt)?null:value;
   FM.typing=true;
   writeLine();
@@ -316,6 +320,17 @@ function fieldPanelInput(input){
 
 function fieldPanelKeydown(e){
   if(!FM.active || !e) return;
+  var f=FM.fields[FM.idx];
+  // Match the Android guided editor: a sign key changes only the sign of the
+  // active numeric value. It must never replace the selected L/C/CC value.
+  if(!e.ctrlKey && !e.altKey && !e.metaKey &&
+     (FM.builderKey==='L'||FM.builderKey==='C'||FM.builderKey==='CC') &&
+     _fieldAcceptsSign(f) && (e.key==='+'||e.key==='-')){
+    e.preventDefault(); e.stopPropagation();
+    _setFieldSign(f,e.key);
+    focusFieldPanelInput(true);
+    return;
+  }
   if(e.key==='Escape'){
     e.preventDefault(); e.stopPropagation(); exitFieldMode(); return;
   }
@@ -452,7 +467,13 @@ function refreshSelection(){
   }
 }
 
-function setFieldVal(v){ FM.fields[FM.idx].val=v; FM.typing=true; selectField(FM.idx); }
+function setFieldVal(v){
+  var f=FM.fields[FM.idx];
+  if(f.type==='mval') f.mParams='';
+  f.val=v;
+  FM.typing=true;
+  selectField(FM.idx);
+}
 
 function toggleQField(){
   var f=FM.fields[FM.idx];
@@ -535,6 +556,14 @@ function enterFieldMode(label){
   var fields=[];
   schema.fields.forEach(function(sf){ if(sf.type==='mfunc'||sf.type==='_skip') return; fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:defVal(sf.type, sf.opt)}); });
   FM={active:true, cmd:(schema.cmd||label), builderKey:label, fields:fields, idx:0, lineStart:0, lineLen:0, ranges:[]};
+  // Keep web and Android insertion defaults identical. This applies only to a
+  // freshly inserted TOOL CALL; opening an existing line never rewrites it.
+  if(label==='TOOL CALL'){
+    FM.fields.forEach(function(f){
+      if(f.p==='S' && (f.val===null||f.val===''||f.val==='0')) f.val='10000';
+      if(f.p==='F' && (f.val===null||f.val==='')) f.val='2000';
+    });
+  }
   var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
   var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
   // vlož za koniec aktuálneho riadku
@@ -603,12 +632,38 @@ function parseExistingLine(lineText, bk){
   // For QPARAM: extract value from Q208+5.5 or Q208 +5.5
 
   var toks=lineText.trim().toUpperCase().split(/\s+/).slice(1);
+  var firstM=-1;
+  for(var mi=0;mi<toks.length;mi++){
+    if(/^M\d+$/.test(toks[mi])){ firstM=mi; break; }
+  }
+  var motionToks=firstM<0?toks:toks.slice(0,firstM);
   var fields=[];
+  var mGroups=[];
+  if(firstM>=0){
+    var currentM=null;
+    for(var mti=firstM;mti<toks.length;mti++){
+      if(/^M\d+$/.test(toks[mti])){
+        currentM={val:toks[mti].slice(1),params:[]};
+        mGroups.push(currentM);
+      } else if(currentM){
+        currentM.params.push(toks[mti]);
+      }
+    }
+  }
+  var mValueIdx=0;
   schema.fields.forEach(function(sf){
     if(sf.type==='mfunc'||sf.type==='_skip') return;
     var val=defVal(sf.type, sf.opt), p=sf.p.toUpperCase(), incr=false;
-    for(var k=0;k<toks.length;k++){
-      var t=toks[k];
+    if(sf.type==='mval'){
+      var mGroup=mValueIdx<mGroups.length?mGroups[mValueIdx]:null;
+      val=mGroup?mGroup.val:val;
+      mValueIdx++;
+      fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:val,
+        mParams:mGroup?mGroup.params.join(' '):'', incr:false, lbl:sf.lbl||null});
+      return;
+    }
+    for(var k=0;k<motionToks.length;k++){
+      var t=motionToks[k];
       if(sf.type==='dr' && (t==='DR+'||t==='DR-')){ val=t.charAt(2); break; }
       else if(sf.type==='rc' && (t==='RL'||t==='RR'||t==='R0')){ val=t; break; }
       else if(sf.type==='feed' && t==='FMAX'){ val='MAX'; break; }
@@ -618,7 +673,6 @@ function parseExistingLine(lineText, bk){
       else if(sf.type==='coord' && p && t.indexOf(p)===0 && t.length>p.length){ val=t.slice(p.length); break; }
       else if(sf.type==='num' && p && t.indexOf(p)===0 && t.length>p.length){ val=t.slice(p.length); break; }
       else if(sf.type==='num' && p==='' && /^\d/.test(t)){ val=t; break; }
-      else if(sf.type==='mval' && t.charAt(0)==='M' && /^M\d+$/.test(t)){ val=t.slice(1); break; }
     }
     fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:val, incr:incr, lbl:sf.lbl||null});
   });
@@ -649,6 +703,19 @@ function findClickedFieldIdx(lineText, bk, posInLine){
   }
   if(!clickedTok) return 0;
   var t=clickedTok.upper;
+  if(/^M\d+$/.test(t)){
+    var mOrdinal=-1;
+    for(var mt=0;mt<tokens.length;mt++){
+      if(/^M\d+$/.test(tokens[mt].upper)) mOrdinal++;
+      if(tokens[mt]===clickedTok) break;
+    }
+    var seenM=0;
+    for(var mfi=0;mfi<schemaFields.length;mfi++){
+      if(schemaFields[mfi].type!=='mval') continue;
+      if(seenM===mOrdinal) return mfi;
+      seenM++;
+    }
+  }
   for(var fi=0;fi<schemaFields.length;fi++){
     var sf=schemaFields[fi], p=sf.p.toUpperCase();
     if(sf.type==='dr' && (t==='DR+'||t==='DR-')) return fi;

@@ -714,3 +714,14 @@ History through v0.845 is preserved in
   Site Key for the Invisible `tncsim.org`/`localhost` widget. The same public
   key is versioned in the independent Android client; both private secrets stay
   outside Git as encrypted Worker secrets. Offline cache → v45.
+
+## v0.918 — 2026-07-28 — programming controls and M-function audit
+- Added a conditional persistent Validator ON/OFF control, Android-style guided
+  sign editing, TOOL CALL `S10000 F2000` defaults, reliable insertion after
+  Clear and gutter deletion for complete BEGIN/END blocks.
+- Applied one audited two-M tail grammar to `L`, `C`, `CR`, `CT`, `LP` and
+  `CP`, including documented parameter forms, start/end timing, modal cycles
+  and explicit warnings for valid effects the simulator does not model.
+- Kept embedded M functions in their complete guided positioning editor,
+  preserved their parameter tails, added focused regressions and advanced the
+  offline cache to v78.

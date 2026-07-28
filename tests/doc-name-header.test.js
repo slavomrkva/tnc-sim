@@ -12,9 +12,18 @@ const vm = require('vm');
 
 const core = path.join(__dirname, '..', 'core');
 const titleEl = { textContent: '(init)' };
-const codeEl = { value: 'BEGIN PGM PROGRAM MM\nEND PGM PROGRAM MM', selectionStart: 0 };
+const codeEl = {
+  value: 'BEGIN PGM PROGRAM MM\nEND PGM PROGRAM MM',
+  selectionStart: 0,
+  selectionEnd: 0,
+  focused:false,
+  setSelectionRange(start,end){ this.selectionStart=start; this.selectionEnd=end; },
+  focus(){ this.focused=true; }
+};
 const ctx = {
   console,
+  navigator:{userAgent:'desktop test'},
+  location:{search:''},
   document: { getElementById: id => id === 'progTitleName' ? titleEl
     : (id === 'importFileInput' ? { value: '', click() {} }
     : { style: {}, value: '', classList: { add() {}, remove() {}, toggle() {} }, querySelectorAll: () => [] }) },
@@ -47,6 +56,9 @@ assert.strictEqual(titleEl.textContent, 'Chamfering', 'header element updated on
 
 vm.runInContext('editorClear();', ctx);
 assert.strictEqual(ctx._docName, 'program.H', 'Clear resets to the default name');
+assert.strictEqual(codeEl.selectionStart,'BEGIN PGM PROGRAM MM'.length,
+  'Clear positions the caret after BEGIN PGM');
+assert.strictEqual(codeEl.focused,true,'desktop Clear returns focus to the editor for Enter');
 
 vm.runInContext('editorReset();', ctx);
 assert.strictEqual(ctx._docName, 'Complete Part', 'Reset restores the starter demo name');

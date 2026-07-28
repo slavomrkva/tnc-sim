@@ -28,6 +28,7 @@ function openMCodesList(){
 }
 
 var _mEditInline = false;
+var _mEditTokenStart = -1;
 
 function mTokenAt(lineText, posInLine){
   var re=/\bM\d+\b/gi, match;
@@ -38,10 +39,11 @@ function mTokenAt(lineText, posInLine){
   return null;
 }
 
-function openMPanelEdit(lineIdx){
+function openMPanelEdit(lineIdx, token){
   _mEditLine = lineIdx;
   var editLine=(codeEl.value.split('\n')[lineIdx]||'').replace(/;.*$/,'');
   _mEditInline=!/^\s*M\d+\b/i.test(editLine);
+  _mEditTokenStart=token && typeof token.start==='number' ? token.start : -1;
   openMPanel();
 }
 
@@ -63,7 +65,11 @@ function openMPanel(){
   var curCode = null;
   if(_mEditLine >= 0){
     var lines = codeEl.value.split('\n');
-    var cm = (lines[_mEditLine]||'').replace(/;.*$/,'').match(/\b(M\d+)\b/i);
+    var editBody=(lines[_mEditLine]||'').replace(/;.*$/,'');
+    var cm=null, cmRe=/\b(M\d+)\b/gi, cmHit;
+    while((cmHit=cmRe.exec(editBody))!==null){
+      if(_mEditTokenStart<0 || cmHit.index===_mEditTokenStart){ cm=cmHit; break; }
+    }
     curCode = cm ? cm[1].toUpperCase() : null;
   }
   var curInPanel = curCode && M_PANEL_CODES.indexOf(curCode) >= 0;
@@ -130,7 +136,16 @@ function _replaceMOnLine(code){
   var body = ci>=0 ? orig.slice(0,ci).trimEnd() : orig;
   var newDesc = _mDescFor(code);
   if(_mEditInline){
-    body=body.replace(/\bM\d+\b/i,code);
+    var replaced=false;
+    body=body.replace(/\bM\d+\b/gi,function(match,offset){
+      if(!replaced && (_mEditTokenStart<0 || offset===_mEditTokenStart)){
+        replaced=true;
+        return code;
+      }
+      return match;
+    });
+    // Defensive fallback if the line changed while the panel was open.
+    if(!replaced) body=body.replace(/\bM\d+\b/i,code);
     lines[_mEditLine]=body+(comment?' '+comment:'');
   } else {
     if(newDesc){ comment = '; ' + newDesc; }
@@ -140,5 +155,6 @@ function _replaceMOnLine(code){
   if(typeof syncEditorSelection==='function') syncEditorSelection(_programLineOffset(lines,_mEditLine));
   _mEditLine = -1;
   _mEditInline = false;
+  _mEditTokenStart = -1;
   dirty=true; updateLineNums(); runValidation();
 }

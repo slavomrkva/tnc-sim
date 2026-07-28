@@ -78,6 +78,14 @@ for(const column of [0, 'END PGM TEST MM'.length]){
 }
 
 {
+  const cleared='BEGIN PGM TEST MM\nEND PGM TEST MM';
+  const plan=enterAt(cleared,0);
+  assert.strictEqual(plan.changed,true,'Enter after BEGIN inserts the first block after Clear');
+  assert.strictEqual(plan.value,'BEGIN PGM TEST MM\n\nEND PGM TEST MM');
+  assert.strictEqual(plan.insertLine,1,'the first blank block is inserted before END PGM');
+}
+
+{
   const plan = context.planProgramBlockInsertion(
     cycleProgram, lineStart(cycleProgram, 3), lineStart(cycleProgram, 3),
     'TOOL CALL 1 Z S10000 F2000', 'command');
@@ -147,6 +155,21 @@ for(const column of [0, 'END PGM TEST MM'.length]){
   assert.strictEqual(undoCount, 1);
 }
 
+{
+  const structural='BEGIN PGM TEST MM\nL X+0\nEND PGM TEST MM';
+  context.codeEl.value=structural;
+  context.codeEl.selectionStart=context.codeEl.selectionEnd=0;
+  context.deleteLineN(0,true);
+  assert.strictEqual(context.codeEl.value,'L X+0\nEND PGM TEST MM',
+    'gutter deletion can remove the complete BEGIN PGM block');
+
+  context.codeEl.value=structural;
+  context.codeEl.selectionStart=context.codeEl.selectionEnd=0;
+  context.deleteLineN(2,true);
+  assert.strictEqual(context.codeEl.value,'BEGIN PGM TEST MM\nL X+0',
+    'gutter deletion can remove the complete END PGM block');
+}
+
 const logicalEnterSection = appSource.slice(
   appSource.indexOf('var isLogicalEnter'),
   appSource.indexOf('if(isInsertion && isLogicalEnter')
@@ -155,6 +178,14 @@ assert.doesNotMatch(logicalEnterSection, /insertFromPaste|insertFromDrop/,
   'desktop paste/drop is not reclassified as Enter');
 assert.match(appSource, /e\.key==='Enter' && !e\.isComposing && e\.keyCode!==229/,
   'desktop Enter does not steal the IME composition confirmation key');
+assert.match(appSource, /if\(\/\^BEGIN PGM\\b\/\.test\(lt\)\)\{[\s\S]{0,300}codeEl\.focus/,
+  'clicking BEGIN keeps editor focus so Enter reaches logical block insertion');
+const lockedLineSection=appSource.slice(
+  appSource.indexOf('function isLockedLine'),
+  appSource.indexOf('// A Learn answer row stays a row')
+);
+assert.match(lockedLineSection,/type==='begin'[\s\S]*type==='end'/,
+  'BEGIN/END remain protected against native text edits');
 assert.match(appSource, /if\(!touchesLocked\) return;[\s\S]*introducesNewline/,
   'multi-line paste is allowed on ordinary blocks and rejected only when it touches a locked block');
 assert.match(appSource, /before && before\.inputType==='insertText'[\s\S]*actualInserted[\s\S]*editorInsertBlankAfterActiveBlock/,
@@ -169,5 +200,7 @@ for(const [name, source] of [
 }
 assert.match(panelsSource, /analyzeProgramRows\(lines\)/);
 assert.match(panelsSource, /model\.blocks\.length/);
+assert.match(panelsSource, /var deleteBtn=rowBlock\s*\?/,
+  'every logical block, including BEGIN/END, receives a gutter delete button');
 
 console.log('editor-block-model.test.js: web logical blocks and desktop/mobile inputs verified');

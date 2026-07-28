@@ -361,6 +361,8 @@ footer a:hover{text-decoration:underline;}
 .problems-head{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;color:var(--text2);user-select:none;}
 .problems-head .pc-ok{color:var(--accent2);}
 .problems-head .pc-err{color:#ff5d5d;}
+.problems-validator-toggle{margin-left:auto;font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid currentColor;border-radius:4px;background:none;cursor:pointer;color:#ff5d5d;}
+.problems-validator-toggle.off{color:#e8a23a;}
 .problems-list{overflow-y:auto;}
 .problem{display:flex;gap:8px;padding:5px 12px;border-top:1px solid var(--border);cursor:pointer;color:var(--text2);align-items:baseline;}
 .problem:hover{background:var(--surface);}

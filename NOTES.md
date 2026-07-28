@@ -129,7 +129,10 @@ Detailed module-split history is in the archived project notes linked above.
     Enter on `END PGM` remains a no-op. Every programming-key insertion routes
     through `insertProgramBlock()`. On web, never reclassify desktop multi-line
     paste/drop as Enter and never intercept Enter while an IME composition is
-    active.
+    active. `BEGIN PGM` and `END PGM` stay protected against native text edits,
+    but each exposes the gutter `×` and `deleteLineN()` may remove the complete
+    structural block. Their logical Enter behavior remains special (insert
+    after BEGIN, no-op on END).
 
 20. **Learn practice is rendered once in core:** `_learnPracticeHtml()` returns
     `{body, foot}` for every layout; web code may synchronize external editor
@@ -165,6 +168,25 @@ Detailed module-split history is in the archived project notes linked above.
     buttons/pickers. `lineParts()` must calculate field ranges from the final
     postprocessed line; otherwise fixed tokens such as TOOL CALL's inserted
     `Z` shift S/F/DL/DR highlighting away from their real text.
+22. **Web positioning-block M and validator contract:** every implemented
+    positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) accepts at most two
+    syntactically valid `M<number>` functions at its end. The official TNC 640
+    manual permits up to four M functions on a positioning block (page 224);
+    two is our deliberate product limit. Parameters documented for M103, M118,
+    M120, M128, M138, M140 and M197 belong to the preceding M function and
+    must never be parsed as coordinates or positioning feed. Both M fields and
+    rendered tokens remain independently editable; clicking either rendered M
+    routes to the complete guided editor of its positioning block and selects
+    the corresponding M field, never the standalone M panel. Known shared M
+    functions retain their simulator state effects. Other valid standard or
+    machine-specific numbers are preserved and accepted with a warning that
+    their machine effect is not simulated; never invent such behavior.
+    The persisted validator switch defaults ON and exists only in the bottom Problems row
+    when a blocking error is visible. OFF suppresses validator/parser
+    diagnostics and therefore removes Run/Step blocking, but parsing still
+    runs to build the simulation; keep the compact bottom OFF row visible so
+    the user can turn validation back on. Fresh web `TOOL CALL` insertion uses
+    the Android defaults `S10000 F2000`.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

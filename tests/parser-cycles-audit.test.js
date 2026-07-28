@@ -414,12 +414,42 @@ function mustError(body, re, label){
   assert.ok(errors.some(p=>re.test(p.msg)), `${label}: ${JSON.stringify(errors)}`);
 }
 mustError('PLANE RESET', /not supported/, 'validator rejects unsupported PLANE blocks');
-mustError('M6', /Standalone M6 is not supported/, 'validator rejects unsupported standalone M functions');
-mustError('M99', /Standalone M99 is not supported/, 'validator rejects standalone M99 instead of ignoring it');
+{
+  const standaloneM6=H.program('M6');
+  assert.ok(!H.validate(standaloneM6).some(p=>p.sev==='err'),
+    'validator accepts the documented standalone M6 syntax');
+  assert.ok(H.validate(standaloneM6).some(p=>p.sev==='warn'&&/does not perform.*tool change/i.test(p.msg)),
+    'validator discloses that the machine-specific M6 tool change is only partially simulated');
+}
+mustError('M99', /must be programmed at the end of a positioning block/,
+  'validator reports the documented positioning-block requirement for M99');
 mustError('L X+10 Y+0 A+45 F500', /Rotary axes/, 'validator rejects ignored rotary axes');
 mustError('L X+ Y+5 F500', /Malformed/, 'validator rejects incomplete coordinates');
 mustError('L X+10 F0', /Feed must/, 'validator rejects zero feed');
-mustError('L X+10 F500 M3', /not supported inside an L block/, 'validator rejects ignored embedded M functions');
+{
+  const arbitraryInlineM=H.program('TOOL CALL 1 Z S3000 F500\nL X+10 F500 M123 M456');
+  assert.ok(!H.validate(arbitraryInlineM).some(p=>p.sev==='err'),
+    'validator accepts two arbitrary M functions in an L block');
+  const inlineM=H.program('TOOL CALL 1 Z S3000 F500\nL X+10 F500 M3 M8');
+  const parsedInlineM=H.parse(inlineM);
+  const inlineMove=parsedInlineM.sub.find(s=>s.srcLine===4 && !s.isMseg);
+  assert.ok(inlineMove&&inlineMove.spindleOn&&inlineMove.coolantOn,
+    'known start-of-block M3/M8 on an L block affect that move');
+}
+mustError('L X+10 F500 M3 M8 M123', /at most two M functions/i,
+  'validator rejects a third embedded M function');
+{
+  const arbitraryC=H.program('TOOL CALL 1 Z S3000 F500\nL X+25 Y+0 F500\nCC X+0 Y+0\nC X+0 Y+25 DR+ M123 M456');
+  assert.ok(!H.validate(arbitraryC).some(p=>p.sev==='err'),
+    'validator accepts two arbitrary M functions in a C positioning block');
+  const knownC=H.program('TOOL CALL 1 Z S3000 F500\nL X+25 Y+0 F500\nCC X+0 Y+0\nC X+0 Y+25 DR+ M3 M8');
+  const parsedC=H.parse(knownC);
+  const cArc=parsedC.sub.find(s=>s.srcLine===6&&s.rcGeom&&s.rcGeom.kind==='C');
+  assert.ok(cArc&&cArc.spindleOn&&cArc.coolantOn,
+    'known start-of-block M3/M8 on a C block affect that arc');
+}
+mustError('L X+25 Y+0\nCC X+0 Y+0\nC X+0 Y+25 DR+ M3 M8 M123',
+  /at most two M functions/i,'validator rejects a third C-block M function');
 mustError('L X+0 Y+0\nCR X+10 Y+0 R+2 DR+', /geometry is impossible/, 'validator rejects an impossible CR arc');
 mustError('L X+5 Y+0\nCC X+0 Y+0\nC X+10 Y+0 DR+', /not on the circle/, 'validator rejects an off-circle C endpoint');
 mustError('LP PR+10 PA+45', /Polar origin undefined/, 'validator requires CC before LP');

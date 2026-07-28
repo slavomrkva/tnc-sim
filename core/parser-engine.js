@@ -214,6 +214,92 @@ function resolveParserToolCall(n){
   return {requested:n,tool:requested,toolNum:n,replacement:false,locked:true};
 }
 
+// TNC 640 M-function grammar shared by static validation and simulation.
+// The control permits up to four M functions; TNC Sim deliberately exposes
+// two. Parameters belong to the M function that precedes them and therefore
+// stay after the first M token at the end of a positioning block.
+var TNC640_STANDARD_M = {
+  0:1,1:1,2:1,3:1,4:1,5:1,6:1,8:1,9:1,13:1,14:1,30:1,
+  89:1,91:1,92:1,94:1,97:1,98:1,99:1,101:1,102:1,103:1,
+  107:1,108:1,109:1,110:1,111:1,116:1,117:1,118:1,120:1,
+  126:1,127:1,128:1,129:1,130:1,134:1,135:1,136:1,137:1,
+  138:1,140:1,141:1,143:1,144:1,145:1,148:1,149:1,197:1
+};
+var TNC640_FULLY_SIMULATED_M = {
+  0:1,2:1,3:1,4:1,5:1,7:1,8:1,9:1,13:1,14:1,30:1,89:1,99:1
+};
+
+function mFunctionParameterIssue(code, params){
+  var ok=true, msg='';
+  if(code===103){
+    ok=params.length===0 || (params.length===1 && /^F\+?\d+(?:\.\d+)?$/.test(params[0]));
+    msg='M103 accepts an optional F percentage, e.g. M103 F20';
+  } else if(code===118){
+    ok=params.every(function(t){ return /^[XYZABC][+-]?\d+(?:\.\d+)?$/.test(t); });
+    msg='M118 accepts axis values, e.g. M118 X1 Y1 B5';
+  } else if(code===120){
+    ok=params.length===0 || (params.length===1 && /^LA(?:[0-9]|[1-9][0-9])$/.test(params[0]));
+    msg='M120 accepts optional LA0 to LA99';
+  } else if(code===128){
+    ok=params.length===0 || (params.length===1 && /^F\+?\d+(?:\.\d+)?$/.test(params[0]));
+    msg='M128 accepts an optional F value';
+  } else if(code===138){
+    ok=params.every(function(t){ return /^[ABC]$/.test(t); });
+    msg='M138 accepts rotary-axis letters A, B and/or C';
+  } else if(code===140){
+    ok=params.length>=2 && params[0]==='MB' &&
+      (/^(?:MAX|[+-]?\d+(?:\.\d+)?)$/.test(params[1])) &&
+      (params.length===2 || (params.length===3 && /^F\+?\d+(?:\.\d+)?$/.test(params[2])));
+    msg='M140 requires MB plus a distance or MAX, optionally followed by F';
+  } else if(code===197){
+    ok=params.length===1 && /^DL\+?\d+(?:\.\d+)?$/.test(params[0]);
+    msg='M197 requires DL, e.g. M197 DL0.876';
+  } else if(params.length){
+    ok=false;
+    msg='M'+code+' does not use parameters known to the TNC 640 validator';
+  }
+  return ok ? null : msg;
+}
+
+function analyzeMFunctionTail(tokens, firstToken){
+  var result={motionTokens:tokens.slice(),groups:[],codes:[],issues:[],firstM:-1};
+  for(var i=firstToken;i<tokens.length;i++){
+    if(/^M\d+$/.test(tokens[i])){ result.firstM=i; break; }
+  }
+  if(result.firstM<0) return result;
+  result.motionTokens=tokens.slice(0,result.firstM);
+  var group=null;
+  for(var ti=result.firstM;ti<tokens.length;ti++){
+    var tok=tokens[ti];
+    if(/^M\d+$/.test(tok)){
+      group={code:parseInt(tok.slice(1),10),token:tok,params:[]};
+      result.groups.push(group);
+      result.codes.push(tok);
+    } else if(group){
+      group.params.push(tok);
+    }
+  }
+  if(result.groups.length>2)
+    result.issues.push({sev:'err',msg:'Simulator limit: at most two M functions are supported in one block (TNC 640 permits four)'});
+  for(var gi=0;gi<result.groups.length;gi++){
+    var g=result.groups[gi];
+    var paramIssue=mFunctionParameterIssue(g.code,g.params);
+    if(paramIssue){
+      if(!TNC640_STANDARD_M[g.code] && g.params.length)
+        result.issues.push({sev:'warn',msg:'Parameters of machine-specific M'+g.code+' are not validated or simulated'});
+      else
+        result.issues.push({sev:'err',msg:paramIssue});
+    }
+  }
+  return result;
+}
+
+function positioningTextBeforeM(lineText){
+  var tokens=String(lineText||'').trim().split(/\s+/);
+  var analyzed=analyzeMFunctionTail(tokens,1);
+  return analyzed.motionTokens.join(' ');
+}
+
 function validateProgram(code, liveEdit){
   // liveEdit=true suppresses radius-compensation completeness checks (a contour
   // that is still active because R0 has not been typed yet). While editing, an
@@ -234,6 +320,44 @@ function validateProgram(code, liveEdit){
       for(var pi=0;pi<allowed.length;pi++) if(allowed[pi].test(tokens[ti])){accepted=true;break;}
       if(!accepted) probs.push({line:line,sev:'err',msg:'Unsupported token "'+tokens[ti]+'" in this block'});
     }
+  }
+  function validateMTail(mInfo,line,blockKind){
+    for(var ii=0;ii<mInfo.issues.length;ii++)
+      probs.push({line:line,sev:mInfo.issues[ii].sev,msg:mInfo.issues[ii].msg});
+    for(var gi=0;gi<mInfo.groups.length;gi++){
+      var g=mInfo.groups[gi], n=g.code;
+      if((n===89||n===99)&&blockKind==='standalone')
+        probs.push({line:line,sev:'err',msg:'M'+n+' must be programmed at the end of a positioning block'});
+      if((n===89||n===99)&&blockKind!=='standalone'&&!hasCycleDef)
+        probs.push({line:line,sev:'err',msg:'M'+n+' without a defined cycle \u2014 CYCL DEF missing'});
+      if((n===91||n===92||n===130)&&blockKind==='standalone')
+        probs.push({line:line,sev:'err',msg:'M'+n+' is effective only inside a positioning block'});
+      if(n===1)
+        probs.push({line:line,sev:'warn',msg:'M1 is valid, but optional-stop mode is not simulated'});
+      else if(n===6)
+        probs.push({line:line,sev:'warn',msg:'M6 is valid; TNC Sim stops the spindle/program but does not perform a machine-specific tool change'});
+      else if(!TNC640_FULLY_SIMULATED_M[n]){
+        if(TNC640_STANDARD_M[n])
+          probs.push({line:line,sev:'warn',msg:'M'+n+' is valid TNC 640 syntax, but its machine effect is not simulated'});
+        else
+          probs.push({line:line,sev:'warn',msg:'Machine-specific M'+n+' is accepted, but its effect is not simulated'});
+      }
+    }
+  }
+  function validateFirstPositioningMove(line,hasMotion){
+    if(!hasMotion) return;
+    if(!valSpindleOn&&hasToolCall&&firstMoveLine<0)
+      probs.push({line:line,sev:'warn',msg:'Spindle? \u2014 M3/M4 not programmed before first cutting move'});
+    if(!hasToolCall)
+      probs.push({line:line,sev:'warn',msg:'No tool active \u2014 TOOL CALL missing before this move'});
+  }
+  function applyValidatorMStart(codes){
+    if(codes.some(function(m){ return /^(?:M3|M4|M13|M14)$/.test(m); }))
+      valSpindleOn=true;
+  }
+  function applyValidatorMEnd(codes){
+    if(codes.some(function(m){ return /^(?:M0|M2|M5|M6|M30)$/.test(m); }))
+      valSpindleOn=false;
   }
   if(lines.length > 2000)
     probs.push({line:2000,sev:'err',msg:'Program exceeds 2000 lines ('+lines.length+' lines) \u2014 simulator limit'});
@@ -534,13 +658,17 @@ function validateProgram(code, liveEdit){
 
     // ── C arc ──
     } else if(/^C(\s|$)/.test(u)){
-      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      var _cMInfo=analyzeMFunctionTail(toks,1), _cMotionTokens=_cMInfo.motionTokens;
+      var _cMotion=_cMotionTokens.join(' '), _cEmbeddedMs=_cMInfo.codes;
+      validateMTail(_cMInfo,srcI,'positioning');
+      rejectUnknownTokens(_cMotionTokens,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      applyValidatorMStart(_cEmbeddedMs);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Circle center undefined \u2014 program CC first'});
-      if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
-      if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
+      if(_cMotion.indexOf('DR+')<0&&_cMotion.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
+      if(/\bRL\b/.test(_cMotion)||/\bRR\b/.test(_cMotion))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
       pendingCC=false; lastRcWasArc=true;
-      var _cex=u.match(/X([+-]?\d+\.?\d*)/), _cey=u.match(/Y([+-]?\d+\.?\d*)/);
+      var _cex=_cMotion.match(/X([+-]?\d+\.?\d*)/), _cey=_cMotion.match(/Y([+-]?\d+\.?\d*)/);
       if(!_cex&&!_cey) probs.push({line:srcI,sev:'err',msg:'C block has no end point'});
       var _cEndX=_cex?parseFloat(_cex[1]):valLastX, _cEndY=_cey?parseFloat(_cey[1]):valLastY;
       if(valLastX!==null&&valLastY!==null&&valCCX!==null&&valCCY!==null&&_cEndX!==null&&_cEndY!==null){
@@ -550,18 +678,24 @@ function validateProgram(code, liveEdit){
           probs.push({line:srcI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC'});
       }
       if(_cEndX!==null) valLastX=_cEndX; if(_cEndY!==null) valLastY=_cEndY;
+      validateFirstPositioningMove(srcI,!!(_cex||_cey));
+      applyValidatorMEnd(_cEmbeddedMs);
       valHasXYTangent=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── CR ──
     } else if(toks[0]==='CR'){
-      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^R[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
-      if(!/(?:^|\s)R[+-]?\d/.test(u)) probs.push({line:srcI,sev:'err',msg:'Circle radius R missing'});
-      if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
-      if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
+      var _crMInfo=analyzeMFunctionTail(toks,1), _crMotionTokens=_crMInfo.motionTokens;
+      var _crMotion=_crMotionTokens.join(' '), _crEmbeddedMs=_crMInfo.codes;
+      validateMTail(_crMInfo,srcI,'positioning');
+      rejectUnknownTokens(_crMotionTokens,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^R[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      applyValidatorMStart(_crEmbeddedMs);
+      if(!/(?:^|\s)R[+-]?\d/.test(_crMotion)) probs.push({line:srcI,sev:'err',msg:'Circle radius R missing'});
+      if(_crMotion.indexOf('DR+')<0&&_crMotion.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
+      if(/\bRL\b/.test(_crMotion)||/\bRR\b/.test(_crMotion))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
-      var _crRm=u.match(/(?:^|\s)R[+-]?(\d+\.?\d*)/);
-      var _crex=u.match(/X([+-]?\d+\.?\d*)/), _crey=u.match(/Y([+-]?\d+\.?\d*)/);
+      var _crRm=_crMotion.match(/(?:^|\s)R[+-]?(\d+\.?\d*)/);
+      var _crex=_crMotion.match(/X([+-]?\d+\.?\d*)/), _crey=_crMotion.match(/Y([+-]?\d+\.?\d*)/);
       if(!_crex&&!_crey) probs.push({line:srcI,sev:'err',msg:'CR block has no end point'});
       var _crEndX=_crex?parseFloat(_crex[1]):valLastX, _crEndY=_crey?parseFloat(_crey[1]):valLastY;
       if(_crRm&&valLastX!==null&&valLastY!==null&&_crEndX!==null&&_crEndY!==null){
@@ -570,31 +704,43 @@ function validateProgram(code, liveEdit){
           probs.push({line:srcI,sev:'err',msg:'CR geometry is impossible \u2014 end-point chord must be greater than 0 and no longer than 2R'});
       }
       if(_crEndX!==null) valLastX=_crEndX; if(_crEndY!==null) valLastY=_crEndY;
+      validateFirstPositioningMove(srcI,!!(_crex||_crey));
+      applyValidatorMEnd(_crEmbeddedMs);
       valHasXYTangent=true;
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── CT ──
     } else if(toks[0]==='CT'){
-      rejectUnknownTokens(toks,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
-      if(!/X[+-]?\d/.test(u)&&!/Y[+-]?\d/.test(u))
+      var _ctMInfo=analyzeMFunctionTail(toks,1), _ctMotionTokens=_ctMInfo.motionTokens;
+      var _ctMotion=_ctMotionTokens.join(' '), _ctEmbeddedMs=_ctMInfo.codes;
+      validateMTail(_ctMInfo,srcI,'positioning');
+      rejectUnknownTokens(_ctMotionTokens,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      applyValidatorMStart(_ctEmbeddedMs);
+      if(!/X[+-]?\d/.test(_ctMotion)&&!/Y[+-]?\d/.test(_ctMotion))
         probs.push({line:srcI,sev:'warn',msg:'CT block without end point'});
-      if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
+      if(/\bRL\b/.test(_ctMotion)||/\bRR\b/.test(_ctMotion))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. may not begin on an arc \u2014 activate RL/RR on an L block'});
       if(!valHasXYTangent) probs.push({line:srcI,sev:'err',msg:'CT requires a preceding XY contour move to define the tangent'});
-      var _ctex=u.match(/X([+-]?\d+\.?\d*)/), _ctey=u.match(/Y([+-]?\d+\.?\d*)/);
+      var _ctex=_ctMotion.match(/X([+-]?\d+\.?\d*)/), _ctey=_ctMotion.match(/Y([+-]?\d+\.?\d*)/);
       if(_ctex) valLastX=parseFloat(_ctex[1]); if(_ctey) valLastY=parseFloat(_ctey[1]);
+      validateFirstPositioningMove(srcI,!!(_ctex||_ctey));
+      applyValidatorMEnd(_ctEmbeddedMs);
       valHasXYTangent=true;
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── LP / CP ──
     } else if(toks[0]==='LP'){
-      rejectUnknownTokens(toks,1,[/^PR[+-]?\d+(?:\.\d+)?$/, /^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/],srcI);
+      var _lpMInfo=analyzeMFunctionTail(toks,1), _lpMotionTokens=_lpMInfo.motionTokens;
+      var _lpMotion=_lpMotionTokens.join(' '), _lpEmbeddedMs=_lpMInfo.codes;
+      validateMTail(_lpMInfo,srcI,'positioning');
+      rejectUnknownTokens(_lpMotionTokens,1,[/^PR[+-]?\d+(?:\.\d+)?$/, /^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/],srcI);
+      applyValidatorMStart(_lpEmbeddedMs);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before LP'});
-      var _vpr=u.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
-      var _vpa=u.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
-      var _vipa=u.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      var _vpr=_lpMotion.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+      var _vpa=_lpMotion.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var _vipa=_lpMotion.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
       if(_vpa&&_vipa) probs.push({line:srcI,sev:'err',msg:'LP may contain PA or IPA, not both'});
       if(!_vpr&&!_vpa&&!_vipa) probs.push({line:srcI,sev:'err',msg:'LP block has no polar end point'});
       if(valCCX!==null&&valCCY!==null){
@@ -612,23 +758,27 @@ function validateProgram(code, liveEdit){
         }
       }
       if(_vpr&&parseFloat(_vpr[1])<0) probs.push({line:srcI,sev:'err',msg:'Polar radius PR must not be negative'});
-      if(/\bM(?:89|99)\b/.test(u)&&!hasCycleDef)
-        probs.push({line:srcI,sev:'err',msg:(u.match(/\bM(?:89|99)\b/)||['M99'])[0]+' without a defined cycle \u2014 CYCL DEF missing'});
+      validateFirstPositioningMove(srcI,!!(_vpr||_vpa||_vipa));
+      applyValidatorMEnd(_lpEmbeddedMs);
       if(firstMoveLine<0) firstMoveLine=srcI;
     } else if(toks[0]==='CP'){
-      rejectUnknownTokens(toks,1,[/^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^I?Z[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      var _cpMInfo=analyzeMFunctionTail(toks,1), _cpMotionTokens=_cpMInfo.motionTokens;
+      var _cpMotion=_cpMotionTokens.join(' '), _cpEmbeddedMs=_cpMInfo.codes;
+      validateMTail(_cpMInfo,srcI,'positioning');
+      rejectUnknownTokens(_cpMotionTokens,1,[/^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^I?Z[+-]?\d+(?:\.\d+)?$/, /^DR[+-]$/, /^F\+?\d+(?:\.\d+)?$/, /^(?:RL|RR|R0)$/],srcI);
+      applyValidatorMStart(_cpEmbeddedMs);
       if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar origin undefined \u2014 program CC before CP'});
-      var _vcpa=u.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/), _vcipa=u.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      var _vcpa=_cpMotion.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/), _vcipa=_cpMotion.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
       if(!_vcpa&&!_vcipa) probs.push({line:srcI,sev:'err',msg:'Polar angle PA or IPA missing'});
       if(_vcpa&&_vcipa) probs.push({line:srcI,sev:'err',msg:'CP may contain PA or IPA, not both'});
-      if(u.indexOf('DR+')<0&&u.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
+      if(_cpMotion.indexOf('DR+')<0&&_cpMotion.indexOf('DR-')<0) probs.push({line:srcI,sev:'err',msg:'Rotation direction DR missing'});
       if(_vcipa){
         var _vcipaNum=parseFloat(_vcipa[1]);
-        var _vcDr=u.indexOf('DR-')>=0?-1:1;
+        var _vcDr=_cpMotion.indexOf('DR-')>=0?-1:1;
         if(Math.abs(_vcipaNum)<1e-12) probs.push({line:srcI,sev:'err',msg:'Incremental polar angle IPA must be non-zero'});
         else if(_vcipaNum*_vcDr<0) probs.push({line:srcI,sev:'err',msg:'For incremental CP, IPA and DR must have the same sign'});
       }
-      if(/\bRL\b/.test(u)||/\bRR\b/.test(u))
+      if(/\bRL\b/.test(_cpMotion)||/\bRR\b/.test(_cpMotion))
         probs.push({line:srcI,sev:'err',msg:'Radius comp. not permitted on a CP block'});
       if(valCCX!==null&&valCCY!==null&&valLastX!==null&&valLastY!==null&&(_vcpa||_vcipa)){
         var _vcR=Math.hypot(valLastX-valCCX,valLastY-valCCY);
@@ -638,69 +788,70 @@ function validateProgram(code, liveEdit){
         valLastY=valCCY+_vcR*Math.sin(_vcA1);
         valHasXYTangent=true;
       }
-      var _vcpiz=u.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _vcpz=u.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+      var _vcpiz=_cpMotion.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _vcpz=_cpMotion.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
       if(_vcpiz) valZ=(valZ===null?0:valZ)+parseFloat(_vcpiz[1]);
       else if(_vcpz) valZ=parseFloat(_vcpz[1]);
+      validateFirstPositioningMove(srcI,!!(_vcpa||_vcipa||_vcpiz||_vcpz));
+      applyValidatorMEnd(_cpEmbeddedMs);
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
 
     // ── L ──
     } else if(toks[0]==='L'){
-      var hasAxis=/I?[XYZ][+-]?\d/.test(u);
-      var hasF=/\bF/.test(u);
       var _li=srcI;
-      if(/(?:^|\s)I?[ABC](?=[+\-\d\s]|$)/.test(u))
-        probs.push({line:srcI,sev:'err',msg:'Rotary axes A/B/C are not supported by the simulator'});
       var _lTokens=u.split(/\s+/);
-      rejectUnknownTokens(_lTokens,1,[/^I?[XYZ][+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^M(?:89|99)$/, /^I?[ABC].*$/],srcI);
-      for(var _lti=1;_lti<_lTokens.length;_lti++){
-        var _lt=_lTokens[_lti];
+      var _lMInfo=analyzeMFunctionTail(_lTokens,1), _lMotionTokens=_lMInfo.motionTokens;
+      var _lMotion=_lMotionTokens.join(' '), _embeddedMs=_lMInfo.codes;
+      validateMTail(_lMInfo,srcI,'positioning');
+      var hasAxis=/I?[XYZ][+-]?\d/.test(_lMotion);
+      var hasF=/\bF/.test(_lMotion);
+      if(/(?:^|\s)I?[ABC](?=[+\-\d\s]|$)/.test(_lMotion))
+        probs.push({line:srcI,sev:'err',msg:'Rotary axes A/B/C are not supported by the simulator'});
+      rejectUnknownTokens(_lMotionTokens,1,[/^I?[XYZ][+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/, /^I?[ABC].*$/],srcI);
+      for(var _lti=1;_lti<_lMotionTokens.length;_lti++){
+        var _lt=_lMotionTokens[_lti];
         if(/^I?[XYZABC]/.test(_lt)&&!/^I?[XYZ][+-]?\d+(?:\.\d+)?$/.test(_lt))
           probs.push({line:srcI,sev:'err',msg:'Malformed or unsupported coordinate token "'+_lt+'"'});
       }
       var _feedToken=null;
-      for(var _fti=1;_fti<_lTokens.length;_fti++) if(/^F/.test(_lTokens[_fti])) _feedToken=_lTokens[_fti];
+      for(var _fti=1;_fti<_lMotionTokens.length;_fti++) if(/^F/.test(_lMotionTokens[_fti])) _feedToken=_lMotionTokens[_fti];
       if(_feedToken&&_feedToken!=='FMAX'&&_feedToken!=='FAUTO'){
         var _feedStrict=_feedToken.match(/^F\+?(\d+(?:\.\d+)?)$/);
         if(!_feedStrict||parseFloat(_feedStrict[1])<=0) probs.push({line:srcI,sev:'err',msg:'Feed must be FMAX, FAUTO, or a number greater than 0'});
       }
-      var _embeddedMs=u.match(/(?:^|\s)M\d+/g)||[];
-      for(var _emi=0;_emi<_embeddedMs.length;_emi++){
-        var _em=parseInt(_embeddedMs[_emi].match(/M(\d+)/)[1]);
-        if(_em!==89&&_em!==99) probs.push({line:srcI,sev:'err',msg:'M'+_em+' is not supported inside an L block'});
-        else if(!hasCycleDef) probs.push({line:srcI,sev:'err',msg:'M'+_em+' without a defined cycle \u2014 CYCL DEF missing'});
-      }
+      // Known start-of-block spindle functions affect this positioning move.
+      // Other M numbers are intentionally accepted without inventing
+      // machine-specific simulation semantics for them.
+      applyValidatorMStart(_embeddedMs);
       // Z depth vs LCUTS check
-      var _zm2=u.match(/\bZ([+-]?\d+\.?\d*)/);
+      var _zm2=_lMotion.match(/\bZ([+-]?\d+\.?\d*)/);
       if(_zm2){ var _nz=parseFloat(_zm2[1]); if(valSurfZ!==null && _nz<valSurfZ) valZ=_nz; }
       if(!hasAxis&&!hasF)
         probs.push({line:srcI,sev:'warn',msg:'Empty L block \u2014 program X, Y, Z or F'});
-      if(/\bFMAX\b/.test(u)&&(valRcState==='RL'||valRcState==='RR')&&!/\bR0\b/.test(u))
+      if(/\bFMAX\b/.test(_lMotion)&&(valRcState==='RL'||valRcState==='RR')&&!/\bR0\b/.test(_lMotion))
         probs.push({line:srcI,sev:'warn',msg:'FMAX with active radius comp. \u2014 program a feed rate for cutting'});
       // Coordinate sign check (X0 instead of X+0)
-      if(/[XYZ]\d/.test(u)&&!/[XYZ][+-]/.test(u))
+      if(/[XYZ]\d/.test(_lMotion)&&!/[XYZ][+-]/.test(_lMotion))
         probs.push({line:srcI,sev:'warn',msg:'Sign missing \u2014 write X+0, not X0 (TNC format)'});
-      // Check for spindle on before first move
-      if(!valSpindleOn&&hasAxis&&hasToolCall&&firstMoveLine<0)
-        probs.push({line:srcI,sev:'warn',msg:'Spindle? \u2014 M3/M4 not programmed before first cutting move'});
-      if(!hasToolCall)
-        probs.push({line:srcI,sev:'warn',msg:'No tool active \u2014 TOOL CALL missing before this move'});
+      validateFirstPositioningMove(srcI,hasAxis);
+      // M5 takes effect at the end of the block, after the move above.
+      applyValidatorMEnd(_embeddedMs);
       // RL/RR tracking
-      if(/\bRL\b/.test(u)){
+      if(/\bRL\b/.test(_lMotion)){
         if(valRcState==='RR') probs.push({line:srcI,sev:'err',msg:'Change of radius comp. RR \u2192 RL \u2014 cancel with R0 first'});
         valRcState='RL'; valRcLine=srcI; lastRcWasArc=false;
-      } else if(/\bRR\b/.test(u)){
+      } else if(/\bRR\b/.test(_lMotion)){
         if(valRcState==='RL') probs.push({line:srcI,sev:'err',msg:'Change of radius comp. RL \u2192 RR \u2014 cancel with R0 first'});
         valRcState='RR'; valRcLine=srcI; lastRcWasArc=false;
-      } else if(/\bR0\b/.test(u)){
+      } else if(/\bR0\b/.test(_lMotion)){
         valRcState=''; valRcLine=-1;
       }
       // Zero-XY-displacement check while comp is active — a pure Z (plunge) move
       // under RL/RR has no lateral edge to offset against. This used to freeze
       // the simulator (infinite loop in applyRadiusComp/offsetRun); that's now
       // fixed defensively, but it's still not valid Heidenhain practice, so flag it.
-      var _isIX4=/(?:^|\s)IX/.test(u), _isIY4=/(?:^|\s)IY/.test(u);
-      var _xm4=u.match(/(?:^|\s)I?X([+-]?\d+\.?\d*)/), _ym4=u.match(/(?:^|\s)I?Y([+-]?\d+\.?\d*)/);
+      var _isIX4=/(?:^|\s)IX/.test(_lMotion), _isIY4=/(?:^|\s)IY/.test(_lMotion);
+      var _xm4=_lMotion.match(/(?:^|\s)I?X([+-]?\d+\.?\d*)/), _ym4=_lMotion.match(/(?:^|\s)I?Y([+-]?\d+\.?\d*)/);
       var _oldVX4=valLastX, _oldVY4=valLastY;
       var _newVX4 = _xm4 ? (_isIX4 && valLastX!==null ? valLastX+parseFloat(_xm4[1]) : parseFloat(_xm4[1])) : valLastX;
       var _newVY4 = _ym4 ? (_isIY4 && valLastY!==null ? valLastY+parseFloat(_ym4[1]) : parseFloat(_ym4[1])) : valLastY;
@@ -711,11 +862,11 @@ function validateProgram(code, liveEdit){
           probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' on a pure Z move \u2014 comp needs XY motion'});
       }
       valLastX=_newVX4; valLastY=_newVY4;
-      if(!isNaN(parseFloat((u.match(/\bF\+?(\d+\.?\d*)/)||[])[1]))) {
-        var _fv=parseFloat((u.match(/\bF\+?(\d+\.?\d*)/)||[0,0])[1]);
+      if(!isNaN(parseFloat((_lMotion.match(/\bF\+?(\d+\.?\d*)/)||[])[1]))) {
+        var _fv=parseFloat((_lMotion.match(/\bF\+?(\d+\.?\d*)/)||[0,0])[1]);
         if(_fv>100000) probs.push({line:srcI,sev:'warn',msg:'Feed rate F'+_fv+' exceeds 100000 mm/min'});
       }
-      var _coords=(u.matchAll?Array.from(u.matchAll(/[XYZ]([+-]?\d+\.?\d*)/g)):(function(){var r=[],m,re=/[XYZ]([+-]?\d+\.?\d*)/g;while((m=re.exec(u)))r.push(m);return r;})());
+      var _coords=(_lMotion.matchAll?Array.from(_lMotion.matchAll(/[XYZ]([+-]?\d+\.?\d*)/g)):(function(){var r=[],m,re=/[XYZ]([+-]?\d+\.?\d*)/g;while((m=re.exec(_lMotion)))r.push(m);return r;})());
       _coords.forEach(function(mc){var v=parseFloat(mc[1]);if(Math.abs(v)>10000) probs.push({line:srcI,sev:'warn',msg:'Coordinate '+mc[0]+' exceeds \xb110000 mm limit'});});
       if(firstMoveLine<0) firstMoveLine=srcI;
 
@@ -781,12 +932,10 @@ function validateProgram(code, liveEdit){
 
     // ── M functions ──
     } else if(/^M\d+/.test(u)){
-      var mnum=parseInt(u.match(/^M(\d+)/)[1]);
-      var _supportedStandaloneM=[0,2,3,4,5,7,8,9,13,14,30];
-      if(!/^M\d+\s*$/.test(u)) probs.push({line:srcI,sev:'err',msg:'Unsupported tokens after standalone M function'});
-      if(_supportedStandaloneM.indexOf(mnum)<0) probs.push({line:srcI,sev:'err',msg:'Standalone M'+mnum+' is not supported by the simulator'});
-      if(mnum===3||mnum===4||mnum===13||mnum===14) valSpindleOn=true;
-      if(mnum===5) valSpindleOn=false;
+      var _standaloneMInfo=analyzeMFunctionTail(toks,0);
+      validateMTail(_standaloneMInfo,srcI,'standalone');
+      applyValidatorMStart(_standaloneMInfo.codes);
+      applyValidatorMEnd(_standaloneMInfo.codes);
 
     // ── LBL / CALL LBL ──
     } else if(toks[0]==='LBL'||u.indexOf('CALL LBL')===0){
@@ -882,6 +1031,49 @@ function parseProgram(code){
   var sub = [];
   var blockIndex = 0;
   var startSet = false;
+
+  function embeddedMCodes(lineText){
+    return (String(lineText||'').match(/\bM\d+\b/g)||[]).map(function(m){ return m.toUpperCase(); });
+  }
+
+  function applyKnownMStart(codes){
+    for(var msi=0;msi<codes.length;msi++){
+      if(codes[msi]==='M3'||codes[msi]==='M13'){ spindleOn=true; spindleDir=1; }
+      else if(codes[msi]==='M4'||codes[msi]==='M14'){ spindleOn=true; spindleDir=-1; }
+      if(codes[msi]==='M7'||codes[msi]==='M8'||codes[msi]==='M13'||codes[msi]==='M14')
+        coolantOn=true;
+    }
+  }
+
+  function applyKnownMEnd(codes){
+    for(var mei=0;mei<codes.length;mei++){
+      if(codes[mei]==='M0'||codes[mei]==='M2'||codes[mei]==='M30'){
+        spindleOn=false; spindleDir=0; coolantOn=false;
+      }
+      else if(codes[mei]==='M5'||codes[mei]==='M6'){ spindleOn=false; spindleDir=0; }
+      else if(codes[mei]==='M9') coolantOn=false;
+    }
+  }
+
+  function cycleCallForMCodes(codes){
+    var hasM89=codes.indexOf('M89')>=0, hasM99=codes.indexOf('M99')>=0;
+    if(hasM89) modalCycleCall=true;
+    var callCycle=hasM89||hasM99||modalCycleCall;
+    if(hasM99) modalCycleCall=false;
+    return callCycle;
+  }
+
+  function finishMControlBlock(codes,srcLine){
+    var stop=codes.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); });
+    if(stop){
+      sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
+        rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLine,
+        rc:'',spindleOn:spindleOn,spindleDir:spindleDir,coolantOn:coolantOn,
+        toolNum:toolNum,isMseg:true,stop:true});
+      blockIndex++;
+    }
+    return codes.indexOf('M2')>=0||codes.indexOf('M30')>=0;
+  }
 
   // first pass for BLK FORM so start Z is correct
   for(var p=0;p<lines.length;p++){
@@ -1511,10 +1703,12 @@ function parseProgram(code){
     // contour's first cutting move that omits F would run at rapid instead of
     // the last programmed / FAUTO feed. Preserve and restore it around the loop.
     var _modalFeed=feed;
+    var _lastPendingMove=pendingMoves.length ? pendingMoves[pendingMoves.length-1] : null;
     for(var mi=0;mi<pendingMoves.length;mi++){
       var mv=pendingMoves[mi];
       feed=mv.feed; blockIndex=mv.blockIdx;
       if(typeof mv.spindleOn !== 'undefined') spindleOn=mv.spindleOn;
+      if(typeof mv.spindleDir !== 'undefined') spindleDir=mv.spindleDir;
       if(mv.spindleS && mv.spindleS > 0) spindleS=mv.spindleS;
       if(typeof mv.coolantOn !== 'undefined') coolantOn=mv.coolantOn;
       var mod=mv.modifier;
@@ -1580,6 +1774,13 @@ function parseProgram(code){
       nextMv.from = {x:p2.x, y:p2.y, z:p2.z};
     }
     pendingMoves=[];
+    // Pending contour rendering temporarily restores each block's start state.
+    // Continue parsing with the state after the final block's end-effective M.
+    if(_lastPendingMove){
+      if(typeof _lastPendingMove.spindleAfter!=='undefined') spindleOn=_lastPendingMove.spindleAfter;
+      if(typeof _lastPendingMove.spindleDirAfter!=='undefined') spindleDir=_lastPendingMove.spindleDirAfter;
+      if(typeof _lastPendingMove.coolantAfter!=='undefined') coolantOn=_lastPendingMove.coolantAfter;
+    }
     feed=_modalFeed; // restore modal feed (see note at top of flushPending)
   }
 
@@ -1616,7 +1817,8 @@ function parseProgram(code){
     if(/^CYCL\s+DEF\s+(200|201|208|209)\b/.test(line)) inCycleParamBlock = true;
     else if(!(inCycleParamBlock && _isQParamLine)) inCycleParamBlock = false;
 
-    var fm = line.match(/\bF\+?(\d+\.?\d*)/);
+    var _positioningCore=positioningTextBeforeM(line);
+    var fm = _positioningCore.match(/\bF\+?(\d+\.?\d*)/);
     if(fm) feed = parseFloat(fm[1]);
 
     if(line.indexOf('BLK FORM')===0){ continue; }
@@ -1649,12 +1851,14 @@ function parseProgram(code){
     }
     else if(line.indexOf('CYCL DEF 200')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      modalCycleCall=false; // a new CYCL DEF cancels modal M89
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       activeCycle={type:200, Q200:+(qm[200]!==undefined?qm[200]:2), Q201:+(qm[201]!==undefined?qm[201]:-20), Q206:+(qm[206]!==undefined?qm[206]:150), Q202:+(qm[202]!==undefined?qm[202]:0), Q210:+(qm[210]!==undefined?qm[210]:0), Q203:+(qm[203]!==undefined?qm[203]:0), Q204:+(qm[204]!==undefined?qm[204]:50), Q211:+(qm[211]!==undefined?qm[211]:0), Q395:+(qm[395]!==undefined?qm[395]:0)};
     }
     else if(line.indexOf('CYCL DEF 201')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      modalCycleCall=false;
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       // Zero is a valid Q value (NOTES rule #2): keep an explicit 0 for depth,
@@ -1663,6 +1867,7 @@ function parseProgram(code){
     }
     else if(line.indexOf('CYCL DEF 209')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      modalCycleCall=false;
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
       // Q256/Q257 defaults MUST use !==undefined (not ||): an explicit 0 is
@@ -1673,6 +1878,7 @@ function parseProgram(code){
     }
     else if(line.indexOf('CYCL DEF 208')===0){
       flushPending(); // execute any pending M99 with the CURRENT cycle before replacing it
+      modalCycleCall=false;
       // parse Q params
       var qm={}; var qr=line.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/g);
       if(qr) qr.forEach(function(q){ var m=q.match(/Q(\d+)\s*=?\s*([+-]?\d+\.?\d*)/); if(m) qm[m[1]]=pFloat(m[2]); });
@@ -1685,6 +1891,7 @@ function parseProgram(code){
       // real behavior would differ — do NOT keep the previous cycle armed,
       // otherwise a later M99/CYCL CALL would silently run the WRONG cycle.
       flushPending();
+      modalCycleCall=false;
       activeCycle = null;
       var _unsup = line.match(/^CYCL\s+DEF\s+(\d+)/);
       pushParseProblem(parseProblems, {line:srcLineI, sev:'warn', msg:'CYCL DEF '+_unsup[1]+' is not supported by the simulator — cycle ignored (supported: 200, 201, 208, 209)'});
@@ -1739,16 +1946,21 @@ function parseProgram(code){
         TOOL_R = tObj.R + _drTabR + curDRpgm;
       }
     }
-    else if(/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); spindleOn=true; spindleDir=/^M14\b/.test(line)?-1:1; coolantOn=true; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,spindleDir:spindleDir,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
-        else if(/^M3\b/.test(line)||/^M4\b/.test(line)){ flushPending(); spindleOn=true; spindleDir=/^M4\b/.test(line)?-1:1; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:true,spindleDir:spindleDir,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
-    else if(/^M5\b/.test(line)){ flushPending(); spindleOn=false; spindleDir=0; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:false,spindleDir:0,coolantOn:coolantOn,toolNum:toolNum,isMseg:true}); blockIndex++; }
-    else if(/^M7\b/.test(line)||/^M8\b/.test(line)||/^M13\b/.test(line)||/^M14\b/.test(line)){ flushPending(); coolantOn=true;  sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:spindleOn,coolantOn:true,toolNum:toolNum,isMseg:true}); blockIndex++; }
-    else if(/^M9\b/.test(line)){ flushPending(); coolantOn=false; sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,rc:'',spindleOn:spindleOn,coolantOn:false,toolNum:toolNum,isMseg:true}); blockIndex++; }
-    else if(/^M0\b/.test(line)||/^M2\b/.test(line)||/^M30\b/.test(line)){
+    else if(/^M\d+\b/.test(line)){
       flushPending();
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:blockIndex, srcLine:srcLineI, rc:'', stop:true});
-      blockIndex++;
-      if(/^M30\b/.test(line)) break; // end of program
+      var _standaloneInfo=analyzeMFunctionTail(line.split(/\s+/),0);
+      var _standaloneCodes=_standaloneInfo.codes;
+      applyKnownMStart(_standaloneCodes);
+      applyKnownMEnd(_standaloneCodes);
+      var _standaloneStops=_standaloneCodes.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); });
+      if(!_standaloneStops && _standaloneCodes.some(function(m){ return /^(?:M3|M4|M5|M7|M8|M9|M13|M14)$/.test(m); })){
+        sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
+          rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,
+          rc:'',spindleOn:spindleOn,spindleDir:spindleDir,coolantOn:coolantOn,
+          toolNum:toolNum,isMseg:true});
+        blockIndex++;
+      }
+      if(finishMControlBlock(_standaloneCodes,srcLineI)) break;
     }
     else if(line.indexOf('CC')===0){
       var cix=line.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), ciy=line.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
@@ -1762,16 +1974,22 @@ function parseProgram(code){
     else if(/^C(\s|$)/.test(line)){
       flushPending();
       blockIndex++;
-      var ex=line.match(/X([+-]?\d+\.?\d*)/), ey=line.match(/Y([+-]?\d+\.?\d*)/);
+      var _mCodesC=embeddedMCodes(line);
+      applyKnownMStart(_mCodesC);
+      var _callCycleC=cycleCallForMCodes(_mCodesC);
+      var _cCore=positioningTextBeforeM(line);
+      var ex=_cCore.match(/X([+-]?\d+\.?\d*)/), ey=_cCore.match(/Y([+-]?\d+\.?\d*)/);
       var endX = ex ? parseFloat(ex[1]) : pos.x;
       var endY = ey ? parseFloat(ey[1]) : pos.y;
-      var dr = line.indexOf('DR-')>=0 ? -1 : 1;
-      if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      var dr = _cCore.indexOf('DR-')>=0 ? -1 : 1;
+      if(/\bRL\b/.test(_cCore)) rcState='RL'; else if(/\bRR\b/.test(_cCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_cCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      var _cArcMade=false;
       if(ccx!==null && ccy!==null){
         var R = Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
         var _cEndRadius=Math.sqrt((endX-ccx)*(endX-ccx)+(endY-ccy)*(endY-ccy));
         if(R<1e-9||Math.abs(R-_cEndRadius)>1e-4){
           pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC \u2014 arc rejected'});
+          applyKnownMEnd(_mCodesC);
           continue;
         }
         var cFrom=pointCopy(pos);
@@ -1782,16 +2000,23 @@ function parseProgram(code){
         else { sweep = a1-a0; while(sweep>=-1e-4) sweep -= 2*Math.PI; }
         var cTo={x:endX,y:endY,z:cFrom.z};
         pushContourArc(arcGeom(cFrom,cTo,ccx,ccy,R,a0,sweep,srcLineI,'C'),false,srcLineI,rcState,Math.PI/32);
+        _cArcMade=true;
       } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Circle center undefined \u2014 C block rejected'});
+      if(_cArcMade&&_callCycleC&&activeCycle) executeCycle(activeCycle,srcLineI,rcState);
+      applyKnownMEnd(_mCodesC);
+      if(finishMControlBlock(_mCodesC,srcLineI)) break;
     }
     else if(line.indexOf('LP')===0){
       // LP PR+30 PA+45 / LP IPA+60 — linear polar move. Omitted
       // coordinates retain the current polar radius/angle, as on TNC 640.
       blockIndex++;
-      var pr=line.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
-      var pa=line.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
-      var ipa=line.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
-      var fm=line.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
+      var _lpCore=positioningTextBeforeM(line), _mCodesLP=embeddedMCodes(line);
+      applyKnownMStart(_mCodesLP);
+      var _callCycleLP=cycleCallForMCodes(_mCodesLP);
+      var pr=_lpCore.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+      var pa=_lpCore.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var ipa=_lpCore.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      var fm=_lpCore.match(/\bF\+?(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]);
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 LP block rejected'});
       if((pr||pa||ipa) && ccx!==null && ccy!==null){
         var curRad=Math.hypot(pos.x-ccx,pos.y-ccy);
@@ -1803,28 +2028,36 @@ function parseProgram(code){
           continue;
         }
         var tx=ccx+rad*Math.cos(ang), ty=ccy+rad*Math.sin(ang);
-        if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
-        var _m99LP=/\bM99\b/.test(line), _m89LP=/\bM89\b/.test(line);
-        if(_m89LP) modalCycleCall=true;
-        var hasM99lp=_m99LP||_m89LP||modalCycleCall;
-        if(_m99LP) modalCycleCall=false;
+        if(/\bRL\b/.test(_lpCore)) rcState='RL'; else if(/\bRR\b/.test(_lpCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_lpCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
         if(!isNaN(feed)&&feed<9000) lastDefinedFeed=feed;
-        pendingMoves.push({from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:tx,y:ty,z:pos.z}, rapid:line.indexOf('FMAX')>=0, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, m99:hasM99lp});
+        var _pendingLP={from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:tx,y:ty,z:pos.z}, rapid:_lpCore.indexOf('FMAX')>=0, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn,spindleDir:spindleDir, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, m99:_callCycleLP,mCodes:_mCodesLP.slice()};
+        pendingMoves.push(_pendingLP);
         pos={x:tx,y:ty,z:pos.z};
+        applyKnownMEnd(_mCodesLP);
+        _pendingLP.spindleAfter=spindleOn;
+        _pendingLP.spindleDirAfter=spindleDir;
+        _pendingLP.coolantAfter=coolantOn;
+        if(_mCodesLP.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); })){
+          flushPending();
+          if(finishMControlBlock(_mCodesLP,srcLineI)) break;
+        }
       }
     }
     else if(line.indexOf('CP')===0){
       // CP PA+180 or CP IPA+360 IZ+5 — polar arc / helix
       flushPending();
       blockIndex++;
-      var pa2=line.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
-      var ipa2=line.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
-      var cpiz=line.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/);
-      var cpz=line.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
-      var fm2=line.match(/\bF\+?(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
-      var dr2=line.indexOf('DR-')>=0 ? -1 : 1;
+      var _cpCore=positioningTextBeforeM(line), _mCodesCP=embeddedMCodes(line);
+      applyKnownMStart(_mCodesCP);
+      var _callCycleCP=cycleCallForMCodes(_mCodesCP), _cpArcMade=false;
+      var pa2=_cpCore.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+      var ipa2=_cpCore.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+      var cpiz=_cpCore.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/);
+      var cpz=_cpCore.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+      var fm2=_cpCore.match(/\bF\+?(\d+\.?\d*)/); if(fm2) feed=parseFloat(fm2[1]);
+      var dr2=_cpCore.indexOf('DR-')>=0 ? -1 : 1;
       if(ccx===null||ccy===null) pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'Polar origin undefined \u2014 CP block rejected'});
-      if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      if(/\bRL\b/.test(_cpCore)) rcState='RL'; else if(/\bRR\b/.test(_cpCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_cpCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       if((pa2||ipa2) && ccx!==null && ccy!==null){
         var a0cp=Math.atan2(pos.y-ccy, pos.x-ccx);
         var Rcp=Math.sqrt((pos.x-ccx)*(pos.x-ccx)+(pos.y-ccy)*(pos.y-ccy));
@@ -1844,21 +2077,28 @@ function parseProgram(code){
         var cpEndZ=cpiz?cpFrom.z+parseFloat(cpiz[1]):(cpz?parseFloat(cpz[1]):cpFrom.z);
         var cpTo={x:ccx+Rcp*Math.cos(a1cp),y:ccy+Rcp*Math.sin(a1cp),z:cpEndZ};
         pushContourArc(arcGeom(cpFrom,cpTo,ccx,ccy,Rcp,a0cp,sw,srcLineI,'CP'),false,srcLineI,rcState,Math.PI/32);
+        _cpArcMade=true;
       }
+      if(_cpArcMade&&_callCycleCP&&activeCycle) executeCycle(activeCycle,srcLineI,rcState);
+      applyKnownMEnd(_mCodesCP);
+      if(finishMControlBlock(_mCodesCP,srcLineI)) break;
     }
     else if(/^CR(\s|$)/.test(line)){
       // CR — arc defined by radius and direction
       flushPending();
       blockIndex++;
-      var ex=line.match(/X([+-]?\d+\.?\d*)/), ey=line.match(/Y([+-]?\d+\.?\d*)/);
+      var _crCore=positioningTextBeforeM(line), _mCodesCR=embeddedMCodes(line);
+      applyKnownMStart(_mCodesCR);
+      var _callCycleCR=cycleCallForMCodes(_mCodesCR), _crArcMade=false;
+      var ex=_crCore.match(/X([+-]?\d+\.?\d*)/), ey=_crCore.match(/Y([+-]?\d+\.?\d*)/);
       // Heidenhain CR: the SIGN of R selects the arc — R+ = arc <= 180deg,
       // R- = arc > 180deg; DR+/- selects the rotation direction.
-      var rm=line.match(/(?:^|\s)R([+\-]?)(\d+\.?\d*)/);
+      var rm=_crCore.match(/(?:^|\s)R([+\-]?)(\d+\.?\d*)/);
       var endX = ex ? parseFloat(ex[1]) : pos.x;
       var endY = ey ? parseFloat(ey[1]) : pos.y;
-      var dr = line.indexOf('DR-')>=0 ? -1 : 1;
-      if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
-      if(line.indexOf('FMAX')>=0){ feed=9999; } else { var fm=line.match(/\bF(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]); }
+      var dr = _crCore.indexOf('DR-')>=0 ? -1 : 1;
+      if(/\bRL\b/.test(_crCore)) rcState='RL'; else if(/\bRR\b/.test(_crCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_crCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      if(_crCore.indexOf('FMAX')>=0){ feed=9999; } else { var fm=_crCore.match(/\bF(\d+\.?\d*)/); if(fm) feed=parseFloat(fm[1]); }
       if(rm){
         var R = parseFloat(rm[2]);
         var signR = (rm[1]==='-') ? -1 : 1; // R- selects the major (>180deg) arc
@@ -1882,18 +2122,25 @@ function parseProgram(code){
           else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
           var crTo={x:endX,y:endY,z:crFrom.z};
           pushContourArc(arcGeom(crFrom,crTo,cx2,cy2,R,a0,sweep,srcLineI,'CR'),false,srcLineI,rcState,Math.PI/32);
+          _crArcMade=true;
         } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR geometry is impossible \u2014 arc rejected'});
       } else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CR radius R is missing \u2014 arc rejected'});
+      if(_crArcMade&&_callCycleCR&&activeCycle) executeCycle(activeCycle,srcLineI,rcState);
+      applyKnownMEnd(_mCodesCR);
+      if(finishMControlBlock(_mCodesCR,srcLineI)) break;
     }
     else if(/^CT(\s|$)/.test(line)){
       // CT — tangential arc (tangent to previous move)
       flushPending();
       blockIndex++;
-      var ex=line.match(/X([+-]?\d+\.?\d*)/), ey=line.match(/Y([+-]?\d+\.?\d*)/);
+      var _ctCore=positioningTextBeforeM(line), _mCodesCT=embeddedMCodes(line);
+      applyKnownMStart(_mCodesCT);
+      var _callCycleCT=cycleCallForMCodes(_mCodesCT), _ctArcMade=false;
+      var ex=_ctCore.match(/X([+-]?\d+\.?\d*)/), ey=_ctCore.match(/Y([+-]?\d+\.?\d*)/);
       var endX = ex ? parseFloat(ex[1]) : pos.x;
       var endY = ey ? parseFloat(ey[1]) : pos.y;
-      if(line.indexOf('FMAX')>=0){ feed=9999; } else { var fmct=line.match(/\bF(\d+\.?\d*)/); if(fmct) feed=parseFloat(fmct[1]); }
-      if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      if(_ctCore.indexOf('FMAX')>=0){ feed=9999; } else { var fmct=_ctCore.match(/\bF(\d+\.?\d*)/); if(fmct) feed=parseFloat(fmct[1]); }
+      if(/\bRL\b/.test(_ctCore)) rcState='RL'; else if(/\bRR\b/.test(_ctCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_ctCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       // compute tangent from the last segment that actually moved in XY —
       // a preceding Z-only plunge or retract must not reset the tangent
       var tanX=0, tanY=1, _hasTangent=false;
@@ -1924,37 +2171,51 @@ function parseProgram(code){
         else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
         var ctTo={x:endX,y:endY,z:ctFrom.z};
         pushContourArc(arcGeom(ctFrom,ctTo,cx2,cy2,R,a0,sweep,srcLineI,'CT'),false,srcLineI,rcState,Math.PI/32);
+        _ctArcMade=true;
       } else {
         pushContourLine({x:endX,y:endY,z:pos.z},false,srcLineI,rcState,false,'CT-L');
+        _ctArcMade=true;
       }
+      if(_ctArcMade&&_callCycleCT&&activeCycle) executeCycle(activeCycle,srcLineI,rcState);
+      applyKnownMEnd(_mCodesCT);
+      if(finishMControlBlock(_mCodesCT,srcLineI)) break;
     }
     else if(line.indexOf('L ')===0 || line==='L'){
       blockIndex++;
+      var _mCodesL=embeddedMCodes(line);
+      applyKnownMStart(_mCodesL);
+      var _lCore=positioningTextBeforeM(line);
       var _priorRcL=rcState;
-      if(/\bRL\b/.test(line)) rcState='RL'; else if(/\bRR\b/.test(line)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(line)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
-      var lx=line.match(/IX([+-]?\d+\.?\d*)/), ly=line.match(/IY([+-]?\d+\.?\d*)/), lz=line.match(/IZ([+-]?\d+\.?\d*)/);
+      if(/\bRL\b/.test(_lCore)) rcState='RL'; else if(/\bRR\b/.test(_lCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_lCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
+      var lx=_lCore.match(/IX([+-]?\d+\.?\d*)/), ly=_lCore.match(/IY([+-]?\d+\.?\d*)/), lz=_lCore.match(/IZ([+-]?\d+\.?\d*)/);
       // NOTE: no lookbehind here — (?<!...) is a SyntaxError on iOS Safari <16.4
       // and kills the WHOLE script at load. (?:^|[^I]) is equivalent for our lines.
-      var lxa=line.match(/(?:^|[^I])X([+-]?\d+\.?\d*)/), lya=line.match(/(?:^|[^I])Y([+-]?\d+\.?\d*)/), lza=line.match(/(?:^|[^I])Z([+-]?\d+\.?\d*)/);
+      var lxa=_lCore.match(/(?:^|[^I])X([+-]?\d+\.?\d*)/), lya=_lCore.match(/(?:^|[^I])Y([+-]?\d+\.?\d*)/), lza=_lCore.match(/(?:^|[^I])Z([+-]?\d+\.?\d*)/);
       var target = {
         x: lx ? pos.x+parseFloat(lx[1]) : (lxa ? parseFloat(lxa[1]) : pos.x),
         y: ly ? pos.y+parseFloat(ly[1]) : (lya ? parseFloat(lya[1]) : pos.y),
         z: lz ? pos.z+parseFloat(lz[1]) : (lza ? parseFloat(lza[1]) : pos.z)
       };
-      var _m99L=/\bM99\b/.test(line), _m89L=/\bM89\b/.test(line);
-      if(_m89L) modalCycleCall=true;                 // arm modal call (applies from this block on)
-      var hasM99=_m99L||_m89L||modalCycleCall;       // call cycle after this positioning block?
-      if(_m99L) modalCycleCall=false;                // M99 calls once more and cancels modality
-      var isFmax = line.indexOf('FMAX')>=0;
+      var hasM99=cycleCallForMCodes(_mCodesL);
+      var isFmax = _lCore.indexOf('FMAX')>=0;
       // FAUTO on an ordinary positioning block selects the feed programmed by
       // the current TOOL CALL, including its decimal part.
-      if(/\bFAUTO\b/.test(line)) feed=toolCallFeed;
+      if(/\bFAUTO\b/.test(_lCore)) feed=toolCallFeed;
       // FMAX is non-persistent: only applies to this block, feed reverts after
       if(isFmax){ var _prevFeed=feed; feed=9999; }
       if(!isNaN(feed) && feed<9000) lastDefinedFeed=feed;
-      pendingMoves.push({from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:target.x,y:target.y,z:target.z}, rapid:isFmax, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, rcActivation:(rcState==='RL'||rcState==='RR')&&rcState!==_priorRcL, m99:hasM99});
+      var _pendingL={from:{x:pos.x,y:pos.y,z:pos.z}, target:{x:target.x,y:target.y,z:target.z}, rapid:isFmax, srcLine:srcLineI, rc:rcState, feed:feed, spindleOn:spindleOn, spindleDir:spindleDir, spindleS:spindleS, coolantOn:coolantOn, blockIdx:blockIndex, modifier:null, rcActivation:(rcState==='RL'||rcState==='RR')&&rcState!==_priorRcL, m99:hasM99, mCodes:_mCodesL.slice()};
+      pendingMoves.push(_pendingL);
+      applyKnownMEnd(_mCodesL);
+      _pendingL.spindleAfter=spindleOn;
+      _pendingL.spindleDirAfter=spindleDir;
+      _pendingL.coolantAfter=coolantOn;
       if(isFmax) feed=_prevFeed; // restore feed after FMAX block
       pos = {x:target.x,y:target.y,z:target.z}; // track pos for incremental coords
+      if(_mCodesL.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); })){
+        flushPending();
+        if(finishMControlBlock(_mCodesL,srcLineI)) break;
+      }
     }
     else if(line.indexOf('RND')===0){
       var rm=line.match(/R(\d+\.?\d*)/);
