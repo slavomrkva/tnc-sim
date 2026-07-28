@@ -7,6 +7,16 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.922 — 2026-07-28 — import and parser robustness audit
+
+- Made repeated spaces and tabs insignificant in parser, validator, BLK FORM
+  pre-scan and LBL expansion, preventing accepted imports from starting at a
+  fallback blank position.
+- Normalized Unicode BOM and mixed CRLF/CR line endings on import and in direct
+  parser input.
+- Added deterministic metamorphic/fuzz coverage and advanced the offline cache
+  to v82.
+
 ## v0.921 — 2026-07-28 — official-program compatibility audit
 
 - Normalized the documented two-token positioning feed `F AUTO` for all

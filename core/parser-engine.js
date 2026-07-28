@@ -12,7 +12,7 @@ function expandLblLines(lines, issues){
   }
 
   for(var li=0;li<lines.length;li++){
-    var lu2=lines[li].trim().replace(/;.*$/,'').trim().toUpperCase();
+    var lu2=normalizeNcBlockWhitespace(lines[li].trim().replace(/;.*$/,'').trim().toUpperCase());
     if(/^LBL\s+0(?:\s|$)/.test(lu2)){
       if(openLabels.length) openLabels.pop();
     } else if(/^LBL\s+\d+/.test(lu2)){
@@ -59,7 +59,7 @@ function expandLblLines(lines, issues){
   }
 
   function processEntry(entry,outputSrcLine,depth){
-    var lu3=entry.text.trim().replace(/;.*$/,'').trim().toUpperCase();
+    var lu3=normalizeNcBlockWhitespace(entry.text.trim().replace(/;.*$/,'').trim().toUpperCase());
     if(/^LBL\s/.test(lu3)) return true;
     if(/^CALL LBL/.test(lu3)){
       var cm2=lu3.match(/^CALL LBL\s+(\d+)(?:\s+REP\s*([+-]?\d+))?\s*$/);
@@ -360,6 +360,13 @@ function normalizePositioningFeedText(lineText){
   return String(lineText||'').replace(/\bF\s+AUTO\b/gi,'FAUTO');
 }
 
+function normalizeNcBlockWhitespace(lineText){
+  // Whitespace separates words in Klartext blocks; repeated spaces or tabs
+  // do not change their meaning. Normalize outside comments before matching
+  // multi-word commands such as BEGIN PGM, TOOL CALL, BLK FORM and CYCL DEF.
+  return String(lineText||'').replace(/^\uFEFF/,'').replace(/[ \t]+/g,' ').trim();
+}
+
 function cycleAutoFeedParameter(cycleNum,qName){
   return (cycleNum===200||cycleNum===201||cycleNum===208) && qName==='Q206';
 }
@@ -552,7 +559,7 @@ function validateProgram(code, liveEdit){
   // unreachable and missing labels were silently expanded to nothing.
   var definedLbls={}, duplicateLbls={};
   for(var _li2=0;_li2<lines.length;_li2++){
-    var _lu=lines[_li2].trim().toUpperCase().replace(/;.*$/,'').trim();
+    var _lu=normalizeNcBlockWhitespace(lines[_li2].trim().toUpperCase().replace(/;.*$/,'').trim());
     var _lm=_lu.match(/^LBL\s+(\d+)\s*$/);
     if(/^LBL\b/.test(_lu)&&!_lm)
       probs.push({line:_li2,sev:'err',msg:'Faulty block \u2014 expected: LBL <0..65535>'});
@@ -569,7 +576,7 @@ function validateProgram(code, liveEdit){
     }
   }
   for(var _li3=0;_li3<lines.length;_li3++){
-    var _callU=lines[_li3].trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim();
+    var _callU=normalizeNcBlockWhitespace(lines[_li3].trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim());
     var _callM=_callU.match(/^CALL\s+LBL\s+(\d+)(?:\s+REP\s*([+-]?\d+))?\s*$/);
     if(/^CALL\s+LBL\b/.test(_callU) && !_callM)
       probs.push({line:_li3,sev:'err',msg:'Faulty block \u2014 expected: CALL LBL <no.> [REP <count>]'});
@@ -588,7 +595,7 @@ function validateProgram(code, liveEdit){
   // diagnostic, which is never an acceptable simulation result.
   var _meaningful=[];
   for(var _si=0;_si<expandedVal.length;_si++){
-    var _su=expandedVal[_si].text.trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim();
+    var _su=normalizeNcBlockWhitespace(expandedVal[_si].text.trim().toUpperCase().replace(/^[ \t]*\d+[ \t]+/,'').replace(/;.*$/,'').trim());
     if(_su) _meaningful.push({u:_su,line:expandedVal[_si].srcLine});
   }
   for(var _sj=0;_sj<_meaningful.length;_sj++){
@@ -604,7 +611,7 @@ function validateProgram(code, liveEdit){
     var raw=expandedVal[i].text.trim();
     var srcI=expandedVal[i].srcLine;
     var u = (!raw||raw.charAt(0)===';') ? '' :
-      raw.toUpperCase().replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'').split(';')[0].trim();
+      normalizeNcBlockWhitespace(raw.toUpperCase().replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'').split(';')[0]);
     if(valInCycle&&!/^Q\d+/.test(u)) finishCycleValidation();
     if(!u) continue;
 
@@ -1233,7 +1240,7 @@ function parseProgram(code){
 
   // first pass for BLK FORM so start Z is correct
   for(var p=0;p<lines.length;p++){
-    var lu = lines[p].trim().replace(/;.*$/,'').trim().toUpperCase();
+    var lu = normalizeNcBlockWhitespace(lines[p].trim().replace(/;.*$/,'').trim().toUpperCase());
     if(lu.indexOf('BLK FORM CYLINDER')===0){
       hasBlkDefinition = true;
       // CYL: 0.1 has center X Y and Z min; 0.2 has radius (X=Y=R) and Z max
@@ -1257,12 +1264,12 @@ function parseProgram(code){
   }
   // For CYLINDER: reconstruct bounding box from center+radius
   for(var p=0;p<lines.length;p++){
-    var lu2 = lines[p].trim().replace(/;.*$/,'').trim().toUpperCase();
+    var lu2 = normalizeNcBlockWhitespace(lines[p].trim().replace(/;.*$/,'').trim().toUpperCase());
     if(lu2.indexOf('BLK FORM CYLINDER')===0){
       var cxm=lu2.match(/X([+-]?\d+\.?\d*)/),cym=lu2.match(/Y([+-]?\d+\.?\d*)/),czm=lu2.match(/Z([+-]?\d+\.?\d*)/);
       var cylCx=cxm?parseFloat(cxm[1]):50, cylCy=cym?parseFloat(cym[1]):50, cylZ0=czm?parseFloat(czm[1]):0;
       for(var p2=p+1;p2<lines.length&&p2<p+3;p2++){
-        var lu3=lines[p2].trim().replace(/;.*$/,'').trim().toUpperCase();
+        var lu3=normalizeNcBlockWhitespace(lines[p2].trim().replace(/;.*$/,'').trim().toUpperCase());
         if(lu3.indexOf('BLK FORM 0.2')===0){
           var rx=lu3.match(/X([+-]?\d+\.?\d*)/),rz=lu3.match(/Z([+-]?\d+\.?\d*)/);
           var rad=rx?Math.abs(parseFloat(rx[1])):50;
@@ -1947,6 +1954,7 @@ function parseProgram(code){
       .replace(/^[ \t]*\d+[ \t]+(?=[A-Z;*])/,'') // tolerate PASTED machine code with block numbers ("12 TOOL CALL 5") — file import strips them too
       .replace(/(\d),(?=\d)/g,'$1.') // Heidenhain decimal comma -> dot (Q1+0,5774, X+10,5); MUST happen before any regex/eval below
       .trim();
+    line = normalizeNcBlockWhitespace(line);
     if(/^(L|C|CR|CT|LP|CP)\b/.test(line)) line = normalizePositioningFeedText(line);
     if(!line || line.charAt(0)===';'){
       inCycleParamBlock = false;

@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.922
+- Imported programs tolerate repeated spaces/tabs, Unicode BOMs and mixed line
+  endings without changing validation, blank geometry or the simulated path.
+
 ## v0.921
 - Official HEIDENHAIN programs using `F AUTO`, Cycle 200/201/208
   `Q206=AUTO`, compact `REP6`, program-section repeats and nested label

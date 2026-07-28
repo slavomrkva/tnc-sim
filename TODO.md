@@ -6,6 +6,19 @@
 
 ## Open work
 
+- **C47-C48 — Import whitespace and Unicode normalization (implemented,
+  awaiting acceptance).**
+  The pre-production metamorphic audit found that repeated spaces/tabs were
+  accepted by validation after command normalization, but the parser's
+  separate BLK FORM pre-scan still missed the blank. Simulation therefore
+  began at the fallback home position even though the remaining path looked
+  valid. Direct/imported input could also retain a leading Unicode BOM or
+  mixed CRLF/CR endings and fail structural recognition. Web 0.922 now applies
+  the same whitespace normalization to validator, label expansion, BLK FORM
+  pre-scan and motion parsing, strips BOMs, and normalizes imported line
+  endings. Deterministic tests cover nine equivalent spellings and 200 seeded
+  programs. Keep open until the release candidate is accepted.
+
 - **C39-C46 — Official HEIDENHAIN import compatibility (implemented,
   awaiting acceptance).**
   The 2026-07-28 Android pre-publish audit confirmed the same shared-core

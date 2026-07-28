@@ -749,7 +749,10 @@ function onImportFile(e){
       // commands to start the line, so strip the embedded numbers on import.
       // Continuation lines of a multi-line block (no leading number in the
       // source either) are left untouched.
-      codeEl.value = String(ev.target.result).split('\n')
+      codeEl.value = String(ev.target.result)
+        .replace(/^\uFEFF/, '')         // UTF-8/UTF-16 editors may expose a BOM as text
+        .replace(/\r\n?/g, '\n')       // keep one internal line-ending convention
+        .split('\n')
         .map(function(l){ return l.replace(/^[ \t]*\d+[ \t]+/, ''); })
         .join('\n');
       syncEditorSelection(0,0);

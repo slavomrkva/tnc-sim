@@ -196,6 +196,11 @@ Detailed module-split history is in the archived project notes linked above.
     runs to build the simulation; keep the compact bottom OFF row visible so
     the user can turn validation back on. Fresh web `TOOL CALL` insertion uses
     the Android defaults `S10000 F2000`.
+23. **NC transport formatting is not program semantics:** repeated spaces and
+    tabs outside comments, a leading Unicode BOM, and CRLF/CR versus LF line
+    endings must not change validation, BLK FORM geometry, LBL expansion or
+    the generated toolpath. File import normalizes these before editing;
+    direct pasted/parser input remains tolerant as well.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and

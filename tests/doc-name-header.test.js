@@ -65,12 +65,15 @@ assert.strictEqual(ctx._docName, 'Complete Part', 'Reset restores the starter de
 
 // Import a file named mypart.H whose body still says BEGIN PGM PROGRAM.
 ctx.FileReader = function () {
-  this.readAsText = function () { this.onload({ target: { result: 'BEGIN PGM PROGRAM MM\n12 L X+0\nEND PGM PROGRAM MM' } }); };
+  this.readAsText = function () { this.onload({ target: { result: '\uFEFFBEGIN PGM PROGRAM MM\r\n12 L X+0\rEND PGM PROGRAM MM' } }); };
 };
 ctx.__ev = { target: { files: [{ name: 'mypart.H' }], value: '' } };
 vm.runInContext('onImportFile(__ev);', ctx);
 assert.strictEqual(ctx._docName, 'mypart.H', 'import shows the imported filename, not BEGIN PGM');
 assert.strictEqual(ctx._currentDemoIdx, -1, 'an imported file is not a demo');
+assert.strictEqual(codeEl.value, 'BEGIN PGM PROGRAM MM\nL X+0\nEND PGM PROGRAM MM',
+  'import removes a Unicode BOM, normalizes CRLF/CR and strips embedded block numbers');
+assert.strictEqual(ctx.__ev.target.value, '', 'import resets the file input after reading');
 
 vm.runInContext('exportProgram();', ctx);
 assert.strictEqual(ctx.__dl, 'mypart.H', 'export round-trips the imported .H filename');
