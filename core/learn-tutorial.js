@@ -600,7 +600,7 @@ function learnSvgDrawing(){
 }
 
 function learnSvgPartProfile(){
-  function X(v){ return 55 + v*2.2; }
+  function X(v){ return 70 + v*2.2; }
   function Y(v){ return 250 - v*2.2; }
   function dimH(x1,x2,y,txt,ty){
     return '<line x1="'+X(x1)+'" y1="'+y+'" x2="'+X(x2)+'" y2="'+y+'" stroke="#f0a94a" stroke-width="0.8"/>'
@@ -619,7 +619,7 @@ function learnSvgPartProfile(){
   var g = '';
   // blank 100x100 (dashed)
   g += '<rect x="'+X(0)+'" y="'+Y(100)+'" width="'+(100*2.2)+'" height="'+(100*2.2)+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 3"/>';
-  g += '<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="3.5" fill="#f0a94a"/><text x="'+(X(0)+8)+'" y="'+(Y(0)-5)+'" text-anchor="start" font-family="monospace" font-size="9" fill="#f0a94a">datum 0,0</text>';
+  g += '<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="3.5" fill="#f0a94a"/><text x="'+(X(0)-8)+'" y="'+(Y(0)+13)+'" text-anchor="end" font-family="monospace" font-size="9" fill="#f0a94a">datum 0,0</text>';
   // profile 90x90: R15 top-left (convex, sweep=1), 15x45 chamfer bottom-right
   var p = 'M '+X(5)+' '+Y(5)
         + ' L '+X(5)+' '+Y(80)

@@ -66,8 +66,8 @@ for(const opening of svgOpenings){
     `Learn diagram needs a meaningful source-level aria-label: ${opening}`);
 }
 const profileSvg = context.learnSvgPartProfile();
-assert.match(profileSvg, /x="63"[^>]*text-anchor="start"[^>]*>datum 0,0</,
-  'Lesson 15 datum label sits inside the SVG instead of extending past its left edge');
+assert.match(profileSvg, /<circle cx="70" cy="250"[^>]*>[\s\S]*?<text x="62" y="263"[^>]*text-anchor="end"[^>]*>datum 0,0</,
+  'Lesson 15 datum label sits below and to the left of its reference point without extending past the SVG edge');
 const tappingSvg = context.learnSvgThreadCycle();
 assert.match(tappingSvg, /Q256[\s\S]*0\.5 x pitch back/,
   'Cycle 209 diagram explains that Q256 is a factor of pitch');
