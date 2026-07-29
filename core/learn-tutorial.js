@@ -330,18 +330,33 @@ function learnSvgSlotWidth(){
 }
 
 function learnSvgArcCRCompare(){
-  return '<svg class="learn-svg" viewBox="0 0 340 205" role="img">'
-    + '<text x="80" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">R+  short arc ≤180°</text>'
-    + '<path d="M28 115 A52 52 0 0 1 132 115" fill="none" stroke="var(--accent)" stroke-width="3"/>'
-    + '<path d="M77 66 l10 3 l-7 7" fill="none" stroke="var(--accent)" stroke-width="1.8"/>'
-    + '<circle cx="28" cy="115" r="4" fill="#f0a94a"/><circle cx="132" cy="115" r="4" fill="#5dcaa5"/>'
-    + '<line x1="80" y1="115" x2="117" y2="78" stroke="#f0a94a" stroke-dasharray="4 3"/>'
-    + '<text x="93" y="91" font-family="monospace" font-size="11" fill="#f0a94a">R+15</text>'
-    + '<text x="250" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="#5dcaa5">R−  long arc &gt;180°</text>'
-    + '<path d="M198 115 A52 52 0 1 0 302 115" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
-    + '<path d="M253 166 l-10 -3 l7 -7" fill="none" stroke="#5dcaa5" stroke-width="1.8"/>'
-    + '<circle cx="198" cy="115" r="4" fill="#f0a94a"/><circle cx="302" cy="115" r="4" fill="#5dcaa5"/>'
-    + '<text x="170" y="195" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">same start and end · radius sign chooses short or long way</text>'
+  return '<svg class="learn-svg" viewBox="0 0 340 184" role="img">'
+    + '<rect x="5" y="6" width="162" height="172" rx="9" fill="rgba(93,202,165,.08)" stroke="#5dcaa5"/>'
+    + '<text x="86" y="23" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#5dcaa5">R−15 · DR−</text>'
+    + '<path d="M77.3 30.8 A50 50 0 0 1 94.7 30.8" fill="none" stroke="#5dcaa5" stroke-width="2" stroke-linecap="round"/>'
+    + '<path d="M0 -2.8 L6.5 0 L0 2.8 Z" transform="translate(94.7 30.8) rotate(10)" fill="#5dcaa5"/>'
+    + '<path d="M36 91 A50 50 0 0 1 136 91" fill="none" stroke="#5dcaa5" stroke-width="3" stroke-linecap="round"/>'
+    + '<circle cx="36" cy="91" r="6" fill="var(--bg)" stroke="#f0a94a" stroke-width="2"/>'
+    + '<text x="36" y="94" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#f0a94a">1</text>'
+    + '<circle cx="136" cy="91" r="6" fill="var(--bg)" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<text x="136" y="94" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#5dcaa5">2</text>'
+    + '<rect x="13" y="113" width="146" height="27" rx="7" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="86" y="130" text-anchor="middle" font-family="monospace" font-size="8.4" font-weight="700" fill="#f0a94a">1 · L X+0 Y+0</text>'
+    + '<rect x="13" y="147" width="146" height="27" rx="7" fill="rgba(93,202,165,.08)" stroke="#5dcaa5"/>'
+    + '<text x="86" y="164" text-anchor="middle" font-family="monospace" font-size="7.4" font-weight="700" fill="#5dcaa5">2 · CR X+30 Y+0 R-15 DR-</text>'
+    + '<rect x="173" y="6" width="162" height="172" rx="9" fill="rgba(74,158,255,.08)" stroke="var(--accent)"/>'
+    + '<text x="254" y="23" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="var(--accent)">R+15 · DR+</text>'
+    + '<path d="M262.7 30.8 A50 50 0 0 0 245.3 30.8" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>'
+    + '<path d="M0 -2.8 L6.5 0 L0 2.8 Z" transform="translate(245.3 30.8) rotate(170)" fill="var(--accent)"/>'
+    + '<path d="M204 91 A50 50 0 0 1 304 91" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>'
+    + '<circle cx="204" cy="91" r="6" fill="var(--bg)" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<text x="204" y="94" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#5dcaa5">2</text>'
+    + '<circle cx="304" cy="91" r="6" fill="var(--bg)" stroke="#f0a94a" stroke-width="2"/>'
+    + '<text x="304" y="94" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#f0a94a">1</text>'
+    + '<rect x="181" y="113" width="146" height="27" rx="7" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="254" y="130" text-anchor="middle" font-family="monospace" font-size="8.4" font-weight="700" fill="#f0a94a">1 · L X+0 Y+0</text>'
+    + '<rect x="181" y="147" width="146" height="27" rx="7" fill="rgba(93,202,165,.08)" stroke="#5dcaa5"/>'
+    + '<text x="254" y="164" text-anchor="middle" font-family="monospace" font-size="7.4" font-weight="700" fill="#5dcaa5">2 · CR X-30 Y+0 R+15 DR+</text>'
     + '</svg>';
 }
 
@@ -442,18 +457,19 @@ function learnSvgThreadCycle(){
 }
 
 function learnSvgLblFlow(){
-  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
-    + '<rect x="20" y="28" width="138" height="105" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
-    + '<text x="89" y="48" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">LBL 1 … LBL 0</text>'
-    + '<text x="34" y="70" font-family="monospace" font-size="10.5" fill="var(--text)">X30 Y30 M99</text>'
-    + '<text x="34" y="88" font-family="monospace" font-size="10.5" fill="var(--text)">X70 Y30 M99</text>'
-    + '<text x="34" y="116" font-family="monospace" font-size="10.5" fill="var(--text3)">1  runs where written</text>'
-    + '<rect x="198" y="28" width="122" height="66" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
-    + '<text x="259" y="54" text-anchor="middle" font-family="monospace" font-size="12" fill="#f0a94a">CALL LBL 1</text>'
-    + '<text x="259" y="76" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">2 · runs body again</text>'
-    + '<path d="M259 96 C259 155 105 165 89 136" fill="none" stroke="#f0a94a" stroke-width="2"/>'
-    + '<path d="M83 145 L89 133 L96 144" fill="#f0a94a"/>'
-    + '<text x="170" y="181" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">active tool/cycle changes · stored XY stays</text>'
+  return '<svg class="learn-svg" viewBox="0 0 340 210" role="img">'
+    + '<rect x="12" y="20" width="194" height="132" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
+    + '<text x="26" y="44" font-family="monospace" font-size="11" font-weight="700" fill="var(--accent)">LBL 1</text>'
+    + '<text x="26" y="69" font-family="monospace" font-size="10.5" fill="var(--text)">L X+30 Y+30 FMAX M99</text>'
+    + '<text x="26" y="92" font-family="monospace" font-size="10.5" fill="var(--text)">L X+70 Y+30 FMAX M99</text>'
+    + '<text x="26" y="117" font-family="monospace" font-size="11" font-weight="700" fill="var(--accent)">LBL 0</text>'
+    + '<text x="26" y="140" font-family="monospace" font-size="9.5" fill="var(--text3)">1 · runs where written</text>'
+    + '<rect x="218" y="32" width="110" height="66" rx="8" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="273" y="58" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#f0a94a">CALL LBL 1</text>'
+    + '<text x="273" y="80" text-anchor="middle" font-family="monospace" font-size="8.5" fill="var(--text3)">2 · runs body again</text>'
+    + '<path d="M273 102 C273 169 124 183 113 157" fill="none" stroke="#f0a94a" stroke-width="2"/>'
+    + '<path d="M106 167 L113 154 L121 166" fill="#f0a94a"/>'
+    + '<text x="170" y="202" text-anchor="middle" font-family="monospace" font-size="9.7" fill="var(--text3)">active tool/cycle changes · stored XY stays</text>'
     + '</svg>';
 }
 
@@ -667,18 +683,19 @@ function learnSvgBoltCircle(){
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="22" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="'+(cx+7)+'" y="25" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
-    + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<text x="'+(cx-58)+'" y="'+(cy+30)+'" font-family="monospace" font-size="11" fill="var(--accent)">CC X+50 Y+40</text>';
+    + '<line x1="'+cx+'" y1="'+(cy+4)+'" x2="'+cx+'" y2="178" stroke="var(--accent)" stroke-width="1.2"/>';
   // radius lines to each hole; PR label on the first
-  [[p0,'PA+0',10,20],[p120,'PA+120',-72,-10],[p240,'PA+240',-76,18]].forEach(function(h){
+  [[p0,'PA+0','1',10,20],[p120,'PA+120','2',-72,-10],[p240,'PA+240','3',-76,18]].forEach(function(h){
     g += '<line x1="'+cx+'" y1="'+cy+'" x2="'+h[0][0]+'" y2="'+h[0][1]+'" stroke="#5dcaa5" stroke-width="1.2" stroke-dasharray="2 3"/>'
-      + '<circle cx="'+h[0][0]+'" cy="'+h[0][1]+'" r="5" fill="none" stroke="var(--text)" stroke-width="1.6"/>'
-      + '<text x="'+(parseFloat(h[0][0])+h[2])+'" y="'+(parseFloat(h[0][1])+h[3])+'" font-family="monospace" font-size="10.5" fill="#f0a94a">'+h[1]+'</text>';
+      + '<circle cx="'+h[0][0]+'" cy="'+h[0][1]+'" r="6" fill="var(--bg)" stroke="var(--text)" stroke-width="1.6"/>'
+      + '<text x="'+h[0][0]+'" y="'+(parseFloat(h[0][1])+3)+'" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="var(--text)">'+h[2]+'</text>'
+      + '<text x="'+(parseFloat(h[0][0])+h[3])+'" y="'+(parseFloat(h[0][1])+h[4])+'" font-family="monospace" font-size="10.5" fill="#f0a94a">'+h[1]+'</text>';
   });
-  g += '<text x="'+(cx+16)+'" y="'+(cy-10)+'" font-family="monospace" font-size="11" fill="#5dcaa5" transform="rotate(0)">PR+25</text>';
-  g = g.replace('<text x="'+(cx+16)+'" y="'+(cy-10)+'"', '<text x="'+(cx+14)+'" y="'+(cy-8)+'"');
-  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'+g
-    + '<text x="20" y="192" font-family="monospace" font-size="9.5" fill="var(--text3)">same Polar Radius, Polar Angle stepped by 120\u00b0</text>'
+  g += '<text x="'+(cx+14)+'" y="'+(cy-8)+'" font-family="monospace" font-size="11" fill="#5dcaa5">PR+25</text>';
+  return '<svg class="learn-svg" viewBox="0 0 340 222" role="img">'+g
+    + '<rect x="83" y="179" width="134" height="28" rx="7" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
+    + '<text x="150" y="197" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="var(--accent)">CC X+50 Y+40</text>'
+    + '<text x="170" y="218" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">same Polar Radius · Polar Angle stepped by 120\u00b0</text>'
     + '</svg>';
 }
 
@@ -702,20 +719,29 @@ function learnSvgCounterbore(){
 }
 
 function learnSvgArcCC(){
-  var cx=120, cy=120, R=60;
-  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'
+  var cx=170, cy=108, R=60;
+  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img">'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
-    + '<circle cx="'+cx+'" cy="'+cy+'" r="3.5" fill="var(--accent)"/>'
-    + '<line x1="'+(cx-14)+'" y1="'+(cy+16)+'" x2="'+(cx-3)+'" y2="'+(cy+4)+'" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<path d="M '+(cx-3)+' '+(cy+4)+' l -6 1 l 2 5" fill="none" stroke="var(--accent)" stroke-width="1.2"/>'
-    + '<text x="'+cx+'" y="'+(cy+46)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="var(--accent)">CC X+35 Y+45 · centre, no move</text>'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
-    + '<circle cx="'+(cx-R)+'" cy="'+cy+'" r="4" fill="#f0a94a"/>'
-    + '<text x="'+(cx-R-28)+'" y="'+(cy-10)+'" font-family="monospace" font-size="10" fill="#f0a94a">start</text>'
-    + '<circle cx="'+(cx+R)+'" cy="'+cy+'" r="4.5" fill="#5dcaa5"/>'
-    + '<text x="'+(cx+R-38)+'" y="'+(cy+22)+'" font-family="monospace" font-size="11" fill="#5dcaa5">C X+50 Y+45</text>'
-    + '<path d="M '+(cx+9)+' '+(cy-R+1)+' l 15 4 l -9 11" fill="none" stroke="#5dcaa5" stroke-width="2.5"/>'
-    + '<text x="'+(cx-4)+'" y="'+(cy-R-8)+'" font-family="monospace" font-size="11" fill="#5dcaa5">DR- (clockwise)</text>'
+    + '<path d="M159.6 38.9 A60 60 0 0 1 180.4 38.9" fill="none" stroke="#5dcaa5" stroke-width="2.2" stroke-linecap="round"/>'
+    + '<path d="M0 -3 L7 0 L0 3 Z" transform="translate(180.4 38.9) rotate(10)" fill="#5dcaa5"/>'
+    + '<text x="170" y="20" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#5dcaa5">DR− · CLOCKWISE</text>'
+    + '<circle cx="110" cy="108" r="6" fill="var(--bg)" stroke="#f0a94a" stroke-width="2"/>'
+    + '<text x="110" y="111" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#f0a94a">1</text>'
+    + '<rect x="2" y="83" width="100" height="42" rx="7" fill="rgba(240,169,74,.08)" stroke="#f0a94a"/>'
+    + '<text x="52" y="108" text-anchor="middle" font-family="monospace" font-size="8.3" font-weight="700" fill="#f0a94a">L X+20 Y+45 F300</text>'
+    + '<path d="M102 105 H104" stroke="#f0a94a" stroke-width="1.2"/>'
+    + '<circle cx="230" cy="108" r="6" fill="var(--bg)" stroke="#5dcaa5" stroke-width="2"/>'
+    + '<text x="230" y="111" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="#5dcaa5">3</text>'
+    + '<rect x="238" y="83" width="100" height="42" rx="7" fill="rgba(93,202,165,.08)" stroke="#5dcaa5"/>'
+    + '<text x="288" y="108" text-anchor="middle" font-family="monospace" font-size="8.3" font-weight="700" fill="#5dcaa5">C X+50 Y+45 DR-</text>'
+    + '<path d="M236 105 H238" stroke="#5dcaa5" stroke-width="1.2"/>'
+    + '<circle cx="170" cy="108" r="5" fill="var(--accent)"/>'
+    + '<text x="170" y="111" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="var(--bg)">2</text>'
+    + '<path d="M170 114 V162" stroke="var(--accent)" stroke-width="1.3"/>'
+    + '<rect x="102" y="162" width="136" height="34" rx="7" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
+    + '<text x="170" y="183" text-anchor="middle" font-family="monospace" font-size="10" font-weight="700" fill="var(--accent)">CC X+35 Y+45</text>'
+    + '<text x="170" y="215" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">CC defines the circle · C defines the destination</text>'
     + '</svg>';
 }
 

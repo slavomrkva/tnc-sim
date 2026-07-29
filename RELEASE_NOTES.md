@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.924
+- Lesson 5's arc diagrams now show complete program blocks and clearer
+  `DR-`/`DR+` semicircle examples. The Lesson 9 LBL diagram now matches real
+  program order, while Lesson 10's bolt-circle diagram moves the CC coordinates
+  clear of the circle and numbers its three points.
+
 ## v0.923
 - M30 and M2 now finish the program in one Run instead of displaying a false
   M0 pause; M0 and M6 retain their intended pause behavior.

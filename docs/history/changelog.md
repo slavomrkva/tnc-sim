@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.924 — 2026-07-29 — clearer Learn diagrams
+
+- Reworked the Lesson 5 arc diagrams with complete program blocks, explicit
+  direction arrows and paired `DR-`/`DR+` semicircle examples.
+- Put Lesson 9's positioning blocks inside the displayed LBL body and clarified
+  Lesson 10's bolt-circle diagram with numbered points and a separate CC label.
+- Advanced the offline cache to v84.
+
 ## v0.923 — 2026-07-28 — M-control playback and guided omission
 
 - Preserved M0/M2/M6/M30 identity through parser playback; only M0 and M6
