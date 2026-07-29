@@ -10,6 +10,14 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.925
+- Learn diagrams now have meaningful screen-reader descriptions, and the datum
+  label in Lesson 15 stays fully visible.
+- Cycle 209 help now consistently explains Q256 as a factor of thread pitch in
+  both English and German, rather than a distance in millimetres.
+- Reset now closes any active desktop guided editor before restoring the
+  default program.
+
 ## v0.924
 - Lesson 5's arc diagrams now show complete program blocks and clearer
   `DR-`/`DR+` semicircle examples. The Lesson 9 LBL diagram now matches real

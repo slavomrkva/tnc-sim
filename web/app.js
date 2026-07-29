@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.924';
+var APP_VERSION = '0.925';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -356,7 +356,7 @@ var HELP_MAP = {
   'Q208':     {title:'Q208 — Retraction feed', desc:'Feed rate for retracting from the hole. Set to 0 to use the same feed as Q206.', ex:'Q208=+0'},
   'Q239':     {title:'Q239 — Thread pitch', desc:'Thread pitch in mm. Positive = right-hand thread, negative = left-hand thread. Feed = pitch × RPM.', ex:'Q239=+1.25'},
   'Q257':     {title:'Q257 — Depth per chip break', desc:'How deep the tap goes before retracting slightly to break chips. 0 = no chip breaking.', ex:'Q257=+5'},
-  'Q256':     {title:'Q256 — Chip break retract', desc:'Distance to retract for chip breaking (stays inside the hole). Typically 0.2–0.5mm.', ex:'Q256=+0.2'},
+  'Q256':     {title:'Q256 — Chip break retract factor', desc:'Multiplier of thread pitch Q239 used for a short chip-breaking retract (retract = Q256 × Q239). Set 0 for a full retract out of the hole.', ex:'Q256=+0.5'},
   'measure':  {title:'◎ Measure', desc:'Click to enter measure mode. Click any point on the workpiece surface to record its X/Y/Z coordinates. Click two points to measure the distance between them. Click again to exit measure mode.', ex:''},
   'bug-report':{title:'🐛 Bug report', desc:'Opens the bug report dialog. Describe what went wrong; your program is included automatically. Use "Copy image to clipboard" to grab a screenshot of the 3D view, then paste it (Ctrl+V) into the GitHub issue or email.', ex:''},
   'editor':   {title:'NC Program editor', desc:'Write your Heidenhain Klartext NC program here. Click any line to activate the inline field editor. Use the keypad buttons above to insert commands. Lines starting with ; are comments.', ex:'; This is a comment'},
@@ -447,7 +447,7 @@ var HELP_MAP_DE = {
   'Q208':     {title:'Q208 — Vorschub Rückzug', desc:'Vorschub für den Rückzug aus der Bohrung. 0 nutzt denselben Vorschub wie Q206.'},
   'Q239':     {title:'Q239 — Gewindesteigung', desc:'Gewindesteigung in mm. Positiv = Rechtsgewinde, negativ = Linksgewinde. Vorschub = Steigung × Drehzahl.'},
   'Q257':     {title:'Q257 — Bohrtiefe Spanbruch', desc:'Tiefe, die der Gewindebohrer vorrückt, bevor er zum Spanbruch leicht zurückzieht. 0 = kein Spanbruch.'},
-  'Q256':     {title:'Q256 — Rückzug bei Spanbruch', desc:'Rückzugsweg für den Spanbruch (bleibt in der Bohrung). Typisch 0,2–0,5 mm.'},
+  'Q256':     {title:'Q256 — Rückzugsfaktor bei Spanbruch', desc:'Faktor der Gewindesteigung Q239 für den kurzen Spanbruch-Rückzug (Rückzug = Q256 × Q239). 0 bewirkt den vollständigen Rückzug aus der Bohrung.'},
   'measure':  {title:'◎ Messen', desc:'Klick zum Aktivieren des Messmodus. Klicke einen Punkt auf der Werkstück-Oberfläche, um seine X/Y/Z-Koordinaten zu erfassen. Zwei Punkte messen den Abstand dazwischen. Erneut klicken zum Verlassen.'},
   'bug-report':{title:'🐛 Fehlerbericht', desc:'Öffnet den Fehlerbericht-Dialog. Beschreibe, was schiefging; dein Programm wird automatisch mitgeschickt. Mit „Bild in die Zwischenablage kopieren“ einen Screenshot der 3D-Ansicht erfassen und ihn (Strg+V) in das GitHub-Issue oder die E-Mail einfügen.'},
   'editor':   {title:'NC-Programm-Editor', desc:'Schreibe hier dein Heidenhain-Klartext-NC-Programm. Klicke eine Zeile für den Inline-Feldeditor. Nutze die Tastenfeld-Schaltflächen oben zum Einfügen von Befehlen. Zeilen, die mit ; beginnen, sind Kommentare.'},
@@ -677,7 +677,7 @@ var BUILDERS = {
     {p:'Q203', prompt:'Surface coordinate (mm)', type:'num', opt:false},
     {p:'Q204', prompt:'2nd safety clearance (mm)', type:'num', opt:false},
     {p:'Q257', prompt:'Depth per chip break (mm)', type:'num', opt:false},
-    {p:'Q256', prompt:'Chip break retract distance (mm)', type:'num', opt:false},
+    {p:'Q256', prompt:'Chip break retract factor (× thread pitch Q239; 0 = full retract)', type:'num', opt:false},
     {p:'Q336', prompt:'Spindle orientation angle (deg)', type:'num', opt:false},
   ]},
   'CYCL DEF 200':{title:'CYCL DEF 200 — Drilling', cmd:'CYCL DEF 200', fields:[
@@ -972,7 +972,7 @@ M9 ; Kühlmittel AUS
 ;
 ;--------------------------------------------------
 ; T7 - Gewindebohrer M8 (Gewindebohren mit Spanbruch)
-; Q257=11 Zustelltiefe, Q256=0 vollständiger Rückzug bis Oberfläche
+; Q257=11 Zustelltiefe, Q256=0 vollständiger Rückzug aus der Bohrung
 ; nur linke Bohrungen (LBL 2)
 ;--------------------------------------------------
 TOOL CALL 7 Z S350
@@ -985,7 +985,7 @@ CYCL DEF 209 ;Gewindebohren mit Spanbruch
   Q203=+20 ;Oberflächen-Koordinate [mm]
   Q204=+50 ;2. Sicherheits-Abstand [mm]
   Q257=+11 ;Zustelltiefe für Spanbruch [mm]
-  Q256=+0 ;Rückzug bei Spanbruch (0 = vollständiger Rückzug) [mm]
+  Q256=+0 ;Rückzugsfaktor (x Steigung; 0 = voller Rückzug)
   Q336=+0 ;Spindelwinkel [deg]
 CALL LBL 2
 M5 ; Spindel AUS

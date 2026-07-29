@@ -20,6 +20,23 @@ const context = {
 vm.createContext(context);
 vm.runInContext(editorSource, context, {filename:'editor-core.js'});
 
+{
+  let fieldClosed=0, qClosed=0, ctxClosed=0, blurred=0;
+  context.FM={active:true};
+  context.exitFieldMode=()=>{ fieldClosed++; context.FM.active=false; };
+  context._qPopupLine=4;
+  context.closeQPopup=()=>{ qClosed++; context._qPopupLine=-1; };
+  context.BLK={active:true};
+  context.closeCtxPanel=()=>{ ctxClosed++; context.BLK.active=false; };
+  context.document.activeElement={blur(){ blurred++; }};
+  context._endAllEditorInput();
+  assert.deepStrictEqual(
+    {fieldClosed,qClosed,ctxClosed,blurred},
+    {fieldClosed:1,qClosed:1,ctxClosed:1,blurred:1},
+    'desktop cleanup releases guided, Q and docked panel ownership before code replacement'
+  );
+}
+
 function lineStart(code, index){
   return code.split('\n').slice(0, index).join('\n').length + (index ? 1 : 0);
 }

@@ -319,7 +319,7 @@ M9 ; Coolant OFF
 ;
 ;--------------------------------------------------
 ; T7 - Tap M8 (thread tapping with chip breaking)
-; Q257=11 step depth, Q256=0 full retract to surface
+; Q257=11 step depth, Q256=0 full retract out of the hole
 ; left holes only (LBL 2)
 ;--------------------------------------------------
 TOOL CALL 7 Z S350
@@ -332,7 +332,7 @@ CYCL DEF 209 ;Tapping with Chip Breaking
   Q203=+20 ;Surface coordinate [mm]
   Q204=+50 ;2nd safety clearance [mm]
   Q257=+11 ;Infeed depth for chip breaking [mm]
-  Q256=+0 ;Retract for chip breaking (0 = full retract) [mm]
+  Q256=+0 ;Retract factor (x pitch; 0 = full retract)
   Q336=+0 ;Spindle angle [deg]
 CALL LBL 2
 M5 ; Spindle OFF

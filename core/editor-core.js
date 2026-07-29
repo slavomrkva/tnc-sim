@@ -189,9 +189,37 @@ function _editorConfirm(msg, onYes){
   document.getElementById('_ecNo').addEventListener('click',  function(){ dlg.remove(); });
 }
 
+/* Desktop/web counterpart of Android's editor-owner cleanup. The web version
+   has no custom keyboard, but guided fields and docked BLK/M/Q/QP/TOOL/cycle
+   panels can still retain offsets into code that is about to be replaced. */
+function _endAllEditorInput(options){
+  options=options||{};
+  if(typeof FM!=='undefined' && FM.active && typeof exitFieldMode==='function')
+    exitFieldMode(true);
+  if(typeof _qPopupLine!=='undefined' && _qPopupLine>=0 && typeof closeQPopup==='function')
+    closeQPopup();
+  var byId = typeof document!=='undefined' && document.getElementById
+    ? function(id){ return document.getElementById(id); }
+    : function(){ return null; };
+  var hasCtxOwner =
+    (typeof BLK!=='undefined' && BLK.active) ||
+    !!byId('mCustomInput') || !!byId('toolDefPicker') ||
+    !!byId('cyclePicker') || !!byId('qpFbarVal');
+  if(hasCtxOwner && typeof closeCtxPanel==='function') closeCtxPanel();
+  if(typeof _cancelMobileFocus==='function') _cancelMobileFocus(!options.keepCodeFocus);
+  if(!options.keepCodeFocus){
+    try{
+      if(document.activeElement && document.activeElement.blur)
+        document.activeElement.blur();
+    }catch(e){}
+  }
+}
+if(typeof window!=='undefined') window._endAllEditorInput=_endAllEditorInput;
+
 function editorReset(){
   if(!codeEl) return;
   _editorConfirm('Reset to default program?', function(){
+    _endAllEditorInput();
     _undoPush();
     codeEl.value = DEFAULT_CODE;
     syncEditorSelection(0,0);

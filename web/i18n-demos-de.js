@@ -152,7 +152,7 @@ Q239=+1.25 ;Gewindesteigung [mm]
 Q203=+20 ;Oberflächen-Koordinate [mm]
 Q204=+50 ;2. Sicherheits-Abstand [mm]
 Q257=+11 ;Zustelltiefe für Spanbruch [mm]
-Q256=+0 ;Rückzug bei Spanbruch (0 = vollständiger Rückzug) [mm]
+Q256=+0 ;Rückzugsfaktor (x Steigung; 0 = voller Rückzug)
 Q336=+0 ;Spindelwinkel [deg]
 Q403=+1 ;Drehzahlfaktor Rückzug
 L X+0 Y+0 FMAX M99

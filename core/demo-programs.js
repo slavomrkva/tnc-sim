@@ -149,7 +149,7 @@ Q239=+1.25 ;Thread pitch [mm]
 Q203=+20 ;Surface coordinate [mm]
 Q204=+50 ;2nd safety clearance [mm]
 Q257=+11 ;Infeed depth for chip breaking [mm]
-Q256=+0 ;Retract for chip breaking (0 = full retract) [mm]
+Q256=+0 ;Retract factor (x pitch; 0 = full retract)
 Q336=+0 ;Spindle angle [deg]
 Q403=+1 ;RPM factor for retraction
 L X+0 Y+0 FMAX M99

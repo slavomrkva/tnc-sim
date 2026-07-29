@@ -62,6 +62,11 @@ assert.strictEqual(codeEl.focused,true,'desktop Clear returns focus to the edito
 
 vm.runInContext('editorReset();', ctx);
 assert.strictEqual(ctx._docName, 'Complete Part', 'Reset restores the starter demo name');
+assert.match(
+  fs.readFileSync(path.join(core, 'editor-core.js'), 'utf8'),
+  /function editorReset[^]*?_endAllEditorInput\(\)/,
+  'Reset releases active desktop editor ownership before replacing code'
+);
 
 // Import a file named mypart.H whose body still says BEGIN PGM PROGRAM.
 ctx.FileReader = function () {

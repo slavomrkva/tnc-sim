@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.925 — 2026-07-29 — Learn clarity and desktop Reset
+
+- Moved Lesson 15's datum label inside its SVG boundary and added semantic
+  accessibility labels to every Learn diagram, with an annotation-derived
+  fallback for future diagrams.
+- Corrected the remaining English and German Cycle 209 UI, demo and task text
+  so Q256 is a multiplier of Q239 thread pitch rather than a distance in
+  millimetres.
+- Added a web-specific editor cleanup that releases desktop guided fields and
+  docked BLK/M/Q/QP/TOOL/cycle panels before Reset or Learn replaces code.
+- Added focused Learn, localization and desktop editor regressions and advanced
+  the offline cache to v85.
+
 ## v0.924 — 2026-07-29 — clearer Learn diagrams
 
 - Reworked the Lesson 5 arc diagrams with complete program blocks, explicit

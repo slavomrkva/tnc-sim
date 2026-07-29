@@ -20,7 +20,7 @@ function learnSvgLearningLoop(){
 }
 
 function learnSvgBlank(dx, dy, dz){
-  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img" aria-label="Rectangular blank with BLK FORM minimum and maximum corners, dimensions and positive axis directions">'
     + '<path d="M60 110 L170 110 L230 80 L120 80 Z" fill="rgba(74,158,255,.10)" stroke="var(--accent)" stroke-width="1"/>'
     + '<path d="M60 110 L60 60 L120 30 L120 80 Z" fill="rgba(74,158,255,.05)" stroke="var(--accent)" stroke-width="1"/>'
     + '<path d="M60 60 L170 60 L230 30 L120 30 Z" fill="rgba(74,158,255,.16)" stroke="var(--accent)" stroke-width="1"/>'
@@ -82,7 +82,7 @@ function learnSvgToolpath(code, labelIncr){
     }
   });
   var st=p.sub[0].from;
-  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Top view of the programmed toolpath: dashed rapid moves, teal cutting moves and orange start point">'
     + '<rect x="'+SX(bx0)+'" y="'+SY(by1)+'" width="'+((bx1-bx0)*sc).toFixed(1)+'" height="'+((by1-by0)*sc).toFixed(1)+'" fill="rgba(74,158,255,.06)" stroke="var(--border)"/>'
     + segs
     + labels
@@ -152,7 +152,7 @@ function learnSvgChamfer(){
   s+='<text x="26" y="142" font-family="monospace" font-size="9" fill="#f0a94a">orange = contact point</text>';
   s+='<text x="26" y="161" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">finished chamfer</text>';
   s+='<text x="26" y="177" font-family="monospace" font-size="10.5" font-weight="600" fill="var(--accent)">1 x 45°</text>';
-  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Ninety-degree countersink finishing a one-by-45-degree chamfer; DR is horizontal and DL is vertical from contact point to tool tip">'
     + s
     + '<text x="14" y="235" font-family="monospace" font-size="10" fill="var(--text3)">DR = horizontal; DL = vertical.</text>'
     + '<text x="14" y="251" font-family="monospace" font-size="10" fill="var(--text3)">Both: contact point to tool tip.</text>'
@@ -184,14 +184,14 @@ function learnSvgThread(){
   s+='<path d="M'+(x-74)+' '+(ay-7)+' l4 7 l4 -7" fill="none" stroke="var(--accent)" stroke-width="1.6"/>';
   s+='<text x="4" y="'+((top+ay)/2)+'" font-family="monospace" font-size="9.5" fill="var(--accent)">feed =</text>';
   s+='<text x="4" y="'+((top+ay)/2+13)+'" font-family="monospace" font-size="9.5" fill="var(--accent)">pitch/turn</text>';
-  return '<svg class="learn-svg" viewBox="0 0 340 '+(top+teeth*pitch+26)+'" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 '+(top+teeth*pitch+26)+'" role="img" aria-label="Thread pitch and synchronized tapping: one spindle revolution feeds the tap one pitch deeper">'
     + s
     + '<text x="14" y="'+(top+teeth*pitch+20)+'" font-family="monospace" font-size="8.5" fill="var(--text3)">rotation + downfeed locked: one revolution = one pitch deeper</text>'
     + '</svg>';
 }
 
 function learnSvgTool(){
-  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img" aria-label="Tool geometry showing total length L, diameter D, tool datum, shank and cutting flutes">'
     + '<rect x="150" y="18" width="40" height="52" rx="3" fill="rgba(139,147,161,.25)" stroke="var(--text3)"/>'
     + '<rect x="155" y="70" width="30" height="52" fill="rgba(74,158,255,.18)" stroke="var(--accent)"/>'
     + '<path d="M155 122 L160 128 L165 122 L170 128 L175 122 L180 128 L185 122" stroke="var(--accent)" fill="none" stroke-width="1.4"/>'
@@ -208,7 +208,7 @@ function learnSvgTool(){
 }
 
 function learnSvgApproach(){
-  return '<svg class="learn-svg" viewBox="0 0 340 160" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 160" role="img" aria-label="Safe tool approach: rapid movement above the blank, rapid to datum-safe Z plus 2, then feed below the surface">'
     + '<rect x="30" y="95" width="280" height="50" fill="rgba(74,158,255,.10)" stroke="var(--accent)"/>'
     + '<text x="270" y="126" font-family="monospace" font-size="10" fill="var(--text3)">blank</text>'
     + '<path d="M60 20 L170 20" stroke="var(--text3)" stroke-width="1.2" stroke-dasharray="4 3"/>'
@@ -224,7 +224,7 @@ function learnSvgApproach(){
 }
 
 function learnSvgComp(){
-  return '<svg class="learn-svg" viewBox="0 0 340 170" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 170" role="img" aria-label="Radius compensation relative to motion direction: RL keeps the tool left and RR keeps it right">'
     + '<path d="M80 105 L80 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M76 35 L80 22 L84 35" fill="none" stroke="var(--text)" stroke-width="2"/>'
     + '<text x="64" y="16" font-family="monospace" font-size="10" fill="var(--text)">motion</text>'
@@ -241,7 +241,7 @@ function learnSvgComp(){
 }
 
 function learnSvgCompPath(){
-  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img" aria-label="Programmed contour compared with compensated tool-centre paths for RL and RR">'
     + '<defs><marker id="lpCompArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#f0a94a"/></marker></defs>'
     + '<rect x="172" y="30" width="138" height="170" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
     + '<text x="238" y="52" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">material</text>'
@@ -270,7 +270,7 @@ function learnSvgCycle208(){
     var y = 48 + t * 118 + Math.sin(a) * 11;
     path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
   }
-  return '<svg class="learn-svg" viewBox="0 0 340 245" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 245" role="img" aria-label="Cycle 208 bore milling path showing helical infeed, bore diameter and finishing depth">'
     + '<defs><marker id="lpHelixArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#f0a94a"/></marker></defs>'
     + '<text x="14" y="18" font-family="monospace" font-size="11" fill="var(--text3)">SIDE VIEW</text>'
     + '<ellipse cx="150" cy="42" rx="108" ry="20" fill="rgba(74,158,255,.08)" stroke="var(--border)"/>'
@@ -294,7 +294,7 @@ function learnSvgCycle208(){
 }
 
 function learnSvgSafeRetract(){
-  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img" aria-label="Safe retract sequence from machining depth to setup clearance and second setup clearance">'
     + '<rect x="25" y="110" width="290" height="85" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
     + '<line x1="25" y1="110" x2="315" y2="110" stroke="var(--accent)" stroke-width="1.5"/>'
     + '<text x="264" y="104" font-family="monospace" font-size="11" fill="var(--text3)">surface Z0</text>'
@@ -313,7 +313,7 @@ function learnSvgSafeRetract(){
 }
 
 function learnSvgSlotWidth(){
-  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img" aria-label="Slot width and tool diameter showing the clearance available for milling">'
     + '<rect x="25" y="28" width="290" height="132" fill="rgba(74,158,255,.07)" stroke="var(--border)"/>'
     + '<rect x="70" y="75" width="200" height="34" rx="17" fill="rgba(20,184,166,.20)" stroke="var(--accent)" stroke-width="2"/>'
     + '<line x1="70" y1="92" x2="270" y2="92" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
@@ -330,7 +330,7 @@ function learnSvgSlotWidth(){
 }
 
 function learnSvgArcCRCompare(){
-  return '<svg class="learn-svg" viewBox="0 0 340 184" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 184" role="img" aria-label="Two semicircular CR moves between the same endpoints, comparing DR minus and DR plus directions">'
     + '<rect x="5" y="6" width="162" height="172" rx="9" fill="rgba(93,202,165,.08)" stroke="#5dcaa5"/>'
     + '<text x="86" y="23" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#5dcaa5">R−15 · DR−</text>'
     + '<path d="M77.3 30.8 A50 50 0 0 1 94.7 30.8" fill="none" stroke="#5dcaa5" stroke-width="2" stroke-linecap="round"/>'
@@ -361,7 +361,7 @@ function learnSvgArcCRCompare(){
 }
 
 function learnSvgRndDetail(){
-  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img" aria-label="RND corner rounding detail showing the original sharp corner, tangent points and programmed radius">'
     + '<path d="M35 135 L145 135 L145 25" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="5 4"/>'
     + '<path d="M35 135 L115 135 A30 30 0 0 0 145 105 L145 25" fill="none" stroke="var(--accent)" stroke-width="3"/>'
     + '<circle cx="115" cy="135" r="4" fill="#f0a94a"/><circle cx="145" cy="105" r="4" fill="#f0a94a"/>'
@@ -376,7 +376,7 @@ function learnSvgRndDetail(){
 }
 
 function learnSvgChfDetail(){
-  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 180" role="img" aria-label="CHF corner chamfer detail showing the original sharp corner and equal chamfer distances">'
     + '<path d="M35 135 L145 135 L145 25" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="5 4"/>'
     + '<path d="M35 135 L105 135 L145 95 L145 25" fill="none" stroke="#5dcaa5" stroke-width="3"/>'
     + '<circle cx="105" cy="135" r="4" fill="#f0a94a"/><circle cx="145" cy="95" r="4" fill="#f0a94a"/>'
@@ -393,7 +393,7 @@ function learnSvgChfDetail(){
 }
 
 function learnSvgPeckDrill(){
-  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img" aria-label="Peck drilling cycle showing setup clearance, repeated plunging depths and total drilling depth">'
     + '<rect x="35" y="82" width="270" height="130" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
     + '<line x1="35" y1="82" x2="305" y2="82" stroke="var(--accent)"/>'
     + '<line x1="85" y1="28" x2="270" y2="28" stroke="var(--text3)" stroke-dasharray="5 4"/>'
@@ -415,7 +415,7 @@ function learnSvgPeckDrill(){
 }
 
 function learnSvgCounterboreClear(){
-  return '<svg class="learn-svg" viewBox="0 0 340 225" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 225" role="img" aria-label="Counterbore cross-section showing head diameter Q335, depth Q201 and through-hole diameter Q342">'
     + '<defs><pattern id="lpHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--border)" stroke-width="2"/></pattern></defs>'
     + '<path d="M25 55 H132 V105 H154 V205 H25 Z M315 55 H208 V105 H186 V205 H315 Z" fill="url(#lpHatch)" stroke="var(--accent)" stroke-width="1.5"/>'
     + '<path d="M136 58 H204 V100 H190 V104 H150 V100 H136 Z" fill="rgba(139,147,161,.18)" stroke="var(--text3)" stroke-dasharray="4 3"/>'
@@ -434,7 +434,7 @@ function learnSvgCounterboreClear(){
 }
 
 function learnSvgThreadCycle(){
-  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 230" role="img" aria-label="Cycle 209 tapping: Q239 synchronizes pitch, Q257 sets chip-break depth and Q256 sets retract as a factor of pitch">'
     + '<text x="78" y="18" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">PITCH SYNCHRONISATION</text>'
     + '<path d="M55 38 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
     + '<path d="M101 38 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9 l-14 9 l14 9" fill="none" stroke="var(--accent)" stroke-width="2"/>'
@@ -451,13 +451,13 @@ function learnSvgThreadCycle(){
     + '<text x="174" y="86" font-family="monospace" font-size="9.5" fill="var(--text3)">4 mm</text>'
     + '<line x1="236" y1="96" x2="267" y2="96" stroke="#f0a94a"/>'
     + '<text x="270" y="100" font-family="monospace" font-size="11" fill="#f0a94a">Q256</text>'
-    + '<text x="270" y="114" font-family="monospace" font-size="10.5" fill="var(--text3)">0.5 back</text>'
+    + '<text x="270" y="114" font-family="monospace" font-size="10.5" fill="var(--text3)">0.5 x pitch back</text>'
     + '<text x="184" y="224" font-family="monospace" font-size="10.5" fill="var(--text3)">repeat until Q201 depth</text>'
     + '</svg>';
 }
 
 function learnSvgLblFlow(){
-  return '<svg class="learn-svg" viewBox="0 0 340 210" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 210" role="img" aria-label="LBL flow: the labeled body runs where written, then CALL LBL runs the same body again">'
     + '<rect x="12" y="20" width="194" height="132" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
     + '<text x="26" y="44" font-family="monospace" font-size="11" font-weight="700" fill="var(--accent)">LBL 1</text>'
     + '<text x="26" y="69" font-family="monospace" font-size="10.5" fill="var(--text)">L X+30 Y+30 FMAX M99</text>'
@@ -474,7 +474,7 @@ function learnSvgLblFlow(){
 }
 
 function learnSvgPrecisionChain(){
-  return '<svg class="learn-svg" viewBox="0 0 340 205" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 205" role="img" aria-label="Precision hole sequence: spot drill, drill through, then ream the final allowance to diameter 7 H7">'
     + '<text x="55" y="20" text-anchor="middle" font-family="monospace" font-size="11" fill="#f0a94a">1  SPOT T3</text>'
     + '<path d="M25 65 H85 L70 80 H40 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/><path d="M48 65 L55 76 L62 65" fill="none" stroke="#f0a94a" stroke-width="2"/>'
     + '<text x="55" y="101" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">guides drill</text>'
@@ -492,7 +492,7 @@ function learnSvgPrecisionChain(){
 }
 
 function learnSvgChamferMethods(){
-  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 235" role="img" aria-label="Two chamfer methods: dip a countersink with Cycle 200 for a small hole, or orbit the rim with Cycle 208 for a large bore">'
     + '<text x="82" y="20" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">SMALL HOLE</text>'
     + '<text x="82" y="36" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">Cycle 200 · dip</text>'
     + '<path d="M20 105 H62 L72 115 V198 H20 Z M144 105 H102 L92 115 V198 H144 Z" fill="rgba(74,158,255,.10)" stroke="var(--border)"/>'
@@ -518,7 +518,7 @@ function learnSvgChamferMethods(){
 }
 
 function learnSvgFinalPasses(){
-  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img" aria-label="One profile machined in two passes: milling at Q1 zero, then chamfering the same XY profile at Q1 plus 4">'
     + '<rect x="18" y="28" width="132" height="108" rx="8" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
     + '<text x="84" y="49" text-anchor="middle" font-family="monospace" font-size="12" fill="var(--accent)">PASS 1 · MILL</text>'
     + '<text x="32" y="72" font-family="monospace" font-size="11" fill="var(--text)">T1</text>'
@@ -539,7 +539,7 @@ function learnSvgFinalPasses(){
 }
 
 function learnSvgCorner(){
-  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 150" role="img" aria-label="Corner comparison: RND replaces a sharp corner with a radius, while CHF replaces it with equal straight offsets">'
     + '<path d="M20 110 L85 110" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M115 80 L115 25" stroke="var(--text)" stroke-width="2"/>'
     + '<path d="M85 110 A30 30 0 0 0 115 80" stroke="var(--accent)" stroke-width="2.4" fill="none"/>'
@@ -596,7 +596,7 @@ function learnSvgDrawing(){
   g += '<text x="'+X(50)+'" y="'+(Y(50)+48)+'" font-family="monospace" font-size="9.5" fill="#5dcaa5" text-anchor="middle">\u00d830 \u2193 8</text>';
   g += '<text x="'+(X(10)+8)+'" y="'+(Y(90)+16)+'" font-family="monospace" font-size="9.5" fill="var(--accent)">R10 \u00b7 \u2193 3</text>';
   g += '<text x="'+X(0)+'" y="'+(Y(100)-8)+'" font-family="monospace" font-size="9" fill="var(--text3)">blank 100 x 100 x 25 \u00b7 top Z+0</text>';
-  return '<svg class="learn-svg" viewBox="0 0 340 310" role="img">'+g+'</svg>';
+  return '<svg class="learn-svg" viewBox="0 0 340 310" role="img" aria-label="Top drawing of a 100 by 100 blank with an 80 by 80 rounded contour, four through holes and a central pocket">'+g+'</svg>';
 }
 
 function learnSvgPartProfile(){
@@ -619,7 +619,7 @@ function learnSvgPartProfile(){
   var g = '';
   // blank 100x100 (dashed)
   g += '<rect x="'+X(0)+'" y="'+Y(100)+'" width="'+(100*2.2)+'" height="'+(100*2.2)+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 3"/>';
-  g += '<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="3.5" fill="#f0a94a"/><text x="'+(X(0)-8)+'" y="'+(Y(0)-5)+'" text-anchor="end" font-family="monospace" font-size="9" fill="#f0a94a">datum 0,0</text>';
+  g += '<circle cx="'+X(0)+'" cy="'+Y(0)+'" r="3.5" fill="#f0a94a"/><text x="'+(X(0)+8)+'" y="'+(Y(0)-5)+'" text-anchor="start" font-family="monospace" font-size="9" fill="#f0a94a">datum 0,0</text>';
   // profile 90x90: R15 top-left (convex, sweep=1), 15x45 chamfer bottom-right
   var p = 'M '+X(5)+' '+Y(5)
         + ' L '+X(5)+' '+Y(80)
@@ -643,7 +643,7 @@ function learnSvgPartProfile(){
   g += '<text x="'+X(103)+'" y="'+(Y(12)+3)+'" font-family="monospace" font-size="9.5" fill="var(--accent)">15x45\u00b0</text>';
   g += '<text x="'+X(50)+'" y="'+Y(50)+'" font-family="monospace" font-size="10" fill="var(--text2)" text-anchor="middle">profile</text>';
   g += '<text x="'+X(0)+'" y="'+(Y(100)-9)+'" font-family="monospace" font-size="9" fill="var(--text3)">blank 100 x 100 \u00b7 top Z+5 \u00b7 floor Z0</text>';
-  return '<svg class="learn-svg" viewBox="0 0 350 300" role="img">'+g+'</svg>';
+  return '<svg class="learn-svg" viewBox="0 0 350 300" role="img" aria-label="Lesson part profile on a 100 by 100 blank: datum at zero zero, 90 by 90 profile from X5 Y5 to X95 Y95, R15 corner and 15 by 45-degree chamfer">'+g+'</svg>';
 }
 
 function learnSvgPolar(){
@@ -652,7 +652,7 @@ function learnSvgPolar(){
   var px=(cx+R*Math.cos(ang)).toFixed(1), py=(cy-R*Math.sin(ang)).toFixed(1);
   var r2=32;
   var ax1=(cx+r2*Math.cos(ang)).toFixed(1), ay1=(cy-r2*Math.sin(ang)).toFixed(1);
-  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img" aria-label="Polar coordinates from CC: radius PR locates the point and angle PA is measured from positive X">'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R+34)+'" y2="'+cy+'" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="'+(cx+R+38)+'" y="'+(cy+4)+'" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
@@ -692,7 +692,7 @@ function learnSvgBoltCircle(){
       + '<text x="'+(parseFloat(h[0][0])+h[3])+'" y="'+(parseFloat(h[0][1])+h[4])+'" font-family="monospace" font-size="10.5" fill="#f0a94a">'+h[1]+'</text>';
   });
   g += '<text x="'+(cx+14)+'" y="'+(cy-8)+'" font-family="monospace" font-size="11" fill="#5dcaa5">PR+25</text>';
-  return '<svg class="learn-svg" viewBox="0 0 340 222" role="img">'+g
+  return '<svg class="learn-svg" viewBox="0 0 340 222" role="img" aria-label="Bolt circle around CC X50 Y40 with three numbered points programmed by polar radius and angles">'+g
     + '<rect x="83" y="179" width="134" height="28" rx="7" fill="rgba(20,184,166,.08)" stroke="var(--accent)"/>'
     + '<text x="150" y="197" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="var(--accent)">CC X+50 Y+40</text>'
     + '<text x="170" y="218" text-anchor="middle" font-family="monospace" font-size="9.5" fill="var(--text3)">same Polar Radius · Polar Angle stepped by 120\u00b0</text>'
@@ -700,7 +700,7 @@ function learnSvgBoltCircle(){
 }
 
 function learnSvgCounterbore(){
-  return '<svg class="learn-svg" viewBox="0 0 340 165" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 165" role="img" aria-label="Counterbore dimensions showing a larger shallow head recess above a smaller through hole">'
     // plate section, hole \u00d86.6 with counterbore \u00d811 x 6
     + '<path d="M40 50 L145 50 L145 77 L155 77 L155 140 L40 140 Z" fill="rgba(20,184,166,.08)" stroke="var(--accent)" stroke-width="1.2"/>'
     + '<path d="M300 50 L195 50 L195 77 L185 77 L185 140 L300 140 Z" fill="rgba(20,184,166,.08)" stroke="var(--accent)" stroke-width="1.2"/>'
@@ -720,7 +720,7 @@ function learnSvgCounterbore(){
 
 function learnSvgArcCC(){
   var cx=170, cy=108, R=60;
-  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 220" role="img" aria-label="CC arc construction showing centre point, start point, end point, radius and DR rotation direction">'
     + '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
     + '<path d="M159.6 38.9 A60 60 0 0 1 180.4 38.9" fill="none" stroke="#5dcaa5" stroke-width="2.2" stroke-linecap="round"/>'
@@ -747,7 +747,7 @@ function learnSvgArcCC(){
 
 function learnSvgArcCR(){
   var cx=120, cy=120, R=60;
-  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 200" role="img" aria-label="CR arc construction showing start and end points, programmed radius and DR rotation direction">'
     + '<path d="M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+'" fill="none" stroke="#5dcaa5" stroke-width="2.4" stroke-linecap="round"/>'
     + '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*0.7071).toFixed(1)+'" y2="'+(cy-R*0.7071).toFixed(1)+'" stroke="#f0a94a" stroke-width="1.2" stroke-dasharray="4 3"/>'
     + '<text x="'+(cx+18)+'" y="'+(cy-26)+'" font-family="monospace" font-size="12" fill="#f0a94a">R+15</text>'
@@ -763,7 +763,7 @@ function learnSvgArcCR(){
 }
 
 function learnSvgDrill(){
-  return '<svg class="learn-svg" viewBox="0 0 340 170" role="img">'
+  return '<svg class="learn-svg" viewBox="0 0 340 170" role="img" aria-label="Drilling cross-section showing surface coordinate, setup clearance, peck depth and total depth">'
     + '<rect x="40" y="60" width="260" height="95" fill="rgba(74,158,255,.10)" stroke="var(--accent)"/>'
     + '<line x1="40" y1="60" x2="300" y2="60" stroke="var(--accent)"/>'
     + '<text x="250" y="55" font-family="monospace" font-size="10" fill="var(--text3)">Q203 surface</text>'
@@ -1306,6 +1306,10 @@ function _learnEndEditorInput(){
   // A Learn transition may replace the entire program. Never leave a field/Q/
   // BLK editor alive with offsets that point into the previous code, and never
   // leave a pending hidden-input focus able to reopen the keyboard afterwards.
+  if(typeof window!=='undefined' && typeof window._endAllEditorInput==='function'){
+    window._endAllEditorInput();
+    return;
+  }
   if(typeof FM!=='undefined' && FM.active) exitFieldMode(true);
   if(typeof BLK!=='undefined' && BLK.active) closeCtxPanel();
   if(typeof _qPopupLine!=='undefined' && _qPopupLine>=0) closeQPopup();
@@ -1557,11 +1561,21 @@ function _learnNotifyHost(){
   } catch(e){}
 }
 
-/* Inline lesson diagrams need a usable text alternative even when their
-   individual geometry is generated dynamically from the example program. */
+/* Every diagram normally provides a concise semantic label at its source.
+   For future dynamic diagrams, derive a useful fallback from visible SVG
+   annotations instead of exposing only "diagram 1" to assistive technology. */
 function _learnLabelDiagrams(p, L){
   Array.prototype.forEach.call(p.querySelectorAll('.learn-svg'), function(svg, i){
     svg.setAttribute('role', 'img');
-    if(!svg.hasAttribute('aria-label')) svg.setAttribute('aria-label', L.title + ' diagram ' + (i + 1));
+    if(!svg.hasAttribute('aria-label')){
+      var parts = [];
+      Array.prototype.forEach.call(svg.querySelectorAll('text'), function(node){
+        var text = (node.textContent||'').replace(/\s+/g, ' ').trim();
+        if(text && parts.indexOf(text)<0) parts.push(text);
+      });
+      svg.setAttribute('aria-label', parts.length
+        ? L.title + ': ' + parts.join('; ')
+        : L.title + ' instructional diagram ' + (i + 1));
+    }
   });
 }
