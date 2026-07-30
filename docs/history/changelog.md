@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.931 — 2026-07-30 — neutral footer links and Play icon
+
+- Replaced the small Android outline with the approved 22 px yellow Google
+  Play triangle and made every footer link use the theme-aware neutral text
+  colour instead of blue.
+- Updated the footer regression and advanced the offline cache to v95.
+
 ## v0.930 — 2026-07-30 — Android footer icon and ordering
 
 - Moved the Google Play link after the contact email and added an inline,
