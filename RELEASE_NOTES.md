@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.929
+- Added a direct Google Play link to the website footer.
+
 ## v0.928
 - The X in every Path function input panel now cancels the complete input:
   a newly inserted row is removed, while an existing edited row is restored.

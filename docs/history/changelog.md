@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.929 — 2026-07-30 — Google Play footer link
+
+- Added a direct link from the website footer to the official TNC Sim Google
+  Play listing and covered the destination with a static regression test.
+- Advanced the offline cache to v93.
+
 ## v0.928 — 2026-07-30 — transactional Path cancel and APPR/DEP demo
 
 - Split guided-field completion into explicit commit (`Done`/Enter) and cancel
