@@ -10,12 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.931
-- Replaced the footer Android icon with a larger yellow Google Play triangle
-  and changed footer links from blue to the neutral theme text colour.
-
 ## v0.930
-- Moved the Google Play footer link to the end and added an Android icon.
+- Moved the Google Play link to the end of the footer, gave it a larger yellow
+  Play triangle and changed footer links from blue to the neutral theme text
+  colour.
 
 ## v0.929
 - Added a direct Google Play link to the website footer.
