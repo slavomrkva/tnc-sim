@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.927 — 2026-07-30 — close accepted TODO work
+
+- Archived the accepted C39-C59 evidence in `BUG_HISTORY.md`, cleared every
+  resolved bug from `TODO.md` and removed the retired Android Learn-redesign
+  port item.
+- Advanced the offline cache to v91.
+
 ## v0.926 — 2026-07-30 — documented APPR/DEP and analytic CT
 
 - Implemented all documented Cartesian APPR/DEP forms plus polar

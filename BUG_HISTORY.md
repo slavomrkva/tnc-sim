@@ -15,6 +15,87 @@ Newest first.
 
 ---
 
+## C54-C59 — Terminal-M editing, deferred validation and valid Learn solutions
+**Repos:** web `tnc-sim` v0.926 and Android `tnc-sim-android` APP_VERSION
+1.0.101; C54 was web-only. **Fixed and accepted:** 2026-07-30.
+
+### Reported symptoms
+- Clicking in empty desktop line space after a terminal `M<number>` opened its
+  editor instead of leaving the caret at line end.
+- Programming functions ran validation immediately instead of waiting for
+  Run/Step, and a valid first feed move containing M3 could still produce a
+  false missing-spindle warning after earlier FMAX positioning.
+- Entering Practice could leave the APPR/DEP key visually expanded.
+- Lesson 7 task 1 passed Check but failed Run because RR remained active on its
+  Z retract.
+- The Cycle 209 password answer did not use editor-style multiline Q rows, and
+  the following tasks carried an incomplete definition without Q336/Q403.
+
+### Root causes and accepted fixes
+- Textarea `selectionStart` cannot distinguish a click on the final M glyph
+  from trailing free space. Desktop routing now checks the measured character
+  cell before opening M editing.
+- Edit hooks and simulation start shared one validation path. No-argument
+  `runValidation()` now only clears stale diagnostics; Run/Step call full
+  validation after cancelling pending edit timers. Spindle presence is checked
+  at the first non-FMAX motion and honors start-effective M3/M4/M13/M14 in
+  that same block.
+- Context replacement could remove the APPR/DEP picker before its trigger was
+  reset. Every idle-panel render now collapses the trigger unconditionally.
+- The Learn checker tested task-specific goals but not the completed program
+  with the Run validator. Lesson 7 now retracts with
+  `L Z+50 R0 FMAX`; Cycle 209 uses separate Q rows in editor order
+  Q200/Q201/Q239/Q203/Q204/Q257/Q256/Q336/Q403, and its guided schema includes
+  Q403.
+
+### Attempts and verification
+Relying on textarea caret offsets and on picker-node cleanup were insufficient
+because both lost the visual information needed by the handler. Likewise,
+Learn's goal checks alone accepted programs that full simulation correctly
+rejected. The accepted regressions therefore cover click geometry, every
+programming entry path, M start/end timing, trigger reset, exact Cycle 209
+serialization and full `validateProgram(code, false)` for all affected Learn
+solutions. All 40 web and 38 Android test files passed. The user accepted the
+GitHub builds and the synchronized Android 1.0.101 debug APK.
+
+**Cross-reference:** Android `BUG_HISTORY.md`, C55-C59.
+
+## C39-C48 — Official-program compatibility and transport normalization
+**Repos:** web `tnc-sim` v0.921-v0.922 and Android `tnc-sim-android`
+APP_VERSION 1.0.96-1.0.97. **Fixed and accepted:** 2026-07-30.
+
+### Reported symptoms
+Official programs were rejected or simulated incorrectly when they used the
+documented `F AUTO`, Cycle 200/201/208 `Q206=AUTO`, compact `REP6`,
+program-section repeats, nested numeric labels, LP radius-compensation
+activation, or angle-less and multi-turn CP contours. Repeated whitespace could
+pass validation but still make the BLK FORM pre-scan miss the blank. A Unicode
+BOM and mixed CRLF/CR endings could also prevent structural recognition.
+
+### Root causes and accepted fixes
+Validator, parser, label expansion and BLK FORM scanning normalized input
+independently. The label expander assumed only `LBL n ... LBL 0` subprograms,
+and polar compensation reduced full turns while joining primitives. The shared
+core now treats `F AUTO`/`FAUTO`, the supported Q206 `AUTO` spelling and
+`REP6`/`REP 6` equivalently; distinguishes subprograms from program-section
+repeats; supports bounded nested expansion; activates compensation on LP; and
+preserves angle-less full circles and every programmed CP turn. Import strips
+the BOM and normalizes line endings, while all semantic consumers tolerate
+repeated spaces and tabs.
+
+### Attempts and verification
+Normalizing only validator commands was insufficient because the separate
+BLK FORM scan still used raw spacing. Flat label expansion also failed on
+official program sections, and tessellated compensation joins lost complete CP
+turns. The accepted implementation shares normalization at every semantic
+entry point, retains the 32-level/200000-block guards and preserves analytic
+turn information. Focused official-program, guided-editor, full-circle,
+25-turn-helix and deterministic metamorphic tests cover nine equivalent
+spellings and 200 seeded programs. The user accepted all remaining TODO bugs
+after both current full suites passed.
+
+**Cross-reference:** Android `BUG_HISTORY.md`, C39-C48.
+
 ## C52-C53 — M30 playback and omitted radius-compensation serialization
 **Repos:** web `tnc-sim` v0.923 and Android `tnc-sim-android` APP_VERSION
 1.0.98. **Fixed and accepted:** 2026-07-28.
