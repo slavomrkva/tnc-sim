@@ -350,6 +350,8 @@ footer{background:var(--surface2);border-top:1px solid var(--border);padding:12p
 footer p{font-size:12px;color:var(--text3);}
 footer a{color:var(--accent3);text-decoration:none;}
 footer a:hover{text-decoration:underline;}
+footer .footer-play-link{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;}
+footer .footer-android-icon{width:15px;height:15px;flex:none;fill:none;stroke:#3ddc84;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .line-nums .ln.err{color:#ff5d5d;font-weight:500;}
 .line-nums .ln.warn{color:#e8a23a;}
 .line-nums .ln.fixed{color:#e8a23a;font-weight:500;}

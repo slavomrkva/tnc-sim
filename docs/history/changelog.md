@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.930 — 2026-07-30 — Android footer icon and ordering
+
+- Moved the Google Play link after the contact email and added an inline,
+  offline-safe Android icon with accessible text.
+- Extended the footer regression to preserve the ordering and icon, and
+  advanced the offline cache to v94.
+
 ## v0.929 — 2026-07-30 — Google Play footer link
 
 - Added a direct link from the website footer to the official TNC Sim Google

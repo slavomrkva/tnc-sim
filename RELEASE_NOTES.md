@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.930
+- Moved the Google Play footer link to the end and added an Android icon.
+
 ## v0.929
 - Added a direct Google Play link to the website footer.
 
