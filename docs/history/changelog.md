@@ -7,6 +7,39 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.926 — 2026-07-30 — documented APPR/DEP and analytic CT
+
+- Implemented all documented Cartesian APPR/DEP forms plus polar
+  PLT/PLN/PCT/PLCT and DEP PLCT, with exact PS/PH/PA/PE/PN geometry, signed
+  APPR/DEP CT radii, optional Z behavior and automatic DEP compensation
+  cancellation.
+- Made standalone CT use the analytic tangent of the immediately preceding
+  contour primitive and added `LIN_Z`; added the documented block-local F to
+  RND/CHF.
+- Added the HEIDENHAIN path-function order, guided editors, polar switching,
+  context help and a standard-size stacked APPR/DEP key whose family picker
+  replaces the idle editor-control strip without covering the program or
+  increasing that strip's height and toggles closed on a second press. Gave
+  its subfunctions a neutral grey treatment and separated APPR from DEP with
+  the machine-style horizontal rule.
+- Distinguished direct clicks on a terminal M token from free space to its
+  right using measured desktop character cells, preserving the end-of-line
+  caret/Enter workflow. Added official-program/parser/UI regressions.
+- Centralized edit-time validator invalidation so every programming function
+  defers static and parser diagnostics until Run/Step, while pending edit
+  timers cannot erase a blocked simulation result.
+- Corrected the spindle-presence warning to ignore preceding `FMAX` rapid
+  positioning, evaluate the first non-FMAX motion, and honor start-effective
+  M3/M4/M13/M14 in that same block. Added official-program and explicit
+  start/end M-timing regressions.
+- Made every context-strip replacement clear the APPR/DEP expanded state and
+  included its picker in desktop Learn-transition cleanup.
+- Corrected the Lesson 7 task-1 retract to cancel RR and serialized all three
+  Cycle 209 task programs in the editor's complete multiline parameter order,
+  including Q336/Q403. Added full Run-validator regressions for the password
+  solutions and Q403 to the guided schema.
+- Advanced the offline cache to v90.
+
 ## v0.925 — 2026-07-29 — Learn clarity and desktop Reset
 
 - Moved Lesson 15's datum label inside its SVG boundary and added semantic

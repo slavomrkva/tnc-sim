@@ -138,7 +138,7 @@ context.EXTRA_DEMO_PROGRAMS.forEach(demo => {
   context.renderProblems = () => {};
   context.learnUpdateBlank = () => {};
   context.calcEstTime = () => {};
-  context.runValidation();
+  context.runValidation(false);
   assert.ok(Array.from(context.problemsData).some(problem => problem.sev === 'err' && /tool radius too large/.test(problem.msg)), 'editor Problems panel must receive a dynamic unfit-corner error');
   assert.strictEqual(context.hasErrors(), true, 'dynamic compensated-corner error must block Run/Step');
 }

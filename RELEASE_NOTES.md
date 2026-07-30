@@ -10,6 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.926
+- Added the complete APPR/DEP family and analytic CT with `LIN_Z`.
+- Validation now runs only on Run/Step, with corrected spindle and desktop
+  terminal-M handling.
+- Corrected the Learn/Practice APPR state, Lesson 7 retract and complete
+  multiline Cycle 209 solutions.
+
 ## v0.925
 - Learn diagrams now have meaningful screen-reader descriptions, and the datum
   label in Lesson 15 stays fully visible.

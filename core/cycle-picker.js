@@ -17,6 +17,10 @@ function openCyclePicker(){
 
 function closeCtxPanel(){
   if(typeof _cancelMobileFocus==='function') _cancelMobileFocus(true);
+  var apprDepPicker=document.getElementById('apprDepPicker');
+  if(apprDepPicker&&apprDepPicker.parentNode) apprDepPicker.parentNode.removeChild(apprDepPicker);
+  var apprDepKey=document.getElementById('apprDepKey');
+  if(apprDepKey) apprDepKey.setAttribute('aria-expanded','false');
   var panel = document.getElementById('ctxPanel');
   if(panel){ panel.innerHTML=''; panel.style.height=''; }
   BLK.active = false; BLK.step = 0;

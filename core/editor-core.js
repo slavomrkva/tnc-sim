@@ -204,7 +204,7 @@ function _endAllEditorInput(options){
   var hasCtxOwner =
     (typeof BLK!=='undefined' && BLK.active) ||
     !!byId('mCustomInput') || !!byId('toolDefPicker') ||
-    !!byId('cyclePicker') || !!byId('qpFbarVal');
+    !!byId('cyclePicker') || !!byId('apprDepPicker') || !!byId('qpFbarVal');
   if(hasCtxOwner && typeof closeCtxPanel==='function') closeCtxPanel();
   if(typeof _cancelMobileFocus==='function') _cancelMobileFocus(!options.keepCodeFocus);
   if(!options.keepCodeFocus){
@@ -489,34 +489,8 @@ function updateHighlightOverlay(){
 
 function errorCount(){ return problemsData.filter(function(p){ return p.sev==='err'; }).length; }
 
-function _isLiveRadiusCompEdit(){
-  var guided=typeof FM!=='undefined' && FM.active && FM.builderKey==='L';
-  var direct=typeof _liveEditLine!=='undefined' && _liveEditLine>=0;
-  return !!((guided||direct) && codeEl && /\bR[LR]\b/.test(codeEl.value));
-}
-
-function _isRadiusCompDiagnostic(problem){
-  return /radius comp\.|compensation radius|compensated cutting run|tool radius too large/i.test(String(problem&&problem.msg||''));
-}
-
 function _problemsForDisplay(allProblems){
-  var liveRadiusComp=_isLiveRadiusCompEdit();
-  var hiddenRadiusComp=false;
-  var visible=[];
-  for(var i=0;i<allProblems.length;i++){
-    var problem=allProblems[i];
-    if(problem.line===_liveEditLine) continue;
-    if(liveRadiusComp && _isRadiusCompDiagnostic(problem)){
-      hiddenRadiusComp=true;
-      continue;
-    }
-    visible.push(problem);
-  }
-  if(hiddenRadiusComp){
-    visible.push({line:typeof _liveEditLine==='number'&&_liveEditLine>=0?_liveEditLine:0,
-      sev:'warn',msg:'Radius compensation will be checked when editing is complete or simulation starts'});
-  }
-  return visible;
+  return allProblems.slice();
 }
 
 function renderProblems(){
@@ -612,12 +586,22 @@ function applyFix(idx){
 
 function runValidation(liveEdit){
   if(typeof programAutosaveChanged === 'function') programAutosaveChanged();
-  // liveEdit defaults to true: nearly every caller runs while the user edits.
+  // Every editing caller omits the argument. It only invalidates stale
+  // diagnostics; the validator and parser run exclusively from Run/Step.
+  if(liveEdit!==false){
+    problemsData=[];
+    renderProblems();
+    if(typeof learnUpdateBlank==='function') learnUpdateBlank();
+    return;
+  }
+  if(typeof validateTimer!=='undefined' && validateTimer){
+    clearTimeout(validateTimer);
+    validateTimer=null;
+  }
   // Run/Step (sim-controls) pass false so radius-compensation checks — the
   // completeness checks in validateProgram and the rc-tagged run diagnostics
   // below — surface only at simulation start, not while a contour is still
   // being typed.
-  if(liveEdit===undefined) liveEdit=true;
   var learnOpen=typeof LEARN!=='undefined' && LEARN.open;
   var validationActive=_validatorEnabled && !learnOpen;
   problemsData = validationActive ? validateProgram(codeEl.value, liveEdit) : [];
@@ -633,21 +617,23 @@ function runValidation(liveEdit){
     var seenProblems={};
     problemsData.forEach(function(p){ seenProblems[p.line+'|'+p.sev+'|'+p.msg]=true; });
     tmpProg.problems.forEach(function(p){
-      // Defer only "contour not finished yet" comp diagnostics while editing;
-      // genuine geometry errors (tool radius too large, etc.) still show live.
-      // The deferred ones return at Run/Step (liveEdit=false).
-      if(liveEdit && p.rcDefer) return;
       var key=p.line+'|'+p.sev+'|'+p.msg;
       if(!seenProblems[key]){ problemsData.push(p); seenProblems[key]=true; }
     });
   }
   renderProblems();
   if(typeof learnUpdateBlank==='function') learnUpdateBlank();
-  // update estimated time on every edit
+  // update estimated time with the simulation-start parse
   calcEstTime(tmpProg.sub);
 }
 
 function defVal(type, opt){ if(type==='feed') return opt ? null : '500'; if(type==='dr')return '+'; if(type==='rc')return ''; if(type==='coord' && opt) return null; if(type==='mval' && opt) return null; if(type==='num' && opt) return null; if(type==='tool') return '1'; return '0'; }
+
+function _pathFieldRequiresSignedRadius(f){
+  var builder=(typeof FM!=='undefined'&&FM)?FM.builderKey:'';
+  return !!f&&f.type==='num'&&f.p==='R'&&
+    /^(?:APPR (?:CT|PCT)|DEP CT)$/.test(builder);
+}
 
 function tokenFor(f){
   if(f.type==='dr') return 'DR'+f.val;
@@ -660,7 +646,15 @@ function tokenFor(f){
   }
   if(f.type==='rc') return f.val===null || f.val===undefined ? '' : f.val; // 'RL','RR','R0' or omit
   if(f.type==='coord'){ if(f.val===null || f.val==='') return ''; var _cv=(f.val==='+'||f.val==='-')?f.val+'0':f.val; return (f.incr?'I':'')+f.p+signFmt(_cv); }
-  if(f.type==='num'){ if(f.val===null || f.val==='') return ''; return f.p+f.val; }
+  if(f.type==='num'){
+    if(f.val===null || f.val==='') return '';
+    var nv=String(f.val);
+    // APPR/DEP CT use the sign of R to select the documented side. Keep
+    // positive entry natural on every keyboard by serializing an unsigned
+    // positive value explicitly as R+..., while a chosen minus stays R-....
+    if(_pathFieldRequiresSignedRadius(f)&&!/^[+-]/.test(nv)) nv='+'+nv;
+    return f.p+nv;
+  }
   if(/^Q\d+$/.test(f.p)) return f.p+'='+formatSignedNum(f.val);
   return f.p+f.val;
 }

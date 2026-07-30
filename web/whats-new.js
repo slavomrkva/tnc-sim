@@ -2,30 +2,30 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Update `mergedAt` when the branch is merged to production.
 var WHATS_NEW_RELEASE = {
-  version: '0.914',
-  mergedAt: '2026-07-27T15:12:42+02:00',
+  version: '0.926',
+  mergedAt: '2026-07-30T06:46:36+02:00',
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.914 · Learn',
+      meta: 'v0.926 · Path functions',
       title: 'What’s new',
       close: 'Close',
-      intro: 'A clearer Learn experience:',
+      intro: 'New path functions and cleaner validation:',
       items: [
-        'Balanced three-column lesson layout.',
-        'Questions and answer rows are clearly highlighted.',
-        'Info slides stay available; Check reveals the results.'
+        'Complete APPR/DEP family and analytic CT with LIN_Z.',
+        'Validation now runs only when Run or Step starts.',
+        'Corrected Learn solutions for compensation and Cycle 209.'
       ]
     },
     de: {
-      meta: 'v0.914 · Lernen',
+      meta: 'v0.926 · Bahnfunktionen',
       title: 'Was ist neu?',
       close: 'Schließen',
-      intro: 'Lernen ist jetzt übersichtlicher:',
+      intro: 'Neue Bahnfunktionen und klarere Validierung:',
       items: [
-        'Ausgewogenes Lektionslayout mit drei Spalten.',
-        'Fragen und Antwortzeilen sind klar hervorgehoben.',
-        'Info-Folien bleiben verfügbar; Prüfen zeigt die Ergebnisse.'
+        'Komplette APPR/DEP-Familie und analytisches CT mit LIN_Z.',
+        'Die Validierung startet erst mit Start oder Einzelschritt.',
+        'Korrigierte Lernlösungen für Radiuskorrektur und Zyklus 209.'
       ]
     }
   }

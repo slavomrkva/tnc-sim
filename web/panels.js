@@ -2,6 +2,11 @@
 
 function renderIdlePanel(){ var panel = document.getElementById('ctxPanel');
   if(!panel) return;
+  if(typeof setApprDepPickerExpanded==='function') setApprDepPickerExpanded(false);
+  else {
+    var apprDepKey=document.getElementById('apprDepKey');
+    if(apprDepKey) apprDepKey.setAttribute('aria-expanded','false');
+  }
   panel.style.height = '';
   var undoCount = _undoStack ? _undoStack.length : 0;
   var redoCount = _redoStack ? _redoStack.length : 0;

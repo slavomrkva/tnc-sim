@@ -62,12 +62,30 @@ function kpIcon(n){
   return '';
 }
 
+function polarBuilderTarget(builderKey){
+  var pairs={
+    'L':'P','P':'L',
+    'APPR LT':'APPR PLT','APPR PLT':'APPR LT',
+    'APPR LN':'APPR PLN','APPR PLN':'APPR LN',
+    'APPR CT':'APPR PCT','APPR PCT':'APPR CT',
+    'APPR LCT':'APPR PLCT','APPR PLCT':'APPR LCT',
+    'DEP LCT':'DEP PLCT','DEP PLCT':'DEP LCT'
+  };
+  return pairs[builderKey]||null;
+}
+
 function buildKeypad(){
   ALL_KEYS=[];
   var html='';
 
   html+='<div class="kp-sec-title">Path functions</div><div class="kp-row">';
-  PATH_KEYS.forEach(function(k){ var idx=ALL_KEYS.push({code:k.code,key:k.l,bld:k.bld})-1; var cls=k.dis?'dis':'off'; html+='<button class="key '+cls+'"'+(k.dis?' disabled':'')+' data-idx="'+idx+'" title="'+k.l+'">'+kpIcon(k.icon)+'<span class="kl">'+k.l+'</span></button>'; });
+  PATH_KEYS.forEach(function(k){
+    var idx=ALL_KEYS.push({code:k.code,key:k.l,bld:k.bld,apprDepPicker:k.apprDepPicker})-1;
+    var cls=(k.dis?'dis':'off')+(k.apprDepPicker?' appr-dep-key':(k.l.length>4?' path-wide':''));
+    var pickerAttrs=k.apprDepPicker?' id="apprDepKey" aria-haspopup="dialog" aria-controls="apprDepPicker" aria-expanded="false" aria-label="APPR/DEP functions"':'';
+    var labelHtml=k.apprDepPicker?'<span class="kl"><span>APPR</span><span>DEP</span></span>':'<span class="kl">'+k.l+'</span>';
+    html+='<button class="key '+cls+'"'+(k.dis?' disabled':'')+' data-idx="'+idx+'" title="'+k.l+'"'+pickerAttrs+'>'+kpIcon(k.icon)+labelHtml+'</button>';
+  });
   PI_KEYS.forEach(function(k){
     var idx=ALL_KEYS.push({code:k.code,key:k.l,mPicker:k.mPicker,qParam:k.qParam})-1;
     var isPiColor = !k.mPicker && !k.qParam;
@@ -102,6 +120,11 @@ function buildKeypad(){
       showKpHelp(helpKey, b);
       return;
     }
+    if(obj.apprDepPicker){
+      toggleApprDepPicker();
+      return;
+    }
+    if(document.getElementById('apprDepPicker')) closeApprDepPicker(false);
     if(obj.key==='I'){
       toggleIncrementalToken();
     } else if(obj.key==='CC'){
@@ -111,8 +134,8 @@ function buildKeypad(){
       exitFieldMode();
       enterFieldMode('L');
     } else if(FM.active && obj.key==='P'){
-      var target = FM.builderKey==='P' ? 'L' : 'P';
-      switchFieldMode(target);
+      var target=polarBuilderTarget(FM.builderKey);
+      if(target) switchFieldMode(target);
     } else if(obj.cyclPicker){
       openCyclePicker();
     } else if(obj.mPicker){
@@ -141,6 +164,10 @@ function fieldAllowsIncremental(builderKey, field){
   if(builderKey==='CC') return /^[XY]$/.test(p);
   if(builderKey==='P') return p==='PA';
   if(builderKey==='CP') return p==='PA'||p==='Z';
+  if(/^APPR (?:LT|LN|CT|LCT)$/.test(builderKey)) return /^[XYZ]$/.test(p);
+  if(/^APPR P(?:LT|LN|CT|LCT)$/.test(builderKey)) return p==='PA'||p==='Z';
+  if(builderKey==='DEP LCT') return /^[XYZ]$/.test(p);
+  if(builderKey==='DEP PLCT') return p==='PA'||p==='Z';
   return false;
 }
 
@@ -324,7 +351,6 @@ function fieldPanelKeydown(e){
   // Match the Android guided editor: a sign key changes only the sign of the
   // active numeric value. It must never replace the selected L/C/CC value.
   if(!e.ctrlKey && !e.altKey && !e.metaKey &&
-     (FM.builderKey==='L'||FM.builderKey==='C'||FM.builderKey==='CC') &&
      _fieldAcceptsSign(f) && (e.key==='+'||e.key==='-')){
     e.preventDefault(); e.stopPropagation();
     _setFieldSign(f,e.key);
@@ -378,7 +404,7 @@ function renderFbar(){
   html+='<div class="ctx-row2">';
   html+='<button class="fbar-nav" onclick="fieldPrev()">&#9664;</button>';
   var isFieldIncr=f.type==='coord'&&!!f.incr;
-  var polarField=FM.builderKey==='P'||FM.builderKey==='CP';
+  var polarField=FM.builderKey==='P'||FM.builderKey==='CP'||/\bP(?:LT|LN|CT|LCT)$/.test(FM.builderKey);
   var modeLbl=polarField?(isFieldIncr?'POLAR INCR':'POLAR ABS'):(isFieldIncr?'INCR':'ABS');
   html+='<span class="fbar-mode '+(isFieldIncr?'incr':'abs')+'">'+modeLbl+'</span>';
   if(f.type==='tool'){
@@ -535,6 +561,21 @@ function switchFieldMode(label){
       if(nbare===bare){ nf.val=old.val; break; }
     }
   });
+  // APPR/DEP Cartesian and polar variants share LEN/CCA/R, radius
+  // compensation and M fields. Preserve those values when P changes only the
+  // coordinate system.
+  var usedShared={};
+  FM.fields.forEach(function(old){
+    if(old.type==='coord'||old.type==='feed') return;
+    for(var j=0;j<newFields.length;j++){
+      var nf=newFields[j];
+      if(usedShared[j]||nf.type!==old.type||nf.p!==old.p) continue;
+      nf.val=old.val;
+      if(old.mParams) nf.mParams=old.mParams;
+      usedShared[j]=true;
+      break;
+    }
+  });
   // preniesť feed
   var oldFeed=null;
   for(var k=0;k<FM.fields.length;k++){ if(FM.fields[k].type==='feed'){ oldFeed=FM.fields[k].val; break; } }
@@ -594,6 +635,7 @@ function getCaretLine(){
   if(rawCmd==='LP') bk='P';
   else if(rawCmd==='CP') bk='CP';
   else if(rawCmd==='L'){ bk='L'; }
+  else if((rawCmd==='APPR'||rawCmd==='DEP')&&toks[1]) bk=rawCmd+' '+toks[1];
   else if(rawCmd==='TOOL' && toks[1]==='CALL'){ bk='TOOL CALL'; }
   else if(rawCmd==='CALL' && toks[1]==='LBL'){ bk='LBL CALL'; }
   // Q lines: no field mode, edit directly
@@ -631,7 +673,8 @@ function parseExistingLine(lineText, bk){
   }
   // For QPARAM: extract value from Q208+5.5 or Q208 +5.5
 
-  var toks=lineText.trim().toUpperCase().split(/\s+/).slice(1);
+  var commandWords=/^(?:APPR|DEP)\s/i.test(lineText.trim())?2:1;
+  var toks=lineText.trim().toUpperCase().split(/\s+/).slice(commandWords);
   var firstM=-1;
   for(var mi=0;mi<toks.length;mi++){
     if(/^M\d+$/.test(toks[mi])){ firstM=mi; break; }
@@ -690,9 +733,9 @@ function findClickedFieldIdx(lineText, bk, posInLine){
   var schema=BUILDERS[bk];
   var schemaFields=[];
   schema.fields.forEach(function(sf){ if(sf.type!=='mfunc') schemaFields.push(sf); });
-  var tokens=[], re=/\S+/g, match, first=true;
+  var tokens=[], re=/\S+/g, match, commandWords=/^(?:APPR|DEP)\s/i.test(lineText.trim())?2:1, skipped=0;
   while((match=re.exec(lineText))!==null){
-    if(first){ first=false; continue; }
+    if(skipped<commandWords){ skipped++; continue; }
     tokens.push({start:match.index, end:match.index+match[0].length, upper:match[0].toUpperCase()});
   }
   var clickedTok=null, bestDist=Infinity;

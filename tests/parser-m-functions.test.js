@@ -4,6 +4,9 @@ const H = require('./_cycle-harness.js');
 function errors(code){
   return H.validate(code).filter(problem => problem.sev === 'err');
 }
+function spindleWarnings(code){
+  return Array.from(H.validate(code)).filter(problem => /M3\/M4 not programmed before first cutting move/.test(problem.msg));
+}
 function body(text){
   return H.program(`TOOL CALL 1 Z S2000 F500
 ${text}`);
@@ -21,6 +24,37 @@ const positioningPrograms = [
 positioningPrograms.forEach((code,index) => {
   assert.strictEqual(errors(code).length,0,`positioning M-tail fixture ${index + 1} is valid`);
 });
+
+// FMAX positioning before spindle start is safe. The first feed move is the
+// point at which the spindle warning becomes relevant, including M3/M4 in that
+// same block because those functions are effective at the start of the block.
+{
+  const code=body(`L Z+250 R0 FMAX
+L X-10 Y-10 R0 FMAX
+L Z-5 R0 F1000 M3
+L X+10 Y+0 F300`);
+  assert.deepStrictEqual(spindleWarnings(code), [],
+    'M3 on the first feed move is accepted after safe FMAX positioning');
+}
+{
+  const code=body(`L Z+250 R0 FMAX
+L X+10 Y+0 F300`);
+  const feedLine=code.split('\n').findIndex(text => /X\+10/.test(text));
+  assert.deepStrictEqual(spindleWarnings(code).map(problem => problem.line), [feedLine],
+    'missing spindle is reported on the first feed move, not on preceding FMAX positioning');
+}
+['M3','M4','M13','M14'].forEach(mCode => {
+  assert.deepStrictEqual(spindleWarnings(body(`L X+10 Y+0 F300 ${mCode}`)), [],
+    `${mCode} is effective before the first feed move in its own block`);
+});
+assert.deepStrictEqual(spindleWarnings(body(`L Z+250 R0 FMAX
+M3
+L X+10 Y+0 F300`)), [],
+  'standalone M3 after FMAX positioning starts the spindle before the first feed move');
+assert.strictEqual(spindleWarnings(body(`M3
+L Z+250 R0 FMAX M5
+L X+10 Y+0 F300`)).length,1,
+  'end-effective M5 on a rapid block stops the spindle before the following feed move');
 
 assert.ok(errors(body('L M3 X+10 F500')).some(problem => /M3 does not use parameters/.test(problem.msg)),
   'M must remain at the end of a positioning block');

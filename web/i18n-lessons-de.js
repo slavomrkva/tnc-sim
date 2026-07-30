@@ -901,11 +901,11 @@ var LESSONS_DE = {
       hints:[
         'Gewindebohren schneidet ein Gewinde \u2014 <code>CYCL DEF 209</code>. Die Spindel synchronisiert zur <b>Steigung</b>, also setzt die Steigung den Vorschub, nicht F.',
         'Kernwerte: <code>Q201</code>=-15 Gewindetiefe, <code>Q239</code>=1.25 Steigung, <code>Q257</code>=4 Spanbruch, <code>Q200</code>=2.',
-        'Tippe den Satz <code>CYCL DEF 209 Q257=+4 Q256=+0.5</code> von der Folie, mit <code>Q201=-15</code>, <code>Q239=+1.25</code>, <code>Q200=+2</code>.'
+        'Tippe <code>CYCL DEF 209</code> und gib danach jeden Q-Parameter in einer eigenen Zeile in der Reihenfolge der Folie ein.'
       ],
       checks:[
         {label:'Gewindebohrzyklus 209 nach T7 definiert',
-         hint:'Erste Zeile: CYCL DEF 209 Q257=+4 Q256=+0.5'},
+         hint:'Erste Zeile: CYCL DEF 209. Q257 und Q256 stehen jeweils in einer eigenen Parameterzeile.'},
         {label:'Steigung Q239 = +1.25 (M8)',
          hint:'Die Steigung von M8 ist 1,25 mm.'},
         {label:'Gewindetiefe Q201 = -15',

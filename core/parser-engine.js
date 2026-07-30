@@ -402,6 +402,9 @@ function validateProgram(code, liveEdit){
       else if(/^(?:RL|RR|R0)$/.test(token)){ key='radius-comp'; label='radius compensation'; }
       else if(/^DR[+-]$/.test(token)){ key='direction'; label='rotation direction DR'; }
       else if(/^R[+-]?\d/.test(token)){ key='radius'; label='circle radius R'; }
+      else if(/^LEN[+-]?\d/.test(token)){ key='length'; label='length LEN'; }
+      else if(/^CCA[+-]?\d/.test(token)){ key='center-angle'; label='center angle CCA'; }
+      else if(/^LIN_[XYZABC][+-]?\d/.test(token)){ key='linear-superposition'; label='linear superposition'; }
       else if(/^PR[+-]?\d/.test(token)){ key='polar-radius'; label='polar radius PR'; }
       else if(/^(?:PA|IPA)[+-]?\d/.test(token)){ key='polar-angle'; label='polar angle PA/IPA'; }
       if(!key) continue;
@@ -441,10 +444,13 @@ function validateProgram(code, liveEdit){
       }
     }
   }
-  function validateFirstPositioningMove(line,hasMotion){
+  function validateFirstPositioningMove(line,hasMotion,isRapid){
     if(!hasMotion) return;
-    if(!valSpindleOn&&hasToolCall&&firstMoveLine<0)
-      probs.push({line:line,sev:'warn',msg:'Spindle? \u2014 M3/M4 not programmed before first cutting move'});
+    if(!isRapid&&firstCuttingMoveLine<0){
+      if(!valSpindleOn&&hasToolCall)
+        probs.push({line:line,sev:'warn',msg:'Spindle? \u2014 M3/M4 not programmed before first cutting move'});
+      firstCuttingMoveLine=line;
+    }
     if(!hasToolCall)
       probs.push({line:line,sev:'warn',msg:'No tool active \u2014 TOOL CALL missing before this move'});
   }
@@ -472,6 +478,7 @@ function validateProgram(code, liveEdit){
   var hasToolCall=false;
   var toolCallLine=-1;
   var firstMoveLine=-1;
+  var firstCuttingMoveLine=-1;
   var valToolNum=0;
   var valZ=null;
   var valSurfZ=null;
@@ -635,16 +642,17 @@ function validateProgram(code, liveEdit){
       continue;
     }
     if(Object.keys(qVarsVal).length > 0) u = resolveQLine(u, qVarsVal);
-    if(/^(L|C|CR|CT|LP|CP)\b/.test(u)) u = normalizePositioningFeedText(u);
+    if(/^(L|C|CR|CT|LP|CP|APPR|DEP|RND|CHF)\b/.test(u)) u = normalizePositioningFeedText(u);
 
     // Undefined Q parameter in a movement line — coordinate would be silently ignored
-    if(/^(L|C|CC|RND|CR|CT|LP|CP)\b/.test(u) && /[XYZIJKRP][+-]?Q\d+/.test(u)){
-      var _undefQ = u.match(/[XYZIJKRP][+-]?(Q\d+)/);
+    if(/^(L|C|CC|RND|CR|CT|LP|CP|APPR|DEP|CHF)\b/.test(u) &&
+       /(?:I?[XYZ]|PR|PA|IPA|R|LEN|CCA|LIN_[XYZABC])[+-]?Q\d+/.test(u)){
+      var _undefQ = u.match(/(?:I?[XYZ]|PR|PA|IPA|R|LEN|CCA|LIN_[XYZABC])[+-]?(Q\d+)/);
       probs.push({line:srcI,sev:'err',msg:_undefQ[1]+' has no value assigned \u2014 coordinate will be ignored'});
     }
 
     var toks=u.split(/\s+/);
-    if(/^(L|C|CR|CT|LP|CP)\b/.test(u)){
+    if(/^(L|C|CR|CT|LP|CP|APPR|DEP|RND|CHF)\b/.test(u)){
       for(var _mfi=1;_mfi<toks.length;_mfi++){
         var _mf=toks[_mfi].match(/^F\+?(\d+(?:\.\d+)?)$/);
         if(_mf&&parseFloat(_mf[1])<=0) probs.push({line:srcI,sev:'err',msg:'Feed must be greater than 0'});
@@ -783,6 +791,146 @@ function validateProgram(code, liveEdit){
         probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: TOOL DEF <no.>'});
 
     // ── CC ──
+    } else if(toks[0]==='APPR'){
+      // TNC 640 34059x-18 Klartext Programming (10/2023), pp. 150-157.
+      var _apprVariant=toks[1]||'';
+      var _apprPolar=/^P/.test(_apprVariant);
+      var _apprForm=_apprVariant.replace(/^P/,'');
+      if(!/^(?:LT|LN|CT|LCT|PLT|PLN|PCT|PLCT)$/.test(_apprVariant)){
+        probs.push({line:srcI,sev:'err',msg:'Unsupported APPR path form — use LT, LN, CT or LCT'});
+        continue;
+      }
+      var _apprAllowed=_apprPolar ?
+        [/^PR[+-]?\d+(?:\.\d+)?$/, /^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^I?Z[+-]?\d+(?:\.\d+)?$/,
+         /^LEN\+?\d+(?:\.\d+)?$/, /^CCA\+?\d+(?:\.\d+)?$/, /^R[+-]?\d+(?:\.\d+)?$/,
+         /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/] :
+        [/^I?[XYZ][+-]?\d+(?:\.\d+)?$/, /^LEN\+?\d+(?:\.\d+)?$/, /^CCA\+?\d+(?:\.\d+)?$/,
+         /^R[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/];
+      rejectUnknownTokens(toks,2,_apprAllowed,srcI);
+      rejectDuplicateFields(toks,2,srcI);
+      validatePositioningFeed(toks,srcI);
+      if(valRcState==='RL'||valRcState==='RR')
+        probs.push({line:srcI,sev:'err',msg:'APPR requires a starting point approached with R0'});
+      var _apprRc='';
+      for(var _ari=2;_ari<toks.length;_ari++) if(/^(?:RL|RR|R0)$/.test(toks[_ari])) _apprRc=toks[_ari];
+      if(!_apprRc) probs.push({line:srcI,sev:'err',msg:'APPR requires radius compensation RL, RR or R0'});
+      if((_apprForm==='LN'||_apprForm==='CT')&&_apprRc==='R0')
+        probs.push({line:srcI,sev:'err',msg:'APPR '+_apprForm+' is not permitted with R0 — use RL or RR'});
+
+      var _apprLen=u.match(/(?:^|\s)LEN\+?(\d+(?:\.\d+)?)/);
+      var _apprCca=u.match(/(?:^|\s)CCA\+?(\d+(?:\.\d+)?)/);
+      var _apprRad=u.match(/(?:^|\s)R([+-]?)(\d+(?:\.\d+)?)/);
+      if((_apprForm==='LT'||_apprForm==='LN')&&(!_apprLen||parseFloat(_apprLen[1])<=0))
+        probs.push({line:srcI,sev:'err',msg:'APPR '+_apprForm+' requires LEN greater than 0'});
+      if(_apprForm==='CT'){
+        if(!_apprCca||parseFloat(_apprCca[1])<=0||parseFloat(_apprCca[1])>360)
+          probs.push({line:srcI,sev:'err',msg:'APPR CT requires CCA within 0...360 degrees'});
+        if(!_apprRad||!_apprRad[1]||parseFloat(_apprRad[2])<=0)
+          probs.push({line:srcI,sev:'err',msg:'APPR CT requires a non-zero signed radius R'});
+      } else if(_apprForm==='LCT'&&(!_apprRad||_apprRad[1]==='-'||parseFloat(_apprRad[2])<=0)){
+        probs.push({line:srcI,sev:'err',msg:'APPR LCT requires a positive radius R'});
+      }
+
+      if(_apprPolar){
+        var _apr=u.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+        var _apa=u.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+        var _aipa=u.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+        if(!lastCC) probs.push({line:srcI,sev:'err',msg:'Polar APPR requires a pole defined with CC'});
+        if(!_apr||(!_apa&&!_aipa)) probs.push({line:srcI,sev:'err',msg:'Polar APPR requires PR and PA/IPA coordinates'});
+        if(_apa&&_aipa) probs.push({line:srcI,sev:'err',msg:'Polar APPR may contain PA or IPA, not both'});
+        if(_apr&&parseFloat(_apr[1])<0) probs.push({line:srcI,sev:'err',msg:'Polar radius PR must not be negative'});
+        if(lastCC&&_apr&&(_apa||_aipa)){
+          var _apprAng=_apa?parseFloat(_apa[1])*Math.PI/180:
+            Math.atan2((valLastY===null?valCCY:valLastY)-valCCY,(valLastX===null?valCCX:valLastX)-valCCX)+parseFloat(_aipa[1])*Math.PI/180;
+          valLastX=valCCX+parseFloat(_apr[1])*Math.cos(_apprAng);
+          valLastY=valCCY+parseFloat(_apr[1])*Math.sin(_apprAng);
+        }
+      } else {
+        var _apprIx=u.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), _apprIy=u.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+        var _apprX=u.match(/(?:^|\s)X([+-]?\d+\.?\d*)/), _apprY=u.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+        if(!_apprIx&&!_apprIy&&!_apprX&&!_apprY)
+          probs.push({line:srcI,sev:'err',msg:'APPR requires coordinates of the first contour point'});
+        if(_apprIx&&valLastX!==null) valLastX+=parseFloat(_apprIx[1]); else if(_apprX) valLastX=parseFloat(_apprX[1]);
+        if(_apprIy&&valLastY!==null) valLastY+=parseFloat(_apprIy[1]); else if(_apprY) valLastY=parseFloat(_apprY[1]);
+      }
+      var _apprIz=u.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _apprZ=u.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+      if(_apprIz) valZ=(valZ===null?0:valZ)+parseFloat(_apprIz[1]); else if(_apprZ) valZ=parseFloat(_apprZ[1]);
+      valRcState=(_apprRc==='RL'||_apprRc==='RR')?_apprRc:'';
+      valRcLine=valRcState?srcI:-1;
+      valHasXYTangent=false;
+      lastRcWasArc=false;
+      validateFirstPositioningMove(srcI,true,/\bFMAX\b/.test(u));
+      if(firstMoveLine<0) firstMoveLine=srcI;
+
+    } else if(toks[0]==='DEP'){
+      // DEP automatically cancels radius compensation. Only LCT has a polar form.
+      var _depVariant=toks[1]||'';
+      var _depPolar=_depVariant==='PLCT';
+      var _depForm=_depVariant.replace(/^P/,'');
+      if(!/^(?:LT|LN|CT|LCT|PLCT)$/.test(_depVariant)){
+        probs.push({line:srcI,sev:'err',msg:'Unsupported DEP path form — use LT, LN, CT or LCT'});
+        continue;
+      }
+      var _depMInfo=analyzeMFunctionTail(toks,2), _depMotionTokens=_depMInfo.motionTokens;
+      var _depMotion=_depMotionTokens.join(' '), _depMs=_depMInfo.codes;
+      validateMTail(_depMInfo,srcI,'positioning');
+      var _depAllowed=_depPolar ?
+        [/^PR[+-]?\d+(?:\.\d+)?$/, /^(?:PA|IPA)[+-]?\d+(?:\.\d+)?$/, /^I?Z[+-]?\d+(?:\.\d+)?$/,
+         /^R\+?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/] :
+        [/^I?[XYZ][+-]?\d+(?:\.\d+)?$/, /^LEN\+?\d+(?:\.\d+)?$/, /^CCA\+?\d+(?:\.\d+)?$/,
+         /^R[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/];
+      rejectUnknownTokens(_depMotionTokens,2,_depAllowed,srcI);
+      rejectDuplicateFields(_depMotionTokens,2,srcI);
+      validatePositioningFeed(_depMotionTokens,srcI);
+      if(valRcState!=='RL'&&valRcState!=='RR')
+        probs.push({line:srcI,sev:'err',msg:'DEP requires an active RL or RR compensated contour'});
+      var _depLen=_depMotion.match(/(?:^|\s)LEN\+?(\d+(?:\.\d+)?)/);
+      var _depCca=_depMotion.match(/(?:^|\s)CCA\+?(\d+(?:\.\d+)?)/);
+      var _depRad=_depMotion.match(/(?:^|\s)R([+-]?)(\d+(?:\.\d+)?)/);
+      if((_depForm==='LT'||_depForm==='LN')&&(!_depLen||parseFloat(_depLen[1])<=0))
+        probs.push({line:srcI,sev:'err',msg:'DEP '+_depForm+' requires LEN greater than 0'});
+      if(_depForm==='CT'){
+        if(!_depCca||parseFloat(_depCca[1])<=0||parseFloat(_depCca[1])>360)
+          probs.push({line:srcI,sev:'err',msg:'DEP CT requires CCA within 0...360 degrees'});
+        if(!_depRad||!_depRad[1]||parseFloat(_depRad[2])<=0)
+          probs.push({line:srcI,sev:'err',msg:'DEP CT requires a non-zero signed radius R'});
+      } else if(_depForm==='LCT'&&(!_depRad||_depRad[1]==='-'||parseFloat(_depRad[2])<=0)){
+        probs.push({line:srcI,sev:'err',msg:'DEP LCT requires a positive radius R'});
+      }
+      if(_depForm==='LCT'){
+        if(_depPolar){
+          var _dpr=_depMotion.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+          var _dpa=_depMotion.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+          var _dipa=_depMotion.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+          if(!lastCC) probs.push({line:srcI,sev:'err',msg:'DEP PLCT requires a pole defined with CC'});
+          if(!_dpr||(!_dpa&&!_dipa)) probs.push({line:srcI,sev:'err',msg:'DEP PLCT requires PR and PA/IPA coordinates'});
+          if(_dpa&&_dipa) probs.push({line:srcI,sev:'err',msg:'DEP PLCT may contain PA or IPA, not both'});
+          if(_dpr&&parseFloat(_dpr[1])<0) probs.push({line:srcI,sev:'err',msg:'Polar radius PR must not be negative'});
+          if(lastCC&&_dpr&&(_dpa||_dipa)){
+            var _depAng=_dpa?parseFloat(_dpa[1])*Math.PI/180:
+              Math.atan2((valLastY===null?valCCY:valLastY)-valCCY,(valLastX===null?valCCX:valLastX)-valCCX)+parseFloat(_dipa[1])*Math.PI/180;
+            valLastX=valCCX+parseFloat(_dpr[1])*Math.cos(_depAng);
+            valLastY=valCCY+parseFloat(_dpr[1])*Math.sin(_depAng);
+          }
+        } else {
+          var _depIx=_depMotion.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), _depIy=_depMotion.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+          var _depX=_depMotion.match(/(?:^|\s)X([+-]?\d+\.?\d*)/), _depY=_depMotion.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+          if(!_depIx&&!_depIy&&!_depX&&!_depY)
+            probs.push({line:srcI,sev:'err',msg:'DEP LCT requires coordinates of end point PN'});
+          if(_depIx&&valLastX!==null) valLastX+=parseFloat(_depIx[1]); else if(_depX) valLastX=parseFloat(_depX[1]);
+          if(_depIy&&valLastY!==null) valLastY+=parseFloat(_depIy[1]); else if(_depY) valLastY=parseFloat(_depY[1]);
+        }
+        var _depIz=_depMotion.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _depZ=_depMotion.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+        if(_depIz) valZ=(valZ===null?0:valZ)+parseFloat(_depIz[1]); else if(_depZ) valZ=parseFloat(_depZ[1]);
+      }
+      applyValidatorMStart(_depMs);
+      valRcState=''; valRcLine=-1;
+      valHasXYTangent=false;
+      lastRcWasArc=false;
+      validateFirstPositioningMove(srcI,true,/\bFMAX\b/.test(_depMotion));
+      applyValidatorMEnd(_depMs);
+      if(firstMoveLine<0) firstMoveLine=srcI;
+
     } else if(toks[0]==='CC'){
       rejectUnknownTokens(toks,1,[/^I?[XY][+-]?\d+(?:\.\d+)?$/],srcI);
       rejectDuplicateFields(toks,1,srcI);
@@ -827,7 +975,7 @@ function validateProgram(code, liveEdit){
           probs.push({line:srcI,sev:'err',msg:'C end point is not on the circle defined by the start point and CC'});
       }
       if(_cEndX!==null) valLastX=_cEndX; if(_cEndY!==null) valLastY=_cEndY;
-      validateFirstPositioningMove(srcI,!!(_cex||_cey));
+      validateFirstPositioningMove(srcI,!!(_cex||_cey),/\bFMAX\b/.test(_cMotion));
       applyValidatorMEnd(_cEmbeddedMs);
       valHasXYTangent=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
@@ -855,7 +1003,7 @@ function validateProgram(code, liveEdit){
           probs.push({line:srcI,sev:'err',msg:'CR geometry is impossible \u2014 end-point chord must be greater than 0 and no longer than 2R'});
       }
       if(_crEndX!==null) valLastX=_crEndX; if(_crEndY!==null) valLastY=_crEndY;
-      validateFirstPositioningMove(srcI,!!(_crex||_crey));
+      validateFirstPositioningMove(srcI,!!(_crex||_crey),/\bFMAX\b/.test(_crMotion));
       applyValidatorMEnd(_crEmbeddedMs);
       valHasXYTangent=true;
       lastRcWasArc=true;
@@ -866,7 +1014,7 @@ function validateProgram(code, liveEdit){
       var _ctMInfo=analyzeMFunctionTail(toks,1), _ctMotionTokens=_ctMInfo.motionTokens;
       var _ctMotion=_ctMotionTokens.join(' '), _ctEmbeddedMs=_ctMInfo.codes;
       validateMTail(_ctMInfo,srcI,'positioning');
-      rejectUnknownTokens(_ctMotionTokens,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/],srcI);
+      rejectUnknownTokens(_ctMotionTokens,1,[/^[XY][+-]?\d+(?:\.\d+)?$/, /^LIN_Z[+-]?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/, /^(?:RL|RR|R0)$/],srcI);
       rejectDuplicateFields(_ctMotionTokens,1,srcI);
       validatePositioningFeed(_ctMotionTokens,srcI);
       applyValidatorMStart(_ctEmbeddedMs);
@@ -877,7 +1025,9 @@ function validateProgram(code, liveEdit){
       if(!valHasXYTangent) probs.push({line:srcI,sev:'err',msg:'CT requires a preceding XY contour move to define the tangent'});
       var _ctex=_ctMotion.match(/X([+-]?\d+\.?\d*)/), _ctey=_ctMotion.match(/Y([+-]?\d+\.?\d*)/);
       if(_ctex) valLastX=parseFloat(_ctex[1]); if(_ctey) valLastY=parseFloat(_ctey[1]);
-      validateFirstPositioningMove(srcI,!!(_ctex||_ctey));
+      var _ctLinZ=_ctMotion.match(/(?:^|\s)LIN_Z([+-]?\d+\.?\d*)/);
+      if(_ctLinZ) valZ=parseFloat(_ctLinZ[1]);
+      validateFirstPositioningMove(srcI,!!(_ctex||_ctey),/\bFMAX\b/.test(_ctMotion));
       applyValidatorMEnd(_ctEmbeddedMs);
       valHasXYTangent=true;
       lastRcWasArc=true;
@@ -913,7 +1063,7 @@ function validateProgram(code, liveEdit){
         }
       }
       if(_vpr&&parseFloat(_vpr[1])<0) probs.push({line:srcI,sev:'err',msg:'Polar radius PR must not be negative'});
-      validateFirstPositioningMove(srcI,!!(_vpr||_vpa||_vipa));
+      validateFirstPositioningMove(srcI,!!(_vpr||_vpa||_vipa),/\bFMAX\b/.test(_lpMotion));
       applyValidatorMEnd(_lpEmbeddedMs);
       if(firstMoveLine<0) firstMoveLine=srcI;
     } else if(toks[0]==='CP'){
@@ -950,7 +1100,7 @@ function validateProgram(code, liveEdit){
       var _vcpiz=_cpMotion.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/), _vcpz=_cpMotion.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
       if(_vcpiz) valZ=(valZ===null?0:valZ)+parseFloat(_vcpiz[1]);
       else if(_vcpz) valZ=parseFloat(_vcpz[1]);
-      validateFirstPositioningMove(srcI,!!(_vcpa||_vcipa||_vcpiz||_vcpz));
+      validateFirstPositioningMove(srcI,!!(_vcpa||_vcipa||_vcpiz||_vcpz),/\bFMAX\b/.test(_cpMotion));
       applyValidatorMEnd(_cpEmbeddedMs);
       lastRcWasArc=true;
       if(firstMoveLine<0) firstMoveLine=srcI;
@@ -993,7 +1143,7 @@ function validateProgram(code, liveEdit){
           break;
         }
       }
-      validateFirstPositioningMove(srcI,hasAxis);
+      validateFirstPositioningMove(srcI,hasAxis,/\bFMAX\b/.test(_lMotion));
       // M5 takes effect at the end of the block, after the move above.
       applyValidatorMEnd(_embeddedMs);
       // RL/RR tracking
@@ -1015,8 +1165,9 @@ function validateProgram(code, liveEdit){
       var _oldVX4=valLastX, _oldVY4=valLastY;
       var _newVX4 = _xm4 ? (_isIX4 && valLastX!==null ? valLastX+parseFloat(_xm4[1]) : parseFloat(_xm4[1])) : valLastX;
       var _newVY4 = _ym4 ? (_isIY4 && valLastY!==null ? valLastY+parseFloat(_ym4[1]) : parseFloat(_ym4[1])) : valLastY;
-      if(_oldVX4!==null&&_oldVY4!==null&&_newVX4!==null&&_newVY4!==null&&
-         Math.hypot(_newVX4-_oldVX4,_newVY4-_oldVY4)>1e-9) valHasXYTangent=true;
+      var _lHasCoord=/(?:^|\s)I?[XYZ][+-]?\d/.test(_lMotion);
+      if(_lHasCoord&&_oldVX4!==null&&_oldVY4!==null&&_newVX4!==null&&_newVY4!==null)
+        valHasXYTangent=Math.hypot(_newVX4-_oldVX4,_newVY4-_oldVY4)>1e-9;
       if((valRcState==='RL'||valRcState==='RR') && _oldVX4!==null && _oldVY4!==null && _newVX4!==null && _newVY4!==null){
         if(Math.abs(_newVX4-_oldVX4)<1e-6 && Math.abs(_newVY4-_oldVY4)<1e-6)
           probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' on a pure Z move \u2014 comp needs XY motion'});
@@ -1032,18 +1183,21 @@ function validateProgram(code, liveEdit){
 
     // ── RND ──
     } else if(toks[0]==='RND'){
-      if(!/^RND\s+R\+?\d+(?:\.\d+)?$/.test(u)) probs.push({line:srcI,sev:'err',msg:'Faulty block \u2014 expected: RND R<positive radius>'});
-      else{
-        var _rndRm=u.match(/R[+-]?(\d+\.?\d*)/);
-        if(_rndRm){
-          if(parseFloat(_rndRm[1])<=0) probs.push({line:srcI,sev:'err',msg:'Rounding radius must be greater than 0'});
-        }
-      }
+      rejectUnknownTokens(toks,1,[/^R\+?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/],srcI);
+      rejectDuplicateFields(toks,1,srcI);
+      validatePositioningFeed(toks,srcI);
+      var _rndRm=u.match(/(?:^|\s)R\+?(\d+\.?\d*)/);
+      if(!_rndRm||parseFloat(_rndRm[1])<=0)
+        probs.push({line:srcI,sev:'err',msg:'Rounding radius must be greater than 0'});
 
     // ── CHF ──
     } else if(toks[0]==='CHF'){
-      var _chfm=u.match(/^CHF\s+\+?(\d+(?:\.\d+)?)$/);
-      if(!_chfm||parseFloat(_chfm[1])<=0) probs.push({line:srcI,sev:'err',msg:'Chamfer length must be greater than 0'});
+      rejectUnknownTokens(toks,1,[/^\+?\d+(?:\.\d+)?$/, /^(?:FMAX|FAUTO|F\+?\d+(?:\.\d+)?)$/],srcI);
+      rejectDuplicateFields(toks,1,srcI);
+      validatePositioningFeed(toks,srcI);
+      var _chfm=u.match(/^CHF\s+\+?(\d+(?:\.\d+)?)(?:\s|$)/);
+      if(!_chfm||parseFloat(_chfm[1])<=0)
+        probs.push({line:srcI,sev:'err',msg:'Chamfer length must be greater than 0'});
 
     // ── CYCL DEF ──
     } else if(u.indexOf('CYCL DEF')===0){
@@ -1336,6 +1490,58 @@ function parseProgram(code){
       if(ai===steps) target=pointCopy(geom.to);
       pushSeg(target,rapid,srcLine,rc,false,false,false,geom);
     }
+  }
+
+  function pushSpecialSegment(to,rapid,srcLine,rc,rcActivation,geom,extra){
+    var from=pointCopy(pos);
+    if(radiusCompBlocked){
+      pos=pointCopy(to);
+      return null;
+    }
+    var dx=to.x-from.x,dy=to.y-from.y,dz=to.z-from.z;
+    var seg={from:from,to:pointCopy(to),rapid:!!rapid,feed:feed,spindleS:spindleS,
+      spindleOn:spindleOn,spindleDir:spindleDir,threadHand:activeThreadHand,
+      coolantOn:coolantOn,len:Math.max(0.001,Math.sqrt(dx*dx+dy*dy+dz*dz)),
+      blockIndex:blockIndex,srcLine:srcLine,rc:rc||'',toolNum:toolNum,
+      pendingDef:pendingDefTool,rcActivation:!!rcActivation,rcGeom:geom||null,
+      dlPgm:curDLpgm,drPgm:curDRpgm};
+    if(extra) for(var key in extra) if(Object.prototype.hasOwnProperty.call(extra,key)) seg[key]=extra[key];
+    sub.push(seg);
+    pos=pointCopy(to);
+    return seg;
+  }
+
+  function lastPositioningSegment(){
+    for(var si=sub.length-1;si>=0;si--){
+      var seg=sub[si];
+      if(seg.isMseg||seg.cycleEvent) continue;
+      var dx=seg.to.x-seg.from.x,dy=seg.to.y-seg.from.y,dz=seg.to.z-seg.from.z;
+      if(Math.sqrt(dx*dx+dy*dy+dz*dz)>1e-9) return seg;
+    }
+    return null;
+  }
+
+  function lastContourSegment(){
+    for(var si=sub.length-1;si>=0;si--){
+      var seg=sub[si];
+      if(seg.rcGeom) return seg;
+    }
+    return null;
+  }
+
+  function exactEndTangent(seg){
+    if(!seg) return null;
+    var dx=seg.to.x-seg.from.x,dy=seg.to.y-seg.from.y;
+    if(Math.hypot(dx,dy)<1e-9) return null;
+    if(seg.rcGeom){
+      var primitive=_rcNominalPrimitive(seg.rcGeom);
+      if(primitive){
+        var tangent=_rcTangent(primitive,true);
+        if(Math.hypot(tangent.x,tangent.y)>1e-9) return tangent;
+      }
+    }
+    var length=Math.hypot(dx,dy);
+    return {x:dx/length,y:dy/length};
   }
 
   function pushCycleEvent(kind, value, srcLine, rc, phase){
@@ -1919,8 +2125,12 @@ function parseProgram(code){
       var p2={x:corner.x+u_out.x*dist, y:corner.y+u_out.y*dist, z:corner.z};
       var incomingGeom=pushContourLine(p1, mv.rapid, mv.srcLine, mv.rc, mv.rcActivation, 'L');
       if(mv.afterDegenerateChf) incomingGeom.afterDegenerateChf=true;
+      var _modifierFeed=feed;
+      var _modifierRapid=mv.rapid;
+      if(mod.feed!=null) feed=mod.feed;
+      if(mod.rapid!=null) _modifierRapid=mod.rapid;
       if(mod.type==='CHF'){
-        pushContourLine(p2, mv.rapid, mod.line!=null?mod.line:mv.srcLine, mv.rc, false, 'CHF');
+        pushContourLine(p2, _modifierRapid, mod.line!=null?mod.line:mv.srcLine, mv.rc, false, 'CHF');
         if(Math.hypot(p2.x-p1.x,p2.y-p1.y)<1e-10) nextMv.afterDegenerateChf=true;
       }
       else {
@@ -1932,8 +2142,9 @@ function parseProgram(code){
         var a1t=Math.atan2(p2.y-cy3,p2.x-cx3);
         var sw; if(sign>0){sw=a1t-a0;while(sw<=-1e-4)sw+=2*Math.PI;}else{sw=a1t-a0;while(sw>=1e-4)sw-=2*Math.PI;}
         var rndGeom=arcGeom(p1,p2,cx3,cy3,r,a0,sw,mod.line!=null?mod.line:mv.srcLine,'RND');
-        pushContourArc(rndGeom,mv.rapid,mod.line!=null?mod.line:mv.srcLine,mv.rc,Math.PI/36);
+        pushContourArc(rndGeom,_modifierRapid,mod.line!=null?mod.line:mv.srcLine,mv.rc,Math.PI/36);
       }
+      feed=_modifierFeed;
       // CRITICAL: the outgoing block must start at the fillet/chamfer END (p2),
       // not at the original corner — otherwise an extra spike gets cut through
       // the corner AND the polyline gets a gap that corrupts radius comp runs.
@@ -1958,7 +2169,7 @@ function parseProgram(code){
       .replace(/(\d),(?=\d)/g,'$1.') // Heidenhain decimal comma -> dot (Q1+0,5774, X+10,5); MUST happen before any regex/eval below
       .trim();
     line = normalizeNcBlockWhitespace(line);
-    if(/^(L|C|CR|CT|LP|CP)\b/.test(line)) line = normalizePositioningFeedText(line);
+    if(/^(L|C|CR|CT|LP|CP|APPR|DEP|RND|CHF)\b/.test(line)) line = normalizePositioningFeedText(line);
     if(!line || line.charAt(0)===';'){
       inCycleParamBlock = false;
       continue;
@@ -2143,6 +2354,115 @@ function parseProgram(code){
         blockIndex++;
       }
       if(finishMControlBlock(_standaloneCodes,srcLineI)) break;
+    }
+    else if(/^APPR\s+/.test(line)){
+      // TNC 640 34059x-18, Klartext Programming (10/2023), pp. 150-157.
+      // Keep the programmed PA as an activation marker. Once the following
+      // contour primitive is known, radius compensation can construct the
+      // exact PS-PH-PA path from that primitive's analytic start tangent.
+      flushPending();
+      blockIndex++;
+      var _apCore=line;
+      var _apFeedState=beginPositioningFeed(_apCore);
+      var _apVariant=(_apCore.match(/^APPR\s+(PLT|PLN|PCT|PLCT|LT|LN|CT|LCT)\b/)||[])[1]||'';
+      var _apPolar=_apVariant.charAt(0)==='P';
+      var _apForm=_apVariant.replace(/^P/,'');
+      var _apSide=(/\bRR\b/.test(_apCore)?'RR':(/\bRL\b/.test(_apCore)?'RL':'R0'));
+      var _apTarget=pointCopy(pos);
+      if(_apPolar){
+        var _apPr=_apCore.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+        var _apPa=_apCore.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+        var _apIpa=_apCore.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+        if(ccx!==null&&ccy!==null&&_apPr&&(_apPa||_apIpa)){
+          var _apAngle=_apPa?parseFloat(_apPa[1])*Math.PI/180:
+            Math.atan2(pos.y-ccy,pos.x-ccx)+parseFloat(_apIpa[1])*Math.PI/180;
+          _apTarget.x=ccx+parseFloat(_apPr[1])*Math.cos(_apAngle);
+          _apTarget.y=ccy+parseFloat(_apPr[1])*Math.sin(_apAngle);
+        }
+      } else {
+        var _apIx=_apCore.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/),_apIy=_apCore.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+        var _apX=_apCore.match(/(?:^|\s)X([+-]?\d+\.?\d*)/),_apY=_apCore.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+        if(_apIx) _apTarget.x=pos.x+parseFloat(_apIx[1]); else if(_apX) _apTarget.x=parseFloat(_apX[1]);
+        if(_apIy) _apTarget.y=pos.y+parseFloat(_apIy[1]); else if(_apY) _apTarget.y=parseFloat(_apY[1]);
+      }
+      var _apIz=_apCore.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/),_apZ=_apCore.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+      if(_apIz) _apTarget.z=pos.z+parseFloat(_apIz[1]); else if(_apZ) _apTarget.z=parseFloat(_apZ[1]);
+      var _apLenM=_apCore.match(/(?:^|\s)LEN\+?(\d+\.?\d*)/);
+      var _apCcaM=_apCore.match(/(?:^|\s)CCA\+?(\d+\.?\d*)/);
+      var _apRadM=_apCore.match(/(?:^|\s)R([+-]?)(\d+\.?\d*)/);
+      var _apPriorSeg=lastPositioningSegment();
+      var _apSpec={form:_apForm,side:_apSide,srcLine:srcLineI,
+        len:_apLenM?parseFloat(_apLenM[1]):0,
+        cca:_apCcaM?parseFloat(_apCcaM[1]):0,
+        radius:_apRadM?parseFloat(_apRadM[2]):0,
+        radiusSign:_apRadM&&_apRadM[1]==='-'?-1:1,
+        feed:feed,rapid:_apFeedState.rapid,
+        entryFeed:_apPriorSeg?_apPriorSeg.feed:_apFeedState.prior,
+        entryRapid:_apPriorSeg?!!_apPriorSeg.rapid:false,
+        programmedEnd:pointCopy(_apTarget)};
+      rcState=_apSide;
+      var _apGeom=lineGeom(pos,_apTarget,srcLineI,'APPR');
+      pushSpecialSegment(_apTarget,_apFeedState.rapid,srcLineI,rcState,
+        _apSide==='RL'||_apSide==='RR',_apGeom,{apprSpec:_apSpec});
+      endPositioningFeed(_apFeedState);
+    }
+    else if(/^DEP\s+/.test(line)){
+      // DEP uses the exact end tangent of the preceding contour and cancels
+      // compensation automatically after reaching PN.
+      flushPending();
+      blockIndex++;
+      var _depCodes=embeddedMCodes(line);
+      var _depCore=positioningTextBeforeM(line);
+      var _depFeedState=beginPositioningFeed(_depCore);
+      var _depVariant=(_depCore.match(/^DEP\s+(PLCT|LT|LN|CT|LCT)\b/)||[])[1]||'';
+      var _depForm=_depVariant.replace(/^P/,'');
+      var _depSide=rcState;
+      var _depLastSeg=lastContourSegment();
+      var _depTangent=exactEndTangent(_depLastSeg);
+      var _depLenM=_depCore.match(/(?:^|\s)LEN\+?(\d+\.?\d*)/);
+      var _depCcaM=_depCore.match(/(?:^|\s)CCA\+?(\d+\.?\d*)/);
+      var _depRadM=_depCore.match(/(?:^|\s)R([+-]?)(\d+\.?\d*)/);
+      var _depEnd=pointCopy(pos);
+      if(_depForm==='LCT'&&_depVariant==='PLCT'){
+        var _depPr=_depCore.match(/(?:^|\s)PR([+-]?\d+\.?\d*)/);
+        var _depPa=_depCore.match(/(?:^|\s)PA([+-]?\d+\.?\d*)/);
+        var _depIpa=_depCore.match(/(?:^|\s)IPA([+-]?\d+\.?\d*)/);
+        if(ccx!==null&&ccy!==null&&_depPr&&(_depPa||_depIpa)){
+          var _depAngle=_depPa?parseFloat(_depPa[1])*Math.PI/180:
+            Math.atan2(pos.y-ccy,pos.x-ccx)+parseFloat(_depIpa[1])*Math.PI/180;
+          _depEnd.x=ccx+parseFloat(_depPr[1])*Math.cos(_depAngle);
+          _depEnd.y=ccy+parseFloat(_depPr[1])*Math.sin(_depAngle);
+        }
+      } else if(_depForm==='LCT'){
+        var _depIx=_depCore.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/),_depIy=_depCore.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
+        var _depX=_depCore.match(/(?:^|\s)X([+-]?\d+\.?\d*)/),_depY=_depCore.match(/(?:^|\s)Y([+-]?\d+\.?\d*)/);
+        if(_depIx) _depEnd.x=pos.x+parseFloat(_depIx[1]); else if(_depX) _depEnd.x=parseFloat(_depX[1]);
+        if(_depIy) _depEnd.y=pos.y+parseFloat(_depIy[1]); else if(_depY) _depEnd.y=parseFloat(_depY[1]);
+      }
+      if(_depForm==='LCT'){
+        var _depIz=_depCore.match(/(?:^|\s)IZ([+-]?\d+\.?\d*)/),_depZ=_depCore.match(/(?:^|\s)Z([+-]?\d+\.?\d*)/);
+        if(_depIz) _depEnd.z=pos.z+parseFloat(_depIz[1]); else if(_depZ) _depEnd.z=parseFloat(_depZ[1]);
+      }
+      var _depSpec={form:_depForm,side:_depSide,srcLine:srcLineI,
+        len:_depLenM?parseFloat(_depLenM[1]):0,
+        cca:_depCcaM?parseFloat(_depCcaM[1]):0,
+        radius:_depRadM?parseFloat(_depRadM[2]):0,
+        radiusSign:_depRadM&&_depRadM[1]==='-'?-1:1,
+        feed:feed,rapid:_depFeedState.rapid,end:pointCopy(_depEnd)};
+      var _depNominalPlan=_depTangent&&_adDeparturePlan(_depSpec,pos,_depTangent);
+      if(_depNominalPlan&&_depNominalPlan.length)
+        _depEnd=_rcPrimitiveEnd(_depNominalPlan[_depNominalPlan.length-1].prim);
+      else
+        pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'DEP geometry cannot form a tangential transition from the preceding contour element'});
+      _depSpec.end=pointCopy(_depEnd);
+      applyKnownMStart(_depCodes);
+      var _depMarker=pushSpecialSegment(_depEnd,_depFeedState.rapid,srcLineI,'R0',false,null,{depSpec:_depSpec});
+      var _depCallCycle=cycleCallForMCodes(_depCodes);
+      if(_depMarker&&_depCallCycle&&activeCycle) executeCycle(activeCycle,srcLineI,'R0');
+      applyKnownMEnd(_depCodes);
+      rcState='R0';
+      endPositioningFeed(_depFeedState);
+      if(finishMControlBlock(_depCodes,srcLineI)) break;
     }
     else if(line.indexOf('CC')===0){
       var cix=line.match(/(?:^|\s)IX([+-]?\d+\.?\d*)/), ciy=line.match(/(?:^|\s)IY([+-]?\d+\.?\d*)/);
@@ -2339,21 +2659,19 @@ function parseProgram(code){
       var ex=_ctCore.match(/X([+-]?\d+\.?\d*)/), ey=_ctCore.match(/Y([+-]?\d+\.?\d*)/);
       var endX = ex ? parseFloat(ex[1]) : pos.x;
       var endY = ey ? parseFloat(ey[1]) : pos.y;
+      var _ctLinZ=_ctCore.match(/(?:^|\s)LIN_Z([+-]?\d+\.?\d*)/);
+      var _ctEndZ=_ctLinZ?parseFloat(_ctLinZ[1]):pos.z;
       if(/\bRL\b/.test(_ctCore)) rcState='RL'; else if(/\bRR\b/.test(_ctCore)) rcState='RR'; else if(/(?:^|\s)R0(?=\s|$)/.test(_ctCore)) rcState='R0'; // token match — 'R0.5' (CR radius) must NOT cancel compensation
       // compute tangent from the last segment that actually moved in XY —
       // a preceding Z-only plunge or retract must not reset the tangent
-      var tanX=0, tanY=1, _hasTangent=false;
-      for(var lsi=sub.length-1; lsi>=0; lsi--){
-        var ls=sub[lsi];
-        var ldx=ls.to.x-ls.from.x, ldy=ls.to.y-ls.from.y;
-        var ll=Math.sqrt(ldx*ldx+ldy*ldy);
-        if(ll>1e-6){ tanX=ldx/ll; tanY=ldy/ll; _hasTangent=true; break; }
-      }
-      if(!_hasTangent){
+      var _ctPrevious=lastContourSegment();
+      var _ctTangent=exactEndTangent(_ctPrevious);
+      if(!_ctTangent){
         pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CT requires a preceding XY contour move to define the tangent \u2014 arc rejected'});
         endPositioningFeed(_ctFeedState);
         continue;
       }
+      var tanX=_ctTangent.x,tanY=_ctTangent.y;
       var dx=endX-pos.x, dy=endY-pos.y;
       // center perpendicular to tangent, passing through pos
       // solve: center = pos + t*(-tanY, tanX), arc through endX,endY
@@ -2369,11 +2687,11 @@ function parseProgram(code){
         var sweep;
         if(dr2>0){ sweep=a1-a0; while(sweep<=1e-4) sweep+=2*Math.PI; }
         else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
-        var ctTo={x:endX,y:endY,z:ctFrom.z};
+        var ctTo={x:endX,y:endY,z:_ctEndZ};
         pushContourArc(arcGeom(ctFrom,ctTo,cx2,cy2,R,a0,sweep,srcLineI,'CT'),_ctFeedState.rapid,srcLineI,rcState,Math.PI/32);
         _ctArcMade=true;
       } else {
-        pushContourLine({x:endX,y:endY,z:pos.z},_ctFeedState.rapid,srcLineI,rcState,false,'CT-L');
+        pushContourLine({x:endX,y:endY,z:_ctEndZ},_ctFeedState.rapid,srcLineI,rcState,false,'CT-L');
         _ctArcMade=true;
       }
       if(_ctArcMade&&_callCycleCT&&activeCycle) executeCycle(activeCycle,srcLineI,rcState);
@@ -2415,12 +2733,16 @@ function parseProgram(code){
     }
     else if(line.indexOf('RND')===0){
       var rm=line.match(/R(\d+\.?\d*)/);
-      if(rm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'RND',r:parseFloat(rm[1]),line:srcLineI};
+      var _rndFeedM=line.match(/\bF\+?(\d+\.?\d*)/);
+      var _rndLocalFeed=/\bFMAX\b/.test(line)?9999:(/\bFAUTO\b/.test(line)?toolCallFeed:(_rndFeedM?parseFloat(_rndFeedM[1]):null));
+      if(rm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'RND',r:parseFloat(rm[1]),line:srcLineI,feed:_rndLocalFeed,rapid:_rndLocalFeed==null?null:/\bFMAX\b/.test(line)};
       else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'RND has no preceding supported contour move \u2014 modifier ignored'});
     }
     else if(line.indexOf('CHF')===0){
       var cm=line.match(/(\d+\.?\d*)/);
-      if(cm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'CHF',r:parseFloat(cm[1]),line:srcLineI};
+      var _chfFeedM=line.match(/\bF\+?(\d+\.?\d*)/);
+      var _chfLocalFeed=/\bFMAX\b/.test(line)?9999:(/\bFAUTO\b/.test(line)?toolCallFeed:(_chfFeedM?parseFloat(_chfFeedM[1]):null));
+      if(cm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'CHF',r:parseFloat(cm[1]),line:srcLineI,feed:_chfLocalFeed,rapid:_chfLocalFeed==null?null:/\bFMAX\b/.test(line)};
       else pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:'CHF has no preceding supported contour move \u2014 modifier ignored'});
     }
   }
@@ -2658,7 +2980,172 @@ function _rcHasLoop(pieces){
   return false;
 }
 
+function _adLinePrimitive(from,to,kind,srcLine){
+  return {type:'line',kind:kind,srcLine:srcLine,start:_rcPoint(from),end:_rcPoint(to)};
+}
+
+function _adArcPrimitive(cx,cy,r,a0,sweep,z0,z1,kind,srcLine){
+  return {type:'arc',kind:kind,srcLine:srcLine,cx:cx,cy:cy,r:r,a0:a0,sweep:sweep,z0:z0,z1:z1};
+}
+
+function _adUnit(v){
+  var length=Math.hypot(v.x,v.y);
+  return length>1e-12?{x:v.x/length,y:v.y/length}:null;
+}
+
+function _adTangentCandidates(point,cx,cy,r){
+  var vx=point.x-cx,vy=point.y-cy,d2=vx*vx+vy*vy;
+  if(d2<r*r-1e-8) return [];
+  if(d2<=r*r+1e-8) return [{x:point.x,y:point.y}];
+  var base=r*r/d2,scale=r*Math.sqrt(Math.max(0,d2-r*r))/d2;
+  return [
+    {x:cx+base*vx-scale*vy,y:cy+base*vy+scale*vx},
+    {x:cx+base*vx+scale*vy,y:cy+base*vy-scale*vx}
+  ];
+}
+
+function _adSelectTangent(point,cx,cy,r,dir,approach){
+  var candidates=_adTangentCandidates(point,cx,cy,r),best=null;
+  for(var i=0;i<candidates.length;i++){
+    var h=candidates[i],lineDir=approach?_adUnit({x:h.x-point.x,y:h.y-point.y}):
+      _adUnit({x:point.x-h.x,y:point.y-h.y});
+    var radial=_adUnit({x:h.x-cx,y:h.y-cy});
+    if(!radial) continue;
+    var circleDir={x:-radial.y*dir,y:radial.x*dir};
+    var alignment=lineDir?_rcDot(lineDir,circleDir):1;
+    if(alignment>1-1e-6){
+      best={x:h.x,y:h.y,alignment:alignment};
+      break;
+    }
+  }
+  return best;
+}
+
+function _adLctCandidate(start,end,tangent,r,centerSign,approach,srcLine){
+  var nl={x:-tangent.y,y:tangent.x};
+  var external=approach?start:end;
+  var contourPoint=approach?end:start;
+  var cx=contourPoint.x+centerSign*nl.x*r,cy=contourPoint.y+centerSign*nl.y*r;
+  var h=_adSelectTangent(external,cx,cy,r,centerSign,approach);
+  if(!h) return null;
+  var contourAngle=Math.atan2(contourPoint.y-cy,contourPoint.x-cx);
+  var tangentAngle=Math.atan2(h.y-cy,h.x-cx);
+  var sweep=approach?_rcDirectedAngle(tangentAngle,contourAngle,centerSign):
+    _rcDirectedAngle(contourAngle,tangentAngle,centerSign);
+  var hPoint={x:h.x,y:h.y,z:contourPoint.z};
+  var arc=approach?
+    _adArcPrimitive(cx,cy,r,tangentAngle,sweep,contourPoint.z,contourPoint.z,'APPR-LCT',srcLine):
+    _adArcPrimitive(cx,cy,r,contourAngle,sweep,contourPoint.z,contourPoint.z,'DEP-LCT',srcLine);
+  var line=approach?_adLinePrimitive(start,hPoint,'APPR-LCT-L',srcLine):
+    _adLinePrimitive(hPoint,end,'DEP-LCT-L',srcLine);
+  return {line:line,arc:arc,score:Math.hypot(line.end.x-line.start.x,line.end.y-line.start.y)+Math.abs(sweep)*r};
+}
+
+function _adApproachPlan(spec,start,end,tangent){
+  var t=_adUnit(tangent);
+  if(!t) return null;
+  var nl={x:-t.y,y:t.x},sideSign=spec.side==='RR'?-1:1;
+  var blockFeed=spec.feed,blockRapid=!!spec.rapid;
+  var entryFeed=spec.form==='LCT'?blockFeed:spec.entryFeed;
+  var entryRapid=spec.form==='LCT'?blockRapid:!!spec.entryRapid;
+  var plan=[],h;
+  if(spec.form==='LT'){
+    h={x:end.x-t.x*spec.len,y:end.y-t.y*spec.len,z:start.z};
+    plan.push({prim:_adLinePrimitive(start,h,'APPR-LT-ENTRY',spec.srcLine),feed:entryFeed,rapid:entryRapid});
+    plan.push({prim:_adLinePrimitive(h,end,'APPR-LT',spec.srcLine),feed:blockFeed,rapid:blockRapid});
+  } else if(spec.form==='LN'){
+    h={x:end.x+sideSign*nl.x*spec.len,y:end.y+sideSign*nl.y*spec.len,z:start.z};
+    plan.push({prim:_adLinePrimitive(start,h,'APPR-LN-ENTRY',spec.srcLine),feed:entryFeed,rapid:entryRapid});
+    plan.push({prim:_adLinePrimitive(h,end,'APPR-LN',spec.srcLine),feed:blockFeed,rapid:blockRapid});
+  } else if(spec.form==='CT'){
+    var dir=sideSign*spec.radiusSign;
+    var cx=end.x+dir*nl.x*spec.radius,cy=end.y+dir*nl.y*spec.radius;
+    var endAngle=Math.atan2(end.y-cy,end.x-cx);
+    var sweep=dir*spec.cca*Math.PI/180;
+    var startAngle=endAngle-sweep;
+    h={x:cx+spec.radius*Math.cos(startAngle),y:cy+spec.radius*Math.sin(startAngle),z:start.z};
+    plan.push({prim:_adLinePrimitive(start,h,'APPR-CT-ENTRY',spec.srcLine),feed:entryFeed,rapid:entryRapid});
+    plan.push({prim:_adArcPrimitive(cx,cy,spec.radius,startAngle,sweep,start.z,end.z,'APPR-CT',spec.srcLine),feed:blockFeed,rapid:blockRapid});
+  } else if(spec.form==='LCT'){
+    var signs=spec.side==='R0'?[1,-1]:[sideSign],best=null;
+    for(var si=0;si<signs.length;si++){
+      var candidate=_adLctCandidate(start,end,t,spec.radius,signs[si],true,spec.srcLine);
+      if(candidate&&(!best||candidate.score<best.score)) best=candidate;
+    }
+    if(!best) return null;
+    plan.push({prim:best.line,feed:blockFeed,rapid:blockRapid});
+    plan.push({prim:best.arc,feed:blockFeed,rapid:blockRapid});
+  } else return null;
+  return plan;
+}
+
+function _adDeparturePlan(spec,start,tangent){
+  var t=_adUnit(tangent);
+  if(!t) return null;
+  var nl={x:-t.y,y:t.x},sideSign=spec.side==='RR'?-1:1;
+  var plan=[],end;
+  if(spec.form==='LT'){
+    end={x:start.x+t.x*spec.len,y:start.y+t.y*spec.len,z:start.z};
+    plan.push({prim:_adLinePrimitive(start,end,'DEP-LT',spec.srcLine),feed:spec.feed,rapid:!!spec.rapid});
+  } else if(spec.form==='LN'){
+    end={x:start.x+sideSign*nl.x*spec.len,y:start.y+sideSign*nl.y*spec.len,z:start.z};
+    plan.push({prim:_adLinePrimitive(start,end,'DEP-LN',spec.srcLine),feed:spec.feed,rapid:!!spec.rapid});
+  } else if(spec.form==='CT'){
+    var dir=sideSign*spec.radiusSign;
+    var cx=start.x+dir*nl.x*spec.radius,cy=start.y+dir*nl.y*spec.radius;
+    var a0=Math.atan2(start.y-cy,start.x-cx);
+    var sweep=dir*spec.cca*Math.PI/180;
+    plan.push({prim:_adArcPrimitive(cx,cy,spec.radius,a0,sweep,start.z,start.z,'DEP-CT',spec.srcLine),feed:spec.feed,rapid:!!spec.rapid});
+  } else if(spec.form==='LCT'){
+    var candidate=_adLctCandidate(start,spec.end,t,spec.radius,sideSign,false,spec.srcLine);
+    if(!candidate) return null;
+    plan.push({prim:candidate.arc,feed:spec.feed,rapid:!!spec.rapid});
+    plan.push({prim:candidate.line,feed:spec.feed,rapid:!!spec.rapid});
+  } else return null;
+  return plan;
+}
+
+function _adEmitPlan(plan,template,side,extra){
+  var out=[];
+  for(var i=0;i<plan.length;i++){
+    var item=plan[i],meta={},key;
+    for(key in template) if(Object.prototype.hasOwnProperty.call(template,key)) meta[key]=template[key];
+    if(item.feed!=null) meta.feed=item.feed;
+    meta.rapid=!!item.rapid;
+    var before=out.length;
+    _rcEmitPrimitive(out,item.prim,meta,side);
+    for(var j=before;j<out.length;j++){
+      out[j].pathFunction=item.prim.kind;
+      if(extra) for(key in extra) if(Object.prototype.hasOwnProperty.call(extra,key)) out[j][key]=extra[key];
+    }
+  }
+  return out;
+}
+
+function _expandUncompensatedApproaches(sub,parseProblems){
+  for(var i=0;i<sub.length;i++){
+    var marker=sub[i];
+    if(!marker.apprSpec||marker.apprSpec.side!=='R0') continue;
+    var following=null;
+    for(var j=i+1;j<sub.length;j++){
+      if(sub[j].rcGeom){ following=sub[j]; break; }
+      if(sub[j].depSpec||sub[j].apprSpec) break;
+    }
+    var primitive=following&&_rcNominalPrimitive(following.rcGeom);
+    var tangent=primitive&&_rcTangent(primitive,false);
+    var plan=tangent&&_adApproachPlan(marker.apprSpec,marker.from,marker.to,tangent);
+    if(!plan){
+      _rcReport(parseProblems,marker.srcLine,'APPR geometry cannot form a tangential transition to the following contour element.');
+      sub.splice(i,1); i--; continue;
+    }
+    var expanded=_adEmitPlan(plan,marker,'',{rcActivation:false,apprSpec:null});
+    sub.splice.apply(sub,[i,1].concat(expanded));
+    i+=expanded.length-1;
+  }
+}
+
 function applyRadiusComp(sub,parseProblems){
+  _expandUncompensatedApproaches(sub,parseProblems);
   var hasAnalytic=false;
   for(var ai=0;ai<sub.length;ai++) if((sub[ai].rc==='RL'||sub[ai].rc==='RR')&&sub[ai].rcGeom){ hasAnalytic=true; break; }
   if(hasAnalytic) applyRadiusCompAnalytic(sub,parseProblems);
@@ -2781,8 +3268,21 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
     sub.splice(a,b-a+1); return 0;
   }
   var out=[],firstStart=_rcPrimitiveStart(xy[0].prim);
-  var approach=_rcCloneSegment(activation,activation.from,firstStart,side,{rcActivation:true,programmedTo:_rcPoint(activation.to),rcGeom:firstGroup.geom});
-  if(approach.len>1e-9) out.push(approach);
+  if(activation.apprSpec){
+    var apprPlan=_adApproachPlan(activation.apprSpec,activation.from,firstStart,_rcTangent(xy[0].prim,false));
+    if(!apprPlan){
+      _rcReport(parseProblems,activation.srcLine,'APPR geometry cannot form a tangential transition to the following compensated contour element.');
+      sub.splice(a,b-a+1); return 0;
+    }
+    out=_adEmitPlan(apprPlan,activation,side,{apprSpec:null});
+    if(out.length){
+      out[0].rcActivation=true;
+      out[0].programmedTo=_rcPoint(activation.to);
+    }
+  } else {
+    var approach=_rcCloneSegment(activation,activation.from,firstStart,side,{rcActivation:true,programmedTo:_rcPoint(activation.to),rcGeom:firstGroup.geom});
+    if(approach.len>1e-9) out.push(approach);
+  }
   var current=firstStart;
   for(var ii=0;ii<items.length;ii++){
     var it=items[ii];
@@ -2800,8 +3300,33 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
       }
     }
   }
+  var departureOut=null;
+  if(nextSeg&&nextSeg.depSpec&&out.length){
+    var departurePlan=_adDeparturePlan(nextSeg.depSpec,current,_rcTangent(xy[xy.length-1].prim,true));
+    if(!departurePlan){
+      _rcReport(parseProblems,nextSeg.srcLine,'DEP geometry cannot form a tangential transition from the compensated contour element.');
+      departureOut=[];
+    } else {
+      departureOut=_adEmitPlan(departurePlan,nextSeg,'R0',{depSpec:null});
+    }
+  }
   sub.splice.apply(sub,[a,b-a+1].concat(out));
-  if(nextSeg&&out.length){
+  if(nextSeg&&nextSeg.depSpec){
+    var depIndex=a+out.length;
+    sub.splice.apply(sub,[depIndex,1].concat(departureOut||[]));
+    if(departureOut&&departureOut.length){
+      var depEnd=departureOut[departureOut.length-1].to;
+      var afterDep=sub[depIndex+departureOut.length];
+      if(afterDep){
+        var adx=afterDep.to.x-afterDep.from.x,ady=afterDep.to.y-afterDep.from.y;
+        afterDep.from=_rcPoint(depEnd);
+        if(Math.abs(adx)<1e-9&&Math.abs(ady)<1e-9){
+          afterDep.to.x=depEnd.x; afterDep.to.y=depEnd.y; _recalcSegmentLen(afterDep);
+          _carryPhysicalXY(sub,depIndex+departureOut.length+1,depEnd.x,depEnd.y);
+        } else _recalcSegmentLen(afterDep);
+      }
+    }
+  } else if(nextSeg&&out.length){
     var last=out[out.length-1].to;
     var ndx=nextSeg.to.x-nextSeg.from.x,ndy=nextSeg.to.y-nextSeg.from.y;
     var pureZ=nextSeg.rc==='R0'&&Math.abs(ndx)<1e-9&&Math.abs(ndy)<1e-9;

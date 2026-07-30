@@ -112,6 +112,20 @@ editCase('CT feed','CT','CT',[
   field('F','feed','300',true),field('M','mval','8',true)
 ],2,'450','CT X+40 Y+50 F450 M8');
 
+editCase('APPR CT positive signed radius','APPR CT','APPR CT',[
+  field('X','coord','+10',true),field('Y','coord','+20',true),
+  field('Z','coord','-10',true),field('CCA','num','180',false),
+  field('R','num','10',false),field('','rc','RR',false),
+  field('F','feed','100',true)
+],4,'12.5','APPR CT X+10 Y+20 Z-10 CCA180 R+12.5 RR F100');
+
+context.FM={active:true,builderKey:'DEP CT'};
+assert.strictEqual(context.tokenFor(field('R','num','-8',false)),'R-8',
+  'DEP CT keeps an explicitly selected negative radius');
+context.FM={active:true,builderKey:'APPR PCT'};
+assert.strictEqual(context.tokenFor(field('R','num','8',false)),'R+8',
+  'APPR PCT serializes an unsigned positive keypad value as documented R+');
+
 editCase('L M function','L-M','L',[
   field('X','coord','+10',true),field('M','mval','3',true)
 ],1,'8','L X+10 M8');

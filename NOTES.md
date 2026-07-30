@@ -95,7 +95,11 @@ Detailed module-split history is in the archived project notes linked above.
    movement ending at the following contour's exact offset start, never a
    nominal move plus a hidden lateral segment. An angle-less `CP DR+`/`CP DR-`
    is one full revolution, and analytic joins must preserve every complete
-   revolution of compensated full/multi-turn CP paths.
+   revolution of compensated full/multi-turn CP paths. APPR/DEP geometry must
+   derive from the exact first/last compensated primitive tangent: retain the
+   documented PS/PH/PA/PE/PN and optional-Z behavior, and let DEP cancel RL/RR
+   automatically. Standalone CT uses the immediately preceding analytic
+   contour tangent; `LIN_Z` changes only the simultaneous tool-axis endpoint.
 15. **Collision is a warning, never a stop:** a rapid-into-material (FMAX)
    collision must report a pinned warning but must NOT halt the run — real
    machine-proven programs (e.g. a rapid onto a pre-drilled floor) play through
@@ -104,14 +108,14 @@ Detailed module-split history is in the archived project notes linked above.
    never re-add `mode='idle'` there. The voxel check is resolution-bound, so
    sub-voxel gouges surface only at finer quality — do not "fix" that by
    stopping the sim.
-16. **Defer only in-progress radius-comp errors:** while editing
-   (`runValidation` defaults to `liveEdit=true`) suppress the "contour not
-   finished yet" compensation diagnostics — the `validateProgram` "RL/RR still
-   active … END PGM" completeness checks and the `_rcReport` calls flagged
-   `incomplete` (`rcDefer`). They return at Run/Step, which call
-   `runValidation(false)`. Genuine geometry errors (tool radius too large,
-   non-positive radius, no valid intersection) always stay live — never blanket
-   all radius-comp errors into the deferred set.
+16. **Validation starts only with simulation:** every program edit, programming
+   function, guided panel, import, tool change and Learn transition calls
+   `runValidation()` only to invalidate stale Problems and preserve edit-side
+   lifecycle work such as autosave. That path must never call `validateProgram`
+   or `parseProgram`. Only Run and Step call `runValidation(false)` immediately
+   before simulation; they cancel any pending edit-invalidation timer, merge
+   static and parser diagnostics, refresh the estimate and block on every
+   complete error, including radius-compensation and trailing CHF/RND errors.
 17. **Header name is the file identity, not BEGIN PGM:** `#progTitleName`
    shows `_docName`, set on demo pick (friendly name), import (filename),
    export (saved filename) and Clear (`program.H`); `_setDocName` is the only
@@ -168,6 +172,11 @@ Detailed module-split history is in the archived project notes linked above.
     highlighted boundaries into neighbouring program blocks. The Start Here
     tutorial must exercise this real flow and target only visible UI: question
     panel, highlighted answer row, Info Slides, Hint, then Check.
+    A password-provided solution and every carried-forward starter must use the
+    same NC block serialization as the editor. If the task instructs the user
+    to press Run, its completed official program must also pass
+    `validateProgram(code, false)`; passing Learn's task checks alone is not
+    sufficient.
 
 21. **Desktop guided values are real inputs:** every generic numeric/text value
     rendered by the desktop field panel uses the shared `#fbarVal` input, so
@@ -177,7 +186,17 @@ Detailed module-split history is in the archived project notes linked above.
     buttons/pickers. Optional fields serialize omission as an empty token,
     never JavaScript `null`. `lineParts()` must calculate field ranges from the
     final postprocessed line; otherwise fixed tokens such as TOOL CALL's
-    inserted `Z` shift S/F/DL/DR highlighting away from their real text.
+    inserted `Z` shift S/F/DL/DR highlighting away from their real text. The
+    single standard-size APPR/DEP path key stacks APPR above DEP and toggles a
+    compact picker in place of the idle Undo/Redo/Reset/Clear/text-size control
+    strip, never over the program text and never at a greater strip height.
+    A horizontal rule separates APPR from DEP on the key, and the picker uses
+    neutral grey subfunction buttons.
+    The picker is ordered APPR LT/LN/CT/LCT then DEP LT/LN/CT/LCT; selecting a
+    function opens its guided fields, while pressing APPR/DEP again closes it.
+    Any transition that replaces the context strip, including Learn/Practice,
+    must also reset the key's `aria-expanded` and active visual state even when
+    the picker node has already been removed.
 22. **Web positioning-block M and validator contract:** every implemented
     positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) accepts at most two
     syntactically valid `M<number>` functions at its end. The official TNC 640
@@ -187,13 +206,24 @@ Detailed module-split history is in the archived project notes linked above.
     must never be parsed as coordinates or positioning feed. Both M fields and
     rendered tokens remain independently editable; clicking either rendered M
     routes to the complete guided editor of its positioning block and selects
-    the corresponding M field, never the standalone M panel. Known shared M
+    the corresponding M field, never the standalone M panel. A standalone M
+    editor likewise opens only when the rendered `M<number>` token itself is
+    clicked. Because textarea selection clamps a click on the final glyph and a
+    click in trailing free space to the same offset, desktop routing must use
+    the measured character cell; trailing free space keeps the caret at line
+    end so Enter inserts the next block. Known shared M
     functions retain their simulator state effects: M0 and M6 pause with their
     own message, while M2 and M30 finish without requiring another Run. Other valid standard or
     machine-specific numbers are preserved and accepted with a warning that
     their machine effect is not simulated; never invent such behavior.
+    The missing-spindle warning applies to the first non-FMAX positioning
+    motion, not to preceding rapid positioning. M3, M4, M13 or M14 at the end
+    of that same first feed block is start-effective and satisfies the check;
+    an end-effective M5 on an earlier rapid block still leaves the following
+    feed move without a running spindle.
     The persisted validator switch defaults ON and exists only in the bottom Problems row
-    when a blocking error is visible. OFF suppresses validator/parser
+    when a blocking error is visible. Changing it never starts validation;
+    the new state applies on the next Run/Step. OFF suppresses validator/parser
     diagnostics and therefore removes Run/Step blocking, but parsing still
     runs to build the simulation; keep the compact bottom OFF row visible so
     the user can turn validation back on. Fresh web `TOOL CALL` insertion uses

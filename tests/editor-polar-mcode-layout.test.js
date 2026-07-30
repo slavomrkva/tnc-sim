@@ -111,8 +111,53 @@ context._replaceMOnLine('M89');
 assert.strictEqual(codeEl.value,'LP PR+50 PA+45 FMAX M89 ; drill here',
   'editing embedded M must preserve the LP block and its comment');
 
-assert.ok(appSource.indexOf("mTokenAt(lineText,posInLine)") < appSource.indexOf('// Tap PAST the text'),
-  'embedded M hit-testing must run before the generic end-of-line caret branch');
+const hitStart=appSource.indexOf('var _editorHitCanvas = null;');
+const hitEnd=appSource.indexOf("codeEl.addEventListener('click'",hitStart);
+assert.ok(hitStart>=0&&hitEnd>hitStart,'desktop character-cell hit-test is defined');
+const hitCodeEl={
+  scrollLeft:0,
+  getBoundingClientRect(){ return {left:100}; }
+};
+const hitContext={
+  codeEl:hitCodeEl,
+  window:{
+    getComputedStyle(){
+      return {font:'16px monospace',paddingLeft:'12px',borderLeftWidth:'0px'};
+    }
+  },
+  document:{
+    createElement(){
+      return {getContext(){ return {font:'',measureText(text){ return {width:text.length*10}; }}; }};
+    }
+  }
+};
+vm.createContext(hitContext);
+vm.runInContext(appSource.slice(hitStart,hitEnd),hitContext,{filename:'desktop-editor-hit-test.js'});
+
+const standaloneM='M3';
+const standaloneEndX=100+12+standaloneM.length*10;
+const directM3=hitContext._editorTapMetrics({clientX:standaloneEndX-2},standaloneM);
+const afterM3=hitContext._editorTapMetrics({clientX:standaloneEndX+8},standaloneM);
+assert.strictEqual(directM3.past,false,'click on the final M3 glyph is not free space');
+assert.strictEqual(directM3.index,standaloneM.length-1,
+  'click on M3 resolves to its final glyph even when selectionStart is at line end');
+assert.strictEqual(context.mTokenAt(standaloneM,directM3.index).code,'M3',
+  'direct click on M3 remains routed to M editing');
+assert.strictEqual(afterM3.past,true,'click right of standalone M3 is measured as free space');
+assert.strictEqual(afterM3.index,standaloneM.length,
+  'free-space click resolves to the caret offset after M3');
+
+const terminalM='LP PR+50 PA+45 FMAX M99';
+const terminalEndX=100+12+terminalM.length*10;
+const directLastGlyph=hitContext._editorTapMetrics({clientX:terminalEndX-2},terminalM);
+const freeSpaceAfter=hitContext._editorTapMetrics({clientX:terminalEndX+8},terminalM);
+assert.strictEqual(directLastGlyph.past,false,'click on the final M99 glyph is not free space');
+assert.strictEqual(context.mTokenAt(terminalM,directLastGlyph.index).code,'M99',
+  'direct click on final embedded M99 remains routed to block editing');
+assert.strictEqual(freeSpaceAfter.past,true,'click right of embedded M99 is free space');
+
+assert.ok(appSource.indexOf('if(_tapPastCommand)') < appSource.indexOf("mTokenAt(lineText,hitPosInLine)"),
+  'a measured free-space click must place the caret before M-token routing runs');
 assert.match(appSource,
   /if\(_clickedM && \/\^\(\?:L\|C\|CR\|CT\|LP\|CP\)\(\?:\\s\|\$\)\/\.test\(lt\)\)\{[\s\S]{0,220}enterFieldModeOnLine\(_pathInfo\)/,
   'an embedded positioning-block M opens the complete guided path-block editor');

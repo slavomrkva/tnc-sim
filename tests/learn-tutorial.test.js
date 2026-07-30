@@ -107,6 +107,45 @@ for(const lesson of context.LESSONS){
   }
 }
 
+function validationErrors(code){
+  return context.validateProgram(code, false).filter(problem => problem.sev === 'err');
+}
+
+const compensationLesson = context.LESSONS.find(lesson => lesson.id === 'L07');
+const compensationSolved = context._learnSolvedCode(compensationLesson, 0);
+assert.match(compensationSolved, /L Z\+50 R0 FMAX/,
+  'Lesson 7 task 1 cancels radius compensation before the rapid retract');
+assert.strictEqual(validationErrors(compensationSolved).length, 0,
+  'Lesson 7 task 1 password solution passes the full Run validator: '
+  + validationErrors(compensationSolved).map(problem => problem.msg).join(', '));
+
+const tappingLesson = context.LESSONS.find(lesson => lesson.id === 'L21');
+const tappingParameters = ['Q200','Q201','Q239','Q203','Q204','Q257','Q256','Q336','Q403'];
+for(let i=0; i<tappingLesson.tasks.length; i++){
+  const solvedCode = context._learnSolvedCode(tappingLesson, i);
+  const tappingStart = solvedCode.indexOf('CYCL DEF 209');
+  assert.ok(tappingStart >= 0, `L21.${i+1} contains Cycle 209`);
+  const tappingBlock = solvedCode.slice(tappingStart, solvedCode.indexOf('\nM5', tappingStart));
+  assert.doesNotMatch(tappingBlock.split('\n')[0], /\bQ\d+/,
+    `L21.${i+1} keeps Q parameters off the CYCL DEF header`);
+  let previous = -1;
+  for(const parameter of tappingParameters){
+    const at = tappingBlock.indexOf('\n  ' + parameter + '=');
+    assert.ok(at > previous, `L21.${i+1} serializes ${parameter} in editor order`);
+    previous = at;
+  }
+  const errors = validationErrors(solvedCode);
+  assert.strictEqual(errors.length, 0,
+    `L21.${i+1} password solution passes the full Run validator: ${errors.map(problem => problem.msg).join(', ')}`);
+}
+
+const cycle209Builder = appSource.slice(
+  appSource.indexOf("'CYCL DEF 209':"),
+  appSource.indexOf("'CYCL DEF 200':", appSource.indexOf("'CYCL DEF 209':"))
+);
+assert.match(cycle209Builder, /\{p:'Q403'/,
+  'Cycle 209 guided fields include the documented Q403 retraction factor');
+
 const chamfer = context.LESSONS.find(lesson => lesson.id === 'L22');
 for(const [taskIndex, wrong, correct] of [[0, 'Q201=+4', 'Q201=-4'], [1, 'Q201=+1', 'Q201=-1']]){
   const task = chamfer.tasks[taskIndex];

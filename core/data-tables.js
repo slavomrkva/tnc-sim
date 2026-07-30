@@ -580,7 +580,7 @@ var LESSONS = [
         "Add <code>RR</code> to the existing move, right after the coordinate: <code>L Y+0 RR F300</code>.",
         "<code>L Y+0 RR F300</code>"
       ],
-      starter:'BEGIN PGM COMP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+51 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 F300\nL Y+90\nL Z+50 FMAX\nM5\nM9\nEND PGM COMP MM',
+      starter:'BEGIN PGM COMP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+51 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX R0\nL Z-2 FMAX\nL Y+0 F300\nL Y+90\nL Z+50 R0 FMAX\nM5\nM9\nEND PGM COMP MM',
       solRepl:['L Y+0 F300','L Y+0 RR F300'],
       checks:[
         {t:'uses', re:/Y\+0[^\n]*\bRR\b/, label:'RR added to the L Y+0 block',
@@ -1034,13 +1034,13 @@ var LESSONS = [
       hints:[
         "Tapping cuts a thread — <code>CYCL DEF 209</code>. The spindle syncs to the <b>pitch</b>, so the pitch sets the feed, not F.",
         "Key values: <code>Q201</code>=-15 thread depth, <code>Q239</code>=1.25 pitch, <code>Q257</code>=4 chip-break, <code>Q200</code>=2.",
-        "Type the <code>CYCL DEF 209 Q257=+4 Q256=+0.5</code> block from the slide, with <code>Q201=-15</code>, <code>Q239=+1.25</code>, <code>Q200=+2</code>."
+        "Type <code>CYCL DEF 209</code>, then enter each Q parameter on its own line in the order shown on the slide."
       ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\n; define cycle 209 here\n\nM5\nM9\nEND PGM TAP MM',
-      sol:'CYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30\n  Q336=+0 ;spindle orientation\n  Q403=+1 ;retraction factor',
+      sol:'CYCL DEF 209 ;Tapping with Chip Breaking\n  Q200=+2 ;Safety clearance [mm]\n  Q201=-15 ;Thread depth [mm]\n  Q239=+1.25 ;Thread pitch [mm/rev]\n  Q203=+0 ;Surface coordinate [mm]\n  Q204=+30 ;2nd safety clearance [mm]\n  Q257=+4 ;Depth per chip break [mm]\n  Q256=+0.5 ;Chip break retract [× pitch]\n  Q336=+0 ;Spindle angle [deg]\n  Q403=+1 ;Retraction factor [×]',
       checks:[
         {t:'cycle_def', num:209, after:/TOOL\s+CALL\s+7\b/, label:'Tapping cycle 209 defined after T7',
-         hint:'First line: CYCL DEF 209 Q257=+4 Q256=+0.5'},
+         hint:'First line: CYCL DEF 209. Enter Q257 and Q256 on their own parameter lines.'},
         {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q239', value:1.25, label:'Pitch Q239 = +1.25 (M8)',
          hint:'The pitch of M8 is 1.25 mm.'},
         {t:'cycle_param', num:209, after:/TOOL\s+CALL\s+7\b/, q:'Q201', value:-15, label:'Thread depth Q201 = -15',
@@ -1068,7 +1068,7 @@ var LESSONS = [
         "One positioning line with <code>M99</code>.",
         "<code>L X+30 Y+30 FMAX M99</code>"
       ],
-      starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
+      starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 ;Tapping with Chip Breaking\n  Q200=+2 ;Safety clearance [mm]\n  Q201=-15 ;Thread depth [mm]\n  Q239=+1.25 ;Thread pitch [mm/rev]\n  Q203=+0 ;Surface coordinate [mm]\n  Q204=+30 ;2nd safety clearance [mm]\n  Q257=+4 ;Depth per chip break [mm]\n  Q256=+0.5 ;Chip break retract [× pitch]\n  Q336=+0 ;Spindle angle [deg]\n  Q403=+1 ;Retraction factor [×]\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'L X+30 Y+30 FMAX M99',
       checks:[
         {t:'order', a:/CYCL\s+DEF\s+209\b/, b:/L\s+X\+30\s+Y\+30[^\n]*\bM99\b/, label:'Cycle 209 called at X+30 Y+30 with M99',
@@ -1082,7 +1082,7 @@ var LESSONS = [
         "Replace the single line with the label call.",
         "<code>CALL LBL 1</code>"
       ],
-      starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 Q257=+4 Q256=+0.5\n  Q200=+2 ;set-up clearance\n  Q201=-15 ;depth\n  Q239=+1.25 ;thread pitch\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
+      starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 ;Tapping with Chip Breaking\n  Q200=+2 ;Safety clearance [mm]\n  Q201=-15 ;Thread depth [mm]\n  Q239=+1.25 ;Thread pitch [mm/rev]\n  Q203=+0 ;Surface coordinate [mm]\n  Q204=+30 ;2nd safety clearance [mm]\n  Q257=+4 ;Depth per chip break [mm]\n  Q256=+0.5 ;Chip break retract [× pitch]\n  Q336=+0 ;Spindle angle [deg]\n  Q403=+1 ;Retraction factor [×]\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
       sol:'CALL LBL 1',
       checks:[
         {t:'order', a:/CYCL\s+DEF\s+209\b/, b:/CALL\s+LBL\s+1\b/, label:'Label reused after cycle 209 for tapping',
