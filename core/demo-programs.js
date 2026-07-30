@@ -1,4 +1,29 @@
-// Extra demo programs shared byte-for-byte between web and Android.
+// Demo programs shared byte-for-byte between web and Android.
+
+// Kept separate from EXTRA_DEMO_PROGRAMS because both products place this
+// focused APPR/DEP example directly after the initial Complete Part demo.
+var APPR_DEP_DEMO_PROGRAM = {
+  name: 'APPR/DEP Contour',
+  code: `BEGIN PGM CIRCULAR MM
+BLK FORM 0.1 Z X+0 Y+0 Z-20
+BLK FORM 0.2 X+100 Y+100 Z+0
+TOOL CALL 1 Z S4000
+L Z+250 R0 FMAX
+L X-10 Y-10 R0 FMAX
+L Z-5 R0 F1000 M3
+APPR LCT X+5 Y+5 R5 RL F300
+L X+5 Y+85
+RND R10 F150
+L X+30 Y+85
+CR X+70 Y+95 R+30 DR-
+L X+95
+L X+95 Y+40
+CT X+40 Y+5
+L X+5
+DEP LCT X-20 Y-20 R5 F1000
+L Z+250 R0 FMAX M2
+END PGM CIRCULAR MM`
+};
 
 var EXTRA_DEMO_PROGRAMS = [
   { name: 'Chamfering', code: `BEGIN PGM PROGRAM MM

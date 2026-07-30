@@ -38,6 +38,9 @@ const appSource = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
 const angleMatch = appSource.match(/\{ name: 'Angle Mill', code: (('[^'\\]*(?:\\.[^'\\]*)*')) \}/);
 assert.ok(angleMatch, 'Angle Mill program must exist in the demo library');
 const angleCode = vm.runInNewContext(angleMatch[1]);
+assert.match(appSource,
+  /var DEMO_PROGRAMS\s*=\s*\[\s*\{ name: 'Complete Part',[^\n]*\n\s*APPR_DEP_DEMO_PROGRAM,\s*\n\s*\{ name: 'Angle Mill'/,
+  'APPR/DEP Contour must be the second demo, before Angle Mill');
 
 function assertCycle208HasQ370(code, label) {
   const lines = code.split(/\r?\n/);
@@ -51,6 +54,23 @@ function assertCycle208HasQ370(code, label) {
 }
 
 assertCycle208HasQ370(completeCode, 'Complete Part');
+
+{
+  const demo = context.APPR_DEP_DEMO_PROGRAM;
+  assert.strictEqual(demo.name, 'APPR/DEP Contour');
+  const errors = context.validateProgram(demo.code).filter(problem => problem.sev === 'err');
+  assert.strictEqual(errors.length, 0,
+    `APPR/DEP Contour validation errors: ${JSON.stringify(errors)}`);
+  context.probs = [];
+  const parsed = context.parseProgram(demo.code);
+  const parseErrors = Array.from(parsed.problems || []).filter(problem => problem.sev === 'err');
+  assert.strictEqual(parseErrors.length, 0,
+    `APPR/DEP Contour parse errors: ${JSON.stringify(parseErrors)}`);
+  assert.ok(parsed.sub.some(segment => /^APPR-LCT/.test(segment.pathFunction || '')),
+    'APPR/DEP Contour must simulate its tangential approach');
+  assert.ok(parsed.sub.some(segment => /^DEP-LCT/.test(segment.pathFunction || '')),
+    'APPR/DEP Contour must simulate its tangential departure');
+}
 
 assert.deepStrictEqual(
   Array.from(context.EXTRA_DEMO_PROGRAMS, demo => demo.name),

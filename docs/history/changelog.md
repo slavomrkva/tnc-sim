@@ -7,6 +7,17 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.928 — 2026-07-30 — transactional Path cancel and APPR/DEP demo
+
+- Split guided-field completion into explicit commit (`Done`/Enter) and cancel
+  (`X`) paths. Cancel restores the complete pre-panel program, selection,
+  dirty state and undo/redo history for every Cartesian, polar and APPR/DEP
+  Path builder.
+- Added the validated **APPR/DEP Contour** program as the second demo in the
+  library, ahead of Angle Mill, and advanced the offline cache to v92.
+- Added runtime coverage for new-block removal, existing-block restoration,
+  multi-line guided insert cancellation and the fixed demo order.
+
 ## v0.927 — 2026-07-30 — close accepted TODO work
 
 - Archived the accepted C39-C59 evidence in `BUG_HISTORY.md`, cleared every

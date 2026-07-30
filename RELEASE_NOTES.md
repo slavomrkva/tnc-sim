@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.928
+- The X in every Path function input panel now cancels the complete input:
+  a newly inserted row is removed, while an existing edited row is restored.
+- Added **APPR/DEP Contour** as the second demo program.
+
 ## v0.926
 - Added the complete APPR/DEP family and analytic CT with `LIN_Z`.
 - Validation now runs only on Run/Step, with corrected spindle and desktop

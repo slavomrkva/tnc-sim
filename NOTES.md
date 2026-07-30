@@ -196,7 +196,10 @@ Detailed module-split history is in the archived project notes linked above.
     function opens its guided fields, while pressing APPR/DEP again closes it.
     Any transition that replaces the context strip, including Learn/Practice,
     must also reset the key's `aria-expanded` and active visual state even when
-    the picker node has already been removed.
+    the picker node has already been removed. In the shared field-mode panel,
+    `Done`/Enter commits, while `X` restores the complete pre-panel
+    transaction: it removes a newly inserted Path block and restores an
+    existing block without losing the prior selection or undo/redo history.
 22. **Web positioning-block M and validator contract:** every implemented
     positioning block (`L`, `C`, `CR`, `CT`, `LP`, `CP`) accepts at most two
     syntactically valid `M<number>` functions at its end. The official TNC 640

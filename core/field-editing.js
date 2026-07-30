@@ -398,7 +398,7 @@ function renderFbar(){
     var lbl2=g.type==='rc'?'R':(g.lbl||g.p||'val');
     html+='<button class="fbar-crumb-btn'+(gi===FM.idx?' active':'')+'" onclick="selectField('+gi+')" title="'+g.prompt+'">'+lbl2+'</button>';
   });
-  html+='<button style="font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 6px;margin-left:auto;" onclick="exitFieldMode()">✕</button>';
+  html+='<button style="font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 6px;margin-left:auto;" onclick="cancelFieldMode()" title="Cancel input" aria-label="Cancel input">✕</button>';
   html+='</div>';
   // Row 2: nav + mode + value + Done
   html+='<div class="ctx-row2">';
@@ -590,13 +590,34 @@ function switchFieldMode(label){
   selectField(FM.idx);
 }
 
+/* The guided panel has two distinct completion controls: Done/Enter commits,
+   while its X is a real transaction cancel. Keep the complete program and
+   editor-history state so cancellation remains correct for every builder,
+   including multi-line side effects such as TOOL CALL's automatic M3/M8. */
+function _captureFieldCancelState(start,end){
+  return {
+    value:codeEl.value,
+    start:start,
+    end:end,
+    scrollTop:codeEl.scrollTop,
+    dirty:typeof dirty==='undefined'?false:dirty,
+    selectedLine:typeof _selectedLine==='undefined'?0:_selectedLine,
+    undoStack:typeof _undoStack!=='undefined'&&Array.isArray(_undoStack)?_undoStack.slice():null,
+    redoStack:typeof _redoStack!=='undefined'&&Array.isArray(_redoStack)?_redoStack.slice():null
+  };
+}
+
 function enterFieldMode(label){
   closeQPopup();
   var schema=BUILDERS[label]; if(!schema) return;
   // Snapshot for undo — one snapshot per field-editing session
   var fields=[];
   schema.fields.forEach(function(sf){ if(sf.type==='mfunc'||sf.type==='_skip') return; fields.push({p:sf.p, type:sf.type, prompt:sf.prompt, opt:sf.opt, val:defVal(sf.type, sf.opt)}); });
-  FM={active:true, cmd:(schema.cmd||label), builderKey:label, fields:fields, idx:0, lineStart:0, lineLen:0, ranges:[]};
+  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
+  var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
+  var cancelState=_captureFieldCancelState(pos,en);
+  FM={active:true, cmd:(schema.cmd||label), builderKey:label, fields:fields, idx:0,
+      lineStart:0, lineLen:0, ranges:[], cancelState:cancelState};
   // Keep web and Android insertion defaults identical. This applies only to a
   // freshly inserted TOOL CALL; opening an existing line never rewrites it.
   if(label==='TOOL CALL'){
@@ -605,8 +626,6 @@ function enterFieldMode(label){
       if(f.p==='F' && (f.val===null||f.val==='')) f.val='2000';
     });
   }
-  var pos=lastSel&&lastSel.start!=null?lastSel.start:codeEl.selectionStart;
-  var en=lastSel&&lastSel.end!=null?lastSel.end:pos;
   // vlož za koniec aktuálneho riadku
   var lp=lineParts();
   // After inserting a fresh TOOL CALL, auto-add M3 + M8 on the next two lines —
@@ -773,6 +792,7 @@ function findClickedFieldIdx(lineText, bk, posInLine){
 
 function enterFieldModeOnLine(info){
   closeQPopup();
+  var cancelState=_captureFieldCancelState(codeEl.selectionStart,codeEl.selectionEnd);
   // Snapshot for undo — one snapshot per field-editing session
   if(codeEl && (_undoStack.length===0 || _undoStack[_undoStack.length-1]!==codeEl.value)) _undoPush();
   // BLK FORM lines: open BLK wizard instead of fbar (pass line index for in-place edit),
@@ -792,9 +812,38 @@ function enterFieldModeOnLine(info){
   var startIdx=findClickedFieldIdx(info.lineText, info.builderKey, posInLine);
   var fmCmd = schema.cmd||info.cmd;
   FM={active:true, cmd:fmCmd, builderKey:info.builderKey, fields:fields,
-      idx:startIdx, lineStart:info.lineStart, lineLen:info.lineLen, ranges:[]};
+      idx:startIdx, lineStart:info.lineStart, lineLen:info.lineLen, ranges:[],
+      cancelState:cancelState};
   // fbar always visible
   selectField(startIdx);
+}
+
+function cancelFieldMode(){
+  if(!FM.active) return;
+  var state=FM.cancelState;
+  if(!state){ exitFieldMode(); return; }
+  FM.active=false;
+  codeEl.value=state.value;
+  if(typeof dirty!=='undefined') dirty=state.dirty;
+  if(state.undoStack&&typeof _undoStack!=='undefined'){
+    _undoStack.length=0;
+    Array.prototype.push.apply(_undoStack,state.undoStack);
+  }
+  if(state.redoStack&&typeof _redoStack!=='undefined') _redoStack=state.redoStack.slice();
+  if(typeof _selectedLine!=='undefined') _selectedLine=state.selectedLine;
+  if(typeof _liveEditClear==='function') _liveEditClear();
+  _cancelMobileFocus(true);
+  if(typeof syncEditorSelection==='function') syncEditorSelection(state.start,state.end);
+  else {
+    try{ codeEl.setSelectionRange(state.start,state.end); }catch(e){}
+    lastSel={start:state.start,end:state.end};
+  }
+  codeEl.scrollTop=state.scrollTop;
+  if(typeof lineNums!=='undefined'&&lineNums) lineNums.scrollTop=state.scrollTop;
+  var cp=document.getElementById('ctxPanel'); if(cp){ cp.innerHTML=''; }
+  if(typeof updateLineNums==='function') updateLineNums();
+  renderIdlePanel();
+  if(typeof runValidation==='function') runValidation();
 }
 
 function exitFieldMode(keepCaret){
