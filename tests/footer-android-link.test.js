@@ -27,8 +27,13 @@ assert.match(
 );
 assert.match(
   styles,
-  /footer \.footer-play-icon\{[^}]*width:22px;[^}]*height:22px;[^}]*stroke:#fbbc04;[^}]*\}/,
-  'the Google Play triangle must use the approved 22 px yellow treatment'
+  /footer \.footer-play-icon\{[^}]*width:20px;[^}]*height:20px;[^}]*fill:rgba\(245,154,86,\.18\);[^}]*stroke:rgb\(245 154 86\);[^}]*\}/,
+  'the Google Play triangle must use the approved 20 px dark-theme treatment'
+);
+assert.match(
+  styles,
+  /html\[data-theme="light"\] footer \.footer-play-icon\{[^}]*fill:rgba\(243,136,59,\.18\);[^}]*stroke:rgb\(243 136 59\);[^}]*\}/,
+  'the Google Play triangle must use the matching light-theme treatment'
 );
 
 console.log('Footer Google Play link test passed.');

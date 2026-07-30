@@ -11,7 +11,7 @@ in `NOTES.md`; this file is the short, human-readable history.
 ---
 
 ## v0.930
-- Moved the Google Play link to the end of the footer, gave it a larger yellow
+- Moved the Google Play link to the end of the footer, gave it a 20 px warm
   Play triangle and changed footer links from blue to the neutral theme text
   colour.
 

@@ -351,7 +351,8 @@ footer p{font-size:12px;color:var(--text3);}
 footer a{color:var(--text);text-decoration:none;}
 footer a:hover{text-decoration:underline;}
 footer .footer-play-link{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;}
-footer .footer-play-icon{width:22px;height:22px;flex:none;fill:rgba(251,188,4,.14);stroke:#fbbc04;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+footer .footer-play-icon{width:20px;height:20px;flex:none;fill:rgba(245,154,86,.18);stroke:rgb(245 154 86);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+html[data-theme="light"] footer .footer-play-icon{fill:rgba(243,136,59,.18);stroke:rgb(243 136 59);}
 .line-nums .ln.err{color:#ff5d5d;font-weight:500;}
 .line-nums .ln.warn{color:#e8a23a;}
 .line-nums .ln.fixed{color:#e8a23a;font-weight:500;}

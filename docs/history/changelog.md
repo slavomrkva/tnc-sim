@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.930 — 2026-07-30 — match the approved Play icon colour
+
+- Copied the preview's exact theme-aware Play colours: `rgb(245 154 86)` on
+  dark surfaces and `rgb(243 136 59)` on light surfaces, each with the same
+  18% translucent fill, and reduced the icon from 22 px to 20 px.
+- Kept `APP_VERSION` at 0.930 and the offline cache at v95 as requested.
+
 ## v0.930 — 2026-07-30 — retain footer styling without a version bump
 
 - Restored `APP_VERSION` to 0.930 after the product decision to keep this
