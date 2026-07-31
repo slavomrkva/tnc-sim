@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.937';
+var APP_VERSION = '0.938';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -2310,6 +2310,12 @@ if(THREE_OK){
 /* ── State + persistence ────────────────────────────────────── */
 var LEARN = { open:false, lesson:-1, slide:0, task:-1, savedCode:null, lastResults:null };
 
+/* ── Mobile bottom-tab controller (no-op on desktop) ──
+   Establish the default before processing a Learn deep link. On mobile,
+   openLearn() can then make "learn" the final tab state instead of having it
+   overwritten by a later default-to-editor assignment. */
+document.body.setAttribute('data-mtab','editor');
+
 // Static Learn guide pages link back to the matching interactive lesson.
 // This must run after LEARN is initialized, because openLearn() writes to it.
 (function openRequestedLearnLesson(){
@@ -2335,15 +2341,6 @@ var LEARN = { open:false, lesson:-1, slide:0, task:-1, savedCode:null, lastResul
    The moment both BLK FORM lines parse, rebuild + reveal the block so the
    student SEES their blank appear. Outside Learn mode: always visible. */
 var _learnBlankShown = null; // tri-state so we only rebuild on transitions
-
-/* ── Mobile bottom-tab controller (no-op on desktop) ── */
-document.body.setAttribute('data-mtab','editor');
-
-
-
-
-
-
 
 // Never register the service worker inside the Capacitor Android app: the app
 // ships its own bundled files, and a SW-cached old index.html would keep being

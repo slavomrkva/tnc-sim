@@ -15,6 +15,29 @@ Newest first.
 
 ---
 
+## C60 — Guide lesson links opened a hidden Learn panel on mobile
+**Repo:** web `tnc-sim` v0.938. **Fixed:** 2026-07-31.
+
+### Symptom
+Opening **Start this interactive lesson** from an English or German Guide page
+loaded the simulator and selected the requested lesson, but the mobile UI still
+showed the Editor tab. Switching Editor → Learn manually revealed the lesson.
+
+### Root cause
+The v0.933 deep-link handler correctly ran after `LEARN` state initialization,
+but it still ran before the unconditional mobile default
+`data-mtab="editor"` assignment. `openLearn()` selected the Learn tab and the
+later bootstrap line immediately hid it again.
+
+### Fix and verification
+The default Editor tab is now established before deep-link handling, allowing
+the requested lesson to make Learn the final mobile state. A regression locks
+that execution order, and direct English and German lesson URLs were verified
+at a 390 px mobile viewport. No delayed timer or synthetic tab click was added;
+either would hide the initialization-order defect instead of fixing it.
+
+---
+
 ## C54-C59 — Terminal-M editing, deferred validation and valid Learn solutions
 **Repos:** web `tnc-sim` v0.926 and Android `tnc-sim-android` APP_VERSION
 1.0.101; C54 was web-only. **Fixed and accepted:** 2026-07-30.

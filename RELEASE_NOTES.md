@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.938
+- Fixed Guide lesson links on mobile so the selected interactive lesson opens
+  immediately in Learn instead of remaining hidden behind the Editor tab.
+
 ## v0.937
 - Removed the Guide shortcut from the mobile bottom navigation. The localized
   Klartext guide remains available on mobile from the About popup.

@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.938 — 2026-07-31 — preserve the mobile Learn deep-link tab
+
+- Moved the default mobile Editor-tab assignment before Learn deep-link
+  handling, so `openLearn()` leaves the selected lesson visible on mobile.
+- Added an ordering regression and advanced the offline cache to v103.
+
 ## v0.937 — 2026-07-31 — keep the mobile navigation focused
 
 - Removed the localized Guide anchor from the mobile bottom row, restoring the

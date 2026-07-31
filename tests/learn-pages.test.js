@@ -118,6 +118,11 @@ assert.ok(
   app.indexOf('(function openRequestedLearnLesson()') > app.indexOf('var LEARN ='),
   'Learn deep links must run only after the Learn state is initialized'
 );
+assert.ok(
+  app.indexOf("document.body.setAttribute('data-mtab','editor');")
+    < app.indexOf('(function openRequestedLearnLesson()'),
+  'Mobile default tab must be established before a Learn deep link overrides it'
+);
 assert.ok(worker.includes("'/learn/'"), 'Service worker must precache the English Learn hub');
 assert.ok(worker.includes("'/de/learn/'"), 'Service worker must precache the German Learn hub');
 assert.ok(worker.includes("'/learn/learn.css'"), 'Service worker must precache Learn styles');
