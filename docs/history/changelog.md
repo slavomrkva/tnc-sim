@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.936 — 2026-07-31 — publish the localized Klartext guide
+
+- Merged the accepted English/German Klartext guide into the production branch.
+- Announced the new 15-lesson guide in English and German and advanced the
+  offline cache to v101 for the production deploy.
+
 ## v0.935 — 2026-07-31 — keep localized guide inside mobile viewport
 
 - Allowed the guide header navigation to wrap and removed flex-item minimum
