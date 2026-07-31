@@ -2,30 +2,30 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Update `mergedAt` when the branch is merged to production.
 var WHATS_NEW_RELEASE = {
-  version: '0.936',
-  mergedAt: '2026-07-31T21:05:23+02:00',
+  version: '0.926',
+  mergedAt: '2026-07-30T06:46:36+02:00',
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.936 · Klartext guide',
+      meta: 'v0.926 · Path functions',
       title: 'What’s new',
       close: 'Close',
-      intro: 'A new searchable Heidenhain Klartext guide is available:',
+      intro: 'New path functions and cleaner validation:',
       items: [
-        '15 step-by-step lessons with direct practice in TNC Sim.',
-        'English and German pages with clear language switching.',
-        'A new Guide link on desktop and mobile.'
+        'Complete APPR/DEP family and analytic CT with LIN_Z.',
+        'Validation now runs only when Run or Step starts.',
+        'Corrected Learn solutions for compensation and Cycle 209.'
       ]
     },
     de: {
-      meta: 'v0.936 · Klartext-Anleitung',
+      meta: 'v0.926 · Bahnfunktionen',
       title: 'Was ist neu?',
       close: 'Schließen',
-      intro: 'Eine neue durchsuchbare Heidenhain-Klartext-Anleitung ist verfügbar:',
+      intro: 'Neue Bahnfunktionen und klarere Validierung:',
       items: [
-        '15 Lektionen mit Schritt-für-Schritt-Anleitungen und direkter Übung in TNC Sim.',
-        'Englische und deutsche Seiten mit klarer Sprachumschaltung.',
-        'Ein neuer Link zur Anleitung auf Desktop- und Mobilgeräten.'
+        'Komplette APPR/DEP-Familie und analytisches CT mit LIN_Z.',
+        'Die Validierung startet erst mit Start oder Einzelschritt.',
+        'Korrigierte Lernlösungen für Radiuskorrektur und Zyklus 209.'
       ]
     }
   }

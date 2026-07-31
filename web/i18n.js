@@ -116,7 +116,6 @@
       // mobile tab bar
       'mobile.editor': 'Editor',
       'mobile.learn': 'Lernen',
-      'mobile.guide': 'Anleitung',
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
@@ -234,9 +233,7 @@
     }
     var guidePath = _lang === 'de' ? '/de/learn/' : '/learn/';
     var footerGuide = document.getElementById('footerGuideLink');
-    var mobileGuide = document.getElementById('mtabGuide');
     if (footerGuide) footerGuide.setAttribute('href', guidePath);
-    if (mobileGuide) mobileGuide.setAttribute('href', guidePath);
     applyDom(document);
   }
 

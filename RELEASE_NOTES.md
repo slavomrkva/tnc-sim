@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.937
+- Removed the Guide shortcut from the mobile bottom navigation. The localized
+  Klartext guide remains available on mobile from the About popup.
+- Restored the previous What's New announcement; the SEO guide is reference
+  content rather than a new simulator feature.
+
 ## v0.935
 - Fixed the localized guide header and long German headings so they wrap
   within narrow mobile screens instead of widening and clipping the page.
