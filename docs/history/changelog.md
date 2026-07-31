@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.932 — 2026-07-31 — indexable Klartext learning guide
+
+- Added a crawlable Learn hub and 15 focused lesson pages with unique metadata,
+  canonical URLs, structured learning data and links into the matching
+  interactive lessons.
+- Expanded the sitemap and added a permanent Learn link to the website footer.
+- Advanced the offline cache to v97.
+
 ## v0.931 — 2026-07-31 — Bing site verification
 
 - Added Bing's XML ownership-verification file at the public site root and a

@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.932
+- Added an indexable Klartext learning guide with 15 focused topic pages that
+  link directly to their matching interactive TNC Sim lessons.
+
 ## v0.930
 - Moved the Google Play link to the end of the footer, gave it a 20 px warm
   Play triangle and changed footer links from blue to the neutral theme text

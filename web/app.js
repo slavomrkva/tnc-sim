@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.931';
+var APP_VERSION = '0.932';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -2252,6 +2252,25 @@ if(THREE_OK){
     }
   })();
 }
+
+// Static Learn guide pages link back to the matching interactive lesson.
+// Ignore unknown values so ordinary app links and old bookmarks keep working.
+(function openRequestedLearnLesson(){
+  var requested = null;
+  try {
+    requested = new URLSearchParams(window.location.search).get('learn');
+  } catch(e) {
+    return;
+  }
+  if(!requested || typeof LESSONS === 'undefined') return;
+  for(var i=0; i<LESSONS.length; i++){
+    if(String(LESSONS[i].id) === requested){
+      openLearn();
+      learnOpenLesson(i);
+      return;
+    }
+  }
+})();
 /* ===MAIN_END=== */
 
 

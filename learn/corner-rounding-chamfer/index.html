@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heidenhain RND Corner Rounding and CHF Chamfer | TNC Sim</title>
+  <meta name="description" content="Learn how RND creates a tangent corner radius and CHF inserts a chamfer between straight Klartext contour blocks.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tncsim.org/learn/corner-rounding-chamfer/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <meta name="theme-color" content="#14b8a6">
+  <meta property="og:title" content="Heidenhain RND Corner Rounding and CHF Chamfer | TNC Sim">
+  <meta property="og:description" content="Learn how RND creates a tangent corner radius and CHF inserts a chamfer between straight Klartext contour blocks.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://tncsim.org/learn/corner-rounding-chamfer/">
+  <meta property="og:image" content="https://tncsim.org/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Heidenhain RND Corner Rounding and CHF Chamfer | TNC Sim">
+  <meta name="twitter:description" content="Learn how RND creates a tangent corner radius and CHF inserts a chamfer between straight Klartext contour blocks.">
+  <meta name="twitter:image" content="https://tncsim.org/og-image.png">
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Corner rounding with RND and chamfers with CHF",
+  "description": "Learn how RND creates a tangent corner radius and CHF inserts a chamfer between straight Klartext contour blocks.",
+  "url": "https://tncsim.org/learn/corner-rounding-chamfer/",
+  "inLanguage": "en",
+  "educationalLevel": "Beginner",
+  "learningResourceType": "Tutorial",
+  "isPartOf": {
+    "@type": "Course",
+    "name": "Learn Heidenhain Klartext with TNC Sim",
+    "url": "https://tncsim.org/learn/"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "TNC Sim",
+    "url": "https://tncsim.org/"
+  }
+}</script>
+  <link rel="stylesheet" href="/learn/learn.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="TNC Sim home">
+    <img src="/icon-192.png" alt="" width="42" height="42">
+    <span><strong>TNC Sim</strong><small>Heidenhain Klartext learning</small></span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="/learn/">All lessons</a>
+    <a class="button small" href="/">Open simulator</a>
+  </nav>
+</header>
+<main>
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">TNC Sim</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Lesson 6</span></nav>
+  <article class="lesson">
+    <header class="hero compact">
+      <p class="eyebrow">Interactive Klartext course · Lesson 6 of 15</p>
+      <h1>Corner rounding with RND and chamfers with CHF</h1>
+      <p class="lead">Replace sharp contour corners with a programmed radius or a straight chamfer while keeping the surrounding path connected.</p>
+      <div class="hero-actions">
+        <a class="button" href="/?learn=L06&utm_source=learn_guide&utm_medium=website&utm_campaign=learn_pages">Start this interactive lesson</a>
+        <a class="text-link" href="#example">See the example</a>
+      </div>
+    </header>
+
+    <section class="content-grid" aria-labelledby="learn-heading">
+      <div>
+        <h2 id="learn-heading">What you will learn</h2>
+        <ul class="check-list"><li>Insert RND between contour blocks and set its rounding radius.</li><li>Insert CHF between two straight lines and set the chamfer side length.</li><li>Leave enough adjacent contour length for the requested transition.</li></ul>
+      </div>
+      <aside class="course-note">
+        <strong>Practice in the real editor</strong>
+        <p>The interactive lesson opens inside TNC Sim, checks your Klartext blocks and lets you inspect the result in the 3D view.</p>
+      </aside>
+    </section>
+
+    <section class="explanation">
+      <h2>How it works</h2>
+      <p>RND creates a circular transition tangent to the contour elements before and after it. CHF trims two straight lines and connects them with a straight chamfer.</p><p>Both functions depend on neighbouring contour geometry. TNC Sim validates the transition and displays the resulting toolpath before machining.</p>
+    </section>
+
+    <section id="example" class="example">
+      <div>
+        <p class="eyebrow">Klartext example</p>
+        <h2>Try the essential blocks</h2>
+        <p>This compact example introduces the lesson topic. Use the guided practice for the complete checked exercise.</p>
+      </div>
+      <pre><code>L X+50 Y+0
+RND R10
+L X+50 Y+50
+CHF 8
+L X+0 Y+50</code></pre>
+    </section>
+
+    <aside class="safety-note"><strong>Early-release simulator:</strong> use TNC Sim for learning and visualization. Always verify an NC program on the real control or with another trusted method before machining.</aside>
+
+    <section class="lesson-cta">
+      <div><p class="eyebrow">Ready to practice?</p><h2>Write the blocks and check the 3D result</h2></div>
+      <a class="button" href="/?learn=L06&utm_source=learn_guide&utm_medium=website&utm_campaign=learn_pages">Open lesson 6 in TNC Sim</a>
+    </section>
+
+    <nav class="lesson-nav" aria-label="Lesson navigation">
+      <a href="/learn/circular-arcs-cc-c-cr/"><span>Previous</span><strong>Circular arcs with CC, C and CR</strong></a>
+      <a class="next" href="/learn/radius-compensation-rl-rr-r0/"><span>Next</span><strong>Radius compensation with RL, RR and R0</strong></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer">
+  <p>TNC Sim is an independent open-source project and is not affiliated with or endorsed by HEIDENHAIN GmbH.</p>
+  <p><a href="https://github.com/slavomrkva/tnc-sim">GitHub</a> · <a href="/privacy.html">Privacy</a> · <a href="mailto:info@tncsim.org">info@tncsim.org</a></p>
+</footer>
+</body>
+</html>

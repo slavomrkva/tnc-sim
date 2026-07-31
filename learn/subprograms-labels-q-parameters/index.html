@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heidenhain LBL Subprograms and Q Parameters | TNC Sim</title>
+  <meta name="description" content="Learn how LBL defines a reusable Klartext program section, CALL LBL invokes it and Q parameters store values.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tncsim.org/learn/subprograms-labels-q-parameters/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <meta name="theme-color" content="#14b8a6">
+  <meta property="og:title" content="Heidenhain LBL Subprograms and Q Parameters | TNC Sim">
+  <meta property="og:description" content="Learn how LBL defines a reusable Klartext program section, CALL LBL invokes it and Q parameters store values.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://tncsim.org/learn/subprograms-labels-q-parameters/">
+  <meta property="og:image" content="https://tncsim.org/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Heidenhain LBL Subprograms and Q Parameters | TNC Sim">
+  <meta name="twitter:description" content="Learn how LBL defines a reusable Klartext program section, CALL LBL invokes it and Q parameters store values.">
+  <meta name="twitter:image" content="https://tncsim.org/og-image.png">
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Subprograms, labels and Q parameters",
+  "description": "Learn how LBL defines a reusable Klartext program section, CALL LBL invokes it and Q parameters store values.",
+  "url": "https://tncsim.org/learn/subprograms-labels-q-parameters/",
+  "inLanguage": "en",
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Tutorial",
+  "isPartOf": {
+    "@type": "Course",
+    "name": "Learn Heidenhain Klartext with TNC Sim",
+    "url": "https://tncsim.org/learn/"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "TNC Sim",
+    "url": "https://tncsim.org/"
+  }
+}</script>
+  <link rel="stylesheet" href="/learn/learn.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="TNC Sim home">
+    <img src="/icon-192.png" alt="" width="42" height="42">
+    <span><strong>TNC Sim</strong><small>Heidenhain Klartext learning</small></span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="/learn/">All lessons</a>
+    <a class="button small" href="/">Open simulator</a>
+  </nav>
+</header>
+<main>
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">TNC Sim</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Lesson 9</span></nav>
+  <article class="lesson">
+    <header class="hero compact">
+      <p class="eyebrow">Interactive Klartext course · Lesson 9 of 15</p>
+      <h1>Subprograms, labels and Q parameters</h1>
+      <p class="lead">Reuse a programmed sequence instead of duplicating blocks, and introduce a numeric Q parameter for a value that may change.</p>
+      <div class="hero-actions">
+        <a class="button" href="/?learn=L09&utm_source=learn_guide&utm_medium=website&utm_campaign=learn_pages">Start this interactive lesson</a>
+        <a class="text-link" href="#example">See the example</a>
+      </div>
+    </header>
+
+    <section class="content-grid" aria-labelledby="learn-heading">
+      <div>
+        <h2 id="learn-heading">What you will learn</h2>
+        <ul class="check-list"><li>Mark a labeled program section with LBL and end a subprogram with LBL 0.</li><li>Invoke the section with CALL LBL.</li><li>Assign a numeric value to a Q parameter and reuse it in program blocks.</li></ul>
+      </div>
+      <aside class="course-note">
+        <strong>Practice in the real editor</strong>
+        <p>The interactive lesson opens inside TNC Sim, checks your Klartext blocks and lets you inspect the result in the 3D view.</p>
+      </aside>
+    </section>
+
+    <section class="explanation">
+      <h2>How it works</h2>
+      <p>Labels identify a program location. A subprogram is defined at its label and returns at LBL 0; CALL LBL transfers execution to that labeled section.</p><p>Q parameters store numeric values for later expressions or coordinates. They make dimensions and repeated operations easier to adjust consistently.</p>
+    </section>
+
+    <section id="example" class="example">
+      <div>
+        <p class="eyebrow">Klartext example</p>
+        <h2>Try the essential blocks</h2>
+        <p>This compact example introduces the lesson topic. Use the guided practice for the complete checked exercise.</p>
+      </div>
+      <pre><code>LBL 1
+ L X+Q1 Y+Q1 FMAX M99
+LBL 0
+
+Q1 = +30
+CALL LBL 1
+L Z+50 FMAX</code></pre>
+    </section>
+
+    <aside class="safety-note"><strong>Early-release simulator:</strong> use TNC Sim for learning and visualization. Always verify an NC program on the real control or with another trusted method before machining.</aside>
+
+    <section class="lesson-cta">
+      <div><p class="eyebrow">Ready to practice?</p><h2>Write the blocks and check the 3D result</h2></div>
+      <a class="button" href="/?learn=L09&utm_source=learn_guide&utm_medium=website&utm_campaign=learn_pages">Open lesson 9 in TNC Sim</a>
+    </section>
+
+    <nav class="lesson-nav" aria-label="Lesson navigation">
+      <a href="/learn/drilling-cycle-200/"><span>Previous</span><strong>Drilling with CYCL DEF 200</strong></a>
+      <a class="next" href="/learn/polar-coordinates-cc-lp/"><span>Next</span><strong>Polar coordinates with CC and LP</strong></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer">
+  <p>TNC Sim is an independent open-source project and is not affiliated with or endorsed by HEIDENHAIN GmbH.</p>
+  <p><a href="https://github.com/slavomrkva/tnc-sim">GitHub</a> · <a href="/privacy.html">Privacy</a> · <a href="mailto:info@tncsim.org">info@tncsim.org</a></p>
+</footer>
+</body>
+</html>
