@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heidenhain inkrementale Koordinaten IX und IY | TNC Sim</title>
+  <meta name="description" content="Lerne, wie IX und IY inkrementale Klartextbewegungen beim Fräsen einer einfachen Nut in der 3D-Simulation programmieren.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tncsim.org/de/learn/incremental-coordinates-slot/">
+  <link rel="alternate" hreflang="en" href="https://tncsim.org/learn/incremental-coordinates-slot/">
+  <link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/incremental-coordinates-slot/">
+  <link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/incremental-coordinates-slot/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <meta name="theme-color" content="#14b8a6">
+  <meta property="og:title" content="Heidenhain inkrementale Koordinaten IX und IY | TNC Sim">
+  <meta property="og:description" content="Lerne, wie IX und IY inkrementale Klartextbewegungen beim Fräsen einer einfachen Nut in der 3D-Simulation programmieren.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://tncsim.org/de/learn/incremental-coordinates-slot/">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://tncsim.org/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Heidenhain inkrementale Koordinaten IX und IY | TNC Sim">
+  <meta name="twitter:description" content="Lerne, wie IX und IY inkrementale Klartextbewegungen beim Fräsen einer einfachen Nut in der 3D-Simulation programmieren.">
+  <meta name="twitter:image" content="https://tncsim.org/og-image.png">
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Erste Nut — Tiefe & inkremental IX/IY",
+  "description": "Lerne, wie IX und IY inkrementale Klartextbewegungen beim Fräsen einer einfachen Nut in der 3D-Simulation programmieren.",
+  "url": "https://tncsim.org/de/learn/incremental-coordinates-slot/",
+  "inLanguage": "de",
+  "educationalLevel": "Anfänger",
+  "learningResourceType": "Tutorial",
+  "isPartOf": {
+    "@type": "Course",
+    "name": "Heidenhain Klartext mit TNC Sim lernen",
+    "url": "https://tncsim.org/de/learn/"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "TNC Sim",
+    "url": "https://tncsim.org/"
+  }
+}</script>
+  <link rel="stylesheet" href="/learn/learn.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="TNC-Sim-Startseite">
+    <img src="/icon-192.png" alt="" width="42" height="42">
+    <span><strong>TNC Sim</strong><small>Heidenhain-Klartext lernen</small></span>
+  </a>
+  <nav aria-label="Hauptnavigation">
+    <a class="all-lessons" href="/de/learn/">Alle Lektionen</a>
+    <a class="language-link" href="/learn/incremental-coordinates-slot/" lang="en" hreflang="en">English</a>
+    <a class="button small" href="/?lang=de">Simulator öffnen</a>
+  </nav>
+</header>
+<main>
+  <nav class="breadcrumbs" aria-label="Brotkrümelnavigation"><a href="/">TNC Sim</a><span>/</span><a href="/de/learn/">Lernen</a><span>/</span><span>Lektion 4</span></nav>
+  <article class="lesson">
+    <header class="hero compact">
+      <p class="eyebrow">Interaktiver Klartext-Kurs · Lektion 4 / 15</p>
+      <h1>Erste Nut — Tiefe &amp; inkremental IX/IY</h1>
+      <p class="lead">Verbinde einen absoluten Startpunkt mit inkrementalen Bewegungen, die von der aktuellen Werkzeugposition aus gemessen werden.</p>
+      <div class="hero-actions">
+        <a class="button" href="/?lang=de&amp;learn=L04&amp;utm_source=learn_guide&amp;utm_medium=website&amp;utm_campaign=learn_pages">Interaktive Lektion starten</a>
+        <a class="text-link" href="#example">Beispiel ansehen</a>
+      </div>
+    </header>
+
+    <section class="content-grid" aria-labelledby="learn-heading">
+      <div>
+        <h2 id="learn-heading">Das lernst du</h2>
+        <ul class="check-list"><li>Unterscheide absolute von inkrementalen Koordinaten.</li><li>Verwende IX und IY für Strecken relativ zur aktuellen Position.</li><li>Programmiere Tiefe, Bearbeitungsvorschub und Rückzug ausdrücklich.</li></ul>
+      </div>
+      <aside class="course-note">
+        <strong>Im echten Editor üben</strong>
+        <p>Die interaktive Lektion öffnet sich in TNC Sim, prüft deine Klartext-Sätze und zeigt das Ergebnis in der 3D-Ansicht.</p>
+      </aside>
+    </section>
+
+    <section class="explanation">
+      <h2>So funktioniert es</h2>
+      <p>Ein absoluter X- oder Y-Wert bezeichnet eine Koordinate im aktiven Bezugssystem. Ein inkrementaler IX- oder IY-Wert addiert dagegen eine vorzeichenbehaftete Strecke zur aktuellen Position.</p><p>Inkrementale Bewegungen eignen sich für lokale Geometrien, ihr Ergebnis hängt jedoch immer von der vorher erreichten Position ab. Die Simulation macht diese Abhängigkeit sichtbar.</p>
+    </section>
+
+    <section id="example" class="example">
+      <div>
+        <p class="eyebrow">Klartext-Beispiel</p>
+        <h2>Probiere die wichtigsten Sätze aus</h2>
+        <p>Dieses kompakte Beispiel führt in das Thema ein. Die vollständige, geprüfte Aufgabe findest du in der geführten Übung.</p>
+      </div>
+      <pre><code>L X+20 Y+40 Z+2 FMAX
+L Z-5 F200
+L IX+60 F400
+L IY+20
+L IX-60
+L Z+50 FMAX</code></pre>
+    </section>
+
+    <aside class="safety-note"><strong>Simulator in früher Entwicklungsphase:</strong> Nutze TNC Sim zum Lernen und Visualisieren. Prüfe ein NC-Programm vor der Bearbeitung immer an der realen Steuerung oder mit einer anderen zuverlässigen Methode.</aside>
+
+    <section class="lesson-cta">
+      <div><p class="eyebrow">Bereit zum Üben?</p><h2>Schreibe die Sätze und prüfe das 3D-Ergebnis</h2></div>
+      <a class="button" href="/?lang=de&amp;learn=L04&amp;utm_source=learn_guide&amp;utm_medium=website&amp;utm_campaign=learn_pages">Lektion 4 in TNC Sim öffnen</a>
+    </section>
+
+    <nav class="lesson-nav" aria-label="Lektionsnavigation">
+      <a href="/de/learn/linear-moves-safe-approach/"><span>Zurück</span><strong>Erste Bewegungen — L-Sätze, FMAX &amp; sicheres Anfahren</strong></a>
+      <a class="next" href="/de/learn/circular-arcs-cc-c-cr/"><span>Weiter</span><strong>Kreisbögen — CC + C und CR</strong></a>
+    </nav>
+  </article>
+</main>
+<footer class="site-footer">
+  <p>TNC Sim ist ein unabhängiges Open-Source-Projekt und weder mit der HEIDENHAIN GmbH verbunden noch von ihr unterstützt.</p>
+  <p><a href="https://github.com/slavomrkva/tnc-sim">GitHub</a> · <a href="/privacy.html">Datenschutz</a> · <a href="mailto:info@tncsim.org">info@tncsim.org</a></p>
+</footer>
+</body>
+</html>

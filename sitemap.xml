@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://tncsim.org/</loc>
     <lastmod>2026-07-31</lastmod>
@@ -7,81 +7,257 @@
   </url>
   <url>
     <loc>https://tncsim.org/learn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/program-skeleton-blk-form/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/program-skeleton-blk-form/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/program-skeleton-blk-form/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/program-skeleton-blk-form/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/tool-call-spindle-feed/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/tool-call-spindle-feed/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/tool-call-spindle-feed/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/tool-call-spindle-feed/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/linear-moves-safe-approach/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/linear-moves-safe-approach/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/linear-moves-safe-approach/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/linear-moves-safe-approach/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/incremental-coordinates-slot/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/incremental-coordinates-slot/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/incremental-coordinates-slot/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/incremental-coordinates-slot/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/circular-arcs-cc-c-cr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/circular-arcs-cc-c-cr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/circular-arcs-cc-c-cr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/circular-arcs-cc-c-cr/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/corner-rounding-chamfer/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/corner-rounding-chamfer/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/corner-rounding-chamfer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/corner-rounding-chamfer/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/radius-compensation-rl-rr-r0/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/radius-compensation-rl-rr-r0/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/radius-compensation-rl-rr-r0/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/radius-compensation-rl-rr-r0/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/drilling-cycle-200/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/drilling-cycle-200/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/drilling-cycle-200/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/drilling-cycle-200/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/subprograms-labels-q-parameters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/subprograms-labels-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/subprograms-labels-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/subprograms-labels-q-parameters/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/polar-coordinates-cc-lp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/polar-coordinates-cc-lp/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/polar-coordinates-cc-lp/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/polar-coordinates-cc-lp/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/circular-pocket-cycle-208/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/circular-pocket-cycle-208/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/circular-pocket-cycle-208/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/circular-pocket-cycle-208/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/precision-hole-cycle-201/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/precision-hole-cycle-201/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/precision-hole-cycle-201/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/precision-hole-cycle-201/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/tapping-cycle-209/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/tapping-cycle-209/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/tapping-cycle-209/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/tapping-cycle-209/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/chamfering-dl-dr-tool-offsets/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/chamfering-dl-dr-tool-offsets/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/chamfering-dl-dr-tool-offsets/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/chamfering-dl-dr-tool-offsets/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tncsim.org/learn/parametric-contour-q-parameters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/parametric-contour-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/parametric-contour-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/parametric-contour-q-parameters/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/program-skeleton-blk-form/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/program-skeleton-blk-form/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/program-skeleton-blk-form/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/program-skeleton-blk-form/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/tool-call-spindle-feed/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/tool-call-spindle-feed/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/tool-call-spindle-feed/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/tool-call-spindle-feed/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/linear-moves-safe-approach/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/linear-moves-safe-approach/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/linear-moves-safe-approach/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/linear-moves-safe-approach/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/incremental-coordinates-slot/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/incremental-coordinates-slot/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/incremental-coordinates-slot/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/incremental-coordinates-slot/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/circular-arcs-cc-c-cr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/circular-arcs-cc-c-cr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/circular-arcs-cc-c-cr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/circular-arcs-cc-c-cr/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/corner-rounding-chamfer/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/corner-rounding-chamfer/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/corner-rounding-chamfer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/corner-rounding-chamfer/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/radius-compensation-rl-rr-r0/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/radius-compensation-rl-rr-r0/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/radius-compensation-rl-rr-r0/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/radius-compensation-rl-rr-r0/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/drilling-cycle-200/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/drilling-cycle-200/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/drilling-cycle-200/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/drilling-cycle-200/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/subprograms-labels-q-parameters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/subprograms-labels-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/subprograms-labels-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/subprograms-labels-q-parameters/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/polar-coordinates-cc-lp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/polar-coordinates-cc-lp/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/polar-coordinates-cc-lp/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/polar-coordinates-cc-lp/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/circular-pocket-cycle-208/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/circular-pocket-cycle-208/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/circular-pocket-cycle-208/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/circular-pocket-cycle-208/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/precision-hole-cycle-201/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/precision-hole-cycle-201/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/precision-hole-cycle-201/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/precision-hole-cycle-201/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/tapping-cycle-209/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/tapping-cycle-209/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/tapping-cycle-209/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/tapping-cycle-209/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/chamfering-dl-dr-tool-offsets/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/chamfering-dl-dr-tool-offsets/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/chamfering-dl-dr-tool-offsets/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/chamfering-dl-dr-tool-offsets/"/>
+    <lastmod>2026-07-31</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/de/learn/parametric-contour-q-parameters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/parametric-contour-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/parametric-contour-q-parameters/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tncsim.org/learn/parametric-contour-q-parameters/"/>
     <lastmod>2026-07-31</lastmod>
     <priority>0.8</priority>
   </url>

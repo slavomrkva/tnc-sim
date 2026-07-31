@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.934
+- Added a complete German version of the Klartext guide with 15 localized
+  lesson pages, direct German interactive-lesson links and EN/DE switching.
+- Added a permanent Guide entry to the mobile bottom navigation.
+
 ## v0.933
 - Fixed links from the Klartext guide so they open the selected interactive
   lesson instead of stopping at the simulator screen.

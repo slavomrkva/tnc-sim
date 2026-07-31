@@ -116,8 +116,10 @@
       // mobile tab bar
       'mobile.editor': 'Editor',
       'mobile.learn': 'Lernen',
+      'mobile.guide': 'Anleitung',
 
       // footer
+      'footer.guide': 'Klartext-Anleitung',
       'footer.bug': '🐛 Fehler mit einem Klick melden / Verbesserung vorschlagen',
 
       // cycle picker
@@ -153,6 +155,13 @@
 
   var _lang = (function () {
     try {
+      // Static Learn pages pass their language explicitly so the matching
+      // interactive lesson opens in the same language on the first visit.
+      var requested = new URLSearchParams(window.location.search).get('lang');
+      if (requested && LANGS.indexOf(requested) >= 0) {
+        localStorage.setItem(STORE_KEY, requested);
+        return requested;
+      }
       var s = localStorage.getItem(STORE_KEY);
       if (s && LANGS.indexOf(s) >= 0) return s;
     } catch (e) {}
@@ -170,6 +179,16 @@
   function setLang(l) {
     if (LANGS.indexOf(l) < 0) return;
     try { localStorage.setItem(STORE_KEY, l); } catch (e) {}
+    // Keep an explicit language deep link in sync; otherwise its old value
+    // would override the newly selected language after the reload.
+    try {
+      var url = new URL(window.location.href);
+      if (url.searchParams.has('lang')) {
+        url.searchParams.set('lang', l);
+        location.replace(url.toString());
+        return;
+      }
+    } catch (e) {}
     // v1: a full reload guarantees every dynamically rendered string is redrawn
     // in the new language. Live re-render can replace this later.
     location.reload();
@@ -213,6 +232,11 @@
       var next = LANGS[(LANGS.indexOf(_lang) + 1) % LANGS.length];
       lbl.textContent = LANG_NAMES[next] || next.toUpperCase();
     }
+    var guidePath = _lang === 'de' ? '/de/learn/' : '/learn/';
+    var footerGuide = document.getElementById('footerGuideLink');
+    var mobileGuide = document.getElementById('mtabGuide');
+    if (footerGuide) footerGuide.setAttribute('href', guidePath);
+    if (mobileGuide) mobileGuide.setAttribute('href', guidePath);
     applyDom(document);
   }
 

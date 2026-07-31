@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.934 — 2026-07-31 — localized English/German Learn guide
+
+- Generated a German Learn hub and 15 German reference pages from the
+  established interactive-lesson terminology, with matching language-aware
+  deep links into the simulator.
+- Added reciprocal page-level hreflang, localized canonicals, structured data,
+  visible language switches and localized sitemap alternates for all 32 Learn
+  URLs.
+- Exposed the guide from the mobile bottom navigation and made both main-page
+  Guide links follow the selected UI language.
+- Advanced the offline cache to v99.
+
 ## v0.933 — 2026-07-31 — initialize Learn before handling deep links
 
 - Moved Learn deep-link handling behind Learn state initialization and added a
