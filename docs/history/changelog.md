@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.931 — 2026-07-31 — Bing site verification
+
+- Added Bing's XML ownership-verification file at the public site root and a
+  regression that keeps the file valid and included in deployed static assets.
+- Advanced the offline cache to v96.
+
 ## v0.930 — 2026-07-30 — match the approved Play icon colour
 
 - Copied the preview's exact theme-aware Play colours: `rgb(245 154 86)` on
