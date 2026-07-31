@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.933
+- Fixed links from the Klartext guide so they open the selected interactive
+  lesson instead of stopping at the simulator screen.
+
 ## v0.932
 - Added an indexable Klartext learning guide with 15 focused topic pages that
   link directly to their matching interactive TNC Sim lessons.

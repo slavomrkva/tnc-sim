@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.933 — 2026-07-31 — initialize Learn before handling deep links
+
+- Moved Learn deep-link handling behind Learn state initialization and added a
+  regression for the required execution order.
+- Advanced the offline cache to v98.
+
 ## v0.932 — 2026-07-31 — indexable Klartext learning guide
 
 - Added a crawlable Learn hub and 15 focused lesson pages with unique metadata,

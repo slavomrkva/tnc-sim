@@ -73,6 +73,10 @@ const worker = read('service-worker.js');
 assert.ok(index.includes('href="/learn/">Klartext guide</a>'), 'Main footer must expose the Learn hub to crawlers');
 assert.ok(app.includes("new URLSearchParams(window.location.search).get('learn')"), 'App must read a Learn deep link');
 assert.ok(app.includes('learnOpenLesson(i)'), 'App must open the matching interactive lesson');
+assert.ok(
+  app.indexOf('(function openRequestedLearnLesson()') > app.indexOf('var LEARN ='),
+  'Learn deep links must run only after the Learn state is initialized'
+);
 assert.ok(worker.includes("'/learn/'"), 'Service worker must precache the Learn hub');
 assert.ok(worker.includes("'/learn/learn.css'"), 'Service worker must precache Learn styles');
 

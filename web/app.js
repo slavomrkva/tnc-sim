@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.932';
+var APP_VERSION = '0.933';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -2253,24 +2253,6 @@ if(THREE_OK){
   })();
 }
 
-// Static Learn guide pages link back to the matching interactive lesson.
-// Ignore unknown values so ordinary app links and old bookmarks keep working.
-(function openRequestedLearnLesson(){
-  var requested = null;
-  try {
-    requested = new URLSearchParams(window.location.search).get('learn');
-  } catch(e) {
-    return;
-  }
-  if(!requested || typeof LESSONS === 'undefined') return;
-  for(var i=0; i<LESSONS.length; i++){
-    if(String(LESSONS[i].id) === requested){
-      openLearn();
-      learnOpenLesson(i);
-      return;
-    }
-  }
-})();
 /* ===MAIN_END=== */
 
 
@@ -2327,6 +2309,25 @@ if(THREE_OK){
 
 /* ── State + persistence ────────────────────────────────────── */
 var LEARN = { open:false, lesson:-1, slide:0, task:-1, savedCode:null, lastResults:null };
+
+// Static Learn guide pages link back to the matching interactive lesson.
+// This must run after LEARN is initialized, because openLearn() writes to it.
+(function openRequestedLearnLesson(){
+  var requested = null;
+  try {
+    requested = new URLSearchParams(window.location.search).get('learn');
+  } catch(e) {
+    return;
+  }
+  if(!requested || typeof LESSONS === 'undefined') return;
+  for(var i=0; i<LESSONS.length; i++){
+    if(String(LESSONS[i].id) === requested){
+      openLearn();
+      learnOpenLesson(i);
+      return;
+    }
+  }
+})();
 
 /* ── UI: docked Learn panel (list / slides / task in one column) ── */
 
