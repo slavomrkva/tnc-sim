@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.935
+- Fixed the localized guide header and long German headings so they wrap
+  within narrow mobile screens instead of widening and clipping the page.
+
 ## v0.934
 - Added a complete German version of the Klartext guide with 15 localized
   lesson pages, direct German interactive-lesson links and EN/DE switching.

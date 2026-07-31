@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.935 — 2026-07-31 — keep localized guide inside mobile viewport
+
+- Allowed the guide header navigation to wrap and removed flex-item minimum
+  widths that pushed narrow pages beyond the viewport.
+- Added safe wrapping for long localized headings and advanced the offline
+  cache to v100.
+
 ## v0.934 — 2026-07-31 — localized English/German Learn guide
 
 - Generated a German Learn hub and 15 German reference pages from the
