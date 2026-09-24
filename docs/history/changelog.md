@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.942 — 2026-09-24 — publish corrected issue programs
+
+- Added English and German corrected-program index and issue #44 detail pages,
+  the downloadable reviewed PROGRAM.H, and permanent footer/About links.
+- Prepared the What's New links with a preview-only view; the 10-day window
+  still requires the real production `mergedAt` when this branch is merged.
+- Advanced the offline cache to v107 and included the new pages and program.
+
 ## v0.941 — 2026-09-24 — keep suggestion wording in the footer
 
 - Restored the suggestion option in the English and German footer labels and

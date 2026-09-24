@@ -1,0 +1,26 @@
+:root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;background:#0b1218;color:#e7f1f0}
+*{box-sizing:border-box}
+body{margin:0;line-height:1.55}
+a{color:#54d8c9}
+a:hover{text-decoration:underline}
+.wrap{max-width:900px;margin:auto;padding:0 22px}
+header{border-bottom:1px solid #284047;background:#101c23}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:72px}
+.brand{display:flex;align-items:center;gap:12px;color:#f4fbfa;text-decoration:none;font-weight:700;font-size:18px}
+.brand img{border-radius:10px}
+nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:14px}
+main{padding-top:48px;padding-bottom:76px}
+.eyebrow{color:#54d8c9;text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:700}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.13;margin:8px 0 18px}
+h2{font-size:23px;margin:0 0 12px}
+.lead{font-size:18px;color:#bbd0d1;max-width:720px}
+.card{border:1px solid #31545b;border-radius:14px;background:#14242b;padding:24px;margin-top:34px}
+.card p{color:#b9cbcf}
+.meta{font-size:13px;color:#9cb6bb;margin:0 0 12px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.button{display:inline-block;border:1px solid #54d8c9;border-radius:8px;padding:10px 15px;color:#0b1719;background:#54d8c9;text-decoration:none;font-weight:700;font-size:14px}
+.button.secondary{background:transparent;color:#54d8c9}
+.steps{padding-left:22px;color:#c7d9da}
+.code{overflow:auto;background:#071015;border:1px solid #31545b;border-radius:10px;padding:18px;font:13px/1.6 Consolas,'Courier New',monospace;white-space:pre;max-height:520px}
+footer{border-top:1px solid #284047;color:#9cb6bb;padding:24px 0;font-size:13px}
+@media(max-width:600px){header .wrap{align-items:flex-start;flex-direction:column;padding-top:14px;padding-bottom:14px}main{padding-top:30px}.card{padding:18px}}

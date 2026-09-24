@@ -13,21 +13,28 @@ vm.createContext(context);
 vm.runInContext(source, context, { filename: 'web/whats-new.js' });
 
 const release = context.WHATS_NEW_RELEASE;
-const start = Date.parse(release.mergedAt);
+// This branch is a preview. Set mergedAt only after the real production merge.
+const start = Date.parse('2026-09-24T12:00:00+02:00');
 const windowMs = release.visibleDays * 24 * 60 * 60 * 1000;
 
 assert.strictEqual(release.visibleDays, 10, 'the announcement window is exactly 10 days');
-assert.ok(Number.isFinite(start), 'the production merge timestamp is valid');
-assert.strictEqual(context._whatsNewIsActive(start - 1, release.mergedAt, release.visibleDays), false,
+assert.strictEqual(release.mergedAt, null, 'preview does not invent a production merge time');
+assert.strictEqual(context._whatsNewIsActive(Date.now(), release.mergedAt, release.visibleDays), false,
+  'the production announcement stays hidden before merge');
+assert.strictEqual(context._whatsNewIsActive(start - 1, start, release.visibleDays), false,
   'the button stays hidden before the merge');
-assert.strictEqual(context._whatsNewIsActive(start, release.mergedAt, release.visibleDays), true,
+assert.strictEqual(context._whatsNewIsActive(start, start, release.visibleDays), true,
   'the button appears at the merge time');
-assert.strictEqual(context._whatsNewIsActive(start + windowMs - 1, release.mergedAt, release.visibleDays), true,
+assert.strictEqual(context._whatsNewIsActive(start + windowMs - 1, start, release.visibleDays), true,
   'the button remains visible through the 10-day window');
-assert.strictEqual(context._whatsNewIsActive(start + windowMs, release.mergedAt, release.visibleDays), false,
+assert.strictEqual(context._whatsNewIsActive(start + windowMs, start, release.visibleDays), false,
   'the button disappears exactly after 10 days');
 assert.strictEqual(context._whatsNewIsActive(start, 'not-a-date', 10), false,
   'invalid release metadata fails closed');
+context.location = { hostname: 'fix-issue-44-compensated-retrace-tnc-sim.slavo-zett.workers.dev', search: '?preview-whats-new=1' };
+assert.strictEqual(context._whatsNewPreview(), true, 'explicit branch preview can show the announcement');
+context.location = { hostname: 'tncsim.org', search: '?preview-whats-new=1' };
+assert.strictEqual(context._whatsNewPreview(), false, 'production cannot force a pending announcement');
 
 assert.match(index, /id="whatsNewBtn"[\s\S]*hidden/,
   'the header button starts hidden to avoid a pre-init flash');
@@ -41,5 +48,7 @@ assert.match(css, /\.whats-new-btn\{[^}]*border:1px solid var\(--border\);[^}]*b
   'What’s New uses the standard neutral header treatment');
 assert.ok(release.content.en.items.length === 3 && release.content.de.items.length === release.content.en.items.length,
   'English and German summaries contain the same concise set of changes');
+assert.match(release.content.en.items.join(' '), /href="\/examples\/report-44\/"/);
+assert.match(release.content.de.items.join(' '), /href="\/de\/examples\/report-44\/"/);
 
 console.log('What’s New release-window and popup contract passed');

@@ -1,31 +1,31 @@
 // What's New is web-only. A static app cannot discover a GitHub merge time
 // offline, so each announced release carries its explicit production merge
-// timestamp. Update `mergedAt` when the branch is merged to production.
+// timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '0.926',
-  mergedAt: '2026-07-30T06:46:36+02:00',
+  version: '0.942',
+  mergedAt: null,
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.926 · Path functions',
+      meta: 'v0.942 · Corrected programs',
       title: 'What’s new',
       close: 'Close',
-      intro: 'New path functions and cleaner validation:',
+      intro: 'A reported contour is now easier to inspect and test:',
       items: [
-        'Complete APPR/DEP family and analytic CT with LIN_Z.',
-        'Validation now runs only when Run or Step starts.',
-        'Corrected Learn solutions for compensation and Cycle 209.'
+        'Fixed the simulator path for intentional retraces with RL.',
+        'Read the <a href="/examples/report-44/">corrected program from issue #44</a>.',
+        'Browse the new <a href="/examples/">program library</a> any time.'
       ]
     },
     de: {
-      meta: 'v0.926 · Bahnfunktionen',
+      meta: 'v0.942 · Korrigierte Programme',
       title: 'Was ist neu?',
       close: 'Schließen',
-      intro: 'Neue Bahnfunktionen und klarere Validierung:',
+      intro: 'Eine gemeldete Kontur lässt sich jetzt leichter prüfen und testen:',
       items: [
-        'Komplette APPR/DEP-Familie und analytisches CT mit LIN_Z.',
-        'Die Validierung startet erst mit Start oder Einzelschritt.',
-        'Korrigierte Lernlösungen für Radiuskorrektur und Zyklus 209.'
+        'Die Simulatorbahn für beabsichtigtes Zurückfahren mit RL wurde korrigiert.',
+        'Sieh dir das <a href="/de/examples/report-44/">korrigierte Programm aus Issue #44</a> an.',
+        'Die neue <a href="/de/examples/">Programmsammlung</a> bleibt dauerhaft erreichbar.'
       ]
     }
   }
@@ -38,6 +38,11 @@ function _whatsNewIsActive(nowMs, mergedAt, visibleDays){
   var days = Number(visibleDays);
   if(!isFinite(nowMs) || !isFinite(startMs) || !isFinite(days) || days <= 0) return false;
   return nowMs >= startMs && nowMs < startMs + days * 24 * 60 * 60 * 1000;
+}
+
+function _whatsNewPreview(){
+  return typeof location !== 'undefined' && /\.workers\.dev$/.test(location.hostname)
+    && /(?:\?|&)preview-whats-new=1(?:&|$)/.test(location.search);
 }
 
 function _whatsNewContent(){
@@ -56,7 +61,7 @@ function initWhatsNew(nowMs){
   var btn = document.getElementById('whatsNewBtn');
   if(!btn) return;
   var now = nowMs === undefined ? Date.now() : nowMs;
-  var active = _whatsNewIsActive(
+  var active = _whatsNewPreview() || _whatsNewIsActive(
     now,
     WHATS_NEW_RELEASE.mergedAt,
     WHATS_NEW_RELEASE.visibleDays
@@ -67,7 +72,7 @@ function initWhatsNew(nowMs){
     clearTimeout(_whatsNewExpiryTimer);
     _whatsNewExpiryTimer = null;
   }
-  if(active){
+  if(active && !_whatsNewPreview()){
     var endMs = Date.parse(WHATS_NEW_RELEASE.mergedAt)
       + WHATS_NEW_RELEASE.visibleDays * 24 * 60 * 60 * 1000;
     _whatsNewExpiryTimer = setTimeout(function(){
@@ -81,7 +86,7 @@ function openWhatsNew(){
   var overlay = document.getElementById('whatsNewOverlay');
   var btn = document.getElementById('whatsNewBtn');
   if(!overlay || !btn || btn.hidden) return;
-  if(!_whatsNewIsActive(Date.now(), WHATS_NEW_RELEASE.mergedAt, WHATS_NEW_RELEASE.visibleDays)){
+  if(!_whatsNewPreview() && !_whatsNewIsActive(Date.now(), WHATS_NEW_RELEASE.mergedAt, WHATS_NEW_RELEASE.visibleDays)){
     initWhatsNew();
     return;
   }

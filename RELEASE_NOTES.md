@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.942
+- Added a permanent corrected-program library for bug reports, starting with
+  issue #44's revised six-pass contour. The program can be downloaded and
+  imported into the simulator without replacing the current editor draft.
+- Prepared a What's New link to the library for the production merge.
+
 ## v0.941
 - Kept "Suggest an improvement" in the footer button while removing the
   "One-click" wording. A written description is still required before sending.

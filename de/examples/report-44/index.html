@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wiederholte RL-Kontur — korrigiertes Programm | TNC Sim</title>
+<meta name="description" content="Korrigiertes RL-Konturprogramm mit sechs Durchgängen aus TNC-Sim-Fehlermeldung #44 herunterladen.">
+<link rel="canonical" href="https://tncsim.org/de/examples/report-44/">
+<link rel="alternate" hreflang="en" href="https://tncsim.org/examples/report-44/">
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/examples/examples.css">
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/"><img src="/icon-192.png" width="40" height="40" alt="">TNC Sim</a><nav aria-label="Hauptnavigation"><a href="/de/examples/">Alle korrigierten Programme</a><a href="/examples/report-44/" lang="en">English</a><a href="/?lang=de">Simulator öffnen</a></nav></div></header>
+<main class="wrap">
+<p class="eyebrow">Korrigiertes Programm · Issue #44</p><h1>Wiederholte Kontur mit RL und CHF</h1>
+<p class="lead">Dieser Fall zeigte einen Fehler im Simulator: Nach dem ersten Zustellen wurde die Kontur durch die Radiuskorrektur verworfen. Der Simulator berücksichtigt nun das beabsichtigte Zurückfahren entlang einer früheren Kante. Das folgende Programm ist die zur Veröffentlichung überarbeitete Fassung.</p>
+<div class="card"><h2>Was wurde geändert?</h2><p>Der Werkzeugaufruf steht vor der Aktivierung von RL. Die späteren Spindel- und Kühlmittelbefehle innerhalb der korrigierten Kontur wurden entfernt. Das doppelte <code>L Y+95</code> bleibt wie geliefert stehen; der zweite Block ändert die Position nicht. Das sichtbare <code>&amp;#x20;</code> im eingefügten Bericht war eine HTML-Leerstelle und erscheint in der herunterladbaren Datei als normaler Abstand.</p><p>Im aktuellen Web-Zweig laufen Validierung und Parser fehlerfrei und erzeugen Konturen bei Z −5, −10, −15, −20, −25 und −31. Prüfe Bahn und Bearbeitungsbedingungen an deiner eigenen Steuerung, bevor du ein NC-Programm verwendest.</p><div class="actions"><a class="button" href="/examples/report-44/PROGRAM.H" download="PROGRAM.H">PROGRAM.H herunterladen</a><a class="button secondary" href="https://github.com/slavomrkva/tnc-sim/issues/44">Fehlermeldung lesen</a></div></div>
+<section class="card"><h2>In TNC Sim testen</h2><ol class="steps"><li>Lade die .H-Datei oben herunter.</li><li>Öffne den <a href="/?lang=de">Simulator</a> und wähle im Editor <strong>Import</strong>.</li><li>Wähle die heruntergeladene Datei und starte das Programm oder gehe es Schritt für Schritt durch.</li></ol><p>Das Öffnen dieser Seite ersetzt kein Programm im Editor. Erst ein ausdrücklicher Import lädt die Datei.</p></section>
+<section class="card"><h2>Programm</h2><pre class="code" aria-label="Korrigiertes Klartext-Programm">BEGIN PGM PROGRAM MM
+BLK FORM 0.1 Z X+0 Y+0 Z-31
+BLK FORM 0.2 X+75 Y+75 Z+0
+TOOL CALL 1 Z S10000 F2000
+TOOL DEF 5 ; Pre-load tool in magazine for next TOOL CALL
+Q41 = -5
+LBL 1
+L X-20 Y-20 FMAX M13
+L Z+20 FMAX
+L Z+Q41 F400
+L X+0 RL
+L Y+75
+CHF 3
+L X+75
+CHF 3
+L Y-0
+CHF 3
+L X+0
+CHF 3
+L Y+95
+L Y+95
+L Z+20 R0
+LBL 0
+Q41 = -10
+CALL LBL 1
+Q41 = -15
+CALL LBL 1
+Q41 = -20
+CALL LBL 1
+Q41 = -25
+CALL LBL 1
+Q41 = -31
+CALL LBL 1
+END PGM PROGRAM MM</pre></section>
+</main>
+<footer><div class="wrap"><a href="/de/examples/">Korrigierte Programme</a> · <a href="/">TNC Sim</a></div></footer>
+</body></html>

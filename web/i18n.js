@@ -119,6 +119,7 @@
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
+      'footer.examples': 'Korrigierte Programme',
       'footer.bug': '🐛 Fehler melden / Verbesserung vorschlagen',
 
       // cycle picker
@@ -231,6 +232,8 @@
     var guidePath = _lang === 'de' ? '/de/learn/' : '/learn/';
     var footerGuide = document.getElementById('footerGuideLink');
     if (footerGuide) footerGuide.setAttribute('href', guidePath);
+    var footerExamples = document.getElementById('footerExamplesLink');
+    if (footerExamples) footerExamples.setAttribute('href', _lang === 'de' ? '/de/examples/' : '/examples/');
     applyDom(document);
   }
 
