@@ -13,21 +13,19 @@ vm.createContext(context);
 vm.runInContext(source, context, { filename: 'web/whats-new.js' });
 
 const release = context.WHATS_NEW_RELEASE;
-// This branch is a preview. Set mergedAt only after the real production merge.
-const start = Date.parse('2026-09-24T12:00:00+02:00');
+const start = Date.parse(release.mergedAt);
 const windowMs = release.visibleDays * 24 * 60 * 60 * 1000;
 
 assert.strictEqual(release.visibleDays, 10, 'the announcement window is exactly 10 days');
-assert.strictEqual(release.mergedAt, null, 'preview does not invent a production merge time');
-assert.strictEqual(context._whatsNewIsActive(Date.now(), release.mergedAt, release.visibleDays), false,
-  'the production announcement stays hidden before merge');
-assert.strictEqual(context._whatsNewIsActive(start - 1, start, release.visibleDays), false,
+assert.strictEqual(release.mergedAt, '2026-09-24T09:52:25Z', 'announcement uses the actual GitHub merge time');
+assert.ok(Number.isFinite(start), 'the production merge timestamp is valid');
+assert.strictEqual(context._whatsNewIsActive(start - 1, release.mergedAt, release.visibleDays), false,
   'the button stays hidden before the merge');
-assert.strictEqual(context._whatsNewIsActive(start, start, release.visibleDays), true,
+assert.strictEqual(context._whatsNewIsActive(start, release.mergedAt, release.visibleDays), true,
   'the button appears at the merge time');
-assert.strictEqual(context._whatsNewIsActive(start + windowMs - 1, start, release.visibleDays), true,
+assert.strictEqual(context._whatsNewIsActive(start + windowMs - 1, release.mergedAt, release.visibleDays), true,
   'the button remains visible through the 10-day window');
-assert.strictEqual(context._whatsNewIsActive(start + windowMs, start, release.visibleDays), false,
+assert.strictEqual(context._whatsNewIsActive(start + windowMs, release.mergedAt, release.visibleDays), false,
   'the button disappears exactly after 10 days');
 assert.strictEqual(context._whatsNewIsActive(start, 'not-a-date', 10), false,
   'invalid release metadata fails closed');

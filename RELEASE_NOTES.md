@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.947
+- Show the two-item What's New announcement after the production merge.
+
 ## v0.946
 - Matched the footer Library link to the same type and size as the other footer links.
 
