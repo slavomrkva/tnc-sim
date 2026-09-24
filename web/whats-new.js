@@ -2,12 +2,12 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '0.945',
+  version: '0.946',
   mergedAt: null,
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.945 · Updates',
+      meta: 'v0.946 · Updates',
       title: 'What’s new',
       close: 'Close',
       intro: '',
@@ -17,7 +17,7 @@ var WHATS_NEW_RELEASE = {
       ]
     },
     de: {
-      meta: 'v0.945 · Neuigkeiten',
+      meta: 'v0.946 · Neuigkeiten',
       title: 'Was ist neu?',
       close: 'Schließen',
       intro: '',

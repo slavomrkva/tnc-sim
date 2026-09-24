@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.946
+- Matched the footer Library link to the same type and size as the other footer links.
+
 ## v0.945
 - Updated offline caching so an online refresh gets the current page and
   scripts together, including the new footer link.

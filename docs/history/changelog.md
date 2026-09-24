@@ -7,6 +7,11 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.946 — 2026-09-24 — match footer link typography
+
+- Set Library in both footer layouts to the same sans-serif 12px treatment as
+  the desktop GitHub link; advanced the offline cache to v111.
+
 ## v0.945 — 2026-09-24 — fetch current pages before cached copies
 
 - Changed the service worker to network-first with offline fallback so old
