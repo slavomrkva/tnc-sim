@@ -7,6 +7,15 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.939 — 2026-09-24 — preserve compensated nominal retraces
+
+- Associated generated corner transitions with both nominal contour elements,
+  and treated collinear nominal overlap as an intentional retrace during loop
+  checks. This keeps issue #44's RL path instead of dropping every pass.
+- Limited the pure-Z validator diagnostic to blocks that actually specify Z;
+  added exact-program and genuine-loop regression coverage.
+- Advanced the offline cache to v104.
+
 ## v0.938 — 2026-07-31 — preserve the mobile Learn deep-link tab
 
 - Moved the default mobile Editor-tab assignment before Learn deep-link

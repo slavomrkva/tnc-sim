@@ -1156,10 +1156,8 @@ function validateProgram(code, liveEdit){
       } else if(/\bR0\b/.test(_lMotion)){
         valRcState=''; valRcLine=-1;
       }
-      // Zero-XY-displacement check while comp is active — a pure Z (plunge) move
-      // under RL/RR has no lateral edge to offset against. This used to freeze
-      // the simulator (infinite loop in applyRadiusComp/offsetRun); that's now
-      // fixed defensively, but it's still not valid Heidenhain practice, so flag it.
+      // A Z move under RL/RR has no lateral edge to offset against. Do not
+      // classify a repeated XY coordinate or a feed-only block as a Z move.
       var _isIX4=/(?:^|\s)IX/.test(_lMotion), _isIY4=/(?:^|\s)IY/.test(_lMotion);
       var _xm4=_lMotion.match(/(?:^|\s)I?X([+-]?\d+\.?\d*)/), _ym4=_lMotion.match(/(?:^|\s)I?Y([+-]?\d+\.?\d*)/);
       var _oldVX4=valLastX, _oldVY4=valLastY;
@@ -1168,7 +1166,9 @@ function validateProgram(code, liveEdit){
       var _lHasCoord=/(?:^|\s)I?[XYZ][+-]?\d/.test(_lMotion);
       if(_lHasCoord&&_oldVX4!==null&&_oldVY4!==null&&_newVX4!==null&&_newVY4!==null)
         valHasXYTangent=Math.hypot(_newVX4-_oldVX4,_newVY4-_oldVY4)>1e-9;
-      if((valRcState==='RL'||valRcState==='RR') && _oldVX4!==null && _oldVY4!==null && _newVX4!==null && _newVY4!==null){
+      if((valRcState==='RL'||valRcState==='RR') &&
+         /(?:^|\s)I?Z[+-]?\d/.test(_lMotion) &&
+         _oldVX4!==null && _oldVY4!==null && _newVX4!==null && _newVY4!==null){
         if(Math.abs(_newVX4-_oldVX4)<1e-6 && Math.abs(_newVY4-_oldVY4)<1e-6)
           probs.push({line:srcI,sev:'err',msg:'Radius comp. '+valRcState+' on a pure Z move \u2014 comp needs XY motion'});
       }
@@ -2949,10 +2949,28 @@ function _rcNominalPrimitive(g){
   return {type:'arc',cx:g.cx,cy:g.cy,r:g.r,a0:g.a0,sweep:g.sweep,z0:g.from.z,z1:g.to.z,geom:g};
 }
 function _rcNominalPairIntersects(a,b){
-  if(!a.geom||!b.geom) return false;
-  var na=_rcNominalPrimitive(a.geom),nb=_rcNominalPrimitive(b.geom);
-  if(na.type==='arc'&&nb.type==='arc'&&Math.hypot(na.cx-nb.cx,na.cy-nb.cy)<1e-8&&Math.abs(na.r-nb.r)<1e-8) return true;
-  return _rcFiniteIntersections(na,nb).length>0;
+  // A transition arc belongs to both nominal elements meeting at its corner.
+  // Comparing only the generated arc to a later offset element can mistake a
+  // deliberate retrace of the nominal contour for a compensation-created loop.
+  var aGeoms=a.nominalGeoms||(a.geom?[a.geom]:[]);
+  var bGeoms=b.nominalGeoms||(b.geom?[b.geom]:[]);
+  for(var ai=0;ai<aGeoms.length;ai++) for(var bi=0;bi<bGeoms.length;bi++){
+    var na=_rcNominalPrimitive(aGeoms[ai]),nb=_rcNominalPrimitive(bGeoms[bi]);
+    if(na.type==='arc'&&nb.type==='arc'&&Math.hypot(na.cx-nb.cx,na.cy-nb.cy)<1e-8&&Math.abs(na.r-nb.r)<1e-8) return true;
+    if(na.type==='line'&&nb.type==='line'){
+      var ax=na.end.x-na.start.x,ay=na.end.y-na.start.y;
+      var bx=nb.end.x-nb.start.x,by=nb.end.y-nb.start.y;
+      var al=Math.hypot(ax,ay),bl=Math.hypot(bx,by);
+      if(al>1e-9&&bl>1e-9&&Math.abs(ax*by-ay*bx)<1e-8*al*bl&&
+         Math.abs(ax*(nb.start.y-na.start.y)-ay*(nb.start.x-na.start.x))<1e-6*al){
+        var t0=((nb.start.x-na.start.x)*ax+(nb.start.y-na.start.y)*ay)/al;
+        var t1=((nb.end.x-na.start.x)*ax+(nb.end.y-na.start.y)*ay)/al;
+        if(Math.min(al,Math.max(t0,t1))-Math.max(0,Math.min(t0,t1))>1e-6) return true;
+      }
+    }
+    if(_rcFiniteIntersections(na,nb).length>0) return true;
+  }
+  return false;
 }
 function _rcReport(parseProblems,line,msg,incomplete){
   // incomplete=true marks a diagnostic that only means "the RL/RR contour is
@@ -3241,7 +3259,8 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
       var aa0=Math.atan2(from.y-nominalEnd.y,from.x-nominalEnd.x);
       var aa1=Math.atan2(to.y-nominalEnd.y,to.x-nominalEnd.x);
       var tsweep=_rcDirectedAngle(aa0,aa1,cross>0?1:-1);
-      var trans={type:'arc',kind:'RC-TRANSITION',srcLine:right.group.geom.srcLine,cx:nominalEnd.x,cy:nominalEnd.y,r:radius,a0:aa0,sweep:tsweep,z0:from.z,z1:to.z};
+      var trans={type:'arc',kind:'RC-TRANSITION',srcLine:right.group.geom.srcLine,cx:nominalEnd.x,cy:nominalEnd.y,r:radius,a0:aa0,sweep:tsweep,z0:from.z,z1:to.z,
+        nominalGeoms:[left.group.geom,right.group.geom]};
       transitionAfter[left.itemIndex]=trans;
     } else {
       var candidates=_rcSupportIntersections(p,q),best=null,bestScore=Infinity;

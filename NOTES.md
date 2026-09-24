@@ -99,7 +99,9 @@ Detailed module-split history is in the archived project notes linked above.
    derive from the exact first/last compensated primitive tangent: retain the
    documented PS/PH/PA/PE/PN and optional-Z behavior, and let DEP cancel RL/RR
    automatically. Standalone CT uses the immediately preceding analytic
-   contour tangent; `LIN_Z` changes only the simultaneous tool-axis endpoint.
+    contour tangent; `LIN_Z` changes only the simultaneous tool-axis endpoint.
+    A nominal contour may retrace an earlier edge; loop detection rejects only
+    intersections introduced by compensation, including at generated corners.
 15. **Collision is a warning, never a stop:** a rapid-into-material (FMAX)
    collision must report a pinned warning but must NOT halt the run — real
    machine-proven programs (e.g. a rapid onto a pre-drilled floor) play through

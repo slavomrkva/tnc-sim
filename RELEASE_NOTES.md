@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.939
+- Fixed radius compensation for contours that intentionally retrace an earlier
+  edge. These programs now generate the full toolpath instead of skipping the
+  compensated section. Repeating the same XY endpoint no longer raises a
+  misleading pure-Z error.
+
 ## v0.938
 - Fixed Guide lesson links on mobile so the selected interactive lesson opens
   immediately in Learn instead of remaining hidden behind the Editor tab.
