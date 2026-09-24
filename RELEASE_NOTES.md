@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.945
+- Updated offline caching so an online refresh gets the current page and
+  scripts together, including the new footer link.
+- Moved the footer Library link next to Bug report on the right.
+
 ## v0.944
 - Kept the program-library link visible in a compact footer on narrower and
   shorter screens, above the mobile tabs.

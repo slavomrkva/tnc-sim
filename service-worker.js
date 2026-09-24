@@ -1,5 +1,5 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v109';
+const CACHE_VERSION = 'v110';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -26,7 +26,7 @@ const PRECACHE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
   );
 });
 
@@ -34,35 +34,29 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+    ).then(() => self.clients.claim())
   );
 });
 
-// Stale-while-revalidate: serve the cached response immediately, then
-// fetch a fresh copy in the background and update the cache for next launch.
+// Use the current network response while online. The old cache-first policy
+// could mix an outdated index.html with newer scripts and hide new UI links.
+// Cached responses remain available when the network is unavailable.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   // Ignore non-http(s) schemes (browser extensions etc.) — cache.put would throw.
   if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) =>
-      // ignoreSearch on navigations so "/?utm=..." still hits the cached "/".
-      cache.match(event.request, { ignoreSearch: event.request.mode === 'navigate' }).then((cachedResponse) => {
-        const networkFetch = fetch(event.request)
-          .then((networkResponse) => {
-            // status 200 = normal same-origin/CORS; status 0 (opaque) = no-cors
-            // cross-origin (e.g. CDN scripts) — both are worth keeping for offline.
-            if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
-              const copy = networkResponse.clone();
-              cache.put(event.request, copy).catch(() => {});
-            }
-            return networkResponse;
-          })
-          .catch(() => cachedResponse);
-
-        return cachedResponse || networkFetch;
-      })
-    )
+    caches.open(CACHE_NAME).then((cache) => fetch(event.request).then((networkResponse) => {
+      // Cache normal and opaque cross-origin responses for offline reuse.
+      if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+        event.waitUntil(cache.put(event.request, networkResponse.clone()).catch(() => {}));
+      }
+      return networkResponse;
+    }).catch(() =>
+      // ignoreSearch lets offline navigations with query parameters use the page cache.
+      cache.match(event.request, { ignoreSearch: event.request.mode === 'navigate' })
+        .then((cachedResponse) => cachedResponse || Response.error())
+    ))
   );
 });

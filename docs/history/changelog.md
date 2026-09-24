@@ -7,6 +7,15 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.945 — 2026-09-24 — fetch current pages before cached copies
+
+- Changed the service worker to network-first with offline fallback so old
+  index.html cannot be served alongside newer runtime scripts while online.
+- Let the new worker activate and claim clients promptly; advanced cache to
+  v110.
+- Placed the short Library link immediately before Bug report in both footer
+  layouts.
+
 ## v0.944 — 2026-09-24 — show the program library in responsive footer
 
 - Reordered the footer before the mobile tab row and show a compact localized

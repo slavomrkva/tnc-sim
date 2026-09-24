@@ -20,13 +20,15 @@ assert.match(read('examples/index.html'), /href="\/examples\/report-44\/"/);
 assert.match(read('de/examples/index.html'), /href="\/de\/examples\/report-44\/"/);
 const shell = read('index.html');
 const styles = read('web/styles.css');
-assert.match(shell, /id="footerExamplesLink"[^>]*>Program library<\/a>/);
-assert.match(shell, /id="footerExamplesMobileLink"[^>]*>Program library<\/a>/);
+assert.match(shell, /id="footerExamplesLink"[^>]*>Library<\/a><button[^>]*openBugReport\(\)/,
+  'desktop Library sits beside Bug report on the right');
+assert.match(shell, /id="footerExamplesMobileLink"[^>]*>Library<\/a><button[^>]*openBugReport\(\)/,
+  'compact footer keeps Library beside Bug report');
 assert.ok(shell.indexOf('<footer>') < shell.indexOf('<nav class="mtab-bar"'),
   'footer remains visible above the mobile tabs');
 assert.match(styles, /footer\{display:flex;flex:0 0 auto;[^}]*min-height:30px/,
   'compact footer is visible in the responsive layout');
-assert.match(styles, /footer \.ft-compact\{display:block;/,
+assert.match(styles, /footer \.ft-compact\{display:flex;/,
   'responsive footer shows the program link');
 assert.match(read('core/theme-toast.js'), /href="\/examples\/"/);
 assert.match(read('web/i18n-about-de.js'), /href="\/de\/examples\/"/);

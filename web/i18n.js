@@ -119,7 +119,8 @@
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
-      'footer.examples': 'Programmbibliothek',
+      'footer.examples': 'Bibliothek',
+      'footer.compactBug': 'Fehler melden',
       'footer.bug': '🐛 Fehler melden / Verbesserung vorschlagen',
 
       // cycle picker
