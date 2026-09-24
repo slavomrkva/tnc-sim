@@ -6,6 +6,20 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://tncsim.org/examples/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/examples/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/examples/"/>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tncsim.org/examples/report-44/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/examples/report-44/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/examples/report-44/"/>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://tncsim.org/learn/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://tncsim.org/learn/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://tncsim.org/de/learn/"/>

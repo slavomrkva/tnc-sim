@@ -51,9 +51,11 @@ const source = fs.readFileSync(path.join(__dirname, '..', 'core', 'bug-report.js
 vm.runInContext(source, context, { filename: 'core/bug-report.js' });
 
 let fetchCount = 0;
+const sentPayloads = [];
 context._bugGetToken = () => Promise.resolve('valid-test-token');
-context.fetch = async () => {
+context.fetch = async (_url, options) => {
   fetchCount += 1;
+  sentPayloads.push(JSON.parse(options.body));
   return { ok: true, json: async () => ({ url: `https://example.test/${fetchCount}` }) };
 };
 
@@ -63,24 +65,33 @@ async function flushPromises() {
 }
 
 (async () => {
+  context.problemsData = [{ line: 1, sev: 'err', msg: 'Example validator error' }];
   for (const kind of ['bug', 'suggest']) {
     context.openBugReport(kind);
     assert.strictEqual(elements.bugSendBtn.dataset.sent, '0');
+    assert.strictEqual(elements.bugDesc.value, '', 'diagnostics must not prefill the description');
+    assert.strictEqual(elements.bugSendBtn.disabled, true);
+    const requestsBeforeSend = fetchCount;
+    context.sendReport();
+    await flushPromises();
+    assert.strictEqual(fetchCount, requestsBeforeSend, 'empty description must not be sent');
 
-    if (kind === 'suggest') {
-      assert.strictEqual(elements.bugSendBtn.disabled, true);
-      elements.bugDesc.value = 'A test suggestion';
-      context._bugUpdateSendState();
-    }
+    elements.bugDesc.value = '   ';
+    context._bugUpdateSendState();
+    assert.strictEqual(elements.bugSendBtn.disabled, true, 'whitespace is not a description');
+
+    elements.bugDesc.value = kind === 'bug' ? 'A test problem' : 'A test suggestion';
+    context._bugUpdateSendState();
+    assert.strictEqual(elements.bugSendBtn.disabled, false);
 
     const expectedSendLabel = kind === 'bug' ? 'Send report' : 'Send suggestion';
     assert.strictEqual(elements.bugSendBtn.textContent, expectedSendLabel);
 
-    const requestsBeforeSend = fetchCount;
     context.sendReport();
     await flushPromises();
 
     assert.strictEqual(fetchCount, requestsBeforeSend + 1);
+    assert.match(sentPayloads.at(-1).body, /## Description\nA test /);
     assert.strictEqual(elements.bugSendBtn.dataset.sent, '1');
     assert.strictEqual(elements.bugSendBtn.textContent, 'Close');
     assert.strictEqual(elements.bugSendBtn.disabled, false);

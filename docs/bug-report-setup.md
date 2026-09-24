@@ -1,4 +1,4 @@
-# One-click Bug Report / Suggestion — Worker setup
+# Bug report / suggestion — Worker setup
 
 The in-app **Report a problem / Suggest improvement** dialog posts to
 `https://tncsim.org/api/report`. The endpoint is implemented by

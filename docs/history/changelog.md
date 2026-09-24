@@ -7,6 +7,65 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.946 — 2026-09-24 — match footer link typography
+
+- Set Library in both footer layouts to the same sans-serif 12px treatment as
+  the desktop GitHub link; advanced the offline cache to v111.
+
+## v0.945 — 2026-09-24 — fetch current pages before cached copies
+
+- Changed the service worker to network-first with offline fallback so old
+  index.html cannot be served alongside newer runtime scripts while online.
+- Let the new worker activate and claim clients promptly; advanced cache to
+  v110.
+- Placed the short Library link immediately before Bug report in both footer
+  layouts.
+
+## v0.944 — 2026-09-24 — show the program library in responsive footer
+
+- Reordered the footer before the mobile tab row and show a compact localized
+  program-library link when the full footer is hidden by responsive layout.
+- Reduced What's New to the fixed report and required written description.
+- Shortened English and German copy on the library and issue #44 pages.
+- Advanced the offline cache to v109.
+
+## v0.943 — 2026-09-24 — include corrected programs in sitemap checks
+
+- Kept the Learn sitemap contract while allowing the new program URLs, and
+  added direct assertions for those URLs in the publication test.
+- Advanced the offline cache to v108 after the versioned push.
+
+## v0.942 — 2026-09-24 — publish corrected issue programs
+
+- Added English and German corrected-program index and issue #44 detail pages,
+  the downloadable reviewed PROGRAM.H, and permanent footer/About links.
+- Prepared the What's New links with a preview-only view; the 10-day window
+  still requires the real production `mergedAt` when this branch is merged.
+- Advanced the offline cache to v107 and included the new pages and program.
+
+## v0.941 — 2026-09-24 — keep suggestion wording in the footer
+
+- Restored the suggestion option in the English and German footer labels and
+  mobile tooltip, leaving only the "One-click" claim removed.
+- Kept the description-required report flow and advanced the offline cache to
+  v106.
+
+## v0.940 — 2026-09-24 — require a written report description
+
+- Shortened the footer action to Bug report in English and German.
+- Removed automatic bug-description templates, kept the textarea empty on open,
+  and blocked sending both bug reports and suggestions until text is entered.
+- Updated the current help text and advanced the offline cache to v105.
+
+## v0.939 — 2026-09-24 — preserve compensated nominal retraces
+
+- Associated generated corner transitions with both nominal contour elements,
+  and treated collinear nominal overlap as an intentional retrace during loop
+  checks. This keeps issue #44's RL path instead of dropping every pass.
+- Limited the pure-Z validator diagnostic to blocks that actually specify Z;
+  added exact-program and genuine-loop regression coverage.
+- Advanced the offline cache to v104.
+
 ## v0.938 — 2026-07-31 — preserve the mobile Learn deep-link tab
 
 - Moved the default mobile Editor-tab assignment before Learn deep-link

@@ -10,6 +10,44 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.946
+- Matched the footer Library link to the same type and size as the other footer links.
+
+## v0.945
+- Updated offline caching so an online refresh gets the current page and
+  scripts together, including the new footer link.
+- Moved the footer Library link next to Bug report on the right.
+
+## v0.944
+- Kept the program-library link visible in a compact footer on narrower and
+  shorter screens, above the mobile tabs.
+- Shortened What's New to the reported fix and required bug-report description.
+- Simplified the program library and case #44 descriptions.
+
+## v0.943
+- Corrected the sitemap checks so the new program pages can be indexed alongside
+  the existing Learn pages.
+
+## v0.942
+- Added a permanent corrected-program library for bug reports, starting with
+  issue #44's revised six-pass contour. The program can be downloaded and
+  imported into the simulator without replacing the current editor draft.
+- Prepared a What's New link to the library for the production merge.
+
+## v0.941
+- Kept "Suggest an improvement" in the footer button while removing the
+  "One-click" wording. A written description is still required before sending.
+
+## v0.940
+- Renamed the footer button to Bug report. The report description now starts
+  empty and must be filled in before a bug or suggestion can be sent.
+
+## v0.939
+- Fixed radius compensation for contours that intentionally retrace an earlier
+  edge. These programs now generate the full toolpath instead of skipping the
+  compensated section. Repeating the same XY endpoint no longer raises a
+  misleading pure-Z error.
+
 ## v0.938
 - Fixed Guide lesson links on mobile so the selected interactive lesson opens
   immediately in Learn instead of remaining hidden behind the Editor tab.

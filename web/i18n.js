@@ -119,7 +119,9 @@
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
-      'footer.bug': '🐛 Fehler mit einem Klick melden / Verbesserung vorschlagen',
+      'footer.examples': 'Bibliothek',
+      'footer.compactBug': 'Fehler melden',
+      'footer.bug': '🐛 Fehler melden / Verbesserung vorschlagen',
 
       // cycle picker
       'cycle.select': 'Zyklus wählen',
@@ -132,15 +134,12 @@
       'bug.close': 'Schließen',
       'bug.sendBug': 'Bericht senden',
       'bug.sendSuggest': 'Vorschlag senden',
-      'bug.bugPh': 'Optional weitere Details hinzufügen…',
+      'bug.descLabel': 'Beschreibung (Pflichtfeld)',
+      'bug.bugPh': 'Beschreibe, was schiefgelaufen ist…',
       'bug.suggestPh': 'Was möchtest du ergänzen oder verbessern?',
       'bug.warnBug': 'Der Bericht ist anonym. TNC Sim erfasst keine personenbezogenen Daten. Deine Beschreibung, das aktuelle NC-Programm und grundlegende technische Diagnosedaten werden an unseren öffentlichen GitHub-Tracker gesendet. Bitte gib keine vertraulichen Informationen an.',
       'bug.warnSuggest': 'Der Vorschlag ist anonym. TNC Sim erfasst keine personenbezogenen Daten. Dein Text und grundlegende technische Diagnosedaten werden an unseren öffentlichen GitHub-Tracker gesendet. Bitte gib keine vertraulichen Informationen an.',
-      'bug.pf.js': 'Der Simulator ist bei der Verarbeitung dieses Programms auf einen internen Fehler gestoßen.',
-      'bug.pf.lesson': 'Die Lektionsprüfung akzeptiert möglicherweise eine korrekte Lösung nicht.',
-      'bug.pf.validator': 'Der Validator bewertet dieses Programm möglicherweise falsch.',
-      'bug.pf.default': 'Das simulierte Ergebnis oder die Werkzeugbahn ist für dieses Programm möglicherweise falsch.',
-      'bug.needText': 'Bitte beschreibe zuerst deinen Vorschlag.',
+      'bug.needText': 'Bitte beschreibe zuerst das Problem oder den Vorschlag.',
       'bug.sending': 'Wird gesendet…',
       'bug.sent': 'Danke! Dein Bericht wurde veröffentlicht: ',
       'bug.failed': 'Senden fehlgeschlagen. Bitte versuche es später erneut.',
@@ -234,6 +233,10 @@
     var guidePath = _lang === 'de' ? '/de/learn/' : '/learn/';
     var footerGuide = document.getElementById('footerGuideLink');
     if (footerGuide) footerGuide.setAttribute('href', guidePath);
+    var footerExamples = document.getElementById('footerExamplesLink');
+    if (footerExamples) footerExamples.setAttribute('href', _lang === 'de' ? '/de/examples/' : '/examples/');
+    var footerExamplesMobile = document.getElementById('footerExamplesMobileLink');
+    if (footerExamplesMobile) footerExamplesMobile.setAttribute('href', _lang === 'de' ? '/de/examples/' : '/examples/');
     applyDom(document);
   }
 
