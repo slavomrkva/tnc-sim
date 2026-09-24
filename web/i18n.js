@@ -119,7 +119,7 @@
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
-      'footer.bug': '🐛 Fehler melden',
+      'footer.bug': '🐛 Fehler melden / Verbesserung vorschlagen',
 
       // cycle picker
       'cycle.select': 'Zyklus wählen',

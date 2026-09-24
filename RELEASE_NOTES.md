@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.941
+- Kept "Suggest an improvement" in the footer button while removing the
+  "One-click" wording. A written description is still required before sending.
+
 ## v0.940
 - Renamed the footer button to Bug report. The report description now starts
   empty and must be filled in before a bug or suggestion can be sent.

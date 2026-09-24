@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.941 — 2026-09-24 — keep suggestion wording in the footer
+
+- Restored the suggestion option in the English and German footer labels and
+  mobile tooltip, leaving only the "One-click" claim removed.
+- Kept the description-required report flow and advanced the offline cache to
+  v106.
+
 ## v0.940 — 2026-09-24 — require a written report description
 
 - Shortened the footer action to Bug report in English and German.
