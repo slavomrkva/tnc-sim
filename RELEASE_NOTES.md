@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.943
+- Corrected the sitemap checks so the new program pages can be indexed alongside
+  the existing Learn pages.
+
 ## v0.942
 - Added a permanent corrected-program library for bug reports, starting with
   issue #44's revised six-pass contour. The program can be downloaded and

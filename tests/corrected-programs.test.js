@@ -21,6 +21,9 @@ assert.match(read('de/examples/index.html'), /href="\/de\/examples\/report-44\/"
 assert.match(read('index.html'), /id="footerExamplesLink"/);
 assert.match(read('core/theme-toast.js'), /href="\/examples\/"/);
 assert.match(read('web/i18n-about-de.js'), /href="\/de\/examples\/"/);
+for (const url of ['/examples/', '/examples/report-44/']) {
+  assert.ok(read('sitemap.xml').includes(`<loc>https://tncsim.org${url}</loc>`), `sitemap lists ${url}`);
+}
 assert.ok(!code.includes('&#x20;'), 'HTML entity is decoded in the NC file');
 assert.ok(!H.validate(code).some(p => p.sev === 'err'), 'published program passes validation');
 

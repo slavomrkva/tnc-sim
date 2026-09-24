@@ -2,12 +2,12 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '0.942',
+  version: '0.943',
   mergedAt: null,
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.942 · Corrected programs',
+      meta: 'v0.943 · Corrected programs',
       title: 'What’s new',
       close: 'Close',
       intro: 'A reported contour is now easier to inspect and test:',
@@ -18,7 +18,7 @@ var WHATS_NEW_RELEASE = {
       ]
     },
     de: {
-      meta: 'v0.942 · Korrigierte Programme',
+      meta: 'v0.943 · Korrigierte Programme',
       title: 'Was ist neu?',
       close: 'Schließen',
       intro: 'Eine gemeldete Kontur lässt sich jetzt leichter prüfen und testen:',

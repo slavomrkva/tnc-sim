@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.943 — 2026-09-24 — include corrected programs in sitemap checks
+
+- Kept the Learn sitemap contract while allowing the new program URLs, and
+  added direct assertions for those URLs in the publication test.
+- Advanced the offline cache to v108 after the versioned push.
+
 ## v0.942 — 2026-09-24 — publish corrected issue programs
 
 - Added English and German corrected-program index and issue #44 detail pages,
