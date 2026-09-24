@@ -2,8 +2,8 @@
 // file diverges from the Android copy on purpose (it talks to the tncsim.org
 // /api/report Cloudflare Worker). Do not port it wholesale to Android.
 //
-// One-click flow: the user picks "Report a problem" or "Suggest improvement",
-// optionally edits one textarea, and hits Send. The current NC program (bug
+// The user picks "Report a problem" or "Suggest improvement", describes it,
+// and hits Send. The current NC program (bug
 // only), version, device/browser, validator messages, app area and recent JS
 // errors are attached automatically and a public GitHub issue is opened server
 // side — no GitHub account required from the visitor.
@@ -19,29 +19,6 @@ function _bugArea(){
   if(mt === 'view') return '3D';
   if(mt === 'learn') return 'Learn';
   return 'Editor';
-}
-
-// The first validator problem of error severity (if any).
-function _bugValidatorError(){
-  if(!(typeof problemsData !== 'undefined' && problemsData && problemsData.length)) return null;
-  for(var i=0;i<problemsData.length;i++){ if(problemsData[i].sev === 'err') return problemsData[i]; }
-  return null;
-}
-
-// Automatic, state-based description that pre-fills the textarea for a bug.
-function _bugPrefill(){
-  if(typeof _bugErrors !== 'undefined' && _bugErrors.length){
-    return _bugT('bug.pf.js', 'The simulator encountered an internal error while processing this program.');
-  }
-  if(typeof LEARN !== 'undefined' && LEARN && LEARN.open){
-    return _bugT('bug.pf.lesson', 'The lesson validation may not accept a correct solution.');
-  }
-  var ve = _bugValidatorError();
-  if(ve){
-    return _bugT('bug.pf.validator', 'The validator may be evaluating this program incorrectly.')
-      + '\n\n' + ('L' + (ve.line+1) + ': ' + ve.msg);
-  }
-  return _bugT('bug.pf.default', 'The simulated result or toolpath may be incorrect for this program.');
 }
 
 // Reflect the active kind (bug/suggest) into the dialog.
@@ -62,8 +39,8 @@ function bugSetKind(kind){
     if(warn) warn.textContent = _bugT('bug.warnSuggest',
       'The suggestion is anonymous. TNC Sim does not collect personal data. Your text and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
   } else {
-    ta.value = _bugPrefill();
-    ta.placeholder = _bugT('bug.bugPh', 'Optionally add more detail…');
+    ta.value = '';
+    ta.placeholder = _bugT('bug.bugPh', 'Describe what went wrong…');
     if(send) send.textContent = _bugT('bug.sendBug', 'Send report');
     if(warn) warn.textContent = _bugT('bug.warnBug',
       'This report is anonymous. TNC Sim does not collect personal data. Your description, current NC program, and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
@@ -71,7 +48,7 @@ function bugSetKind(kind){
   _bugUpdateSendState();
 }
 
-// Suggestions require text; bug reports are always sendable.
+// Both report types require a description written by the user.
 function _bugUpdateSendState(){
   var send = document.getElementById('bugSendBtn');
   if(!send) return;
@@ -83,7 +60,7 @@ function _bugUpdateSendState(){
     return;
   }
   var has = (document.getElementById('bugDesc').value.trim().length > 0);
-  var disabled = (_bugKind === 'suggest' && !has) || send.dataset.sending === '1';
+  var disabled = !has || send.dataset.sending === '1';
   send.disabled = disabled;
   send.style.opacity = disabled ? '0.5' : '1';
   send.style.cursor = disabled ? 'default' : 'pointer';
@@ -121,7 +98,7 @@ function _bugContext(){
 // Full markdown body sent to the server for the GitHub issue.
 function _bugBuildBody(){
   var desc = document.getElementById('bugDesc').value.trim();
-  var out = '## Description\n' + (desc || '(no description)') + '\n';
+  var out = '## Description\n' + desc + '\n';
 
   out += '\n## Context\n```\n' + _bugContext().join('\n') + '\n```\n';
 
@@ -207,8 +184,9 @@ function sendReport(){
   }
   var kind = _bugKind;
 
-  if(kind === 'suggest' && !document.getElementById('bugDesc').value.trim()){
-    _bugSetStatus(_bugT('bug.needText', 'Please describe your suggestion first.'), true);
+  var description = document.getElementById('bugDesc').value.trim();
+  if(!description){
+    _bugSetStatus(_bugT('bug.needText', 'Please describe the problem or suggestion first.'), true);
     return;
   }
 

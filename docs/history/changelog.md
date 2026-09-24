@@ -7,6 +7,13 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.940 — 2026-09-24 — require a written report description
+
+- Shortened the footer action to Bug report in English and German.
+- Removed automatic bug-description templates, kept the textarea empty on open,
+  and blocked sending both bug reports and suggestions until text is entered.
+- Updated the current help text and advanced the offline cache to v105.
+
 ## v0.939 — 2026-09-24 — preserve compensated nominal retraces
 
 - Associated generated corner transitions with both nominal contour elements,

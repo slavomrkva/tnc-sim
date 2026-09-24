@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.940
+- Renamed the footer button to Bug report. The report description now starts
+  empty and must be filled in before a bug or suggestion can be sent.
+
 ## v0.939
 - Fixed radius compensation for contours that intentionally retrace an earlier
   edge. These programs now generate the full toolpath instead of skipping the
