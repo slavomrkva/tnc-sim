@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.944
+- Kept the program-library link visible in a compact footer on narrower and
+  shorter screens, above the mobile tabs.
+- Shortened What's New to the reported fix and required bug-report description.
+- Simplified the program library and case #44 descriptions.
+
 ## v0.943
 - Corrected the sitemap checks so the new program pages can be indexed alongside
   the existing Learn pages.

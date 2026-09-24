@@ -2,30 +2,28 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '0.943',
+  version: '0.944',
   mergedAt: null,
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.943 · Corrected programs',
+      meta: 'v0.944 · Updates',
       title: 'What’s new',
       close: 'Close',
-      intro: 'A reported contour is now easier to inspect and test:',
+      intro: '',
       items: [
-        'Fixed the simulator path for intentional retraces with RL.',
-        'Read the <a href="/examples/report-44/">corrected program from issue #44</a>.',
-        'Browse the new <a href="/examples/">program library</a> any time.'
+        'Fixed a reported bug. See the <a href="/examples/">program library</a>.',
+        'Bug reports now require your description of the problem.'
       ]
     },
     de: {
-      meta: 'v0.943 · Korrigierte Programme',
+      meta: 'v0.944 · Neuigkeiten',
       title: 'Was ist neu?',
       close: 'Schließen',
-      intro: 'Eine gemeldete Kontur lässt sich jetzt leichter prüfen und testen:',
+      intro: '',
       items: [
-        'Die Simulatorbahn für beabsichtigtes Zurückfahren mit RL wurde korrigiert.',
-        'Sieh dir das <a href="/de/examples/report-44/">korrigierte Programm aus Issue #44</a> an.',
-        'Die neue <a href="/de/examples/">Programmsammlung</a> bleibt dauerhaft erreichbar.'
+        'Gemeldeten Fehler behoben. Siehe <a href="/de/examples/">Programmbibliothek</a>.',
+        'Fehlermeldungen benötigen jetzt deine Problembeschreibung.'
       ]
     }
   }
@@ -93,7 +91,9 @@ function openWhatsNew(){
   var copy = _whatsNewContent();
   document.getElementById('whatsNewMeta').textContent = copy.meta;
   document.getElementById('whatsNewTitle').textContent = copy.title;
-  document.getElementById('whatsNewIntro').textContent = copy.intro;
+  var intro = document.getElementById('whatsNewIntro');
+  intro.textContent = copy.intro;
+  intro.hidden = !copy.intro;
   document.querySelector('.whats-new-close').setAttribute('aria-label', copy.close);
   document.getElementById('whatsNewItems').innerHTML = copy.items.map(function(item){
     return '<li><span aria-hidden="true">&#10003;</span><span>' + item + '</span></li>';

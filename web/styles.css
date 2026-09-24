@@ -710,11 +710,13 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 }
 
 
-.ft-mini{display:none;}
+.ft-mini,.ft-compact{display:none;}
 @media(max-width:1024px), (max-height:600px){
   footer .ft-full{display:none !important;}
-  footer{display:none;}
-  .ft-mini{display:none;}
+  footer{display:flex;flex:0 0 auto;align-items:center;justify-content:center;padding:5px 12px;min-height:30px;}
+  footer .ft-compact{display:block;font-family:var(--mono);font-size:11px;line-height:18px;}
+  footer .ft-compact a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;}
+  html.kbd-open footer{display:none;}
 }
 /* Scroll rail removed — the mobile 3D tab is a fixed (non-scrolling) layout now. */
 .scroll-rail{display:none !important;}

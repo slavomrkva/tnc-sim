@@ -46,9 +46,11 @@ assert.match(css, /\.whats-new-card\{[^}]*position:absolute;[^}]*right:20px/,
   'the desktop popup is anchored at the top right');
 assert.match(css, /\.whats-new-btn\{[^}]*border:1px solid var\(--border\);[^}]*background:var\(--surface2\);[^}]*color:var\(--text2\)/,
   'What’s New uses the standard neutral header treatment');
-assert.ok(release.content.en.items.length === 3 && release.content.de.items.length === release.content.en.items.length,
-  'English and German summaries contain the same concise set of changes');
-assert.match(release.content.en.items.join(' '), /href="\/examples\/report-44\/"/);
-assert.match(release.content.de.items.join(' '), /href="\/de\/examples\/report-44\/"/);
+assert.ok(release.content.en.items.length === 2 && release.content.de.items.length === 2,
+  'English and German announcements each have two concise updates');
+assert.match(release.content.en.items[0], /href="\/examples\/"/);
+assert.match(release.content.de.items[0], /href="\/de\/examples\/"/);
+assert.match(release.content.en.items[1], /require your description/);
+assert.match(release.content.de.items[1], /Problembeschreibung/);
 
 console.log('What’s New release-window and popup contract passed');

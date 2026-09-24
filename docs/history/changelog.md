@@ -7,6 +7,14 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.944 — 2026-09-24 — show the program library in responsive footer
+
+- Reordered the footer before the mobile tab row and show a compact localized
+  program-library link when the full footer is hidden by responsive layout.
+- Reduced What's New to the fixed report and required written description.
+- Shortened English and German copy on the library and issue #44 pages.
+- Advanced the offline cache to v109.
+
 ## v0.943 — 2026-09-24 — include corrected programs in sitemap checks
 
 - Kept the Learn sitemap contract while allowing the new program URLs, and

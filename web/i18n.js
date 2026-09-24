@@ -119,7 +119,7 @@
 
       // footer
       'footer.guide': 'Klartext-Anleitung',
-      'footer.examples': 'Korrigierte Programme',
+      'footer.examples': 'Programmbibliothek',
       'footer.bug': '🐛 Fehler melden / Verbesserung vorschlagen',
 
       // cycle picker
@@ -234,6 +234,8 @@
     if (footerGuide) footerGuide.setAttribute('href', guidePath);
     var footerExamples = document.getElementById('footerExamplesLink');
     if (footerExamples) footerExamples.setAttribute('href', _lang === 'de' ? '/de/examples/' : '/examples/');
+    var footerExamplesMobile = document.getElementById('footerExamplesMobileLink');
+    if (footerExamplesMobile) footerExamplesMobile.setAttribute('href', _lang === 'de' ? '/de/examples/' : '/examples/');
     applyDom(document);
   }
 

@@ -18,7 +18,16 @@ for (const page of [english, german]) {
 
 assert.match(read('examples/index.html'), /href="\/examples\/report-44\/"/);
 assert.match(read('de/examples/index.html'), /href="\/de\/examples\/report-44\/"/);
-assert.match(read('index.html'), /id="footerExamplesLink"/);
+const shell = read('index.html');
+const styles = read('web/styles.css');
+assert.match(shell, /id="footerExamplesLink"[^>]*>Program library<\/a>/);
+assert.match(shell, /id="footerExamplesMobileLink"[^>]*>Program library<\/a>/);
+assert.ok(shell.indexOf('<footer>') < shell.indexOf('<nav class="mtab-bar"'),
+  'footer remains visible above the mobile tabs');
+assert.match(styles, /footer\{display:flex;flex:0 0 auto;[^}]*min-height:30px/,
+  'compact footer is visible in the responsive layout');
+assert.match(styles, /footer \.ft-compact\{display:block;/,
+  'responsive footer shows the program link');
 assert.match(read('core/theme-toast.js'), /href="\/examples\/"/);
 assert.match(read('web/i18n-about-de.js'), /href="\/de\/examples\/"/);
 for (const url of ['/examples/', '/examples/report-44/']) {
