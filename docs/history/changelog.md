@@ -7,6 +7,12 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.948 — 2026-10-10 — token-free bug reporting
+
+- Prepare GitHub issue drafts or email drafts to info@tncsim.org locally without GitHub tokens or Turnstile. Preserve legacy Worker support for old clients.
+- Export full reports, warn when links require shortening, and update German labels and privacy documentation; advance offline cache to v113.
+- Verify regression checks and browser dialog tests. Native device acceptance remains pending; no APK build requested.
+
 ## v0.947 — 2026-09-24 — start the production announcement
 
 - Set What's New `mergedAt` to PR #45's actual GitHub merge time,

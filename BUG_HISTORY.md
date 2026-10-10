@@ -1054,3 +1054,8 @@ Reverted `web/keyboard.js` to the `main` version. The live site's behaviour was
 fine; the "fix" was worse. Lesson: this is real-device/real-browser-timing
 territory and shouldn't be changed blind — see the android `BUG_HISTORY.md` for
 the parallel (and far longer) native saga and NOTES rule #11.
+
+
+## Token-free bug reporting — accepted 2026-10-10
+
+The previous reporting dialog depended on server-side GitHub and Turnstile secrets. Replaced it with locally prepared GitHub issue and email drafts, plus full-report export and a shortening warning. Suggestions omit the NC program. Existing legacy Worker support remains available. Regression suites and browser dialog tests passed during implementation; the user accepted the live test preview. Native device behavior was not verified.

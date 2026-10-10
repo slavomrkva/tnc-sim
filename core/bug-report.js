@@ -1,13 +1,4 @@
-// bug-report -- WEB ONLY. The Android app keeps its own simpler flow; this
-// file diverges from the Android copy on purpose (it talks to the tncsim.org
-// /api/report Cloudflare Worker). Do not port it wholesale to Android.
-//
-// The user picks "Report a problem" or "Suggest improvement", describes it,
-// and hits Send. The current NC program (bug
-// only), version, device/browser, validator messages, app area and recent JS
-// errors are attached automatically and a public GitHub issue is opened server
-// side — no GitHub account required from the visitor.
-
+// Prepare a GitHub issue or email locally; no reporting tokens required.
 var _bugKind = 'bug';   // 'bug' | 'suggest'
 
 function _bugT(key, en){ return (typeof t === 'function') ? t(key, en) : en; }
@@ -35,16 +26,13 @@ function bugSetKind(kind){
   if(_bugKind === 'suggest'){
     ta.value = '';
     ta.placeholder = _bugT('bug.suggestPh', 'What would you like to add or improve?');
-    if(send) send.textContent = _bugT('bug.sendSuggest', 'Send suggestion');
-    if(warn) warn.textContent = _bugT('bug.warnSuggest',
-      'The suggestion is anonymous. TNC Sim does not collect personal data. Your text and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
+    if(send) send.textContent = _bugT('bug.openGithub', 'Open GitHub issue');
   } else {
     ta.value = '';
     ta.placeholder = _bugT('bug.bugPh', 'Describe what went wrong…');
-    if(send) send.textContent = _bugT('bug.sendBug', 'Send report');
-    if(warn) warn.textContent = _bugT('bug.warnBug',
-      'This report is anonymous. TNC Sim does not collect personal data. Your description, current NC program, and basic technical diagnostics are sent to our public GitHub tracker. Please don\'t include any confidential information.');
+    if(send) send.textContent = _bugT('bug.openGithub', 'Open GitHub issue');
   }
+  if(warn) warn.textContent = _bugT('bug.deliveryNotice', 'GitHub requires an account and publishes your report. Email needs no GitHub account and uses your email address. Bug reports include your current NC program and diagnostics. Review before sending; do not include confidential data.');
   _bugUpdateSendState();
 }
 
@@ -52,15 +40,9 @@ function bugSetKind(kind){
 function _bugUpdateSendState(){
   var send = document.getElementById('bugSendBtn');
   if(!send) return;
-  if(send.dataset.sent === '1'){
-    send.textContent = _bugT('bug.close', 'Close');
-    send.disabled = false;
-    send.style.opacity = '1';
-    send.style.cursor = 'pointer';
-    return;
-  }
   var has = (document.getElementById('bugDesc').value.trim().length > 0);
-  var disabled = !has || send.dataset.sending === '1';
+  var disabled = !has;
+  ['bugEmailBtn', 'bugDownloadBtn'].forEach(function(id){ var button = document.getElementById(id); if(button) button.disabled = disabled; });
   send.disabled = disabled;
   send.style.opacity = disabled ? '0.5' : '1';
   send.style.cursor = disabled ? 'default' : 'pointer';
@@ -70,10 +52,7 @@ function openBugReport(kind){
   var overlay = document.getElementById('bugOverlay');
   var status = document.getElementById('bugStatus');
   if(status){ status.textContent = ''; status.style.display = 'none'; }
-  var send = document.getElementById('bugSendBtn');
-  if(send){ send.dataset.sending = '0'; send.dataset.sent = '0'; }
   bugSetKind(kind === 'suggest' ? 'suggest' : 'bug');
-  _bugRenderTurnstile();
   overlay.classList.add('open');
   setTimeout(function(){ document.getElementById('bugDesc').focus(); }, 100);
 }
@@ -95,7 +74,7 @@ function _bugContext(){
   return info;
 }
 
-// Full markdown body sent to the server for the GitHub issue.
+// Full markdown report prepared locally for the selected destination.
 function _bugBuildBody(){
   var desc = document.getElementById('bugDesc').value.trim();
   var out = '## Description\n' + desc + '\n';
@@ -128,7 +107,7 @@ function _bugBuildBody(){
 function _bugTitle(){
   var desc = document.getElementById('bugDesc').value.trim().replace(/\s+/g,' ');
   var prefix = (_bugKind === 'suggest') ? 'Suggestion: ' : 'Bug: ';
-  var body = desc.slice(0,80) || (_bugKind === 'suggest' ? 'improvement' : 'issue');
+  var body = desc.slice(0,80).replace(/[\uD800-\uDBFF]$/, '') || (_bugKind === 'suggest' ? 'improvement' : 'issue');
   return prefix + body;
 }
 
@@ -140,100 +119,51 @@ function _bugSetStatus(msg, isError){
   status.innerHTML = msg;
 }
 
-// ── Cloudflare Turnstile (invisible) ──────────────────────────────────────
-// The public site key lives in web/turnstile-config.js (window.TURNSTILE_SITE_KEY).
-// The matching secret is a Cloudflare Worker secret, never in the repo.
-var _tsWidgetId = null;
-var _tsResolve = null;
 
-function _bugRenderTurnstile(){
-  if(_tsWidgetId !== null) return;
-  if(!window.turnstile || !window.TURNSTILE_SITE_KEY) return;
-  try{
-    _tsWidgetId = window.turnstile.render('#bugTurnstile', {
-      sitekey: window.TURNSTILE_SITE_KEY,
-      size: 'invisible',
-      callback: function(tok){ if(_tsResolve){ _tsResolve(tok); _tsResolve = null; } },
-      'error-callback': function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } },
-      'expired-callback': function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }
-    });
-  }catch(e){ _tsWidgetId = null; }
-}
-
-// Resolves with a Turnstile token, or null if verification is unavailable.
-function _bugGetToken(){
-  return new Promise(function(resolve){
-    if(!window.turnstile || !window.TURNSTILE_SITE_KEY){ resolve(null); return; }
-    _bugRenderTurnstile();
-    if(_tsWidgetId === null){ resolve(null); return; }
-    _tsResolve = resolve;
-    try{ window.turnstile.reset(_tsWidgetId); }catch(e){}
-    try{ window.turnstile.execute(_tsWidgetId); }
-    catch(e){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }
-    // Safety net if no callback fires (e.g. network stalls).
-    setTimeout(function(){ if(_tsResolve){ _tsResolve(null); _tsResolve = null; } }, 20000);
-  });
-}
-
-function sendReport(){
-  var send = document.getElementById('bugSendBtn');
-  if(!send || send.disabled) return;
-  if(send.dataset.sent === '1'){
-    closeBugReport();
-    return;
+function _bugDeliveryUrl(channel){
+  var title = _bugTitle();
+  var fullBody = _bugBuildBody();
+  var body = fullBody;
+  var truncated = false;
+  var prefix = channel === 'email'
+    ? 'mailto:info@tncsim.org?subject=' + encodeURIComponent(title) + '&body='
+    : 'https://github.com/slavomrkva/tnc-sim/issues/new?labels=' + (_bugKind === 'suggest' ? 'enhancement' : 'bug') + '&title=' + encodeURIComponent(title) + '&body=';
+  var limit = channel === 'email' ? 1800 : 7000;
+  while((prefix + encodeURIComponent(body)).length > limit){
+    truncated = true;
+    fullBody = fullBody.slice(0, Math.floor(fullBody.length * 0.75));
+    // Avoid cutting a Unicode surrogate pair in half.
+    fullBody = fullBody.replace(/[\uD800-\uDBFF]$/, '');
+    body = fullBody + '\n\n[Report shortened for the link. Use Download report and attach the full file before sending.]';
   }
-  var kind = _bugKind;
+  return {url: prefix + encodeURIComponent(body), truncated: truncated};
+}
 
-  var description = document.getElementById('bugDesc').value.trim();
-  if(!description){
+function sendReport(channel){
+  channel = channel === 'email' ? 'email' : 'github';
+  if(!document.getElementById('bugDesc').value.trim()){
     _bugSetStatus(_bugT('bug.needText', 'Please describe the problem or suggestion first.'), true);
     return;
   }
+  var report = _bugDeliveryUrl(channel);
+  window.open(report.url, '_blank', 'noopener,noreferrer');
+  // Keep a normal link available even when a browser blocks popups.
+  var status = document.getElementById('bugStatus');
+  status.style.display = 'block';
+  status.style.color = 'var(--text2)';
+  status.textContent = _bugT('bug.reviewDraft', 'Review and send the draft in GitHub or your email app. If it did not open, use this link: ');
+  var link = document.createElement('a');
+  link.href = report.url;
+  link.textContent = channel === 'email' ? _bugT('bug.openEmail', 'Open email') : _bugT('bug.openGithub', 'Open GitHub issue');
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  status.appendChild(link);
+  if(report.truncated){
+    status.appendChild(document.createTextNode(_bugT('bug.shortened', ' The draft was shortened. Download the full report and attach it before sending.')));
+  }
+}
 
-  var payload = {
-    kind: kind,
-    title: _bugTitle(),
-    body: _bugBuildBody()
-  };
-
-  send.dataset.sending = '1';
-  _bugUpdateSendState();
-  _bugSetStatus(_bugT('bug.sending', 'Sending…'), false);
-
-  _bugGetToken().then(function(token){
-    if(!token){
-      send.dataset.sending = '0';
-      _bugUpdateSendState();
-      _bugSetStatus(window.turnstile
-        ? _bugT('bug.verifyFailed', 'Verification failed. Please try again.')
-        : _bugT('bug.offline', 'Could not reach the verification service. Check your connection and try again.'), true);
-      return;
-    }
-    payload.token = token;
-    return fetch('/api/report', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(res){
-      return res.json().catch(function(){ return {}; }).then(function(data){
-        return { ok: res.ok, data: data };
-      });
-    }).then(function(r){
-      send.dataset.sending = '0';
-      if(r.ok && r.data && r.data.url){
-        send.dataset.sent = '1';
-        _bugUpdateSendState();
-        _bugSetStatus(_bugT('bug.sent', 'Thanks! Your report was posted: ')
-          + '<a href="' + r.data.url + '" target="_blank" rel="noopener" style="color:var(--accent);">' + r.data.url + '</a>', false);
-      } else {
-        _bugUpdateSendState();
-        var msg = (r.data && r.data.error) ? r.data.error : _bugT('bug.failed', 'Sorry, sending failed. Please try again later.');
-        _bugSetStatus(msg, true);
-      }
-    });
-  }).catch(function(){
-    send.dataset.sending = '0';
-    _bugUpdateSendState();
-    _bugSetStatus(_bugT('bug.failed', 'Sorry, sending failed. Please try again later.'), true);
-  });
+function downloadBugReport(){
+  if(!document.getElementById('bugDesc').value.trim()) return;
+  _downloadTextFile(_bugBuildBody(), 'tnc-sim-report.txt');
 }
