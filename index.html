@@ -438,12 +438,13 @@ END PGM PROGRAM MM</textarea>
         <label for="bugDesc" data-i18n="bug.descLabel" style="display:block;margin-bottom:6px;font-family:var(--mono);font-size:11px;color:var(--text2);">Description (required)</label>
         <textarea id="bugDesc" rows="5" required oninput="_bugUpdateSendState()" style="width:100%;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
       </div>
-      <div id="bugWarn" data-i18n="bug.warnBug" style="font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--text2);background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.28);border-radius:6px;padding:8px 10px;">This report is anonymous. TNC Sim does not collect personal data. Your description, current NC program, and basic technical diagnostics are sent to our public GitHub tracker. Please don't include any confidential information.</div>
-      <div id="bugTurnstile"></div>
+      <div id="bugWarn" data-i18n="bug.deliveryNotice" style="font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--text2);background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.28);border-radius:6px;padding:8px 10px;">GitHub requires an account and publishes your report. Email needs no GitHub account and uses your email address. Bug reports include your current NC program and diagnostics. Review before sending; do not include confidential data.</div>
       <div id="bugStatus" style="display:none;font-family:var(--mono);font-size:11px;line-height:1.5;word-break:break-word;"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
         <button onclick="closeBugReport()" style="font-family:var(--mono);font-size:12px;padding:6px 16px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text3);cursor:pointer;" data-i18n="bug.cancel">Cancel</button>
-        <button id="bugSendBtn" onclick="sendReport()" style="font-family:var(--mono);font-size:12px;padding:6px 20px;border:1px solid var(--accent);border-radius:5px;background:var(--accent);color:#fff;cursor:pointer;">Send report</button>
+        <button id="bugSendBtn" onclick="sendReport()" style="font-family:var(--mono);font-size:12px;padding:6px 20px;border:1px solid var(--accent);border-radius:5px;background:var(--accent);color:#fff;cursor:pointer;">Open GitHub issue</button>
+        <button id="bugEmailBtn" style="font-family:var(--mono);font-size:12px;padding:6px 12px;border:1px solid var(--accent);border-radius:5px;background:var(--panel);color:var(--text);cursor:pointer;" onclick="sendReport('email')" data-i18n="bug.openEmail">Open email</button>
+        <button id="bugDownloadBtn" style="font-family:var(--mono);font-size:12px;padding:6px 12px;border:1px solid var(--accent);border-radius:5px;background:var(--panel);color:var(--text);cursor:pointer;" onclick="downloadBugReport()" data-i18n="bug.download">Download report</button>
       </div>
     </div>
   </div>
@@ -481,8 +482,6 @@ END PGM PROGRAM MM</textarea>
 <script src="web/i18n-lessons-de.js" defer></script>
 <script src="web/i18n-cycles-de.js" defer></script>
 <script src="core/block-form-panel.js" defer></script>
-<script src="web/turnstile-config.js" defer></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="core/bug-report.js" defer></script>
 <script src="core/cycle-picker.js" defer></script>
 <script src="core/demo-programs.js" defer></script>

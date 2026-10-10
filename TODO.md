@@ -27,3 +27,11 @@
   Cartesian, polar and APPR/DEP builder, cancellation of edits to an existing
   block, and removal of multi-line guided insert side effects. Keep open until
   accepted in both products.
+
+
+## Bug report without GitHub tokens (pending device acceptance)
+
+- Replaced the token-dependent dialog with prefilled GitHub issues and email drafts to info@tncsim.org. GitHub requires visitor login; email does not.
+- Added full-report export and a visible warning when link length requires shortening. Removed Turnstile loading from current clients; retained the legacy Worker for older versions.
+- Verified both regression suites and Chromium dialog flows, including email/GitHub URLs, Unicode, suggestions omitting the NC program, and long-report export. Android native external-app opening still needs device acceptance.
+- Manual test: docs/bug-report-manual-test.md.
