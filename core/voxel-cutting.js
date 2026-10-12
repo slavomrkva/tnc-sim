@@ -349,7 +349,7 @@ function rapidCollision(sm, cx, cy, cz){
   // (updateStatus keeps it until reset) instead of being overwritten by the
   // per-block running status. mode is deliberately left untouched.
   if(window._collisionActive) return;
-  var msg='⚠ COLLISION — rapid move into material at X'+cx.toFixed(1)+' Y'+cy.toFixed(1)+' Z'+cz.toFixed(1);
+  var msg='⚠ COLLISION — '+(sm.rapid?'rapid move':'stopped spindle moving')+' into material at X'+cx.toFixed(1)+' Y'+cy.toFixed(1)+' Z'+cz.toFixed(1);
   updateStatus(msg, false);
   var statusEl=document.getElementById('statusMsg');
   if(statusEl){ statusEl.style.color='#ff5d5d'; statusEl.style.fontWeight='bold'; }

@@ -6,6 +6,19 @@
 
 ## Open work
 
+- **Web audit 2026-10-12 / A01–A13 — implemented on review branch, awaiting
+  acceptance.** First repair pass replaces Q-expression rewriting with one
+  bounded evaluator, corrects tiny directed arcs and Cycle 209 reversals,
+  invalidates dirty paused playback, checks rapid/stopped-spindle stock contact,
+  gates live/Refine cutting by spindle state, handles failed WebGL startup,
+  bounds program generation, adapts Cycle 208 tessellation, and fixes M4/tab
+  presentation. All 50 Node test files pass, including two new audit suites.
+  GPU/browser visual acceptance remains pending: local browser download failed
+  and the remote browser cannot access the local server. See
+  [acceptance checklist](docs/web-audit-2026-10-12.md).
+  **Web repository only; do not merge or port to Android until requested.**
+
+
 - **C61 / GitHub #44 — compensated retrace skips the contour (implemented,
   awaiting acceptance).** The analytic loop check treated a deliberate return
   along an earlier nominal edge as a new tool-center loop because generated

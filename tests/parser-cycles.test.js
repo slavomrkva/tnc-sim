@@ -58,12 +58,15 @@ CYCL CALL`);
   const helix = segments.filter(segment => !segment.rapid && segment.to.z < segment.from.z - 1e-9);
   assert.ok(helix.length > 0, 'Cycle 208 should generate a descending helix');
   helix.forEach(segment => assert.strictEqual(segment.feed, 3500, 'FAUTO must use TOOL CALL F3500'));
-  assert.strictEqual(helix.length % 32, 0, 'helix revolutions should use 32 segments');
-  for(let i=0; i<helix.length; i+=32){
-    const zDrop = helix[i].from.z - helix[i+31].to.z;
-    assert.ok(zDrop <= 2 + 1e-9, `Q334=2 exceeded in revolution ${i/32 + 1}: ${zDrop}`);
-  }
-  assert.strictEqual(helix.length / 32, 11, 'solid-stock helix should use 11 revolutions');
+  let revolutions=0;
+  helix.forEach(segment=>{
+    const angle=Math.abs(Math.atan2(segment.from.x*segment.to.y-segment.from.y*segment.to.x,
+      segment.from.x*segment.to.x+segment.from.y*segment.to.y));
+    const fraction=angle/(2*Math.PI);
+    revolutions+=fraction;
+    assert.ok(segment.from.z-segment.to.z<=2*fraction+1e-9, 'Q334=2 limits the pitch per turn');
+  });
+  assert.ok(Math.abs(revolutions-11)<1e-9, 'solid-stock helix should use 11 revolutions');
   helix.forEach(segment => {
     assert.ok(Math.abs(Math.hypot(segment.from.x, segment.from.y) - 5) < 1e-6, 'helix must not start at radius zero');
     assert.ok(Math.abs(Math.hypot(segment.to.x, segment.to.y) - 5) < 1e-6, 'helix radius must remain constant');

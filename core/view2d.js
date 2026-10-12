@@ -1,4 +1,4 @@
-// view2d -- verified byte-for-byte identical between web and android repos.
+// view2d — web reference; Android port of the October 2026 audit fixes is pending.
 
 function onResize(){
   if(!THREE_OK || !renderer) return;
@@ -127,7 +127,11 @@ function updateToolLegend(){
 }
 
 function switchView(v){
+  if(v==='3d' && !THREE_OK) v='2d';
   curView=v;
+  ['tab3d','tab2d','tabTools'].forEach(function(id,i){
+    document.getElementById(id).setAttribute('aria-pressed',String(v===['3d','2d','tools'][i]));
+  });
   document.getElementById('tab3d').classList.toggle('active', v==='3d');
   document.getElementById('tab2d').classList.toggle('active', v==='2d');
   document.getElementById('tabTools').classList.toggle('active', v==='tools');

@@ -81,4 +81,10 @@ function cycleSegments(res, code){
   return res.sub.filter(s => s.srcLine === callLine);
 }
 
-module.exports = { parse, validate, program, cycleSegments, TOOLS, makeContext };
+// Independent geometric revolution count, insensitive to tessellation density.
+function revolutions(segments){
+  return segments.reduce((sum,s)=>sum+Math.abs(Math.atan2(
+    s.from.x*s.to.y-s.from.y*s.to.x,
+    s.from.x*s.to.x+s.from.y*s.to.y)),0)/(2*Math.PI);
+}
+module.exports = { parse, validate, program, cycleSegments, TOOLS, makeContext, revolutions };

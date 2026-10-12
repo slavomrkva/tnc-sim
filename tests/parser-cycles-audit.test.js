@@ -111,7 +111,7 @@ for(const num of [201,209]){
   const res = H.parse(code);
   const segs = H.cycleSegments(res, code);
   const helix = segs.filter(s => !s.rapid && s.to.z < s.from.z - 1e-9);
-  assert.ok(helix.length/32 <= 4, `A4: effective-radius stepover must keep the pass count tiny; got ${helix.length/32} revolutions`);
+  assert.ok(H.revolutions(helix) <= 4, `A4: effective-radius stepover must keep the pass count tiny; got ${H.revolutions(helix)} revolutions`);
   assert.ok(segs.length < 500, `A4: total cycle segments must be bounded; got ${segs.length}`);
   assert.ok(!(res.probs||[]).some(p => /capped|aborted/.test(p.msg)), 'A4: correct geometry must not hit the pass-count guard');
 }
@@ -133,7 +133,7 @@ for(const num of [201,209]){
   const code = H.program(`TOOL CALL 1 Z S3000 F500\nM3\nL X+0 Y+0 Z+30 R0\nCYCL DEF 208\n Q200=+2\n Q201=-20\n Q206=+150\n Q334=+2\n Q203=+20\n Q204=+50\n Q335=+20\n Q342=+0\n Q351=+1\nCYCL CALL`);
   const res = H.parse(code);
   const helix = H.cycleSegments(res, code).filter(s => !s.rapid && s.to.z < s.from.z - 1e-9);
-  assert.strictEqual(helix.length/32, 11, 'A5/regression: solid Ø20 helix keeps 11 revolutions');
+  assert.ok(Math.abs(H.revolutions(helix)-11)<1e-9, 'A5/regression: solid Ø20 helix keeps 11 revolutions');
   helix.forEach(s => assert.ok(Math.abs(Math.hypot(s.to.x, s.to.y) - 5) < 1e-6, 'helix radius stays constant at 5'));
 }
 
@@ -265,7 +265,7 @@ for(const [tcall, effR] of [
 {
   const code=H.program(`TOOL CALL 25 Z S3000 F500\nM3\nL X+0 Y+0 Z+30 R0\nCYCL DEF 208\n Q200=+2\n Q201=-10\n Q206=+100\n Q334=+20\n Q203=+0\n Q204=+20\n Q335=+12\n Q342=+4\n Q351=+1\nCYCL CALL`);
   const desc=H.cycleSegments(H.parse(code),code).filter(s=>!s.rapid&&s.to.z<s.from.z-1e-9);
-  assert.ok(desc.length/32>=5, 'Cycle 208: tool-table ANGLE caps the helical descent even when Q334 requests a steeper plunge');
+  assert.ok(H.revolutions(desc)>=5, 'Cycle 208: tool-table ANGLE caps the helical descent even when Q334 requests a steeper plunge');
 }
 {
   function withTool(t){

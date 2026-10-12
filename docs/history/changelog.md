@@ -7,6 +7,19 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.949 — 2026-10-12 — web audit review branch
+
+- Implement A01–A13 from the October audit, including live/Refine spindle-state
+  parity and failed-renderer boot coverage. Use a shared bounded Q evaluator,
+  directed arc modulo, a 0.01 mm Cycle 208 chord tolerance and a 100000 segment
+  generation ceiling with per-cycle preflight estimates.
+- Replace fixed-32 test assumptions with independent geometric pitch/turn
+  assertions. All 50 Node regression files and tracked JS syntax checks pass.
+- Increment the web cache to v114 and precache the matching JS/CSS runtime.
+- Branch-only candidate; no main merge, production release tag, What's New
+  merge timestamp, or Android repository changes. Browser/GPU acceptance is
+  explicitly pending in docs/web-audit-2026-10-12.md.
+
 ## v0.948 — 2026-10-10 — token-free bug reporting
 
 - Prepare GitHub issue drafts or email drafts to info@tncsim.org locally without GitHub tokens or Turnstile. Preserve legacy Worker support for old clients.
