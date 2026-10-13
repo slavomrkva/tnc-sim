@@ -10,6 +10,16 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.949 — review branch, not yet released
+- Corrected tiny arcs, nested Q calculations and inverse trigonometric functions.
+- Editing a paused program now validates and restarts it before running.
+- Check horizontal/upward rapid moves; stopped spindles no longer remove stock,
+  including in Refine. Collision warnings continue playback.
+- Corrected small Cycle 209 reversals, improved Cycle 208 chord accuracy and
+  reject programs exceeding the generation budget with a clear error.
+- Failed WebGL startup falls back to XY playback; M4 is displayed correctly,
+  and view controls support keyboard activation.
+
 ## v0.947
 - Show the two-item What's New announcement after the production merge.
 

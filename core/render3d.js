@@ -1,4 +1,4 @@
-// render3d -- verified byte-for-byte identical between web and android repos.
+// render3d — web reference; Android port of the October 2026 audit fixes is pending.
 
 function _scene3dBgColor(){
   return document.documentElement.getAttribute('data-theme')==='light' ? 0xcccdd0 : 0x101113;
@@ -231,7 +231,7 @@ function _applyRefinedMesh(vertsArr, normsArr, triColors){
 }
 
 function buildScene(prog){
-  if(!THREE_OK) return;
+  if(!THREE_OK || !renderer || !controls) return;
   var min = prog.viewMin || prog.blkMin, max = prog.viewMax || prog.blkMax;
   var w = max.x-min.x, d = max.y-min.y, h = max.z-min.z;
 

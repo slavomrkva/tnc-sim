@@ -365,9 +365,9 @@ END PGM PROGRAM MM</textarea>
         </div></div>
       </div>
       <div class="view-tabs">
-        <div class="tab active" id="tab3d" onclick="switchView('3d')" data-help="view-3d" data-i18n="view.3d">3D view</div>
-        <div class="tab" id="tab2d" onclick="switchView('2d')" data-help="view-2d" data-i18n="view.2d">XY toolpath</div>
-        <div class="tab" id="tabTools" onclick="switchView('tools')" data-help="view-tools" data-i18n="view.tools">Tool Table</div>
+        <button type="button" class="tab active" id="tab3d" aria-pressed="true" onclick="switchView('3d')" data-help="view-3d" data-i18n="view.3d">3D view</button>
+        <button type="button" class="tab" id="tab2d" aria-pressed="false" onclick="switchView('2d')" data-help="view-2d" data-i18n="view.2d">XY toolpath</button>
+        <button type="button" class="tab" id="tabTools" aria-pressed="false" onclick="switchView('tools')" data-help="view-tools" data-i18n="view.tools">Tool Table</button>
       </div>
       <div class="view-area">
         <div class="scroll-rail" aria-hidden="true"><span>&#8645;</span></div>

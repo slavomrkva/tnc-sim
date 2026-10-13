@@ -1,5 +1,5 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v113';
+const CACHE_VERSION = 'v114';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -21,7 +21,43 @@ const PRECACHE_URLS = [
   '/examples/examples.css',
   // Three.js is vendored locally — without these two, offline mode has no 3D engine.
   '/vendor/three.min.js',
-  '/vendor/OrbitControls.js'
+  '/vendor/OrbitControls.js',
+  // Cache the complete runtime with the matching HTML on the first install.
+  '/web/i18n.js',
+  '/core/data-tables.js',
+  '/web/i18n-lessons-de.js',
+  '/web/i18n-cycles-de.js',
+  '/core/block-form-panel.js',
+  '/core/bug-report.js',
+  '/core/cycle-picker.js',
+  '/core/demo-programs.js',
+  '/web/i18n-demos-de.js',
+  '/core/editor-core.js',
+  '/core/program-autosave.js',
+  '/core/field-editing.js',
+  '/core/help-popups.js',
+  '/core/klartext-syntax.js',
+  '/core/learn-coach.js',
+  '/core/learn-tutorial.js',
+  '/core/mcode-panel.js',
+  '/core/measure-tool.js',
+  '/core/mobile-tabs.js',
+  '/core/parser-engine.js',
+  '/core/qparam-panel.js',
+  '/core/render3d.js',
+  '/core/sim-controls.js',
+  '/core/theme-toast.js',
+  '/web/i18n-about-de.js',
+  '/core/tool-table.js',
+  '/core/view2d.js',
+  '/core/voxel-cutting.js',
+  '/web/keyboard.js',
+  '/web/layout.js',
+  '/web/panels.js',
+  '/web/app.js',
+  '/web/whats-new.js',
+  '/web/analytics.js',
+  '/web/styles.css'
 ];
 
 self.addEventListener('install', (event) => {

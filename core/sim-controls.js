@@ -1,4 +1,4 @@
-// sim-controls -- verified byte-for-byte identical between web and android repos.
+// sim-controls — web reference; Android port of the October 2026 audit fixes is pending.
 
 function prepare(){
   prog = parseProgram(codeEl.value);
@@ -35,12 +35,13 @@ function updateSimInfoPanel(){
     _scanEnd = subIndex - 1;
     while(_scanEnd > 0 && sub[_scanEnd] && sub[_scanEnd].toolNum === _atcNewT) _scanEnd--;
   }
-  var spOn = false, spS = 0, coOn = false;
+  var spOn = false, spS = 0, spDir = 0, coOn = false;
   var _foundSpOn = false, _foundCoOn = false;
   for(var _i = _scanEnd; _i >= 0; _i--){
     var _s = sub[_i];
     if(!_foundSpOn && typeof _s.spindleOn !== 'undefined'){
       spOn = !!_s.spindleOn;
+      spDir = _s.spindleDir || 0;
       _foundSpOn = true;
     }
     if(spS === 0 && _s.spindleS && _s.spindleS > 0){ spS = _s.spindleS; }
@@ -65,7 +66,7 @@ function updateSimInfoPanel(){
   lines.push('<span style="color:var(--text3);">DL '+(dl>=0?'+':'')+dl.toFixed(3)+'  DR '+(dr>=0?'+':'')+dr.toFixed(3)+'</span>');
   lines.push('<span style="color:var(--text3);">'+(feed > 0 ? 'F '+Math.round(feed) : (spOn && sm && sm.rapid ? 'FMAX' : 'F 0'))+'</span>');
   lines.push('<span style="color:'+(spOn?'var(--text2)':'var(--text3)')+';">S '+(spOn ? spS : 0)+'</span>');
-  var spStr = spOn ? '<span style="color:#5dcaa5;">M3 ●</span>' : '<span style="color:var(--text3);">M5 ○</span>';
+  var spStr = spOn ? '<span style="color:#5dcaa5;">'+(spDir<0?'M4':'M3')+' ●</span>' : '<span style="color:var(--text3);">M5 ○</span>';
   var coStr = coOn ? '<span style="color:#4a9eff;">M8 ●</span>' : '<span style="color:var(--text3);">M9 ○</span>';
   lines.push(spStr+'  '+coStr);
   lines.push('<span style="color:var(--text3);">LBL '+(currentLBL !== null ? currentLBL : '—')+'</span>');
@@ -115,7 +116,7 @@ function ensurePrepared(){ if(dirty || !prog){ prepare(); } }
 
 function onRun(){
   if(typeof _isMTab==='function' && _isMTab()) mtabSwitch('view');
-  if(mode==='paused'){
+  if(mode==='paused' && !dirty){
     // resume after M0 stop — don't reset
     mode='running';
     updateStatus('Running…', true);
@@ -145,7 +146,7 @@ function setQuality(q){
   VX_RES = VX_RES_LEVELS[VX_QUALITY];
   var btns = document.getElementById('qualityGroup').querySelectorAll('.btn-tog');
   btns.forEach(function(b,i){ b.classList.toggle('active', i===VX_QUALITY); });
-  if(prog){ buildScene(prog); resetState(); }
+  if(THREE_OK && prog){ buildScene(prog); resetState(); }
 }
 
 function onStop(){

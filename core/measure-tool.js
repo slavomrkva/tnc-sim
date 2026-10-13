@@ -1,4 +1,4 @@
-// measure-tool -- verified byte-for-byte identical between web and android repos.
+// measure-tool — web reference; Android port of the October 2026 audit fixes is pending.
 
 function makeBuf(maxSeg, color, opacity){
   var cap = maxSeg*6;
@@ -188,7 +188,7 @@ function renderMeasureOverlay(){
 }
 
 function initMeasureRaycaster(){
-  if(!THREE_OK) return;
+  if(!THREE_OK || !renderer) return;
   measureRaycaster = new THREE.Raycaster();
 
   function doMeasureHit(clientX, clientY){

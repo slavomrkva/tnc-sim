@@ -90,74 +90,103 @@ function expandLblLines(lines, issues){
   return expandedLines;
 }
 
-function evalQExpr(expr, qVars){
-  if(!expr) return 0;
-  // Replace Q references with their values
-  var resolved = expr.replace(/Q(\d+)/gi, function(m, n){
-    return (qVars[parseInt(n)] !== undefined ? qVars[parseInt(n)] : 0);
-  });
-  // Replace math functions
-  resolved = resolved
-    .replace(/SQRT\s*\(/gi, 'Math.sqrt(')
-    .replace(/SIN\s*\(/gi,  'Math.sin(')
-    .replace(/COS\s*\(/gi,  'Math.cos(')
-    .replace(/TAN\s*\(/gi,  'Math.tan(')
-    .replace(/ASIN\s*\(/gi, 'Math.asin(')
-    .replace(/ACOS\s*\(/gi, 'Math.acos(')
-    .replace(/ATAN\s*\(/gi, 'Math.atan(')
-    .replace(/ABS\s*\(/gi,  'Math.abs(')
-    .replace(/INT\s*\(/gi,  'Math.trunc(')
-    .replace(/FRAC\s*\(([^)]+)\)/gi, function(m,v){ return '('+v+'-Math.trunc('+v+'))'; });
-  // Heidenhain trig is in degrees
-  resolved = resolved.replace(/Math\.(sin|cos|tan)\(([^)]+)\)/g, function(m,fn,arg){
-    return 'Math.'+fn+'(('+arg+')*Math.PI/180)';
-  });
-  resolved = resolved.replace(/Math\.a(sin|cos|tan)\(([^)]+)\)/g, function(m,fn,arg){
-    return '(Math.a'+fn+'('+arg+')*180/Math.PI)';
-  });
-  try { return parseFloat(Function('"use strict"; return ('+resolved+');')()); }
-  catch(e){ return 0; }
-}
-
-// Validate the same deliberately small Q-expression language that evalQExpr
-// executes.  evalQExpr keeps its historic numeric fallback for parser
-// robustness, but the editor must never present a malformed/undefined
-// expression as valid code and then silently simulate it as zero.
+// One bounded evaluator for validation and execution. Trigonometry uses degrees;
+// tokens are interpreted directly, never compiled as JavaScript.
 function inspectQExpr(expr, qVars){
   expr=String(expr||'').trim();
   if(!expr) return {ok:false,msg:'Q expression is empty'};
-  var undefinedQs=[];
-  expr.replace(/Q(\d+)/gi,function(m,n){
-    if(qVars[parseInt(n)]===undefined && undefinedQs.indexOf('Q'+parseInt(n))<0)
-      undefinedQs.push('Q'+parseInt(n));
-    return m;
-  });
-  if(undefinedQs.length) return {ok:false,msg:undefinedQs.join(', ')+' has no value assigned'};
-  // Reject names/tokens that the evaluator does not implement.  This also
-  // prevents Function() from seeing arbitrary JavaScript identifiers.
-  var identifiers=expr.match(/[A-Z_]+/gi)||[];
-  var allowed={Q:true,SQRT:true,SIN:true,COS:true,TAN:true,ASIN:true,ACOS:true,ATAN:true,ABS:true,INT:true,FRAC:true};
-  for(var ai=0;ai<identifiers.length;ai++){
-    var id=identifiers[ai].toUpperCase();
-    if(!allowed[id]) return {ok:false,msg:'Unsupported token "'+identifiers[ai]+'" in Q expression'};
+  if(expr.length>4096) return {ok:false,msg:'Q expression exceeds 4096 characters'};
+  var at=0, depth=0;
+  var functions={SQRT:Math.sqrt, ABS:Math.abs, INT:Math.trunc,
+    FRAC:function(v){return v-Math.trunc(v);},
+    SIN:function(v){return Math.sin(v*Math.PI/180);},
+    COS:function(v){return Math.cos(v*Math.PI/180);},
+    TAN:function(v){return Math.tan(v*Math.PI/180);},
+    ASIN:function(v){return Math.asin(v)*180/Math.PI;},
+    ACOS:function(v){return Math.acos(v)*180/Math.PI;},
+    ATAN:function(v){return Math.atan(v)*180/Math.PI;}};
+  function fail(msg){throw new Error(msg||'Malformed Q expression');}
+  function space(){while(/\s/.test(expr.charAt(at)) && at<expr.length) at++;}
+  function finite(v){if(!isFinite(v)) fail('Q expression does not produce a finite number'); return v;}
+  function primary(){
+    if(++depth>64) fail('Q expression nesting exceeds 64 levels');
+    space();
+    var v, ch=expr.charAt(at), m;
+    if(ch==='+'||ch==='-'){at++; v=primary(); if(ch==='-') v=-v;}
+    else if(ch==='('){at++; v=sum(); space(); if(expr.charAt(at++)!==')') fail();}
+    else if((m=expr.slice(at).match(/^Q(\d+)/i))){
+      at+=m[0].length;
+      if(qVars[+m[1]]===undefined) fail('Q'+(+m[1])+' has no value assigned');
+      v=Number(qVars[+m[1]]);
+    } else if((m=expr.slice(at).match(/^(?:\d+(?:\.\d*)?|\.\d+)/))){
+      at+=m[0].length; v=Number(m[0]);
+    } else if((m=expr.slice(at).match(/^[A-Z_]+/i))){
+      at+=m[0].length;
+      var fn=functions[m[0].toUpperCase()];
+      if(!Object.prototype.hasOwnProperty.call(functions,m[0].toUpperCase())) fail('Unsupported token "'+m[0]+'" in Q expression');
+      space(); if(expr.charAt(at++)!=='(') fail();
+      v=sum(); space(); if(expr.charAt(at++)!==')') fail(); v=fn(v);
+    } else fail();
+    depth--; return finite(v);
   }
-  if(/[^0-9Q+\-*/().\sA-Z_]/i.test(expr)) return {ok:false,msg:'Invalid character in Q expression'};
-  var value=evalQExpr(expr,qVars);
-  if(!isFinite(value)) return {ok:false,msg:'Q expression does not produce a finite number'};
-  // evalQExpr returns 0 on a syntax exception, so independently compile the
-  // resolved expression to distinguish a real zero from a swallowed failure.
-  var probe=expr.replace(/Q(\d+)/gi,function(m,n){return '('+qVars[parseInt(n)]+')';})
-    .replace(/SQRT\s*\(/gi,'Math.sqrt(').replace(/SIN\s*\(/gi,'Math.sin(')
-    .replace(/COS\s*\(/gi,'Math.cos(').replace(/TAN\s*\(/gi,'Math.tan(')
-    .replace(/ASIN\s*\(/gi,'Math.asin(').replace(/ACOS\s*\(/gi,'Math.acos(')
-    .replace(/ATAN\s*\(/gi,'Math.atan(').replace(/ABS\s*\(/gi,'Math.abs(')
-    .replace(/INT\s*\(/gi,'Math.trunc(')
-    .replace(/FRAC\s*\(([^)]+)\)/gi,function(m,v){return '('+v+'-Math.trunc('+v+'))';});
-  try {
-    var compiled=Function('"use strict"; return ('+probe+');')();
-    if(typeof compiled!=='number'||!isFinite(compiled)) return {ok:false,msg:'Q expression does not produce a finite number'};
-  } catch(e){ return {ok:false,msg:'Malformed Q expression'}; }
-  return {ok:true,value:value};
+  function product(){
+    var v=primary(); space();
+    while(expr.charAt(at)==='*'||expr.charAt(at)==='/'){
+      var op=expr.charAt(at++), rhs=primary(); v=finite(op==='*'?v*rhs:v/rhs); space();
+    }
+    return v;
+  }
+  function sum(){
+    var v=product(); space();
+    while(expr.charAt(at)==='+'||expr.charAt(at)==='-'){
+      var op=expr.charAt(at++), rhs=product(); v=finite(op==='+'?v+rhs:v-rhs); space();
+    }
+    return v;
+  }
+  try {var value=sum(); space(); if(at!==expr.length) fail(); return {ok:true,value:value};}
+  catch(e){return {ok:false,msg:e.message};}
+}
+
+function evalQExpr(expr, qVars){
+  var result=inspectQExpr(expr,qVars);
+  return result.ok?result.value:NaN;
+}
+
+// Absolute circle endpoints use directed modulo; only coincident angles make
+// a full circle. A small positive sweep must never gain an extra revolution.
+function directedArcSweep(start,end,direction){
+  var turn=2*Math.PI, sweep=(end-start)%turn;
+  if(direction>0){if(sweep<=0) sweep+=turn;}
+  else {if(sweep>=0) sweep-=turn;}
+  return sweep;
+}
+
+// At least 32 even segments/revolution; maximum XY chord error is 0.01 mm.
+function cycleArcSegments(radius){
+  var step=2*Math.acos(Math.max(-1,1-0.01/Math.max(radius,0.01)));
+  return Math.max(32,2*Math.ceil(Math.PI/step));
+}
+
+var PROGRAM_SEGMENT_LIMIT=100000;
+function programBudgetError(line){
+  var e=new Error('Program exceeds the '+PROGRAM_SEGMENT_LIMIT+' segment/iteration budget — reduce cycle passes or split the program');
+  e.programBudget=true; e.srcLine=line||0; return e;
+}
+
+function checkProgramSegmentCapacity(count,line){
+  if(!isFinite(count)||count>PROGRAM_SEGMENT_LIMIT) throw programBudgetError(line);
+}
+
+function parseProgram(code){
+  try {return parseProgramBounded(code);}
+  catch(e){
+    if(!e.programBudget) throw e;
+    var p={line:e.srcLine,sev:'err',msg:e.message};
+    if(typeof probs!=='undefined') pushParseProblem(probs,p);
+    // Reject the whole path: a truncated program must not look complete.
+    return {blkMin:{x:0,y:0,z:0},blkMax:{x:100,y:80,z:40},blkCyl:null,
+      hasStock:false,sub:[],problems:[p],totalBlocks:0,start:{x:0,y:0,z:90}};
+  }
 }
 
 function resolveQLine(line, qVars){
@@ -1276,7 +1305,7 @@ function pushParseProblem(list, problem){
   if(typeof probs !== 'undefined' && probs !== list) probs.push(problem);
 }
 
-function parseProgram(code){
+function parseProgramBounded(code){
   // Normalize: replace commas with dots in decimal numbers (0,5 → 0.5)
   code = code.replace(/(\d),(\d)/g, '$1.$2');
   // Strip leading block numbers from real exported .H files (see validateProgram).
@@ -1330,6 +1359,13 @@ function parseProgram(code){
   // start above the (default) stock; adjusted after we know blkMax
   var pos = {x:0,y:0,z:0};
   var sub = [];
+  var generatedWork=0;
+  function checkBudget(count,line){
+    if(!isFinite(count)||count<0||generatedWork+count>PROGRAM_SEGMENT_LIMIT) throw programBudgetError(line);
+  }
+  function appendSegment(segment){
+    checkBudget(1,segment.srcLine); generatedWork++; sub.push(segment);
+  }
   var blockIndex = 0;
   var startSet = false;
 
@@ -1386,7 +1422,7 @@ function parseProgram(code){
       if(/^(?:M0|M2|M6|M30)$/.test(codes[mci])){ stopCode=codes[mci]; break; }
     }
     if(stopCode){
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
+      appendSegment({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
         rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLine,
         rc:'',spindleOn:spindleOn,spindleDir:spindleDir,coolantOn:coolantOn,
         toolNum:toolNum,isMseg:true,stop:true,stopCode:stopCode});
@@ -1445,7 +1481,7 @@ function parseProgram(code){
   var hasStock = hasBlkDefinition&&!zeroBox&&(blkMax.x>blkMin.x)&&(blkMax.y>blkMin.y)&&(blkMax.z>blkMin.z);
   pos = {x:blkMin.x, y:blkMax.y, z:blkMax.z + 50}; // home: back-left corner, above block
   // push initial home position as virtual start
-  sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:0, srcLine:0, rc:''});
+  appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z}, rapid:true, feed:DEFAULT_FEED, len:0.001, blockIndex:0, srcLine:0, rc:''});
 
   var contourGeomSeq=0;
 
@@ -1471,7 +1507,7 @@ function parseProgram(code){
     var dx=to.x-from.x, dy=to.y-from.y, dz=to.z-from.z;
     var len = Math.sqrt(dx*dx+dy*dy+dz*dz);
     if(len > 1e-6){
-      sub.push({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, rcActivation:!!rcActivation, rcGeom:rcGeom||null, dlPgm:curDLpgm, drPgm:curDRpgm});
+      appendSegment({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, rcActivation:!!rcActivation, rcGeom:rcGeom||null, dlPgm:curDLpgm, drPgm:curDRpgm});
     }
     pos = {x:to.x,y:to.y,z:to.z};
   }
@@ -1484,6 +1520,7 @@ function parseProgram(code){
 
   function pushContourArc(geom,rapid,srcLine,rc,maxStep){
     var steps=Math.max(8,Math.ceil(Math.abs(geom.sweep)/(maxStep||Math.PI/32)));
+    checkBudget(steps,srcLine);
     for(var ai=1;ai<=steps;ai++){
       var t=ai/steps, ang=geom.a0+geom.sweep*t;
       var target={x:geom.cx+geom.r*Math.cos(ang),y:geom.cy+geom.r*Math.sin(ang),z:geom.from.z+(geom.to.z-geom.from.z)*t};
@@ -1506,7 +1543,7 @@ function parseProgram(code){
       pendingDef:pendingDefTool,rcActivation:!!rcActivation,rcGeom:geom||null,
       dlPgm:curDLpgm,drPgm:curDRpgm};
     if(extra) for(var key in extra) if(Object.prototype.hasOwnProperty.call(extra,key)) seg[key]=extra[key];
-    sub.push(seg);
+    appendSegment(seg);
     pos=pointCopy(to);
     return seg;
   }
@@ -1545,7 +1582,7 @@ function parseProgram(code){
   }
 
   function pushCycleEvent(kind, value, srcLine, rc, phase){
-    sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z},
+    appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:pos.x,y:pos.y,z:pos.z},
       rapid:true, feed:feed, spindleS:spindleS, spindleOn:spindleOn,
       spindleDir:spindleDir, coolantOn:coolantOn, len:0.001,
       blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum,
@@ -1630,12 +1667,13 @@ function parseProgram(code){
       }
       var peck = (cy.Q202 !== undefined && cy.Q202 > 0) ? cy.Q202 : Math.abs(depth);
       if(peck >= Math.abs(depth)) peck = Math.abs(depth); // single pass
+      checkBudget(Math.ceil(Math.abs(depth)/peck)*5+3,srcLine);
 
       var oldFeed = feed;
       var cx2 = pos.x, cy2a = pos.y;
 
       // 1. Rapid to safeZ above hole
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
+      appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
       pos={x:cx2,y:cy2a,z:safeZ};
 
       // 2. Peck drilling loop
@@ -1715,7 +1753,7 @@ function parseProgram(code){
       // spindle direction, so the XY helix direction must reverse as well.
       var dir = (q351 === -1 ? -1 : 1) * (spindleDir === -1 ? -1 : 1);
       var cx2 = pos.x, cy2 = pos.y;
-      var N_arc = 32;               // segments per revolution
+      // Each ring chooses its own subdivision by radius and chord tolerance.
       var oldFeed = feed;
 
       // Effective compensation radius (path only — see effectiveCompRadius).
@@ -1766,6 +1804,7 @@ function parseProgram(code){
         // helix to depth → finishing circle → return to centre at depth →
         // vertical retract at the centre (A5). Leaves pos centred at safeZ.
         var boreRing = function(curR){
+          var N_arc=cycleArcSegments(curR);
           feed = pFeed;
           // Tool-table ANGLE limits Q334. DR2 reduces the usable radial cutting
           // width and therefore tightens the permissible plunge without using
@@ -1782,6 +1821,7 @@ function parseProgram(code){
             pushParseProblem(parseProblems, {line:srcLine, sev:'err', msg:'CYCL 208: '+numRevs+' helix revolutions exceed the supported safety limit — check ANGLE/DR2/Q334'});
             return false;
           }
+          checkBudget(N_arc*(numRevs+1.5)+2,srcLine);
           // semicircle entry from centre to (cx2+curR, cy2) at safeZ
           for(var ap=1; ap<=N_arc/2; ap++){
             var aa = Math.PI + dir*Math.PI*ap/(N_arc/2);
@@ -1813,8 +1853,8 @@ function parseProgram(code){
 
         // ── 1. Rapid to safeZ above centre ─────────────────────────────
         feed = rFeed;
-        sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2,z:safeZ},
-          rapid:true, feed:rFeed, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn,
+        appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2,z:safeZ},
+          rapid:true, feed:rFeed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, coolantOn:coolantOn,
           len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001,
           blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, safeRetract:true});
         pos={x:cx2, y:cy2, z:safeZ};
@@ -1896,7 +1936,7 @@ function parseProgram(code){
       var oldFeed = feed;
 
       // 1. Rapid to safeZ
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
+      appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
       pos={x:cx2,y:cy2a,z:safeZ};
 
       // 2. Ream down in one pass
@@ -1980,6 +2020,7 @@ function parseProgram(code){
         return;
       }
       var chipDepth = q257 > 0 ? q257 : Math.abs(depth); // depth per chip-break step
+      checkBudget(Math.ceil(Math.abs(depth)/chipDepth)*3+4,srcLine);
       // Q256 is a MULTIPLE of the pitch (Q256 × Q239), NOT a distance in mm.
       // Q256=0 → full retract out of the hole to Q200; Q256>0 → stay in the hole.
       var q256 = cycleQ(cy, 256, 0.2);
@@ -1989,7 +2030,7 @@ function parseProgram(code){
       }
       var chipFullRetract = (q256 === 0);
       var chipRetract = chipFullRetract ? 0 : Math.abs(pitch * q256);
-      if(!chipFullRetract && chipRetract < 0.001) chipRetract = pitch; // guard: at least one pitch
+      // Preserve even sub-millimetre retract factors exactly.
       var cx2 = pos.x, cy2a = pos.y;
       var oldFeed = feed;
       var oldSpindleOn = spindleOn;
@@ -1999,7 +2040,7 @@ function parseProgram(code){
       activeThreadHand = threadDir;
 
       // 1. Rapid to safeZ
-      sub.push({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
+      appendSegment({from:{x:pos.x,y:pos.y,z:pos.z}, to:{x:cx2,y:cy2a,z:safeZ}, rapid:true, feed:9999, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, coolantOn:coolantOn, toolNum:toolNum, len:Math.sqrt(Math.pow(cx2-pos.x,2)+Math.pow(cy2a-pos.y,2)+Math.pow(safeZ-pos.z,2))||0.001, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', safeRetract:true});
       pos={x:cx2,y:cy2a,z:safeZ};
       if(orientation !== 0) pushCycleEvent('spindle-orientation', orientation, srcLine, rc, 'positioning');
 
@@ -2029,10 +2070,10 @@ function parseProgram(code){
             feed = tapFeed;
             spindleDir = threadDir;
             spindleS = oldSpindleS;
-            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
+            pushSeg({x:cx2, y:cy2a, z:Math.min(pos.z, targetZ + 0.1)}, false, srcLine, rc, true, true);
           } else {
             // Q256>0: retract by pitch*Q256, stays in hole (synchronized feed)
-            var breakZ = targetZ + chipRetract;
+            var breakZ = Math.min(safeZ, targetZ + chipRetract);
             feed = retractFeed;
             spindleDir = -threadDir;
             spindleS = oldSpindleS*retractFactor;
@@ -2040,7 +2081,7 @@ function parseProgram(code){
             feed = tapFeed;
             spindleDir = threadDir;
             spindleS = oldSpindleS;
-            pushSeg({x:cx2, y:cy2a, z:targetZ + 0.1}, false, srcLine, rc, true, true);
+            pushSeg({x:cx2, y:cy2a, z:Math.min(pos.z, targetZ + 0.1)}, false, srcLine, rc, true, true);
           }
         }
       }
@@ -2181,7 +2222,7 @@ function parseProgram(code){
     if(/^FN\s*[0-4]\s*:/i.test(line)) line = line.replace(/^FN\s*[0-4]\s*:/i,'').trim();
 
     // Resolve Q parameters in line before parsing
-    if(Object.keys(qVars).length > 0) line = resolveQLine(line, qVars);
+    if(Object.keys(qVars).length > 0 && !/^Q\d+\s*=/.test(line)) line = resolveQLine(line, qVars);
 
     // Track whether THIS line is still part of the CURRENT CYCL DEF's own
     // Q-parameter continuation block (matches the same rule used by
@@ -2204,6 +2245,15 @@ function parseProgram(code){
     if(_qAssign){
       var _qNum = parseInt(_qAssign[1].slice(1));
       var _qExpr = _qAssign[2].trim().replace(/;.*$/,'').trim();
+      if(!/^(AUTO|FAUTO|FMAX)$/.test(_qExpr)){
+        var qCheck=inspectQExpr(_qExpr,qVars);
+        if(!qCheck.ok){
+          pushParseProblem(parseProblems,{line:srcLineI,sev:'err',msg:qCheck.msg});
+          qVars[_qNum]=NaN;
+          if(activeCycle && _wasInCycleParamBlock) activeCycle['Q'+_qNum]=NaN;
+          continue;
+        }
+      }
       if(activeCycle && _wasInCycleParamBlock){
         // Inside cycle def — update cycle parameter (evalQExpr supports expressions like Q10+5)
         var _qKeyword=_qExpr.toUpperCase();
@@ -2347,7 +2397,7 @@ function parseProgram(code){
       applyKnownMEnd(_standaloneCodes);
       var _standaloneStops=_standaloneCodes.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); });
       if(!_standaloneStops && _standaloneCodes.some(function(m){ return /^(?:M3|M4|M5|M7|M8|M9|M13|M14)$/.test(m); })){
-        sub.push({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
+        appendSegment({from:{x:pos.x,y:pos.y,z:pos.z},to:{x:pos.x,y:pos.y,z:pos.z},
           rapid:true,feed:DEFAULT_FEED,len:0.001,blockIndex:blockIndex,srcLine:srcLineI,
           rc:'',spindleOn:spindleOn,spindleDir:spindleDir,coolantOn:coolantOn,
           toolNum:toolNum,isMseg:true});
@@ -2500,8 +2550,7 @@ function parseProgram(code){
         var a0 = Math.atan2(pos.y-ccy, pos.x-ccx);
         var a1 = Math.atan2(endY-ccy, endX-ccx);
         var sweep;
-        if(dr>0){ sweep = a1-a0; while(sweep<=1e-4) sweep += 2*Math.PI; }
-        else { sweep = a1-a0; while(sweep>=-1e-4) sweep -= 2*Math.PI; }
+        sweep=directedArcSweep(a0,a1,dr);
         var cTo={x:endX,y:endY,z:cFrom.z};
         pushContourArc(arcGeom(cFrom,cTo,ccx,ccy,R,a0,sweep,srcLineI,'C'),_cFeedState.rapid,srcLineI,rcState,Math.PI/32);
         _cArcMade=true;
@@ -2583,7 +2632,7 @@ function parseProgram(code){
           a1cp=a0cp+sw;
         } else if(pa2) {
           a1cp=parseFloat(pa2[1])*Math.PI/180;
-          if(dr2>0){sw=a1cp-a0cp;while(sw<=1e-4)sw+=2*Math.PI;}else{sw=a1cp-a0cp;while(sw>=-1e-4)sw-=2*Math.PI;}
+          sw=directedArcSweep(a0cp,a1cp,dr2);
         } else {
           // CP DR+ / CP DR- repeats the current polar radius for one complete
           // revolution. Keep a full 2π sweep instead of collapsing equal end
@@ -2636,8 +2685,7 @@ function parseProgram(code){
           var a0 = Math.atan2(pos.y-cy2, pos.x-cx2);
           var a1 = Math.atan2(endY-cy2, endX-cx2);
           var sweep;
-          if(dr>0){ sweep=a1-a0; while(sweep<=1e-4) sweep+=2*Math.PI; }
-          else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
+          sweep=directedArcSweep(a0,a1,dr);
           var crTo={x:endX,y:endY,z:crFrom.z};
           pushContourArc(arcGeom(crFrom,crTo,cx2,cy2,R,a0,sweep,srcLineI,'CR'),_crFeedState.rapid,srcLineI,rcState,Math.PI/32);
           _crArcMade=true;
@@ -2685,8 +2733,7 @@ function parseProgram(code){
         var a1=Math.atan2(endY-cy2,endX-cx2);
         var dr2=denom>0?1:-1;
         var sweep;
-        if(dr2>0){ sweep=a1-a0; while(sweep<=1e-4) sweep+=2*Math.PI; }
-        else { sweep=a1-a0; while(sweep>=-1e-4) sweep-=2*Math.PI; }
+        sweep=directedArcSweep(a0,a1,dr2);
         var ctTo={x:endX,y:endY,z:_ctEndZ};
         pushContourArc(arcGeom(ctFrom,ctTo,cx2,cy2,R,a0,sweep,srcLineI,'CT'),_ctFeedState.rapid,srcLineI,rcState,Math.PI/32);
         _ctArcMade=true;
@@ -2927,10 +2974,12 @@ function _rcEmitPrimitive(out,p,template,side){
   var start=_rcPrimitiveStart(p),end=_rcPrimitiveEnd(p);
   if(p.type==='point') return;
   if(p.type==='line'){
+    checkProgramSegmentCapacity(out.length+1,template.srcLine);
     if(_rcDist2(start,end)>1e-16||Math.abs(start.z-end.z)>1e-9) out.push(_rcCloneSegment(template,start,end,side,{rcGeom:p}));
     return;
   }
   var steps=Math.max(8,Math.ceil(Math.abs(p.sweep)/(Math.PI/64))),prev=start;
+  checkProgramSegmentCapacity(out.length+steps,template.srcLine);
   for(var i=1;i<=steps;i++){
     var t=i/steps,a=p.a0+p.sweep*t;
     var q={x:p.cx+p.r*Math.cos(a),y:p.cy+p.r*Math.sin(a),z:p.z0+(p.z1-p.z0)*t};
@@ -3157,6 +3206,7 @@ function _expandUncompensatedApproaches(sub,parseProblems){
       sub.splice(i,1); i--; continue;
     }
     var expanded=_adEmitPlan(plan,marker,'',{rcActivation:false,apprSpec:null});
+    checkProgramSegmentCapacity(sub.length-1+expanded.length,marker.srcLine);
     sub.splice.apply(sub,[i,1].concat(expanded));
     i+=expanded.length-1;
   }
@@ -3329,9 +3379,11 @@ function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){
       departureOut=_adEmitPlan(departurePlan,nextSeg,'R0',{depSpec:null});
     }
   }
+  checkProgramSegmentCapacity(sub.length-(b-a+1)+out.length,sub[a].srcLine);
   sub.splice.apply(sub,[a,b-a+1].concat(out));
   if(nextSeg&&nextSeg.depSpec){
     var depIndex=a+out.length;
+    checkProgramSegmentCapacity(sub.length-1+(departureOut||[]).length,nextSeg.srcLine);
     sub.splice.apply(sub,[depIndex,1].concat(departureOut||[]));
     if(departureOut&&departureOut.length){
       var depEnd=departureOut[departureOut.length-1].to;
@@ -3664,6 +3716,7 @@ function rebuildRunSegments(sub, a, b, out, outSeg){
   }
   // Splice newSegs into sub in place of [a..b]
   var args=[a, (b-a+1)].concat(newSegs);
+  checkProgramSegmentCapacity(sub.length-(b-a+1)+newSegs.length,sub[a].srcLine);
   Array.prototype.splice.apply(sub, args);
   return newSegs.length;
 }
@@ -3697,7 +3750,7 @@ function triggerRefine(){
   var executedCount = (mode==='idle'||mode==='done') ? (subIndex>0?subIndex:sub.length) : subIndex;
   if(mode==='done') executedCount=sub.length;
   var subArr = prog.sub.slice(0,executedCount).map(function(sm){
-    return {from:{x:sm.from.x,y:sm.from.y,z:sm.from.z},to:{x:sm.to.x,y:sm.to.y,z:sm.to.z},rapid:!!sm.rapid,toolNum:sm.toolNum||1,len:sm.len||0,dlPgm:sm.dlPgm||0};
+    return {from:{x:sm.from.x,y:sm.from.y,z:sm.from.z},to:{x:sm.to.x,y:sm.to.y,z:sm.to.z},rapid:!!sm.rapid,spindleOn:!!sm.spindleOn,isMseg:!!sm.isMseg,cycleEvent:!!sm.cycleEvent,toolNum:sm.toolNum||1,len:sm.len||0,dlPgm:sm.dlPgm||0};
   });
 
   // Copy VX.cut — do NOT transfer (keep original intact for voxel mesh)
@@ -3966,8 +4019,8 @@ function commitSeg(sm){
     currentToolNum = sm.toolNum;
   }
   if(sm.cycleEvent) return;
-  // collision check for rapid moves — skip if Z is moving upward (retract)
-  if(sm.rapid && !sm.safeRetract && VX && sm.to.z < sm.from.z){
+  // Check all rapid directions and feed motion with a stopped spindle.
+  if(VX && !sm.isMseg && (sm.rapid || !sm.spindleOn)){
     var cellSize=Math.min(VX.dx,VX.dy,VX.dz);
     var steps=Math.max(2,Math.ceil(sm.len/cellSize));
     for(var si=0;si<=steps;si++){
@@ -3981,7 +4034,7 @@ function commitSeg(sm){
       }
     }
   }
-  if(VX && !sm.rapid){
+  if(VX && !sm.rapid && sm.spindleOn && !sm.isMseg){
     var cellSize=Math.min(VX.dx,VX.dy);
     var steps=Math.max(2, Math.ceil(sm.len/cellSize*1.5));
     for(var si=0;si<=steps;si++){

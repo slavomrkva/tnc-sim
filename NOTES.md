@@ -69,6 +69,9 @@ Detailed module-split history is in the archived project notes linked above.
    [`docs/history/layout-and-renderer-rationale.md`](docs/history/layout-and-renderer-rationale.md).
 5. **Mobile WebGL:** keep defensive renderer creation, context-loss handling,
    and the touch-device avoidance of unconditional `high-performance`.
+   A loaded THREE library is insufficient: after initialization, `THREE_OK`
+   must reflect a working renderer/controls before boot can prepare the scene.
+   Failed initialization enters the XY playback loop and must not abort Learn.
 6. **Trademark:** preserve the independent/not-affiliated HEIDENHAIN notice.
 7. **Offline contract:** core features must not depend on external runtime
    services.
@@ -107,7 +110,10 @@ Detailed module-split history is in the archived project notes linked above.
    machine-proven programs (e.g. a rapid onto a pre-drilled floor) play through
    to the end. `rapidCollision` leaves `mode` untouched and latches
    `window._collisionActive` so `updateStatus` keeps the warning until reset;
-   never re-add `mode='idle'` there. The voxel check is resolution-bound, so
+   never re-add `mode='idle'` there. Check horizontal/upward rapid moves too,
+   including cycle-marked retracts; stopped-spindle feeds warn instead of
+   cutting. Both live and Refine stock removal require segment `spindleOn`.
+   The voxel check is resolution-bound, so
    sub-voxel gouges surface only at finer quality — do not "fix" that by
    stopping the sim.
 16. **Validation starts only with simulation:** every program edit, programming
@@ -118,6 +124,8 @@ Detailed module-split history is in the archived project notes linked above.
    before simulation; they cancel any pending edit-invalidation timer, merge
    static and parser diagnostics, refresh the estimate and block on every
    complete error, including radius-compensation and trailing CHF/RND errors.
+   A paused run resumes its existing snapshot only when `dirty` is false;
+   an edit to code/tools requires validation and preparation from the start.
 17. **Header name is the file identity, not BEGIN PGM:** `#progTitleName`
    shows `_docName`, set on demo pick (friendly name), import (filename),
    export (saved filename) and Clear (`program.H`); `_setDocName` is the only
@@ -238,6 +246,14 @@ Detailed module-split history is in the archived project notes linked above.
     endings must not change validation, BLK FORM geometry, LBL expansion or
     the generated toolpath. File import normalizes these before editing;
     direct pasted/parser input remains tolerant as well.
+
+24. **Finite expression and generation work:** validation and execution share
+    `inspectQExpr`; invalid expressions return diagnostics/NaN, never a numeric
+    zero. Nested functions use degrees. Program generation is capped at 100000
+    segments with conservative cycle-pass preflight checks; budget failure
+    rejects the entire path rather than displaying a truncated run. Cycle 208
+    ring subdivisions maintain at most 0.01 mm XY chord error independently of
+    voxel quality. These are web changes pending a deliberate Android port.
 
 Add a numbered rule only for a durable invariant that is not already covered.
 Resolved narratives belong in `BUG_HISTORY.md`; retired architecture detail and
