@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.950 — Practice prototype, experiment/practice only
+- Added a desktop Practice workspace with an original contour drawing, blank/contour exercise, and page-specific official HEIDENHAIN references.
+- Moved learning modes to the header and grouped Import/Export under File.
+- Practice drafts are separate from the main program. Mobile design and automatic grading are deferred.
+
 ## v0.949 — review branch, not yet released
 - Corrected tiny arcs, nested Q calculations and inverse trigonometric functions.
 - Editing a paused program now validates and restarts it before running.

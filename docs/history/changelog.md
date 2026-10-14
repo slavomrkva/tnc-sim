@@ -1026,3 +1026,7 @@ History through v0.845 is preserved in
 - Kept embedded M functions in their complete guided positioning editor,
   preserved their parameter tails, added focused regressions and advanced the
   offline cache to v78.
+
+
+## v0.950 — 2026-10-14 — experiment/practice
+Desktop-only Practice prototype with original dimensioned SVG and TNC 640 892903-2C (10/2023) page references verified against the official PDF. Web-only draft lifecycle restores the main editor on exit; Learn remains available. Import/Export grouped under File. Cache v115. No production merge or Android port.

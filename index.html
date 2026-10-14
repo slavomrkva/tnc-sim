@@ -60,6 +60,7 @@
   }catch(e){}
 </script>
 
+<link rel="stylesheet" href="web/practice.css">
 </head>
 
 
@@ -72,6 +73,7 @@
       <span class="logo-sub" data-i18n="logo.sub">Online Heidenhain simulator for CNC milling</span>
     </h1>
   </div>
+  <nav class="practice-nav" aria-label="Learning modes"><button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners" data-i18n-title="panel.learnTitle" data-i18n="panel.learn">Learn</button><button id="practiceBtn" class="ph-btn" onclick="openPractice()" aria-pressed="false" aria-controls="practicePanel">Practice</button></nav>
   <div class="header-badges">
     <button id="whatsNewBtn" class="whats-new-btn" type="button" onclick="openWhatsNew()" aria-haspopup="dialog" aria-controls="whatsNewOverlay" aria-expanded="false" hidden>
       <span class="whats-new-dot" aria-hidden="true"></span>
@@ -89,6 +91,48 @@
 
 <div class="sim-container">
   <div class="sim-main">
+    <aside id="practicePanel" aria-label="Practice exercise" hidden>
+<div class="practice-heading"><span>PRACTICE / 01</span><button class="ph-btn" onclick="closePractice()" aria-label="Close Practice">×</button></div>
+<h2>First contour</h2><p class="practice-intro">From a drawing to your first machined contour.</p>
+<svg class="practice-drawing" viewBox="0 0 400 355" role="img" aria-labelledby="practiceDrawingTitle practiceDrawingDesc" xmlns="http://www.w3.org/2000/svg">
+<title id="practiceDrawingTitle">Contour 01 — dimensioned top view</title>
+<desc id="practiceDrawingDesc">Blank 100 by 80 millimetres, thickness 20. Origin at the bottom left of the top face. Finished contour vertices A 10,10; B 90,10; C 90,50; D 70,70; E 10,70. Mill outside this contour down to Z minus 5; retain the material inside.</desc>
+<defs><marker id="dimArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M10 5L0 0L0 10Z" fill="#64736f"/></marker></defs>
+<g font-family="monospace" fill="#273c37" font-size="11">
+<text x="20" y="24" font-size="10" fill="#64736f">TOP VIEW · mm</text>
+<rect x="50" y="60" width="300" height="240" fill="#e4e9e7" stroke="#9caaa5" stroke-dasharray="5 4"/>
+<path d="M80 270 L320 270 L320 150 L260 90 L80 90 Z" fill="#fff" stroke="#087f73" stroke-width="2.5"/>
+<g stroke="#64736f" stroke-width=".8" fill="none">
+<path d="M50 53V37 M350 53V37 M42 60H25 M42 300H25"/>
+<path d="M50 42H350 M30 60V300" marker-start="url(#dimArrow)" marker-end="url(#dimArrow)"/>
+<path d="M80 279V324 M320 279V324 M80 320H320"/>
+<path d="M80 315H320" marker-start="url(#dimArrow)" marker-end="url(#dimArrow)"/>
+<path d="M260 82V70 M320 142V70 M260 76H320" marker-start="url(#dimArrow)" marker-end="url(#dimArrow)"/>
+</g>
+<text x="200" y="37" text-anchor="middle">100</text><text x="20" y="183" transform="rotate(-90 20 183)" text-anchor="middle">80</text>
+<text x="200" y="332" text-anchor="middle">80</text><text x="290" y="70" text-anchor="middle">20</text>
+<text x="92" y="257">A</text><text x="301" y="257">B</text><text x="301" y="149">C</text><text x="251" y="107">D</text><text x="92" y="107">E</text>
+<text x="194" y="184" text-anchor="middle" font-size="13">RETAIN</text><text x="194" y="202" text-anchor="middle" fill="#64736f">top Z = 0</text>
+<g stroke="#087f73" fill="none"><circle cx="50" cy="300" r="5"/><path d="M38 300H69 M50 312V281"/></g>
+<text x="54" y="345" fill="#087f73">O · X0 Y0 · top face Z0</text>
+<text x="356" y="304" font-size="10">X+</text><text x="39" y="57" font-size="10">Y+</text>
+</g></svg>
+<div class="practice-meta"><span>BLANK 100 × 80 × 20</span><span>CUT DEPTH 5 mm</span></div>
+<div class="practice-setup">Contour coordinates (X, Y), in mm:<br>A (10, 10) → B (90, 10) → C (90, 50)<br>→ D (70, 70) → E (10, 70) → A.<br>Blank top: Z0. Bottom: Z−20. Origin O: lower-left corner.</div>
+<h3>Your task</h3><div class="practice-task"><ol><li>Define the 100 × 80 × 20 mm blank using BLK FORM.</li><li>Mill the outside contour A–B–C–D–E–A down to Z−5. Keep the material inside the contour and the base below Z−5.</li><li>Approach and leave outside the blank; retract to Z+20. Run the simulation and inspect the result.</li></ol></div>
+<p class="practice-setup">Use T1, a Ø16 flat end mill (R8); verify it in Tool Table. For this simulator exercise: S2000, cutting feed F300. Use radius compensation and switch the spindle on before cutting.</p>
+<p id="practiceSaveStatus">Your Practice draft is saved separately on this browser. Closing Practice restores your main program. No automatic grading in this prototype.</p>
+<section class="practice-docs" aria-label="Official documentation"><h3>Need a reference?</h3><p>HEIDENHAIN TNC 640 · Klartext · 10/2023<br>NC 34059x-18 · English · 892903-2C<br>Links open the original PDF at the relevant page.</p>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=99" target="_blank" rel="noopener noreferrer">Program structure · BEGIN / END PGM<span>p. 99–101 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=94" target="_blank" rel="noopener noreferrer">Workpiece blank · BLK FORM<span>p. 94–95 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=126" target="_blank" rel="noopener noreferrer">Feed and spindle speed · F / S<span>p. 126–127 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=133" target="_blank" rel="noopener noreferrer">Tool selection · TOOL CALL<span>p. 133–134 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=139" target="_blank" rel="noopener noreferrer">Radius compensation · RL / RR / R0<span>p. 139–141 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=150" target="_blank" rel="noopener noreferrer">Contour approach and departure<span>p. 150–159 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=160" target="_blank" rel="noopener noreferrer">Straight contours · L / FMAX<span>p. 160–161 ↗</span></a>
+<a href="https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf#page=233" target="_blank" rel="noopener noreferrer">Spindle and coolant · M3 / M5 / M8 / M9<span>p. 233 ↗</span></a>
+</section>
+</aside>
     <div id="learnPanel" style="display:none;"></div>
     <div class="editor-panel">
       <div class="panel-resize" id="panelResize"></div>
@@ -97,11 +141,12 @@
         <span id="programAutosaveStatus" class="program-autosave-status" role="status" aria-live="polite" hidden></span>
         <span class="ph-controls">
           <span class="ph-actions">
-            <button id="learnBtn" class="ph-btn learn-cta" onclick="openLearn()" title="Interactive lessons for beginners" data-i18n-title="panel.learnTitle" data-i18n="panel.learn">Learn</button>
+
             <button id="kpHelpBtn" class="ph-btn" onclick="toggleKpHelp()" title="Context help" data-i18n-title="panel.helpTitle" data-i18n="panel.help">Help</button>
             <button id="mCodesBtn" class="ph-btn" onclick="openMCodesList()" title="List all defined M functions" data-i18n-title="panel.mlistTitle" data-i18n="panel.mlist">M list</button>
-            <button class="ph-btn" onclick="exportProgram()" data-help="export" title="Download program.H" data-i18n-title="panel.exportTitle" data-i18n="panel.export">Export</button>
-            <button class="ph-btn" onclick="importProgram()" title="Load .H program file" data-i18n-title="panel.importTitle" data-i18n="panel.import">Import</button>
+<details id="programFileMenu" class="program-file-menu"><summary class="ph-btn">File ▾</summary><div class="program-file-actions">            <button class="ph-btn" onclick="exportProgram();document.getElementById('programFileMenu').open=false" data-help="export" title="Download program.H" data-i18n-title="panel.exportTitle" data-i18n="panel.export">Export</button>
+            <button class="ph-btn" onclick="importProgram();document.getElementById('programFileMenu').open=false" title="Load .H program file" data-i18n-title="panel.importTitle" data-i18n="panel.import">Import</button>
+</div></details>
             <input type="file" id="importFileInput" accept="text/plain,.h,.H,.nc,.txt,.tap,.cnc" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;left:-9999px;" onchange="onImportFile(event)">
           </span>
           <span id="blockCount" class="ph-blocks">0 blocks</span>
@@ -510,6 +555,7 @@ END PGM PROGRAM MM</textarea>
 <script src="web/panels.js" defer></script>
 <script src="web/app.js" defer></script>
 <script src="web/whats-new.js" defer></script>
+<script src="web/practice.js" defer></script>
 <script src="web/analytics.js" defer></script>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="683107a3-589f-4490-927e-ff60ef848347"></script>
 
