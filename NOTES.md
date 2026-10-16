@@ -24,6 +24,13 @@ from `core/` and `web/` with no framework, bundler, imports, or build step.
 
 Detailed module-split history is in the archived project notes linked above.
 
+## Licensing
+
+The web source tree uses ELv2 plus the educational/internal-training permission.
+See `LICENSE`, `ADDITIONAL-USE-GRANT.txt`, and `LICENSING.md`. Keep the official
+ELv2 text intact and preserve third-party licenses. Earlier BSL distributions
+retain their original terms. This does not change the Android repository.
+
 ## Versioning and deploy
 
 - `APP_VERSION` in `web/app.js` is the only app-version source. Stay in the

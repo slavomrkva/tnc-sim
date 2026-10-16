@@ -1,11 +1,15 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v114';
+const CACHE_VERSION = 'v115';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/LICENSE',
+  '/LICENSING.md',
+  '/ADDITIONAL-USE-GRANT.txt',
+  '/vendor/THREE-LICENSE.txt',
   '/favicon.ico',
   '/favicon-32.png',
   '/icon-192.png',

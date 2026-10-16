@@ -10,6 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.950 — licensing proposal, not yet released
+- Adopt Elastic License 2.0 with additional permission for school hosting and
+  internal training; individual and internal business use remains license-fee-free.
+- Clarify licensing in About and documentation; preserve earlier BSL releases
+  and third-party MIT terms.
+
 ## v0.949 — review branch, not yet released
 - Corrected tiny arcs, nested Q calculations and inverse trigonometric functions.
 - Editing a paused program now validates and restarts it before running.

@@ -21,7 +21,7 @@
       +'<button onclick="document.getElementById(\'_aboutOverlay\').remove()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 4px;">✕</button>'
       +'</div>'
       +'<div style="padding:16px 20px;font-family:var(--mono);font-size:11px;color:var(--text3);line-height:1.7;">'
-      +'TNC Sim ist ein unabhängiger Open-Source-Simulator für Heidenhain-TNC-Steuerungen — frühe Version, Fehler sind zu erwarten. Ergebnisse können von einer echten TNC-Steuerung abweichen — ohne Überprüfung nie für die tatsächliche Bearbeitung verwenden. Der 3D-Schnitt basiert auf einem Voxelgitter — Details, die kleiner als die aktive Zellengröße sind, erscheinen auch bei hoher Qualität oder nach Verfeinern nicht (Zellen sind bei Standard bis zu ~0,7mm groß). In erster Linie für Desktop, aber mobilfreundlich. · Nicht verbunden mit der HEIDENHAIN GmbH.'
+      +'TNC Sim ist ein unabhängiger Simulator mit öffentlich zugänglichem Quellcode für Heidenhain-TNC-Steuerungen — frühe Version, Fehler sind zu erwarten. Ergebnisse können von einer echten TNC-Steuerung abweichen — ohne Überprüfung nie für die tatsächliche Bearbeitung verwenden. Der 3D-Schnitt basiert auf einem Voxelgitter — Details, die kleiner als die aktive Zellengröße sind, erscheinen auch bei hoher Qualität oder nach Verfeinern nicht (Zellen sind bei Standard bis zu ~0,7mm groß). In erster Linie für Desktop, aber mobilfreundlich. · Nicht verbunden mit der HEIDENHAIN GmbH.'
       +'</div>'
       +'<div style="padding:12px 20px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);">'
       +'<a id="aboutGuideLink" href="/de/learn/" style="flex:1 1 100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;font-size:11px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);text-decoration:none;">Klartext-Anleitung</a>'
@@ -30,6 +30,7 @@
       +'<button onclick="document.getElementById(\'_aboutOverlay\').remove();openBugReport();" style="flex:1;min-width:110px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;font-size:11px;border:1px solid rgba(245,137,58,.4);border-radius:6px;background:rgba(245,137,58,.14);color:var(--accent-warm);cursor:pointer;font-family:var(--mono);">🐛 Fehler melden</button>'
       +'<a href="mailto:info@tncsim.org" style="flex:1 1 100%;text-align:center;padding:4px;font-size:10px;color:var(--text3);text-decoration:none;">info@tncsim.org</a>'
       +'<a href="https://buymeacoffee.com/slavozett" target="_blank" style="flex:1 1 100%;text-align:center;padding:2px 4px;font-size:10px;color:var(--text3);text-decoration:none;">☕ Spendier mir einen Kaffee</a>'
+      +'<a href="/LICENSING.md" target="_blank" rel="noopener" style="flex:1 1 100%;text-align:center;padding:4px;font-size:10px;color:var(--text3);">Lizenz: Elastic License 2.0 + Erlaubnis für Bildung und interne Schulungen</a>'
       +'<div style="flex:1 1 100%;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);">Version '+APP_VERSION+'</div>'
       +'</div>'
       +'</div>';

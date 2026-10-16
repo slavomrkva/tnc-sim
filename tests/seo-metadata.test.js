@@ -6,7 +6,7 @@ const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const title = 'TNC Sim — Heidenhain CNC Simulator';
-const description = 'TNC Sim is an open-source online Heidenhain simulator and 3D CNC mill simulator for Klartext programming and interactive learning, directly in your browser.';
+const description = 'TNC Sim is an open online Heidenhain simulator and 3D CNC mill simulator for Klartext programming and interactive learning, directly in your browser.';
 
 assert.ok(html.includes(`<title>${title}</title>`), 'HTML title must use the approved CNC wording');
 assert.ok(html.includes(`<meta name="description" content="${description}">`), 'meta description must use the approved search description');
