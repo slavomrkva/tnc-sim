@@ -41,7 +41,12 @@ python3 -m http.server
 
 ## License
 
-See [LICENSE](LICENSE).
+Copyright (c) 2026 slavomrkva. Licensed under the [Elastic License 2.0](LICENSE),
+with an additional [permission for education and internal training](ADDITIONAL-USE-GRANT.txt).
+Individuals, schools, and businesses may use TNC Sim without a license fee
+subject to those terms. Providing a public hosted simulator service requires
+separate permission. See [LICENSING.md](LICENSING.md) for details, third-party
+licenses, and the transition from earlier BSL releases.
 
 ## Disclaimer
 

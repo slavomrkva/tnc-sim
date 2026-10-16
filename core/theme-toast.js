@@ -38,7 +38,7 @@ function openAboutPopup(){
     +'<button onclick="document.getElementById(\'_aboutOverlay\').remove()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 4px;">\u2715</button>'
     +'</div>'
     +'<div style="padding:16px 20px;font-family:var(--mono);font-size:11px;color:var(--text3);line-height:1.7;">'
-    +'TNC Sim is an open-source independent Heidenhain TNC simulator \u2014 early release, bugs are expected. Results may differ from a real TNC control \u2014 never use for actual machining without verification. The 3D cut is a voxel grid \u2014 details smaller than the active cell size won\u2019t appear, even at High quality or after Refine (cells are up to ~0.7mm on Default). Desktop first, mobile friendly. \u00b7 Not affiliated with HEIDENHAIN GmbH.'
+    +'TNC Sim is an open independent Heidenhain TNC simulator \u2014 early release, bugs are expected. Results may differ from a real TNC control \u2014 never use for actual machining without verification. The 3D cut is a voxel grid \u2014 details smaller than the active cell size won\u2019t appear, even at High quality or after Refine (cells are up to ~0.7mm on Default). Desktop first, mobile friendly. \u00b7 Not affiliated with HEIDENHAIN GmbH.'
     +'</div>'
     +'<div style="padding:12px 20px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);">'
     +'<a id="aboutGuideLink" href="/learn/" style="flex:1 1 100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;font-size:11px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);text-decoration:none;">Klartext Guide</a>'
@@ -47,6 +47,7 @@ function openAboutPopup(){
     +'<button onclick="document.getElementById(\'_aboutOverlay\').remove();openBugReport();" style="flex:1;min-width:110px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;font-size:11px;border:1px solid rgba(245,137,58,.4);border-radius:6px;background:rgba(245,137,58,.14);color:var(--accent-warm);cursor:pointer;font-family:var(--mono);">\ud83d\udc1b Report a Bug</button>'
     +'<a href="mailto:info@tncsim.org" style="flex:1 1 100%;text-align:center;padding:4px;font-size:10px;color:var(--text3);text-decoration:none;">info@tncsim.org</a>'
     +'<a href="https://buymeacoffee.com/slavozett" target="_blank" style="flex:1 1 100%;text-align:center;padding:2px 4px;font-size:10px;color:var(--text3);text-decoration:none;">\u2615 Buy me a coffee</a>'
+    +'<a href="/LICENSING.md" target="_blank" rel="noopener" style="flex:1 1 100%;text-align:center;padding:4px;font-size:10px;color:var(--text3);">License: Elastic License 2.0 + education and internal training permission</a>'
     +'<div style="flex:1 1 100%;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);">Version '+APP_VERSION+'</div>'
     +'</div>'
     +'</div>';

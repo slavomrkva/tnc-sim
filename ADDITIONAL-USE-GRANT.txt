@@ -1,0 +1,26 @@
+TNC Sim — Educational and Internal Training Permission
+
+Licensor: slavomrkva
+Software: TNC Sim, as offered under the Elastic License 2.0 in LICENSE
+
+In addition to the rights granted in the Elastic License 2.0, the licensor
+permits educational institutions and organizations to host or manage the
+software for access exclusively by their own enrolled students, teaching
+staff, employees, and contractors acting on their behalf, for teaching,
+learning, and internal training. This permission applies to both nonprofit
+and for-profit institutions and organizations, including tuition-based
+education, without a license fee.
+
+Access must be restricted to those users. This permission does not extend
+to providing a public hosted or managed simulator service, or providing
+such a service to customers or other organizations. Those uses require a
+separate license from the licensor where prohibited by the Elastic License
+2.0, whether or not the service charges a fee.
+
+This permission relaxes only the hosted-or-managed-service limitation for
+the uses expressly described above. All other terms of the Elastic License
+2.0 remain in effect. Include this permission with copies distributed in
+reliance on it. It grants no rights to third-party software beyond those
+provided by its own licenses.
+
+For permissions outside this grant, contact info@tncsim.org.

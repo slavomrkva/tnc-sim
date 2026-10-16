@@ -7,6 +7,18 @@ in root `RELEASE_NOTES.md`; keep detailed resolved-bug evidence in root
 History through v0.845 is preserved in
 [`project-notes-through-v0.845.md`](project-notes-through-v0.845.md).
 
+## v0.950 — 2026-10-16 — ELv2 licensing proposal
+
+- Replace the web root license with unmodified ELv2 and a separate educational
+  and internal-training permission. Document the transition boundary and retain
+  the prior BSL text for historical reference; Android and vendor licenses stay
+  independent.
+- Preserve the README's "Open online simulator" description, replace explicit
+  open-source claims in current EN/DE content and its generator, and link the
+  licensing summary from About. Add the Three.js r128 MIT notice.
+- Bump the web marker to 0.950 and offline cache to v115; cache current license
+  documents with the application. Proposal only until the PR is accepted.
+
 ## v0.949 — 2026-10-12 — web audit review branch
 
 - Implement A01–A13 from the October audit, including live/Refine spindle-state
