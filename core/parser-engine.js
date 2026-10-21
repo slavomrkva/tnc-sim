@@ -4019,6 +4019,32 @@ function commitSeg(sm){
     currentToolNum = sm.toolNum;
   }
   if(sm.cycleEvent) return;
+  var _ct = getToolByNum(currentToolNum);
+  // Z shift of the cut: ONLY the TOOL CALL DL (programmed allowance), taken
+  // per-segment (sm.dlPgm). Table DL is the MEASURED length delta — the
+  // control fully compensates it (L+DL), so it never shows on the workpiece.
+  var _dl = sm.dlPgm || 0;
+  var _ttype = _ct ? inferToolType(_ct) : 'MILL';
+  // Physical cutting shape = tool table only. Table DR describes the real
+  // oversize of a MILL tool (so it DOES cut wider); TOOL CALL DR is a pure
+  // PATH offset (applied in offsetRun / cycles) and must never reshape the
+  // cut — that's exactly how the control behaves ("the simulated tool size
+  // remains the same"). DR2 (table) is the physical corner-radius delta.
+  var _drTab = (_ttype==='MILL' && _ct) ? (_ct.DR||0) : 0;
+  var _dr2Tab = _ct ? (_ct.DR2||0) : 0;
+  var _shape = null;
+  var _lcuts = _ct ? (_ct.LCUTS||(_ct.R*999)) : TOOL_R*999;
+  if(_ct && _ct.R2 > 0 && _ct.R2 < _ct.R){
+    _shape = {type:'torus', r2:Math.max(0.01, _ct.R2 + _dr2Tab), lcuts:_lcuts};
+  } else if(_ct && _ct.R2 > 0 && _ct.R2 >= _ct.R){
+    var _r2p = Math.max(0.01, _ct.R2 + _dr2Tab); // physical ball radius
+    _shape = {type:'ball', r2:_r2p, r2orig:_r2p, lcuts:_lcuts};
+  } else if(_ct && _ct.T_ANGLE > 0){
+    _shape = {type:'cone', angle:_ct.T_ANGLE, mode:(_ttype==='DRILL'?'drill':'countersink'), lcuts:_lcuts};
+  } else {
+    _shape = {type:'flat', lcuts:_lcuts};
+  }
+  var _toolR = (_ct ? _ct.R : TOOL_R) + _drTab;
   // Check all rapid directions and feed motion with a stopped spindle.
   if(VX && !sm.isMseg && (sm.rapid || !sm.spindleOn)){
     var cellSize=Math.min(VX.dx,VX.dy,VX.dz);
@@ -4028,7 +4054,7 @@ function commitSeg(sm){
       var cx=sm.from.x+(sm.to.x-sm.from.x)*t;
       var cy=sm.from.y+(sm.to.y-sm.from.y)*t;
       var cz=sm.from.z+(sm.to.z-sm.from.z)*t;
-      if(vxCollides(cx,cy,cz,TOOL_R)){
+      if(vxCollides(cx,cy,cz + _dl,_toolR,_shape)){
         rapidCollision(sm, cx, cy, cz);
         break;
       }
@@ -4042,32 +4068,6 @@ function commitSeg(sm){
       var cx=sm.from.x+(sm.to.x-sm.from.x)*t;
       var cy=sm.from.y+(sm.to.y-sm.from.y)*t;
       var cz=sm.from.z+(sm.to.z-sm.from.z)*t;
-      var _ct = getToolByNum(currentToolNum);
-      // Z shift of the cut: ONLY the TOOL CALL DL (programmed allowance), taken
-      // per-segment (sm.dlPgm). Table DL is the MEASURED length delta — the
-      // control fully compensates it (L+DL), so it never shows on the workpiece.
-      var _dl = sm.dlPgm || 0;
-      var _ttype = _ct ? inferToolType(_ct) : 'MILL';
-      // Physical cutting shape = tool table only. Table DR describes the real
-      // oversize of a MILL tool (so it DOES cut wider); TOOL CALL DR is a pure
-      // PATH offset (applied in offsetRun / cycles) and must never reshape the
-      // cut — that's exactly how the control behaves ("the simulated tool size
-      // remains the same"). DR2 (table) is the physical corner-radius delta.
-      var _drTab = (_ttype==='MILL' && _ct) ? (_ct.DR||0) : 0;
-      var _dr2Tab = _ct ? (_ct.DR2||0) : 0;
-      var _shape = null;
-      var _lcuts = _ct ? (_ct.LCUTS||(_ct.R*999)) : TOOL_R*999;
-      if(_ct && _ct.R2 > 0 && _ct.R2 < _ct.R){
-        _shape = {type:'torus', r2:Math.max(0.01, _ct.R2 + _dr2Tab), lcuts:_lcuts};
-      } else if(_ct && _ct.R2 > 0 && _ct.R2 >= _ct.R){
-        var _r2p = Math.max(0.01, _ct.R2 + _dr2Tab); // physical ball radius
-        _shape = {type:'ball', r2:_r2p, r2orig:_r2p, lcuts:_lcuts};
-      } else if(_ct && _ct.T_ANGLE > 0){
-        _shape = {type:'cone', angle:_ct.T_ANGLE, mode:(_ttype==='DRILL'?'drill':'countersink'), lcuts:_lcuts};
-      } else {
-        _shape = {type:'flat', lcuts:_lcuts};
-      }
-      var _toolR = (_ct ? _ct.R : TOOL_R) + _drTab;
       vxCut(cx, cy, cz + _dl, _toolR, _shape);
     }
   }

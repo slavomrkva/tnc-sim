@@ -1,3 +1,46 @@
+// Shared physical profile: cutting and collision must agree at every Z slice.
+function vxToolRadiusAtHeight(toolR, toolShape, dz2){
+    var effR = toolR;
+    if(toolShape && toolShape.type==='ball'){
+      // Ball nose: _r2 is effective cutting radius (R2+DR), but sphere HEIGHT from tip = original R2
+      var _r2 = toolShape.r2;           // effective cutting radius (R2+DR)
+      var _r2h = toolShape.r2orig || _r2; // original R2 for sphere height
+      if(dz2 < _r2h){
+        // effR scales with effective radius but follows sphere geometry based on original R2
+        var _frac = dz2 / _r2h; // 0 at tip, 1 at equator
+        effR = _r2 * Math.sqrt(Math.max(0, 1 - (1-_frac)*(1-_frac)));
+      }
+      // above sphere: effR = toolR (cylinder body)
+    } else if(toolShape && toolShape.type==='torus'){
+      // Torus/bull-nose: corner radius R2, core radius = toolR-R2
+      // below R2 zone: blended corner
+      var _r2t = toolShape.r2;
+      var _core = toolR - _r2t;
+      if(dz2 < _r2t){
+        // corner arc: effR = core + sqrt(R2^2 - (R2-dz)^2)
+        effR = _core + Math.sqrt(Math.max(0, _r2t*_r2t - (_r2t-dz2)*(_r2t-dz2)));
+      }
+      // above corner zone: effR = toolR (full flat cylinder)
+    } else if(toolShape && toolShape.type==='cone'){
+      // Cone: tip at tz. Drill widens from 0; countersink widens from its own toolR.
+      var _hr2 = (toolShape.angle/2)*Math.PI/180;
+      if(toolShape.mode==='drill'){
+        // Drill/reamer/center drill: point widens up to the tool's real radius
+        // (toolR = R, DR not applied), then the shank cuts at constant R.
+        effR = Math.min(toolR, dz2 * Math.tan(_hr2));
+      } else {
+        // Countersink/chamfer: toolR (R+DR) is the tool's OWN tip radius — ≈0 for
+        // a sharp point, or a real value (e.g. 2mm) for a flat/truncated tip
+        // (then the tip is a flat disc of that diameter, not a point). The cone
+        // widens from toolR upward; physical max diameter still comes from the
+        // cutting-edge height (lcuts) + angle, independent of R.
+        var _coneCap = (toolShape.lcuts || 9999) * Math.tan(_hr2);
+        effR = Math.min(_coneCap, toolR + dz2 * Math.tan(_hr2));
+      }
+    }
+    return effR;
+}
+
 // voxel-cutting -- web test branch: incremental chunk meshing (not yet ported to Android).
 
 var VX_CHUNK_CELLS = 32;
@@ -110,46 +153,8 @@ function vxCut(tx,ty,tz,toolR,toolShape){
   for(var iz=izMin;iz<=izMax;iz++){
     var pz=VX.oz+iz*VX.dz;
     if(pz < tz - VX.dz*0.5) continue;
-    // compute effective radius at this Z level
-    var effR = toolR;
-    var dz2 = pz - tz; // how far above tool tip
-    if(toolShape && toolShape.type==='ball'){
-      // Ball nose: _r2 is effective cutting radius (R2+DR), but sphere HEIGHT from tip = original R2
-      var _r2 = toolShape.r2;           // effective cutting radius (R2+DR)
-      var _r2h = toolShape.r2orig || _r2; // original R2 for sphere height
-      if(dz2 < _r2h){
-        // effR scales with effective radius but follows sphere geometry based on original R2
-        var _frac = dz2 / _r2h; // 0 at tip, 1 at equator
-        effR = _r2 * Math.sqrt(Math.max(0, 1 - (1-_frac)*(1-_frac)));
-      }
-      // above sphere: effR = toolR (cylinder body)
-    } else if(toolShape && toolShape.type==='torus'){
-      // Torus/bull-nose: corner radius R2, core radius = toolR-R2
-      // below R2 zone: blended corner
-      var _r2t = toolShape.r2;
-      var _core = toolR - _r2t;
-      if(dz2 < _r2t){
-        // corner arc: effR = core + sqrt(R2^2 - (R2-dz)^2)
-        effR = _core + Math.sqrt(Math.max(0, _r2t*_r2t - (_r2t-dz2)*(_r2t-dz2)));
-      }
-      // above corner zone: effR = toolR (full flat cylinder)
-    } else if(toolShape && toolShape.type==='cone'){
-      // Cone: tip at tz. Drill widens from 0; countersink widens from its own toolR.
-      var _hr2 = (toolShape.angle/2)*Math.PI/180;
-      if(toolShape.mode==='drill'){
-        // Drill/reamer/center drill: point widens up to the tool's real radius
-        // (toolR = R, DR not applied), then the shank cuts at constant R.
-        effR = Math.min(toolR, dz2 * Math.tan(_hr2));
-      } else {
-        // Countersink/chamfer: toolR (R+DR) is the tool's OWN tip radius — ≈0 for
-        // a sharp point, or a real value (e.g. 2mm) for a flat/truncated tip
-        // (then the tip is a flat disc of that diameter, not a point). The cone
-        // widens from toolR upward; physical max diameter still comes from the
-        // cutting-edge height (lcuts) + angle, independent of R.
-        var _coneCap = (toolShape.lcuts || 9999) * Math.tan(_hr2);
-        effR = Math.min(_coneCap, toolR + dz2 * Math.tan(_hr2));
-      }
-    }
+    var dz2 = pz - tz;
+    var effR = vxToolRadiusAtHeight(toolR, toolShape, dz2);
     var r2=effR*effR;
     for(var iy=iyMin;iy<=iyMax;iy++){
       var py=VX.oy+iy*VX.dy;
@@ -357,18 +362,23 @@ function rapidCollision(sm, cx, cy, cz){
   window._collisionActive=true;
 }
 
-function vxCollides(tx, ty, tz, toolR){
+function vxCollides(tx, ty, tz, toolR, toolShape){
   if(!VX) return false;
-  var ixMin=Math.max(0,Math.floor((tx-toolR-VX.ox)/VX.dx));
-  var ixMax=Math.min(VX.nx-1,Math.ceil((tx+toolR-VX.ox)/VX.dx));
-  var iyMin=Math.max(0,Math.floor((ty-toolR-VX.oy)/VX.dy));
-  var iyMax=Math.min(VX.ny-1,Math.ceil((ty+toolR-VX.oy)/VX.dy));
+  var maxR=toolR;
+  if(toolShape && toolShape.type==='cone' && toolShape.mode!=='drill'){
+    maxR=Math.max(toolR,(toolShape.lcuts||9999)*Math.tan(toolShape.angle*Math.PI/360));
+  }
+  var ixMin=Math.max(0,Math.floor((tx-maxR-VX.ox)/VX.dx));
+  var ixMax=Math.min(VX.nx-1,Math.ceil((tx+maxR-VX.ox)/VX.dx));
+  var iyMin=Math.max(0,Math.floor((ty-maxR-VX.oy)/VX.dy));
+  var iyMax=Math.min(VX.ny-1,Math.ceil((ty+maxR-VX.oy)/VX.dy));
   var izMin=Math.max(0,Math.floor((tz-VX.oz)/VX.dz));
-  var izMax=Math.min(VX.nz-1,Math.ceil((tz+VX.dz-VX.oz)/VX.dz));
-  var r2=toolR*toolR;
+  var izMax=VX.nz-1;
   for(var iz=izMin;iz<=izMax;iz++){
     var pz=VX.oz+iz*VX.dz;
     if(pz<tz) continue;
+    var radius=vxToolRadiusAtHeight(toolR,toolShape,pz-tz);
+    var r2=radius*radius;
     for(var iy=iyMin;iy<=iyMax;iy++){
       var py=VX.oy+iy*VX.dy;
       for(var ix=ixMin;ix<=ixMax;ix++){
