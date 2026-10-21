@@ -4,9 +4,10 @@ function _scene3dBgColor(){
   return document.documentElement.getAttribute('data-theme')==='light' ? 0xcccdd0 : 0x101113;
 }
 
-function _stockRGB(){ return document.documentElement.getAttribute('data-theme')==='light' ? [0.44,0.46,0.50] : [0.61,0.62,0.65]; }
+// Keep stock colors independent of theme: rebuilt chunks must match existing ones.
+function _stockRGB(){ return [0.61,0.62,0.65]; }
 
-function _stockHex(){ return document.documentElement.getAttribute('data-theme')==='light' ? 0x70747d : 0x9a9da6; }
+function _stockHex(){ return 0x9a9da6; }
 
 function _gridColors(){
   return document.documentElement.getAttribute('data-theme')==='light'
