@@ -1045,3 +1045,8 @@ History through v0.845 is preserved in
 - Cancel Refine jobs on reset/preparation/Run/Step and reject stale worker and fallback callbacks using job and simulation identity.
 - Replace the bull-nose hemisphere/ring approximation with a closed revolved corner profile, including physical DR2. Preserve nominal ball classification.
 - Add integrated state and vendored Three.js geometry regressions. Web only; cache v118.
+
+## 2026-10-22 — automated full-demo regression coverage
+- Promote audit-only playback and live/Refine material comparison into a CI-discovered test for the actual shipped demo catalogue and default tool table.
+- Assert completion, finite and continuous paths, zero collisions, material removal and byte-identical occupancy on equal grids. Rendering remains outside this numeric test.
+- Document coverage and boundaries in tests/README.md. No runtime, app-version or cache changes.
