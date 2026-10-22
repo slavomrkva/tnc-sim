@@ -43,6 +43,15 @@ Detailed module-split history is in the archived project notes linked above.
   Worker secrets. For a shipped web milestone, create `web-v<APP_VERSION>`. Do
   not add APK/AAB artifacts here.
 
+## Experimental learning lab
+
+`experiment/practice` adds a web-only Learn lab (`web/practice.js` / `.css`),
+separate from the shared Learn flow. Its reference/task card lives inside the
+editor panel so desktop uses two columns. Narrow/short layouts use the existing
+Editor / 3D tabs. BLANK01 drafts have their own storage key; never overwrite the
+older contour draft or the main program. Existing Learn's three-column contract
+below still applies to the original lessons, not this prototype.
+
 ## Current non-obvious invariants
 
 1. **LBL fall-through and repeats:** `LBL n ... LBL 0` executes where defined;

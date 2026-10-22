@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.951 — BLK FORM learning lab, experiment/practice only
+- Replaced the three-column contour prototype with a two-panel workspace: official references and one blank-definition task above the editor, simulator alongside.
+- Added numeric MIN/MAX checking, a hint, stock preview and a separate BLANK01 draft. Open it with Learn lab; existing Learn lessons remain available.
+
 ## v0.950 — Practice prototype, experiment/practice only
 - Added a desktop Practice workspace with an original contour drawing, blank/contour exercise, and page-specific official HEIDENHAIN references.
 - Moved learning modes to the header and grouped Import/Export under File.

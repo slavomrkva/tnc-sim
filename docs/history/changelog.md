@@ -1030,3 +1030,8 @@ History through v0.845 is preserved in
 
 ## v0.950 — 2026-10-14 — experiment/practice
 Desktop-only Practice prototype with original dimensioned SVG and TNC 640 892903-2C (10/2023) page references verified against the official PDF. Web-only draft lifecycle restores the main editor on exit; Learn remains available. Import/Export grouped under File. Cache v115. No production merge or Android port.
+
+## v0.951 — 2026-10-22 — experiment/practice
+- Web-only Learn lab: two columns; compact official TNC 640 34059x-18 English references (10/2023, pp. 94–95 and 99–101); one 100 × 80 × 20 mm BLK FORM exercise.
+- Separate blank draft key preserves previous contour work. Numeric corner grading accepts equivalent decimal/sign/axis-order formatting and rejects incomplete or unrelated programs. Show blank reuses Run validation and preparation.
+- Automated parser/grading regressions added. Browser visual verification could not run: browser downloads returned invalid archives in this environment.
