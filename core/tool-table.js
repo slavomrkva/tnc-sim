@@ -90,6 +90,7 @@ function normalizeImportedTool(raw){
 }
 
 function invalidateToolTableState(){
+  dirty=true; // Tool geometry affects compensation and cycle-generated paths.
   var activeNum=(typeof currentToolNum!=='undefined'&&currentToolNum)?currentToolNum:TOOL_NUM;
   TOOL_R=effectiveToolRadius(getToolByNum(activeNum));
   if(typeof buildToolMesh==='function' && typeof toolGroup!=='undefined' && toolGroup) buildToolMesh();

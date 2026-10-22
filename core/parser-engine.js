@@ -3721,8 +3721,30 @@ function rebuildRunSegments(sub, a, b, out, outSeg){
   return newSegs.length;
 }
 
+var _refineJob = null;
+
+function cancelRefine(){
+  _refineJob = null; // Invalidate even callbacks already queued before terminate().
+  if(typeof _refineWorker!=='undefined' && _refineWorker){
+    _refineWorker.terminate();
+    _refineWorker=null;
+  }
+  if(typeof _hideRefineIndicator==='function') _hideRefineIndicator();
+  var btn=document.getElementById('refineBtnCanvas');
+  if(btn){ btn.disabled=false; btn.textContent='◆ Refine'; }
+}
+
+function isCurrentRefine(job){
+  return !!job && _refineJob===job && job.prog===prog && job.vx===VX &&
+    job.index===subIndex && job.progress===subProgress &&
+    !(typeof dirty!=='undefined' && dirty);
+}
+
 function triggerRefine(){
   if(!VX || !prog) return;
+  cancelRefine();
+  var job={prog:prog,vx:VX,index:subIndex,progress:subProgress};
+  _refineJob=job;
   var btn = document.getElementById('refineBtnCanvas');
   if(btn){ btn.disabled=true; btn.textContent='\u29d7 Refining\u2026'; }
   _showRefineIndicator('Refining mesh\u2026');
@@ -3776,12 +3798,15 @@ function triggerRefine(){
     var _w = new Worker(_wu);
     URL.revokeObjectURL(_wu);
     _w.onmessage = function(e){
+      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
       var msg = e.data;
       if(msg.type==='progress'){
         updateStatus('\u2699\ufe0f Refining\u2026 '+msg.pct+'%', false);
         _showRefineIndicator('Refining mesh\u2026 '+msg.pct+'%');
       } else if(msg.type==='done'){
+        _w.terminate();
         _refineWorker=null;
+        _refineJob=null;
         _applyRefinedMesh(Array.from(new Float32Array(msg.verts)), Array.from(new Float32Array(msg.norms)), Array.from(new Int32Array(msg.colors)));
         var btn2=document.getElementById('refineBtnCanvas');
         if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
@@ -3790,9 +3815,11 @@ function triggerRefine(){
       }
     };
     _w.onerror = function(err){
+      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
+      _w.terminate();
       // Worker blocked (sandbox) — fall back to main thread
       _refineWorker=null;
-      _runRefineMainThread(_refineData);
+      _runRefineMainThread(_refineData, job);
     };
     _refineWorker = _w;
     _w.postMessage(_refineData, []);
@@ -3800,10 +3827,14 @@ function triggerRefine(){
   } catch(e) {
     // Blob URL blocked — run on main thread
   }
-  if(!_workerOk) _runRefineMainThread(_refineData);
+  if(!_workerOk){
+    if(_refineWorker){ _refineWorker.terminate(); _refineWorker=null; }
+    _runRefineMainThread(_refineData, job);
+  }
 }
 
 function resetState(){
+  cancelRefine();
   window._collisionActive=false;
   var statusEl=document.getElementById('statusMsg');
   if(statusEl){ statusEl.style.color=''; statusEl.style.fontWeight=''; }
@@ -3917,30 +3948,28 @@ function buildToolMesh(){
 
   // ── Cutting flute area ───────────────────────────────────────
   if(R2 > 0 && R2 <= R){
-    // Ball nose / bull-nose: hemisphere at bottom + cylinder body above
-    var sphereR = R2; // radius of the ball at tip
-    // Hemisphere (bottom half of sphere)
-    var sphereGeo = new THREE.SphereGeometry(sphereR, seg, Math.ceil(seg/2), 0, Math.PI*2, Math.PI/2, Math.PI/2);
-    sphereGeo.rotateX(Math.PI/2);
-    sphereGeo.translate(0, 0, sphereR);
-    toolGroup.add(new THREE.Mesh(sphereGeo, cuttingMat));
-
-    // If R2 < R (bull-nose), add a transition ring
-    if(R2 < Rcomp){
-      var ringGeo = new THREE.CylinderGeometry(Rcomp, Rcomp, R2*0.5, seg);
-      ringGeo.rotateX(Math.PI/2);
-      ringGeo.translate(0, 0, sphereR + R2*0.25);
-      toolGroup.add(new THREE.Mesh(ringGeo, cuttingMat));
+    // Match the physical cutting profile, including measured corner delta.
+    // Nominal ball/torus classification stays consistent with live and Refine.
+    var cornerR=Math.max(0.01,R2+(t ? (t.DR2||0) : 0));
+    var isBall=R2>=R;
+    var coreR=isBall ? 0 : Rcomp-cornerR;
+    var profile=[new THREE.Vector2(0,0)];
+    if(coreR>0) profile.push(new THREE.Vector2(coreR,0));
+    var cornerHeight=Math.min(cornerR,LCUTS);
+    var endAngle=Math.acos(1-cornerHeight/cornerR);
+    for(var pi=1;pi<=16;pi++){
+      var angle=endAngle*pi/16;
+      profile.push(new THREE.Vector2(coreR+cornerR*Math.sin(angle),cornerR*(1-Math.cos(angle))));
     }
-
-    // Cylinder body above the sphere
-    var bodyLen3 = Math.max(0.5, LCUTS - sphereR);
-    if(bodyLen3 > 0){
-      var bodyGeo3 = new THREE.CylinderGeometry(Rcomp, Rcomp, bodyLen3, seg);
-      bodyGeo3.rotateX(Math.PI/2);
-      bodyGeo3.translate(0, 0, sphereR + bodyLen3/2);
-      toolGroup.add(new THREE.Mesh(bodyGeo3, cuttingMat));
+    // Above the rounded corner, the cutting body has the physical tool radius.
+    if(LCUTS>cornerR){
+      profile.push(new THREE.Vector2(Rcomp,cornerR));
+      profile.push(new THREE.Vector2(Rcomp,LCUTS));
     }
+    profile.push(new THREE.Vector2(0,LCUTS));
+    var roundedGeo=new THREE.LatheGeometry(profile,seg);
+    roundedGeo.rotateX(Math.PI/2); // Lathe Y axis becomes the tool's Z axis.
+    toolGroup.add(new THREE.Mesh(roundedGeo,cuttingMat));
 
   } else if(TANGLE > 0 && TANGLE <= 180){
     var halfAngleRad = (TANGLE/2) * Math.PI/180;

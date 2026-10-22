@@ -1038,3 +1038,10 @@ History through v0.845 is preserved in
 - Kept embedded M functions in their complete guided positioning editor,
   preserved their parameter tails, added focused regressions and advanced the
   offline cache to v78.
+
+
+## 2026-10-22 — web audit fixes, APP_VERSION retained at 0.950
+- Invalidate prepared paths on tool-table edits/imports.
+- Cancel Refine jobs on reset/preparation/Run/Step and reject stale worker and fallback callbacks using job and simulation identity.
+- Replace the bull-nose hemisphere/ring approximation with a closed revolved corner profile, including physical DR2. Preserve nominal ball classification.
+- Add integrated state and vendored Three.js geometry regressions. Web only; cache v118.

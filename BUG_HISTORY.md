@@ -1059,3 +1059,10 @@ the parallel (and far longer) native saga and NOTES rule #11.
 ## Token-free bug reporting — accepted 2026-10-10
 
 The previous reporting dialog depended on server-side GitHub and Turnstile secrets. Replaced it with locally prepared GitHub issue and email drafts, plus full-report export and a shortening warning. Suggestions omit the NC program. Existing legacy Worker support remains available. Regression suites and browser dialog tests passed during implementation; the user accepted the live test preview. Native device behavior was not verified.
+
+
+## 2026-10-22 — audit: stale paths, stale Refine and rounded tool meshes
+- Tool-table invalidation failed to mark the prepared program dirty: R5→R3 retained the old RL path. Mark dirty before reset; test the actual invalidation/preparation/Run chain.
+- Refine completion could install obsolete geometry after Reset. Cancel jobs and reject queued callbacks by job/program/stock/playback identity, including fallback. Tests cover reset, preparation, Run, Step, replacement jobs and valid completion.
+- Bull-nose display used a hemisphere plus ring and ignored DR2. Revolve the physical corner profile; assert independent tip and arc coordinates using vendored Three.js geometry.
+- Regression suite: tests/audit-state-geometry.test.js. Visual browser acceptance remains separate from numeric geometry verification.

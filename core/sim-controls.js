@@ -1,6 +1,7 @@
 // sim-controls — web reference; Android port of the October 2026 audit fixes is pending.
 
 function prepare(){
+  if(typeof cancelRefine==='function') cancelRefine();
   prog = parseProgram(codeEl.value);
   sub = prog.sub;
   dirty = false;
@@ -115,6 +116,7 @@ function loop(){
 function ensurePrepared(){ if(dirty || !prog){ prepare(); } }
 
 function onRun(){
+  if(typeof cancelRefine==='function') cancelRefine();
   if(typeof _isMTab==='function' && _isMTab()) mtabSwitch('view');
   if(mode==='paused' && !dirty){
     // resume after M0 stop — don't reset
@@ -131,6 +133,7 @@ function onRun(){
 }
 
 function onStep(){
+  if(typeof cancelRefine==='function') cancelRefine();
   runValidation(false); // the only full validation path: static + parser diagnostics
   if(hasErrors()){ updateStatus('Fix '+errorCount()+' error(s) before running', false); problemsOpen=true; renderProblems(); return; }
   ensurePrepared();

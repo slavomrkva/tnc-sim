@@ -163,7 +163,8 @@ function _hideRefineIndicator(){
   if(el) el.style.display='none';
 }
 
-function _runRefineMainThread(d){
+function _runRefineMainThread(d, job){
+  if(!isCurrentRefine(job)) return;
   // Execute REFINE_WORKER_CODE logic directly on main thread (chunked via setTimeout)
   updateStatus('\u2699\ufe0f Refining (main thread)\u2026', false);
   // Inject a fake self.postMessage so we can reuse worker code
@@ -173,6 +174,7 @@ function _runRefineMainThread(d){
     var _fakeself = {
       onmessage: null,
       postMessage: function(msg){
+        if(!isCurrentRefine(job)) return;
         if(msg.type==='progress') _fakeProgress(msg.pct);
         else if(msg.type==='done') _results = msg;
       }
@@ -185,14 +187,17 @@ function _runRefineMainThread(d){
     var _code = REFINE_WORKER_CODE.replace(/\bself\.postMessage\b/g,'_fakeself.postMessage').replace(/\bself\.onmessage\s*=/,'_fakeself.onmessage=');
     eval(_code);
     if(_fakeself.onmessage) _fakeself.onmessage({data: d});
-    if(_results){
+    if(_results && isCurrentRefine(job)){
       _applyRefinedMesh(Array.from(new Float32Array(_results.verts)), Array.from(new Float32Array(_results.norms)), Array.from(new Int32Array(_results.colors)));
+      _refineJob=null;
       var btn2=document.getElementById('refineBtnCanvas');
       if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
       _hideRefineIndicator();
       updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps', false);
     }
   } catch(err){
+    if(!isCurrentRefine(job)) return;
+    _refineJob=null;
     console.error('Main thread refine failed:', err);
     updateStatus('Refine failed: '+err.message, false);
     _hideRefineIndicator();

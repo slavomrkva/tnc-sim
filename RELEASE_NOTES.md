@@ -10,7 +10,12 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.950 — licensing proposal, not yet released
+## v0.950 — web fixes (version retained)
+- Recalculate compensated paths after tool-table edits or imports.
+- Discard obsolete Refine results after Reset, preparation or resumed playback.
+- Display the correct flat core and rounded corner of bull-nose cutters, including DR2.
+
+## v0.950 — licensing
 - Adopt Elastic License 2.0 with additional permission for school hosting and
   internal training; individual and internal business use remains license-fee-free.
 - Clarify licensing in About and documentation; preserve earlier BSL releases
