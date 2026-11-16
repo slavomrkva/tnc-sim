@@ -34,9 +34,9 @@ retain their original terms. This does not change the Android repository.
 ## Versioning and deploy
 
 - `APP_VERSION` in `web/app.js` is the only app-version source. Increment by
-  `0.001` on every push. A milestone release may jump to the next `0.0x0`
-  (for example `0.950` to `0.960`) when the owner asks for it; `1.000` is
-  the owner's decision.
+  `0.001` on every push. A larger jump happens only on the owner's
+  decision; the first was `0.950` to `1.000` for the Learn and interface
+  release.
 - Record every push briefly in `docs/history/changelog.md`. Update this file
   only when a current contract changes. Add `RELEASE_NOTES.md` only for a
   meaningful user-visible change.

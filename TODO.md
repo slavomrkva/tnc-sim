@@ -6,14 +6,14 @@
 
 ## Open work
 
-- **Release handoff: big update v0.960 (branch `big-update`, not pushed).**
+- **Release handoff: version 1.000 (branch `big-update`, not pushed).**
   Everything for this release is committed on the local branch `big-update` in
   this checkout; `main` equals `origin/main` (web v0.950). Nothing was pushed.
   Contents: security headers and service-worker timeout, Learn reference cards
   for all 15 lessons in English and German, `web/ui-shell.js` menus and visual
   pass, calm Learn colours, logo as home link, corrected Help/About/What's new
   copy. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
-  already say v0.960; `CACHE_VERSION` is `v120` (production has `v118`).
+  already say v1.000; `CACHE_VERSION` is `v120` (production has `v118`).
   Steps left before the push, in order:
   1. Done 2026-11-16: all 53 `tests/*.test.js` files and
      `tests/report-worker.test.mjs` pass (run one by one with `node`; there
@@ -22,9 +22,8 @@
      not cover the look of the ui-shell menus or the new colours.
   2. Look at the app in both themes on desktop and a phone-sized viewport
      (lesson list, one lesson end to end, the three menus, About, Help).
-  3. The owner decides the version: keep `0.960` or use `1.000`. If it changes,
-     update `web/app.js`, `web/whats-new.js` (three places), the newest
-     `RELEASE_NOTES.md` heading and the newest changelog entry.
+  3. Done: the owner chose version `1.000`; it is set in `web/app.js`,
+     `web/whats-new.js`, `RELEASE_NOTES.md` and the changelog.
   4. At release time set `mergedAt` in `web/whats-new.js` to the real merge
      time and update the same timestamp asserted in `tests/whats-new.test.js`.
   5. Merge `big-update` into `main` and push `main` only when the owner says
