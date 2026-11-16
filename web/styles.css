@@ -1434,3 +1434,42 @@ html[data-theme="light"].ui-shell .mtab-bar button.on{color:#5eead4;border-top-c
 html[data-theme="light"].ui-shell .program-autosave-status[data-state="saved"],
 html[data-theme="light"].ui-shell .program-autosave-status[data-state="restored"]{color:#8fe0b5;}
 html[data-theme="light"].ui-shell .editor-panel{border-right-color:#3f444b;}
+
+/* ── Learn: calm colours ───────────────────────────────────────────────
+   The Learn panel used a bright mint for buttons, gradients and tinted boxes.
+   Here one muted teal marks the primary action and success; everything else
+   uses the neutral surfaces of the rest of the app. */
+html.ui-shell #learnPanel,
+html.ui-shell #learnMobileBar{--lp-pri:#1d7d72;--lp-pri-h:#238b7f;--lp-ok:#52b3a4;}
+html[data-theme="light"].ui-shell #learnPanel,
+html[data-theme="light"].ui-shell #learnMobileBar{--lp-pri:#0f6f65;--lp-pri-h:#0b5d55;--lp-ok:#0f6f65;}
+html.ui-shell .lp-head{background:var(--surface);}
+html.ui-shell .lp-head .lp-back{color:var(--text2);}
+html.ui-shell .lp-head .lp-back:hover{border-color:var(--border);color:var(--text);}
+html.ui-shell .lp-btn.chk,
+html.ui-shell .lp-btn.pri{background:var(--lp-pri);border-color:var(--lp-pri);color:#fff;font-weight:600;}
+html.ui-shell .lp-btn.chk:hover,
+html.ui-shell .lp-btn.pri:hover{background:var(--lp-pri-h);border-color:var(--lp-pri-h);color:#fff;}
+html.ui-shell .lp-slides-nav .lp-btn{color:var(--text2);border-color:var(--border);}
+html.ui-shell .lp-slides-nav .lp-btn:hover:not(:disabled){background:var(--surface2);color:var(--text);}
+html.ui-shell .learn-li .li-num{background:var(--surface2);color:var(--text2);}
+html.ui-shell .li-st.done,
+html.ui-shell .lp-check.ok .c-ic,
+html.ui-shell .lp-results.all-ok .lp-results-n{color:var(--lp-ok);}
+html.ui-shell .lp-success{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--lp-ok);color:var(--text);}
+html.ui-shell .lp-theory:not([open]){background:var(--surface2);border-color:var(--border);}
+html.ui-shell .lp-theory:not([open])>.lp-theory-sum{background:none;}
+html.ui-shell .lp-results.all-ok{border-color:var(--border);background:var(--surface2);}
+html.ui-shell .lp-task{border-color:var(--border);border-left:3px solid var(--lp-pri);}
+html.ui-shell .lp-task-badge{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+html.ui-shell #learnMobileBar.on{border:0;border-top:1px solid var(--border);border-left:3px solid var(--lp-pri);border-radius:0;}
+html.ui-shell #learnPanel{border-color:var(--border);}
+html.ui-shell .learn-li{border-left:1px solid var(--border);}
+html.ui-shell .learn-li:hover{border-color:var(--text3);box-shadow:none;}
+html.ui-shell .learn-li.lock:hover{border-color:var(--border);}
+html.ui-shell .learn-summary{background:none;border:0;padding:0 2px;margin-bottom:12px;}
+/* Lesson list: the number chip carries the Learn colour. */
+html.ui-shell .learn-li .li-num{background:var(--lp-pri);color:#fff;}
+html.ui-shell .learn-li:hover{border-color:var(--lp-pri);}
+html.ui-shell .learn-li.lock .li-num{background:var(--surface2);}
+html.ui-shell .learn-summary b{color:var(--lp-ok);}

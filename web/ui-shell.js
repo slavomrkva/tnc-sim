@@ -16,7 +16,7 @@
 
   var DE = {
     'Help':'Hilfe', 'Program':'Programm', 'Settings':'Einstellungen', 'About':'Über',
-    'Hover help':'Hilfe beim Überfahren', 'Quick reference':'Kurzreferenz',
+    'Home':'Startseite', 'Hover help':'Hilfe beim Überfahren', 'Quick reference':'Kurzreferenz',
     'M functions':'M-Funktionen', 'Klartext guide':'Klartext-Anleitung',
     'Support this project:':'Projekt unterstützen:',
     'report a bug or suggest an improvement':'Fehler melden oder Verbesserung vorschlagen',
@@ -213,6 +213,31 @@
   function mount(){
     var q = document.getElementById('qualityGroup');
     if(q) qualityHome = q.parentElement;
+
+    // The logo is the way home: it leaves Learn (restoring the user's own
+    // program), closes any open menu and shows the editor / 3D start view.
+    var logo = document.querySelector('header .logo');
+    if(logo){
+      var goHome = function(){
+        closeMenu();
+        try {
+          if(typeof LEARN !== 'undefined' && LEARN.open && typeof closeLearn === 'function') closeLearn();
+          if(typeof switchView === 'function') switchView('3d');
+          if(typeof _isMTab === 'function' && _isMTab() && typeof mtabSwitch === 'function') mtabSwitch('editor');
+        } catch(e){}
+        try { if(/[?&]learn=/.test(location.search)) history.replaceState(null, '', location.pathname); } catch(e){}
+        window.scrollTo(0, 0);
+      };
+      logo.setAttribute('role', 'link');
+      logo.setAttribute('tabindex', '0');
+      logo.setAttribute('aria-label', 'TNC Sim — ' + tr('Home'));
+      logo.title = tr('Home');
+      logo.style.cursor = 'pointer';
+      logo.addEventListener('click', goHome);
+      logo.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goHome(); }
+      });
+    }
 
     // Learn gets the same icon + label shape as Help and Program. Its label is
     // set here, so the i18n sweep must not overwrite the button's content.

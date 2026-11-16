@@ -19,7 +19,7 @@ modules from `core/` and `web/`; there is no build step.
 ## Non-negotiables
 
 - Every push bumps `APP_VERSION` in `web/app.js` by `0.001`, adds a short entry
-  to `docs/history/changelog.md`, and stays in the `0.80x` series. Update
+  to `docs/history/changelog.md`; milestone jumps follow `NOTES.md`. Update
   `NOTES.md` only when a current contract changes.
 - `core/` is the reference for currently shared logic. Port a deliberate shared
   core change to Android's `www/core/`; do not overwrite either product wholesale.

@@ -43,7 +43,7 @@ card:{
 |---|---|---|
 | `lead` | max 2 sentences | The idea, not the syntax. At most one or two `<b>` terms. |
 | `syntax` | 1–4 entries | `code` is the block pattern with `..` for values and `±` for a sign. `text` max 2 sentences. |
-| `example` | 2–6 NC lines | Must be valid Klartext the simulator accepts. Generic numbers. |
+| `example` | 2–6 NC lines | Must be valid Klartext the simulator accepts. Generic numbers. Longer only when the construct needs it: a complete cycle definition (one line per Q parameter) or a subprogram with its call. |
 | `rules` | 2–4 items | Facts that are always true on the control. One sentence each. |
 | `mistakes` | 2–4 items | Pattern: `what the learner writes — what happens`. Only real, common errors. |
 | `refs` | 1–4 entries | Exact manual pages, see section 4. |
@@ -111,10 +111,51 @@ Pages already verified (English editions):
 | Cycle 201 REAMING | cycles | 82 |
 | Cycle 208 BORE MILLING | cycles | 106 |
 | Cycle 209 TAPPING W/ CHIP BRKG | cycles | 139 |
+| Absolute and incremental positions | klartext | 91 |
+| Feed rate F, FMAX | klartext | 126 |
+| Spindle speed S | klartext | 127 |
+| Tool radius R, delta values DL/DR | klartext | 131 |
+| Polar coordinates overview | klartext | 174 |
+| Adding comments | klartext | 200 |
+| M functions: spindle and coolant | klartext | 233 |
+| Calling a subprogram | klartext | 254 |
+| Program-section repeats | klartext | 255 |
+| Q parameter types | klartext | 277 |
+| Basic arithmetic FN 0–FN 4 | klartext | 283 |
+| Cycle call CYCL CALL | cycles | 50 |
 
 Add newly verified pages to this table in the same change.
 
+### German cards
+
+German cards live in `web/i18n-lessons-de.js` (`LESSONS_DE[id].card`, marked
+`lang:'de'`) and link to the German editions in `LEARN_MANUALS_DE`
+(Klartext `892903-1C`, cycles `1303406-13`). Their page numbers differ from the
+English ones, so verify each page in the German PDF. Change the English and the
+German card together. Verified German pages:
+
+| Topic | Manual | EN page | DE page |
+|---|---|---|---|
+| Absolute and incremental positions | klartext | 91 | 94 |
+| Program structure / BLK FORM | klartext | 93 / 94 | 96 / 97 |
+| Feed rate F / Spindle speed S | klartext | 126 / 127 | 130 / 131 |
+| Tool radius R, delta values | klartext | 131 | 134 |
+| Calling tool data (TOOL CALL) | klartext | 133 | 136 |
+| Radius compensation | klartext | 139 | 143 |
+| L / CHF / RND | klartext | 161 / 162 / 163 | 165 / 166 / 167 |
+| CC / C / CR | klartext | 164 / 165 / 167 | 168 / 169 / 171 |
+| Polar overview / pole CC, LP | klartext | 174 / 175 | 178 / 179 |
+| Adding comments | klartext | 200 | 204 |
+| M functions: spindle and coolant | klartext | 233 | 237 |
+| Labels / subprograms | klartext | 252 / 253 | 256 / 257 |
+| Q parameter types / part families | klartext | 277 / 281 | 281 / 285 |
+| M99 call, cycles 200, 201, 208, 209 | cycles | 52, 78, 82, 106, 139 | same |
+
 ## 5. Figures
+
+A slide figure that already shows the idea with generic geometry can be reused
+in a card through `learnFigFrom(learnSvg<Name>())`; draw a new one only when no
+slide figure fits.
 
 A figure is optional. Add one only when a picture explains something the
 sentence cannot (a direction, a sign, a reference point). No decoration.

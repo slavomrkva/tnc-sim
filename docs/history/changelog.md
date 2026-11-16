@@ -1055,3 +1055,9 @@ History through v0.845 is preserved in
 - `_headers` adds nosniff, Referrer-Policy, six-month HSTS, a restrictive Permissions-Policy and a CSP limited to `frame-ancestors 'self'`, `base-uri 'self'` and `object-src 'none'`. No `script-src` yet: index.html still uses inline handlers. `/api/*` Worker responses are unaffected.
 - Service worker: a navigation unanswered for 4 s serves the cached page; that page's subresources then come from the same cache and the late network response is not stored, so cached HTML never mixes with newer scripts. Online behaviour stays network-first. Cache v119.
 - Extend `service-worker-cache.test.js` with stalled-connection, late-response and first-visit cases. Web only.
+
+## v0.960 — 2026-11-16 — Learn reference cards, UI shell, milestone version
+- Milestone jump from 0.951 (never published on its own) to 0.960; the 0.951 hardening ships in the same push.
+- Learn: every lesson L01–L23 has a reference `card` (EN in `core/data-tables.js`, DE in `web/i18n-lessons-de.js`) with verified manual pages; `LEARN_MANUALS_DE` added; intro lesson L00 removed; hints no longer point at slides.
+- UI: `web/ui-shell.js` menus (Help, Program, Settings), neutral visual style, slate light theme, calm Learn colours, logo as home link.
+- Texts: Help, tool-table and What's new copy corrected; lesson 11 renamed to Bore milling. `core/` changes still need the Android port; test suite not run for this entry.

@@ -33,8 +33,10 @@ retain their original terms. This does not change the Android repository.
 
 ## Versioning and deploy
 
-- `APP_VERSION` in `web/app.js` is the only app-version source. Stay in the
-  permanent `0.80x` sequence and increment by `0.001` on every push.
+- `APP_VERSION` in `web/app.js` is the only app-version source. Increment by
+  `0.001` on every push. A milestone release may jump to the next `0.0x0`
+  (for example `0.950` to `0.960`) when the owner asks for it; `1.000` is
+  the owner's decision.
 - Record every push briefly in `docs/history/changelog.md`. Update this file
   only when a current contract changes. Add `RELEASE_NOTES.md` only for a
   meaningful user-visible change.

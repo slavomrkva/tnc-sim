@@ -10,7 +10,13 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v0.951 — weak-signal startup
+## v0.960 — new Learn format and simpler interface
+- Learn lessons are reference cards: block format, example, rules, common
+  mistakes and links to the matching pages of the official HEIDENHAIN manual,
+  in English and German.
+- Simpler interface: Help, Program and Settings menus, a calmer look in both
+  themes, and the logo returns to the start view.
+- The Start here intro lesson is removed; the course has 15 lessons.
 - On a stalled connection the installed app now opens from its offline copy
   after a few seconds instead of waiting on the network.
 

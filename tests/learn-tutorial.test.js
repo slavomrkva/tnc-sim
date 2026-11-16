@@ -34,19 +34,8 @@ function solutionFor(task){
   return null;
 }
 
-const intro = context.LESSONS.find(lesson => lesson.id === 'L00');
-assert.strictEqual(intro.slides.length, 3, 'Start here has three information slides');
-assert.match(intro.slides[0].html(), /reopen these slides at any time during practice/);
-assert.match(intro.slides[1].html(), /question panel[\s\S]*highlighted answer row/);
-assert.match(intro.slides[1].html(), /Hint 1[\s\S]*Hint 2[\s\S]*Hint 3/, 'Hint levels render in order');
-assert.match(intro.slides[2].html(), /green[\s\S]*Check[\s\S]*green or red/);
-assert.strictEqual(intro.tasks[0].prompt, 'Type a short comment on the highlighted line');
-assert.strictEqual(intro.tasks[0].answerPrefix, '; ', 'Start here exposes a real highlighted answer row');
-assert.strictEqual(intro.tasks[0].checks.length, 2, 'Start here demonstrates the post-Check verdict');
-assert.ok(context.learnEvalChecks(solutionFor(intro.tasks[0]), intro.tasks[0]).every(result => result.ok),
-  'Start here has a working example solution');
-assert.match(read('core/data-tables.js'), /return to the <b>Learn<\/b> section/);
-assert.match(read('core/data-tables.js'), /Learn, Editor and 3D sections at the bottom/);
+assert.ok(!context.LESSONS.some(lesson => lesson.intro || lesson.id === 'L00'),
+  'the Start here intro lesson is removed; the list opens with lesson 1');
 assert.ok(!fs.existsSync(path.join(root, 'core', 'learn-coach.js')), 'the spotlight tour is removed');
 assert.doesNotMatch(learnSource + read('index.html') + read('service-worker.js'), /learnCoach|learn-coach/,
   'nothing loads or starts the removed spotlight tour');

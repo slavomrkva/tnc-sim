@@ -45,7 +45,7 @@ carded.forEach((lesson) => {
       lesson.id + ' page ' + ref.page + ' exists in ' + ref.doc);
     assert.ok(ref.label && ref.label.trim(), lesson.id + ' labels every reference');
   });
-  assert.ok(lesson.slides && lesson.slides.length, lesson.id + ' keeps slides as the non-English fallback');
+  assert.ok(lesson.slides && lesson.slides.length, lesson.id + ' keeps slides as the fallback');
 
   const index = lessons.indexOf(lesson);
   const html = vm.runInContext('_learnCardHtml(LESSONS[' + index + '])', en);
@@ -59,12 +59,32 @@ carded.forEach((lesson) => {
   assert.strictEqual(vm.runInContext('_learnCard(LESSONS[' + index + '])', en), card,
     'English shows the reference card');
   assert.strictEqual(vm.runInContext('_learnCard(LESSONS[' + index + '])', load('de')), null,
-    'German keeps the translated slides until its manual pages are mapped');
+    'an English card is never shown in German; German cards come from the LESSONS_DE overlay');
 
   vm.runInContext('LEARN.lesson = ' + index + '; LEARN.theoryOpen = true;', en);
   const theory = vm.runInContext('_learnTheoryHtml(LESSONS[' + index + '])', en);
   assert.match(theory, /<details class="lp-theory"/, 'the card stays available during practice');
   assert.doesNotMatch(theory, /lp-slides-nav/, 'a card lesson shows no slide navigation');
+});
+
+// German: the overlay supplies its own cards with pages of the German editions.
+const de = load('de');
+vm.runInContext(read('web/i18n-lessons-de.js'), de, { filename: 'i18n-lessons-de.js' });
+const manualsDe = vm.runInContext('LEARN_MANUALS_DE', de);
+const lessonsDe = vm.runInContext('LESSONS', de);
+assert.deepStrictEqual(Object.keys(manualsDe).sort(), Object.keys(manuals).sort(), 'German covers the same manuals');
+lessonsDe.forEach((lesson, index) => {
+  if (!lessons[index].card) return;
+  const card = lesson.card;
+  assert.strictEqual(card && card.lang, 'de', lesson.id + ' has a German card');
+  assert.strictEqual(vm.runInContext('_learnCard(LESSONS[' + index + '])', de), card, 'German shows the German card');
+  const html = vm.runInContext('_learnCardHtml(LESSONS[' + index + '])', de);
+  card.refs.forEach((ref) => {
+    const manual = manualsDe[ref.doc];
+    assert.ok(manual && ref.page >= 1 && ref.page <= manual.pages, lesson.id + ' page ' + ref.page + ' exists in the German ' + ref.doc);
+    assert.ok(html.includes(manual.url + '#page=' + ref.page), 'German link opens the German manual');
+  });
+  assert.doesNotMatch(html, /undefined|\[object Object\]/, 'German card renders without missing fields');
 });
 
 console.log('learn-reference-card.test.js: ' + carded.length + ' reference card(s) verified');

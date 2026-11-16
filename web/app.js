@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '0.951';
+var APP_VERSION = '0.960';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -308,10 +308,10 @@ document.addEventListener('keydown', function(e){
 var kpHelpMode = false;
 
 var HELP_MAP = {
-  'run':      {title:'▶ Run', desc:'Starts the simulation from the current position. The tool moves through all blocks continuously. Use the speed control (- / +) to adjust playback speed.', ex:''},
-  'step':     {title:'▶▶ Step', desc:'Executes one block at a time. Each click advances to the next NC block. Useful for inspecting individual moves.', ex:''},
-  'stop':     {title:'⏸ Stop', desc:'Pauses the simulation at the current position. Press Run to continue. After stopping you can also trigger Refine to see the high-resolution mesh.', ex:''},
-  'reset':    {title:'↺ Reset', desc:'Resets the simulation back to the beginning. The workpiece returns to its original shape and the tool goes to the start position.', ex:''},
+  'run':      {title:'Run', desc:'Starts the simulation from the current position. The tool moves through all blocks continuously. Use the speed control (- / +) to adjust playback speed.', ex:''},
+  'step':     {title:'Step', desc:'Executes one block at a time. Each click advances to the next NC block. Useful for inspecting individual moves.', ex:''},
+  'stop':     {title:'Stop', desc:'Pauses the simulation at the current position. Press Run to continue. After stopping you can also trigger Refine to see the high-resolution mesh.', ex:''},
+  'reset':    {title:'Reset', desc:'Resets the simulation back to the beginning. The workpiece returns to its original shape and the tool goes to the start position.', ex:''},
   'q-low':    {title:'Quality: Low (100 vox)', desc:'Targets cells up to 1mm. Fastest option for weaker devices and quick toolpath checks. Fine features below ~1mm may not appear. Refine targets up to 300 voxels and 0.5mm cells; very large blanks adapt to the memory budget.', ex:''},
   'q-med':    {title:'Quality: Default (150 vox)', desc:'Targets balanced 0.7mm cells and up to 150 voxels on the longest side. Recommended for normal simulation. Refine targets 400 voxels and 0.4mm cells; very large blanks adapt to the memory budget.', ex:''},
   'q-high':   {title:'Quality: High (200 vox)', desc:'Targets 0.5mm cells and up to 200 voxels on the longest side for finer live detail. It needs more memory and processing time. Refine targets 500 voxels and 0.3mm cells; very large blanks adapt to the memory budget.', ex:''},
@@ -367,10 +367,10 @@ var HELP_MAP = {
   'Q257':     {title:'Q257 — Depth per chip break', desc:'How deep the tap goes before retracting slightly to break chips. 0 = no chip breaking.', ex:'Q257=+5'},
   'Q256':     {title:'Q256 — Chip break retract factor', desc:'Multiplier of thread pitch Q239 used for a short chip-breaking retract (retract = Q256 × Q239). Set 0 for a full retract out of the hole.', ex:'Q256=+0.5'},
   'measure':  {title:'◎ Measure', desc:'Click to enter measure mode. Click any point on the workpiece surface to record its X/Y/Z coordinates. Click two points to measure the distance between them. Click again to exit measure mode.', ex:''},
-  'bug-report':{title:'🐛 Bug report', desc:'Opens the bug report dialog. Describe what went wrong; your program is included automatically. Use "Copy image to clipboard" to grab a screenshot of the 3D view, then paste it (Ctrl+V) into the GitHub issue or email.', ex:''},
+  'bug-report':{title:'Bug report', desc:'Opens the bug report dialog. Describe what went wrong; your program is included automatically.', ex:''},
   'editor':   {title:'NC Program editor', desc:'Write your Heidenhain Klartext NC program here. Click any line to activate the inline field editor. Use the keypad buttons above to insert commands. Lines starting with ; are comments.', ex:'; This is a comment'},
-  'export':   {title:'↓ Export', desc:'Downloads the current NC program as a .H file (Heidenhain format). You can load it into a real TNC control or keep it as a backup.', ex:''},
-  'speed':    {title:'Simulation speed', desc:'Controls how fast the simulation plays. − slows down, + speeds up. Range from 0.1× (very slow, useful for step-by-step inspection) to 8× (fast preview). Speed does not affect accuracy.', ex:''},
+  'export':   {title:'Export', desc:'Downloads the current NC program as a .H file (Heidenhain format). Keep it as a backup, or check it carefully before you load it into a real TNC control.', ex:''},
+  'speed':    {title:'Simulation speed', desc:'Controls how fast the simulation plays. − slows down, + speeds up. Range from 0.25× (slow, for watching single moves) to 500× (fast preview). Speed does not affect accuracy.', ex:''},
   'line-nums':{title:'Line numbers', desc:'Shows the block number of each NC line. Orange = currently executing block. Red = error, yellow = warning. Hover to reveal the delete (✕) button for that line. Click a line number to jump to it.', ex:''},
 
   // ── Tool Table columns ──
@@ -408,10 +408,10 @@ var HELP_MAP = {
 // lokalisiert; ex (Klartext-NC-Code) bleibt unverändert. Terminologie nach
 // HEIDENHAIN Benutzer-Handbuch Klartext-Dialog / Zyklen (TNC 640/620).
 var HELP_MAP_DE = {
-  'run':      {title:'▶ Start', desc:'Startet die Simulation ab der aktuellen Position. Das Werkzeug durchläuft alle Sätze fortlaufend. Mit der Tempo-Steuerung (− / +) passt du die Abspielgeschwindigkeit an.'},
-  'step':     {title:'▶▶ Schritt', desc:'Führt jeweils einen Satz aus. Jeder Klick springt zum nächsten NC-Satz. Nützlich, um einzelne Bewegungen zu prüfen.'},
-  'stop':     {title:'⏸ Stopp', desc:'Hält die Simulation an der aktuellen Position an. Zum Fortsetzen Start drücken. Nach dem Anhalten kannst du auch Verfeinern auslösen, um das hochauflösende Netz zu sehen.'},
-  'reset':    {title:'↺ Reset', desc:'Setzt die Simulation an den Anfang zurück. Das Werkstück nimmt wieder seine Ausgangsform an und das Werkzeug fährt auf die Startposition.'},
+  'run':      {title:'Start', desc:'Startet die Simulation ab der aktuellen Position. Das Werkzeug durchläuft alle Sätze fortlaufend. Mit der Tempo-Steuerung (− / +) passt du die Abspielgeschwindigkeit an.'},
+  'step':     {title:'Schritt', desc:'Führt jeweils einen Satz aus. Jeder Klick springt zum nächsten NC-Satz. Nützlich, um einzelne Bewegungen zu prüfen.'},
+  'stop':     {title:'Stopp', desc:'Hält die Simulation an der aktuellen Position an. Zum Fortsetzen Start drücken. Nach dem Anhalten kannst du auch Verfeinern auslösen, um das hochauflösende Netz zu sehen.'},
+  'reset':    {title:'Reset', desc:'Setzt die Simulation an den Anfang zurück. Das Werkstück nimmt wieder seine Ausgangsform an und das Werkzeug fährt auf die Startposition.'},
   'q-low':    {title:'Qualität: Niedrig (100 vox)', desc:'Zielt auf Zellen bis 1 mm. Schnellste Option für schwächere Geräte und rasche Bahnprüfungen. Feine Details unter ~1 mm erscheinen evtl. nicht. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
   'q-med':    {title:'Qualität: Standard (150 vox)', desc:'Zielt auf ausgewogene 0,7-mm-Zellen und bis zu 150 Voxel an der längsten Seite. Empfohlen für die normale Simulation. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
   'q-high':   {title:'Qualität: Hoch (200 vox)', desc:'Zielt auf 0,5-mm-Zellen und bis zu 200 Voxel an der längsten Seite. Braucht mehr Speicher und Rechenzeit. Bei sehr großen Rohteilen passt sich das Gitter an das Speicherbudget an.'},
@@ -467,10 +467,10 @@ var HELP_MAP_DE = {
   'Q257':     {title:'Q257 — Bohrtiefe Spanbruch', desc:'Tiefe, die der Gewindebohrer vorrückt, bevor er zum Spanbruch leicht zurückzieht. 0 = kein Spanbruch.'},
   'Q256':     {title:'Q256 — Rückzugsfaktor bei Spanbruch', desc:'Faktor der Gewindesteigung Q239 für den kurzen Spanbruch-Rückzug (Rückzug = Q256 × Q239). 0 bewirkt den vollständigen Rückzug aus der Bohrung.'},
   'measure':  {title:'◎ Messen', desc:'Klick zum Aktivieren des Messmodus. Klicke einen Punkt auf der Werkstück-Oberfläche, um seine X/Y/Z-Koordinaten zu erfassen. Zwei Punkte messen den Abstand dazwischen. Erneut klicken zum Verlassen.'},
-  'bug-report':{title:'🐛 Fehlerbericht', desc:'Öffnet den Fehlerbericht-Dialog. Beschreibe, was schiefging; dein Programm wird automatisch mitgeschickt. Mit „Bild in die Zwischenablage kopieren“ einen Screenshot der 3D-Ansicht erfassen und ihn (Strg+V) in das GitHub-Issue oder die E-Mail einfügen.'},
+  'bug-report':{title:'Fehlerbericht', desc:'Öffnet den Fehlerbericht-Dialog. Beschreibe, was schiefging; dein Programm wird automatisch mitgeschickt.'},
   'editor':   {title:'NC-Programm-Editor', desc:'Schreibe hier dein Heidenhain-Klartext-NC-Programm. Klicke eine Zeile für den Inline-Feldeditor. Nutze die Tastenfeld-Schaltflächen oben zum Einfügen von Befehlen. Zeilen, die mit ; beginnen, sind Kommentare.'},
-  'export':   {title:'↓ Export', desc:'Lädt das aktuelle NC-Programm als .H-Datei (Heidenhain-Format) herunter. Du kannst sie in eine echte TNC-Steuerung laden oder als Sicherung behalten.'},
-  'speed':    {title:'Simulationsgeschwindigkeit', desc:'Steuert das Abspieltempo der Simulation. − verlangsamt, + beschleunigt. Bereich 0,1× (sehr langsam, für schrittweise Prüfung) bis 8× (schnelle Vorschau). Das Tempo beeinflusst die Genauigkeit nicht.'},
+  'export':   {title:'Export', desc:'Lädt das aktuelle NC-Programm als .H-Datei (Heidenhain-Format) herunter. Behalte sie als Sicherung oder prüfe sie sorgfältig, bevor du sie in eine echte TNC-Steuerung lädst.'},
+  'speed':    {title:'Simulationsgeschwindigkeit', desc:'Steuert das Abspieltempo der Simulation. − verlangsamt, + beschleunigt. Bereich 0,25× (langsam, um einzelne Bewegungen zu beobachten) bis 500× (schnelle Vorschau). Das Tempo beeinflusst die Genauigkeit nicht.'},
   'line-nums':{title:'Satznummern', desc:'Zeigt die Satznummer jeder NC-Zeile. Orange = gerade laufender Satz. Rot = Fehler, Gelb = Warnung. Zeige mit der Maus darauf, um die Löschen-Schaltfläche (✕) der Zeile einzublenden. Klick auf eine Satznummer springt dorthin.'},
 
   // ── Werkzeugtabelle-Spalten ──

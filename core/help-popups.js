@@ -27,7 +27,7 @@ function openHelp(){
   exitFieldMode();
   closeCtxPanel();
   var b=document.getElementById('helpBody');
-  var h='<p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6">Quick reference for TNC Sim. On desktop activate <b style="color:var(--text2);">? Help</b> and hover over any button.</p>';
+  var h='<p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6">Quick reference for TNC Sim. On desktop choose <b style="color:var(--text2);">Help → Hover help</b> and move the pointer over any button.</p>';
   var groups=[
     {label:'Simulation controls',keys:['run','step','stop','reset','speed','path','measure']},
     {label:'Views',keys:['view-3d','view-2d','view-tools']},

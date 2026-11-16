@@ -1335,16 +1335,38 @@ var LEARN_MANUALS = {
   }
 };
 
-/* Page numbers are verified for the English editions only, so German keeps
-   the translated slides until its own page map exists. */
-function _learnCard(L){
-  if(!L || !L.card) return null;
-  try { if(typeof I18N !== 'undefined' && I18N && I18N.getLang() !== 'en') return null; } catch(e){}
-  return L.card;
+/* German editions of the same manuals. Their page numbers differ from the
+   English ones, so a German card (LESSONS_DE, web overlay) carries its own
+   refs and is marked with lang:'de'. */
+var LEARN_MANUALS_DE = {
+  klartext: {
+    title:'Klartextprogrammierung', edition:'TNC 640 \u00b7 10/2023', pages:714,
+    url:'https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-1C.pdf'
+  },
+  cycles: {
+    title:'Bearbeitungszyklen programmieren', edition:'TNC 640 \u00b7 10/2023', pages:809,
+    url:'https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/zyklen_bearbeitung/1303406-13.pdf'
+  }
+};
+
+function _learnLang(){
+  try { if(typeof I18N !== 'undefined' && I18N) return I18N.getLang(); } catch(e){}
+  return 'en';
 }
 
-function learnManualUrl(ref){
-  var m = LEARN_MANUALS[ref.doc];
+function _learnManual(doc, lang){
+  return (lang === 'de' ? LEARN_MANUALS_DE : LEARN_MANUALS)[doc];
+}
+
+/* A card is shown only in the language it was written and page-checked for.
+   Any other language keeps the slides. */
+function _learnCard(L){
+  if(!L || !L.card) return null;
+  return (L.card.lang || 'en') === _learnLang() ? L.card : null;
+}
+
+function learnManualUrl(ref, lang){
+  var m = _learnManual(ref.doc, lang);
   return m ? m.url + '#page=' + ref.page : '';
 }
 
@@ -1363,6 +1385,11 @@ function _learnFigText(x, y, label, cls, anchor, color){
 }
 
 /* C: one centre, one end point, two possible directions. */
+/* Reuses a slide figure inside a reference card: same drawing, card frame. */
+function learnFigFrom(svg){
+  return String(svg).replace('class="learn-svg"', 'class="learn-svg lc-fig"');
+}
+
 function learnFigArcC(){
   var cx = 165, cy = 96, R = 62, ex = 204.9, ey = 48.5;   // end point at 50 degrees
   return '<svg class="learn-svg lc-fig" viewBox="0 0 340 176" role="img" aria-label="Arc C from a start point to an end point around the centre CC. DR minus runs clockwise over the top, DR plus runs counter-clockwise the long way round.">'
@@ -1376,8 +1403,8 @@ function learnFigArcC(){
     + _learnFigText(cx - 8, cy - R - 10, 'DR−', 'lc-fc', 'middle', 'var(--accent)')
     + _learnFigText(cx, cy + R - 10, 'DR+', 'lc-fc', 'middle', 'var(--text3)')
     + _learnFigText(cx + 9, cy + 16, 'CC', 'lc-fc')
-    + _learnFigText(cx - R - 9, cy + 4, 'start', 'lc-fw', 'end')
-    + _learnFigText(ex + 10, ey + 2, 'end point', 'lc-fw')
+    + _learnFigText(cx - R - 9, cy + 4, _lt('learn.figStart', 'start'), 'lc-fw', 'end')
+    + _learnFigText(ex + 10, ey + 2, _lt('learn.figEnd', 'end point'), 'lc-fw')
     + '</svg>';
 }
 
@@ -1393,8 +1420,8 @@ function learnFigArcCR(){
     + _learnFigDot(x1, y) + _learnFigDot(x2, y)
     + _learnFigText(170, y - 130, 'R−', 'lc-fc', 'middle', 'var(--text2)')
     + _learnFigText(170, y - 10, 'R+', 'lc-fc', 'middle', 'var(--accent)')
-    + _learnFigText(x1 - 9, y + 4, 'start', 'lc-fw', 'end')
-    + _learnFigText(x2 + 9, y + 4, 'end point', 'lc-fw')
+    + _learnFigText(x1 - 9, y + 4, _lt('learn.figStart', 'start'), 'lc-fw', 'end')
+    + _learnFigText(x2 + 9, y + 4, _lt('learn.figEnd', 'end point'), 'lc-fw')
     + '</svg>';
 }
 
@@ -1407,9 +1434,9 @@ function _learnCardManualHtml(c, compact){
   return '<section class="lc-sec lc-manual"><h3 class="lc-h">' + _lt('learn.cardManual', 'Official manual') + '</h3>'
     + '<ul class="lc-refs">'
     + c.refs.map(function(r){
-        var m = LEARN_MANUALS[r.doc];
+        var m = _learnManual(r.doc, c.lang);
         if(!m) return '';
-        return '<li><a href="' + learnManualUrl(r) + '" target="_blank" rel="noopener noreferrer">'
+        return '<li><a href="' + learnManualUrl(r, c.lang) + '" target="_blank" rel="noopener noreferrer">'
           + LEARN_BOOK_ICON
           + '<span class="lc-ref-t">' + r.label + '</span>'
           + '<span class="lc-ref-p">' + m.title + ' · ' + _lt('learn.cardPage', 'p.') + ' ' + r.page + ' ↗</span></a></li>';
@@ -1637,7 +1664,7 @@ function learnRender(){
     var realLessons = LESSONS.filter(function(x){ return !x.intro; });
     var completeLessons = realLessons.filter(function(x){ return (prog[x.id] || 0) >= x.tasks.length; }).length;
     var more = '<div class="learn-li lock"><span class="li-num">&#127942;</span><span class="li-t">'
-      + _lt('learn.finalNote', 'Finish the final integrated project to complete the course. Then try changing dimensions or repairing a deliberate mistake without opening the answer.')
+      + _lt('learn.finalNote', 'Finished the last lesson? Reopen any lesson, change a dimension and predict the result before you press Run.')
       + '</span><span class="li-st"></span></div>';
     var body = '<p>' + _lt('learn.intro', 'Short lessons with small practice exercises solved in the <b>real editor</b> \u2014 the simulator checks your code. Progress is saved.') + '</p>'
       + '<div class="learn-summary" aria-live="polite"><b>' + completeLessons + '/' + realLessons.length + '</b> '
