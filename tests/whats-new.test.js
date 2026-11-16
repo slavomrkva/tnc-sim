@@ -46,9 +46,9 @@ assert.match(css, /\.whats-new-btn\{[^}]*border:1px solid var\(--border\);[^}]*b
   'What’s New uses the standard neutral header treatment');
 assert.ok(release.content.en.items.length === 2 && release.content.de.items.length === 2,
   'English and German announcements each have two concise updates');
-assert.match(release.content.en.items[0], /href="\/examples\/"/);
-assert.match(release.content.de.items[0], /href="\/de\/examples\/"/);
-assert.match(release.content.en.items[1], /require your description/);
-assert.match(release.content.de.items[1], /Problembeschreibung/);
+assert.match(release.content.en.items[0], /reference cards[\s\S]*official HEIDENHAIN manual/);
+assert.match(release.content.de.items[0], /Referenzkarten[\s\S]*HEIDENHAIN-Handbuchs/);
+assert.match(release.content.en.items[1], /Help, Program and Settings menus/);
+assert.match(release.content.de.items[1], /Hilfe, Programm und Einstellungen/);
 
 console.log('What’s New release-window and popup contract passed');

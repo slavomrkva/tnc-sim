@@ -15,11 +15,11 @@
   copy. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
   already say v0.960; `CACHE_VERSION` is `v120` (production has `v118`).
   Steps left before the push, in order:
-  1. Run every file in `tests/` with `node tests/<name>.test.js` (there is no
-     runner or package.json). The suite was not run after the Learn and UI
-     work, so failures in tests that assert old markup, footer, Help copy or
-     Learn hints are expected. Fix the test when it asserts replaced copy or
-     markup; fix the code when behaviour broke. Record the result here.
+  1. Done 2026-11-16: all 53 `tests/*.test.js` files and
+     `tests/report-worker.test.mjs` pass (run one by one with `node`; there
+     is no runner or package.json). One test needed updating
+     (`whats-new.test.js` asserted the old announcement items). The tests do
+     not cover the look of the ui-shell menus or the new colours.
   2. Look at the app in both themes on desktop and a phone-sized viewport
      (lesson list, one lesson end to end, the three menus, About, Help).
   3. The owner decides the version: keep `0.960` or use `1.000`. If it changes,
