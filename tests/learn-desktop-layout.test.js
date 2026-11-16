@@ -51,7 +51,7 @@ assert.match(css, /body\.learn-desktop-practice #learnPanel,[\s\S]*body\.learn-d
   'lesson, editor and result use equal desktop thirds');
 assert.match(css, /body\.learn-desktop-open:not\(\.learn-desktop-practice\) #learnPanel\{[^}]*width:33\.333333% !important/,
   'lesson selection retains the same one-third desktop width');
-assert.match(css, /body\.learn-desktop-practice \.learn-answer-head\{[^}]*background:linear-gradient\(135deg,rgba\(240,169,74/,
+assert.match(css, /body\.learn-desktop-practice \.learn-answer-head\{[^}]*background:var\(--learn-question-bg\)/,
   'question banner uses a clearly distinct amber background');
 assert.match(app, /t\('learn\.question', 'QUESTION'\)[\s\S]*LEARN\.task \+ 1/,
   'question banner identifies the current task number');
@@ -69,7 +69,7 @@ assert.match(css, /\.lp-theory:not\(\[open\]\)\{[^}]*background:rgba\(93,202,165
   'collapsed info slides have a subtle green background');
 assert.match(css, /\.lp-slides-nav \.lp-slide-arrow\{[^}]*width:44px/,
   'slide arrows retain large, stable previous/next hit targets');
-assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:rgba\(240,169,74/,
+assert.match(css, /#hlLayer \.learn-answer-line\{[^}]*background:var\(--learn-answer-bg\)/,
   'answer blocks have a full-width amber highlight');
 assert.match(css, /\.lp-btn\.chk\{[^}]*background:#5dcaa5/,
   'Check and Start practice use the restored green action colour');

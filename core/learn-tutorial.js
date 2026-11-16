@@ -33,8 +33,8 @@ function learnSvgBlank(dx, dy, dz){
     + '<text x="291" y="82" font-family="monospace" font-size="10" fill="var(--text3)">Z+</text>'
     + '<line x1="285" y1="122" x2="331" y2="122" stroke="var(--text3)" stroke-width="1"/>'
     + '<text x="320" y="138" font-family="monospace" font-size="10" fill="var(--text3)">X+</text>'
-    + '<line x1="285" y1="122" x2="265" y2="132" stroke="var(--text3)" stroke-width="1"/>'
-    + '<text x="248" y="144" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
+    + '<line x1="285" y1="122" x2="305" y2="112" stroke="var(--text3)" stroke-width="1"/>'
+    + '<text x="309" y="111" font-family="monospace" font-size="10" fill="var(--text3)">Y+</text>'
     + '<text x="145" y="143" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">'+dx+' x '+dy+' x '+dz+' mm</text>'
     + '</svg>';
 }

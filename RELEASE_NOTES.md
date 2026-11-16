@@ -10,6 +10,9 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.001 — Learn preview
+- Correct the Y+ direction in the blank diagram and use muted practice highlights and a neutral manual panel.
+
 ## v1.000 — new Learn format and simpler interface
 - Learn lessons are reference cards: block format, example, rules, common
   mistakes and links to the matching pages of the official HEIDENHAIN manual,
