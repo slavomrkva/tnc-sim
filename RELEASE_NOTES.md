@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v0.951 — weak-signal startup
+- On a stalled connection the installed app now opens from its offline copy
+  after a few seconds instead of waiting on the network.
+
 ## v0.950 — web fixes (version retained)
 - Recalculate compensated paths after tool-table edits or imports.
 - Discard obsolete Refine results after Reset, preparation or resumed playback.

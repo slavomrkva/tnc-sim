@@ -1,5 +1,5 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v118';
+const CACHE_VERSION = 'v119';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -78,25 +78,81 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// A connection that neither answers nor fails must not leave the app blank:
+// after this long a navigation falls back to the cached page.
+const NAVIGATION_TIMEOUT_MS = 4000;
+
+// Pages that were served from the cache. Their scripts and styles come from the
+// same cache, so one page never mixes cached HTML with newer network scripts.
+// Losing this set when the worker restarts only returns to network-first.
+const cachedPageClients = new Set();
+
+function rememberCachedPage(clientId) {
+  if (!clientId) return;
+  if (cachedPageClients.size >= 50) cachedPageClients.clear();
+  cachedPageClients.add(clientId);
+}
+
 // Use the current network response while online. The old cache-first policy
 // could mix an outdated index.html with newer scripts and hide new UI links.
-// Cached responses remain available when the network is unavailable.
+// Cached responses remain available when the network is unavailable or stalled.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
   // Ignore non-http(s) schemes (browser extensions etc.) — cache.put would throw.
-  if (!event.request.url.startsWith('http')) return;
+  if (!request.url.startsWith('http')) return;
 
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => fetch(event.request).then((networkResponse) => {
+  const isNavigation = request.mode === 'navigate';
+
+  event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+    // ignoreSearch lets offline navigations with query parameters use the page cache.
+    const fromCache = () => cache.match(request, { ignoreSearch: isNavigation });
+    const fromCacheOrError = () => fromCache().then((cached) => cached || Response.error());
+
+    if (!isNavigation && event.clientId && cachedPageClients.has(event.clientId)) {
+      return fromCache().then((cached) => cached || fetch(request));
+    }
+
+    // Once the cached page has been served, a late network response is dropped
+    // rather than stored: the cache must stay one consistent set of files.
+    let servedFromCache = false;
+    const network = fetch(request).then((networkResponse) => {
       // Cache normal and opaque cross-origin responses for offline reuse.
-      if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
-        event.waitUntil(cache.put(event.request, networkResponse.clone()).catch(() => {}));
+      if (!servedFromCache && networkResponse &&
+          (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+        event.waitUntil(cache.put(request, networkResponse.clone()).catch(() => {}));
       }
       return networkResponse;
-    }).catch(() =>
-      // ignoreSearch lets offline navigations with query parameters use the page cache.
-      cache.match(event.request, { ignoreSearch: event.request.mode === 'navigate' })
-        .then((cachedResponse) => cachedResponse || Response.error())
-    ))
-  );
+    });
+
+    if (!isNavigation) return network.catch(fromCacheOrError);
+
+    const pageId = event.resultingClientId || event.clientId;
+    return new Promise((resolve) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        fromCache().then((cached) => {
+          // Without a cached page there is nothing better than waiting.
+          if (settled || !cached) return;
+          settled = true;
+          servedFromCache = true;
+          rememberCachedPage(pageId);
+          resolve(cached);
+        }).catch(() => {});
+      }, NAVIGATION_TIMEOUT_MS);
+
+      network.then((networkResponse) => {
+        clearTimeout(timer);
+        if (settled) return;
+        settled = true;
+        resolve(networkResponse);
+      }, () => {
+        clearTimeout(timer);
+        if (settled) return;
+        settled = true;
+        rememberCachedPage(pageId);
+        resolve(fromCacheOrError());
+      });
+    });
+  }));
 });
