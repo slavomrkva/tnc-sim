@@ -979,17 +979,26 @@ html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);
 
 /* Learn reference card (prototype): one calm page instead of the slide carousel. */
 .lc{font-family:var(--sans);}
-.lc .lc-lead{font-size:15px;line-height:1.6;color:var(--text);margin:0 0 16px;}
-.lc-sec{margin:0 0 18px;padding-top:13px;border-top:1px solid var(--border);}
-.lc-h{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin:0 0 10px;}
+/* Hierarchy: two text levels only. Bright = what to write (lead, block
+   patterns, inline code); muted = the explanation around it. Sections are
+   separated by a rule and space, not by boxes. */
+.lc .lc-lead{font-size:15px;line-height:1.6;color:var(--text);margin:0 0 24px;}
+.lc-sec{margin:0 0 26px;padding-top:15px;border-top:1px solid var(--border);}
+.lc-sec:last-child{margin-bottom:6px;}
+.lc-h{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin:0 0 13px;}
 .lc-syntax{margin:0;}
-.lc-syntax dt{font-family:var(--mono);font-size:13.5px;font-weight:500;color:var(--text);margin:0;}
-.lc-syntax dd{margin:3px 0 12px;font-size:13.5px;line-height:1.55;color:var(--text2);}
+.lc-syntax dt{display:inline-block;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 9px;margin:0;}
+.lc-syntax dd{margin:7px 0 20px;font-size:13.5px;line-height:1.55;color:var(--text3);}
 .lc-syntax dd:last-child{margin-bottom:0;}
-.lc-list{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;color:var(--text2);}
-.lc-list li{margin:0 0 7px;}
+.lc code{font-family:var(--mono);font-size:.95em;color:var(--text);}
+.lc-list{list-style:none;margin:0;padding:0;font-size:13.5px;line-height:1.55;color:var(--text3);}
+.lc-list li{display:grid;grid-template-columns:14px 1fr;gap:0 8px;margin:0 0 9px;}
+.lc-list li::before{content:'\2013';color:var(--text3);}
+.lc-list li > *{grid-column:2;}
 .lc-list li:last-child{margin-bottom:0;}
-.lc .lc-fig{margin:10px 0 2px;max-width:400px;}
+/* Mistakes carry the only red on the card. */
+.lc-list.lc-x li::before{content:'\2715';color:#e5484d;font-size:11px;line-height:1.9;}
+.lc .lc-fig{display:block;box-sizing:border-box;margin:11px 0 0;max-width:400px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px;}
 .lc-fig .lc-fc{font-family:var(--mono);font-size:12.5px;font-weight:700;}
 .lc-fig .lc-fw{font-family:var(--sans);font-size:12px;}
 .lc .learn-snippet{margin-bottom:0;}

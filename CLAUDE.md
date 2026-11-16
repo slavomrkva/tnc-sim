@@ -11,7 +11,9 @@ modules from `core/` and `web/`; there is no build step.
    must be tracked in both repositories.
 3. For a user-visible change or deploy, read `RELEASE_NOTES.md` and the deploy
    flow in `NOTES.md`.
-4. Read `docs/history/` only when a current document links to the relevant
+4. Before changing a Learn lesson, read `docs/learn-lesson-guide.md`; lesson
+   L05 is the reference.
+5. Read `docs/history/` only when a current document links to the relevant
    topic. Historical files are context, not current instructions.
 
 ## Non-negotiables

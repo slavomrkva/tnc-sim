@@ -1425,8 +1425,10 @@ function _learnCardHtml(L, withoutManual){
   function sec(title, inner){
     return '<section class="lc-sec"><h3 class="lc-h">' + title + '</h3>' + inner + '</section>';
   }
-  function list(items){
-    return '<ul class="lc-list">' + items.map(function(it){ return '<li>' + it + '</li>'; }).join('') + '</ul>';
+  // Each item is wrapped so the CSS marker and the text form two grid columns.
+  function list(items, cls){
+    return '<ul class="lc-list' + (cls ? ' ' + cls : '') + '">'
+      + items.map(function(it){ return '<li><span>' + it + '</span></li>'; }).join('') + '</ul>';
   }
   var html = '<div class="lc">';
   if(c.lead) html += '<p class="lc-lead">' + c.lead + '</p>';
@@ -1438,7 +1440,7 @@ function _learnCardHtml(L, withoutManual){
   }
   if(c.example) html += sec(_lt('learn.cardExample', 'Example'), learnSnippet(c.example));
   if(c.rules && c.rules.length) html += sec(_lt('learn.cardRules', 'Rules'), list(c.rules));
-  if(c.mistakes && c.mistakes.length) html += sec(_lt('learn.cardMistakes', 'Common mistakes'), list(c.mistakes));
+  if(c.mistakes && c.mistakes.length) html += sec(_lt('learn.cardMistakes', 'Common mistakes'), list(c.mistakes, 'lc-x'));
   if(!withoutManual) html += _learnCardManualHtml(c, false);
   return html + '</div>';
 }
