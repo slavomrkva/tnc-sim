@@ -865,13 +865,14 @@ var LESSONS = [
         figure:function(){ return learnFigFrom(learnSvgLblFlow()); } },
       { code:'LBL 0', text:'Marks the end of a subprogram.' },
       { code:'CALL LBL 1', text:'Runs the blocks between <code>LBL 1</code> and <code>LBL 0</code>, then continues with the block after the call.' },
-      { code:'Q1 = ..', text:'Stores a number in Q1. Written as <code>Z+Q1</code>, the parameter stands in for that number.' }
+      { code:'Q1 = ..', text:'Stores a number in Q1. Written as <code>Q201=+Q1</code> or <code>Z+Q1</code>, the parameter stands in for that number.' }
     ],
-    example:'Q1 = -3\nLBL 1\nL X+25 Y+20 FMAX M99\nL X+55 Y+20 FMAX M99\nLBL 0\nCALL LBL 1',
+    example:'Q1 = -5\nLBL 1\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=+Q1 ;depth from Q1\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nL X+25 Y+20 FMAX M99\nL X+55 Y+20 FMAX M99\nLBL 0\nQ1 = -12\nCALL LBL 1',
     rules:[
       'A label that stands in the normal program flow runs once where it is written. Each <code>CALL LBL</code> runs it again.',
       '<code>LBL 0</code> only ends a subprogram. It cannot be called.',
-      'A Q parameter must have its value before the block that uses it. Keep your own parameters in Q1 to Q99; the cycles use the numbers from Q200.'
+      'A Q parameter must have its value before the block that uses it. Keep your own parameters in Q1 to Q99; the cycles use the numbers from Q200.',
+      'A cycle takes over the value of Q1 when its <code>CYCL DEF</code> runs. In the example the definition stands inside the label, so the call drills the same holes again with the new depth.'
     ],
     mistakes:[
       '<code>LBL 0</code> forgotten — the subprogram never ends and the call returns from the wrong place.',

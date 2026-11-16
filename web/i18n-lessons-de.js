@@ -751,13 +751,14 @@ var LESSONS_DE = {
         figure:function(){ return learnFigFrom(learnSvgLblFlow()); } },
       { code:'LBL 0', text:'Markiert das Ende eines Unterprogramms.' },
       { code:'CALL LBL 1', text:'Führt die Sätze zwischen <code>LBL 1</code> und <code>LBL 0</code> aus und macht dann mit dem Satz nach dem Aufruf weiter.' },
-      { code:'Q1 = ..', text:'Speichert eine Zahl in Q1. Als <code>Z+Q1</code> geschrieben, steht der Parameter für diese Zahl.' }
+      { code:'Q1 = ..', text:'Speichert eine Zahl in Q1. Als <code>Q201=+Q1</code> oder <code>Z+Q1</code> geschrieben, steht der Parameter für diese Zahl.' }
     ],
-    example:'Q1 = -3\nLBL 1\nL X+25 Y+20 FMAX M99\nL X+55 Y+20 FMAX M99\nLBL 0\nCALL LBL 1',
+    example:'Q1 = -5\nLBL 1\nCYCL DEF 200\n  Q200=+2 ;Sicherheitsabstand\n  Q201=+Q1 ;Tiefe aus Q1\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q202=+5 ;Zustelltiefe\n  Q210=+0 ;Verweilzeit oben\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\n  Q211=+0 ;Verweilzeit unten\nL X+25 Y+20 FMAX M99\nL X+55 Y+20 FMAX M99\nLBL 0\nQ1 = -12\nCALL LBL 1',
     rules:[
       'Ein Label im normalen Programmablauf läuft einmal dort, wo es steht. Jedes <code>CALL LBL</code> führt es erneut aus.',
       '<code>LBL 0</code> beendet nur ein Unterprogramm. Es kann nicht aufgerufen werden.',
-      'Ein Q-Parameter braucht seinen Wert vor dem Satz, der ihn verwendet. Nimm für eigene Parameter Q1 bis Q99; die Zyklen verwenden die Nummern ab Q200.'
+      'Ein Q-Parameter braucht seinen Wert vor dem Satz, der ihn verwendet. Nimm für eigene Parameter Q1 bis Q99; die Zyklen verwenden die Nummern ab Q200.',
+      'Ein Zyklus übernimmt den Wert von Q1, wenn sein <code>CYCL DEF</code> abgearbeitet wird. Im Beispiel steht die Definition im Label, deshalb bohrt der Aufruf dieselben Bohrungen noch einmal mit der neuen Tiefe.'
     ],
     mistakes:[
       '<code>LBL 0</code> vergessen — das Unterprogramm endet nie und der Aufruf kehrt an der falschen Stelle zurück.',
