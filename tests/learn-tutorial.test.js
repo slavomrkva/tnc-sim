@@ -47,17 +47,9 @@ assert.ok(context.learnEvalChecks(solutionFor(intro.tasks[0]), intro.tasks[0]).e
   'Start here has a working example solution');
 assert.match(read('core/data-tables.js'), /return to the <b>Learn<\/b> section/);
 assert.match(read('core/data-tables.js'), /Learn, Editor and 3D sections at the bottom/);
-const coachSource = read('core/learn-coach.js');
-assert.match(coachSource, /key === 'prompt'[\s\S]*learnAnswerHead/,
-  'desktop tutorial targets the visible question panel instead of the hidden task card');
-assert.match(coachSource, /key === 'answer'[\s\S]*#hlLayer \.learn-answer-line/,
-  'tutorial targets the exact highlighted answer row');
-assert.match(coachSource, /key === 'theory'[\s\S]*\.lp-theory-sum/,
-  'tutorial explains that Info Slides remain available during practice');
-assert.match(coachSource, /key === 'theory'\) \? 'learn' : 'editor'/,
-  'mobile tutorial opens the Learn section for its Info Slides step');
-assert.match(coachSource, /Open Learn for Info Slides/,
-  'mobile tutorial names the Learn section instead of generic practice');
+assert.ok(!fs.existsSync(path.join(root, 'core', 'learn-coach.js')), 'the spotlight tour is removed');
+assert.doesNotMatch(learnSource + read('index.html') + read('service-worker.js'), /learnCoach|learn-coach/,
+  'nothing loads or starts the removed spotlight tour');
 
 const svgOpenings = learnSource.match(/return '<svg class="learn-svg"[^\r\n]*/g) || [];
 assert.strictEqual(svgOpenings.length, 31, 'all Learn diagram factories are covered by the accessibility check');

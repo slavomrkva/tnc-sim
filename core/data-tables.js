@@ -411,6 +411,35 @@ var LESSONS = [
 },
 {
   id:'L05', title:'Arcs \u2014 CC + C and CR',
+  /* Prototype reference card: replaces the slide carousel for this lesson in
+     English. `slides` stays as the German and fallback content. Manual pages
+     refer to the editions listed in LEARN_MANUALS (core/learn-tutorial.js). */
+  card:{
+    lead:'An arc starts where the previous block ended. You either name its <b>centre</b> (CC, then C) or its <b>radius</b> (CR).',
+    syntax:[
+      { code:'CC X.. Y..', text:'Sets the circle centre. The tool does not move. The centre stays valid until the next CC.' },
+      { code:'C X.. Y.. DR\u00b1', text:'Arc around the last CC to the end point. Start and end must lie at the same distance from the centre.',
+        figure:function(){ return learnFigArcC(); } },
+      { code:'CR X.. Y.. R\u00b1.. DR\u00b1', text:'Arc to the end point with a given radius. No CC needed. The same start, end and radius still allow two arcs.',
+        figure:function(){ return learnFigArcCR(); } }
+    ],
+    example:'L X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-',
+    rules:[
+      '<code>DR-</code> turns clockwise, <code>DR+</code> counter-clockwise, seen from above.',
+      'On <code>CR</code> the sign of R picks the arc: <code>R+</code> is the short one (up to 180\u00b0), <code>R-</code> the long one.',
+      'A full circle is a <code>C</code> block whose end point equals its start point. <code>CR</code> cannot close a full circle in one block.'
+    ],
+    mistakes:[
+      '<code>C</code> without a <code>CC</code> before it \u2014 the control has no centre to turn around.',
+      'Wrong <code>DR</code> sign \u2014 the tool takes the other way round the circle and cuts where it should not.',
+      '<code>CR</code> radius smaller than half the distance to the end point \u2014 no such arc exists.'
+    ],
+    refs:[
+      { doc:'klartext', page:164, label:'Circle center CC' },
+      { doc:'klartext', page:165, label:'Circular arc C around circle center CC' },
+      { doc:'klartext', page:167, label:'Circular arc CR with fixed radius' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p><b>CC</b> sets the circle centre; <b>C</b> then cuts along that circle to the end point. Direction: <code>DR+</code> = counter-clockwise, <code>DR-</code> = clockwise:</p>'

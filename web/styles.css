@@ -33,8 +33,7 @@ html[data-theme="light"] .ctx-panel,
 html[data-theme="light"] .keypad,
 html[data-theme="light"] .mtab-bar,
 html[data-theme="light"] #toolLegend,
-html[data-theme="light"] #measureOverlay,
-html[data-theme="light"] #learnCoach .coach-tip{
+html[data-theme="light"] #measureOverlay{
   color:#edeef0;
   --surface:#404346; --surface2:#404346; --key-pale:#373a3d;
   --border:#474a4e;
@@ -815,7 +814,7 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 }
 
 
-/* ── Learn: progressive hints and first-run coach ───────────────────── */
+/* ── Learn: progressive hints ───────────────────────────────────────── */
 .lp-hints{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
 .lp-hint-row{display:flex;gap:8px;align-items:flex-start;background:rgba(240,169,74,.07);
   border-left:2px solid #f0a94a;border-radius:0 6px 6px 0;padding:7px 9px;}
@@ -824,18 +823,6 @@ html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 .lp-hint-b code{font-family:var(--mono);font-size:12px;}
 .lp-btn.hint{border-color:rgba(240,169,74,.5);color:#f0a94a;}
 .lp-btn.hint.spent{opacity:.35;}
-
-#learnCoach{position:fixed;inset:0;z-index:9000;}
-#learnCoach .coach-hole{position:fixed;border-radius:8px;pointer-events:none;
-  box-shadow:0 0 0 9999px rgba(0,0,0,.66);outline:2px solid var(--accent);
-  transition:left .2s,top .2s,width .2s,height .2s;}
-#learnCoach .coach-tip{position:fixed;background:#211f1d;border:1px solid var(--accent);
-  border-radius:10px;padding:12px 13px;box-shadow:0 12px 34px rgba(0,0,0,.5);}
-#learnCoach .coach-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text3);}
-#learnCoach .coach-t{font-size:14px;font-weight:600;color:var(--text);margin:3px 0 5px;}
-#learnCoach .coach-d{font-size:12.5px;line-height:1.55;color:var(--text2);}
-#learnCoach .coach-btns{display:flex;gap:8px;margin-top:11px;}
-#learnCoach .coach-btns .grow{flex:1;}
 
 /* unified control heights in the toolbar (desktop pointers only) */
 @media(pointer:fine){
@@ -989,3 +976,38 @@ html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);
 }
 
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;}
+
+/* Learn reference card (prototype): one calm page instead of the slide carousel. */
+.lc{font-family:var(--sans);}
+.lc .lc-lead{font-size:15px;line-height:1.6;color:var(--text);margin:0 0 16px;}
+.lc-sec{margin:0 0 18px;padding-top:13px;border-top:1px solid var(--border);}
+.lc-h{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin:0 0 10px;}
+.lc-syntax{margin:0;}
+.lc-syntax dt{font-family:var(--mono);font-size:13.5px;font-weight:500;color:var(--text);margin:0;}
+.lc-syntax dd{margin:3px 0 12px;font-size:13.5px;line-height:1.55;color:var(--text2);}
+.lc-syntax dd:last-child{margin-bottom:0;}
+.lc-list{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;color:var(--text2);}
+.lc-list li{margin:0 0 7px;}
+.lc-list li:last-child{margin-bottom:0;}
+.lc .lc-fig{margin:10px 0 2px;max-width:400px;}
+.lc-fig .lc-fc{font-family:var(--mono);font-size:12.5px;font-weight:700;}
+.lc-fig .lc-fw{font-family:var(--sans);font-size:12px;}
+.lc .learn-snippet{margin-bottom:0;}
+.lc-sec.lc-manual{border:1px solid var(--border);border-radius:8px;background:var(--surface2);padding:12px 13px 11px;}
+.lc-refs{list-style:none;margin:0;padding:0;}
+.lc-refs li+li{margin-top:2px;}
+.lc-refs a{display:grid;grid-template-columns:16px 1fr;gap:1px 9px;align-items:start;padding:6px 0;color:var(--accent3);text-decoration:none;font-size:13.5px;line-height:1.4;}
+.lc-book{grid-row:1 / span 2;width:16px;height:16px;margin-top:2px;color:var(--accent3);}
+.lc-ref-t{font-weight:600;}
+.lc-refs a:hover .lc-ref-t,.lc-refs a:focus-visible .lc-ref-t{text-decoration:underline;}
+.lc-refs a:focus-visible{outline:3px solid var(--accent3);outline-offset:2px;border-radius:4px;}
+.lc-ref-p{grid-column:2;font-family:var(--mono);font-size:11.5px;color:var(--text3);}
+.lc .lc-note{font-size:12px;line-height:1.5;color:var(--text3);margin:8px 0 0;}
+@media(min-width:1025px) and (min-height:601px){ body.learn-desktop-practice .lp-body > :not(.lp-task) + .lp-theory{margin-top:10px;} }
+/* Practice: manual links stay visible while the reference card is collapsed. */
+.lc-practice-refs{margin-top:10px;}
+.lc-practice-refs .lc-sec{margin-bottom:0;}
+#learnMobileBar .lc-practice-refs{display:none;}
+/* Revealed hints dock directly above the footer that holds the Hint button. */
+.lp-hints.lp-hints-dock{margin:0;padding:9px 12px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;max-height:38vh;overflow-y:auto;}
+#learnMobileBar .lp-hints.lp-hints-dock{margin:8px -12px 0;padding:8px 12px 2px;border-top:1px solid var(--border);background:transparent;max-height:none;}

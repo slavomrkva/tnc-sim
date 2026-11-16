@@ -1,5 +1,5 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v118';
+const CACHE_VERSION = 'v119';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -41,7 +41,6 @@ const PRECACHE_URLS = [
   '/core/field-editing.js',
   '/core/help-popups.js',
   '/core/klartext-syntax.js',
-  '/core/learn-coach.js',
   '/core/learn-tutorial.js',
   '/core/mcode-panel.js',
   '/core/measure-tool.js',

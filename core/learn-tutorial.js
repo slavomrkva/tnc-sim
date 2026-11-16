@@ -1208,9 +1208,6 @@ function learnStartTask(ti){
   if(typeof updateHighlightOverlay==='function') updateHighlightOverlay();
   learnRender();
   if(_isMTab()) mtabSwitch('editor');
-  // The intro lesson always replays the tour (it IS the tour); every other
-  // lesson only shows it once, the very first time practice is ever opened.
-  if(typeof learnCoachMaybeStart==='function') learnCoachMaybeStart(L.intro);
 }
 
 /* Progressive hints: one more level per press (nudge -> structure -> answer).
@@ -1321,6 +1318,141 @@ function _learnEndEditorInput(){
    real course still reads 1..N. Intro lessons return 0. */
 function _learnNo(i){ var n=0; for(var k=0;k<=i;k++){ if(!LESSONS[k].intro) n++; } return LESSONS[i].intro ? 0 : n; }
 
+/* ── Reference card (prototype) ──────────────────────────────────────
+   A lesson with `card` shows one scrollable reference page instead of the
+   slide carousel: block format, drawing, rules, common mistakes and links to
+   the exact pages of the official manual. Only the links need a connection;
+   the page number is always printed so a local copy of the manual works too.
+   The manuals are linked, never quoted: their text and figures are HEIDENHAIN's. */
+var LEARN_MANUALS = {
+  klartext: {
+    title:'Klartext Programming', edition:'TNC 640 · 10/2023', pages:691,
+    url:'https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/bhb/892903-2C.pdf'
+  },
+  cycles: {
+    title:'Programming of Machining Cycles', edition:'TNC 640 · 10/2023', pages:797,
+    url:'https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC640/34059x-18/zyklen_bearbeitung/1303406-23.pdf'
+  }
+};
+
+/* Page numbers are verified for the English editions only, so German keeps
+   the translated slides until its own page map exists. */
+function _learnCard(L){
+  if(!L || !L.card) return null;
+  try { if(typeof I18N !== 'undefined' && I18N && I18N.getLang() !== 'en') return null; } catch(e){}
+  return L.card;
+}
+
+function learnManualUrl(ref){
+  var m = LEARN_MANUALS[ref.doc];
+  return m ? m.url + '#page=' + ref.page : '';
+}
+
+/* Reference figures show one idea each with generic geometry. They never draw
+   a lesson's finished part: discovering that shape in the simulation is the
+   point of the practice. */
+function _learnFigDot(x, y){
+  return '<circle cx="' + x + '" cy="' + y + '" r="3.2" fill="var(--text)"/>';
+}
+function _learnFigArrow(x, y, color){
+  return '<path d="M-6 -4.5 L5 0 L-6 4.5 Z" transform="translate(' + x + ' ' + y + ')" fill="' + color + '"/>';
+}
+function _learnFigText(x, y, label, cls, anchor, color){
+  return '<text class="' + cls + '" x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'start')
+    + '" fill="' + (color || 'var(--text2)') + '">' + label + '</text>';
+}
+
+/* C: one centre, one end point, two possible directions. */
+function learnFigArcC(){
+  var cx = 165, cy = 96, R = 62, ex = 204.9, ey = 48.5;   // end point at 50 degrees
+  return '<svg class="learn-svg lc-fig" viewBox="0 0 340 176" role="img" aria-label="Arc C from a start point to an end point around the centre CC. DR minus runs clockwise over the top, DR plus runs counter-clockwise the long way round.">'
+    + '<path d="M' + (cx - R) + ' ' + cy + ' A' + R + ' ' + R + ' 0 1 0 ' + ex + ' ' + ey + '" fill="none" stroke="var(--text3)" stroke-width="1.4" stroke-dasharray="5 4"/>'
+    + '<path d="M' + cx + ' ' + cy + ' L' + (cx - R) + ' ' + cy + ' M' + cx + ' ' + cy + ' L' + ex + ' ' + ey + '" stroke="var(--text3)" stroke-width=".9"/>'
+    + '<path d="M' + (cx - R) + ' ' + cy + ' A' + R + ' ' + R + ' 0 0 1 ' + ex + ' ' + ey + '" fill="none" stroke="var(--accent)" stroke-width="2.4"/>'
+    + _learnFigArrow(cx - 8, cy - R + 0.5, 'var(--accent)')
+    + _learnFigArrow(cx, cy + R, 'var(--text3)')
+    + '<path d="M' + (cx - 5) + ' ' + cy + ' H' + (cx + 5) + ' M' + cx + ' ' + (cy - 5) + ' V' + (cy + 5) + '" stroke="var(--text)" stroke-width="1.4"/>'
+    + _learnFigDot(cx - R, cy) + _learnFigDot(ex, ey)
+    + _learnFigText(cx - 8, cy - R - 10, 'DR−', 'lc-fc', 'middle', 'var(--accent)')
+    + _learnFigText(cx, cy + R - 10, 'DR+', 'lc-fc', 'middle', 'var(--text3)')
+    + _learnFigText(cx + 9, cy + 16, 'CC', 'lc-fc')
+    + _learnFigText(cx - R - 9, cy + 4, 'start', 'lc-fw', 'end')
+    + _learnFigText(ex + 10, ey + 2, 'end point', 'lc-fw')
+    + '</svg>';
+}
+
+/* CR: same start, end and radius; the sign of R picks the short or long arc. */
+function learnFigArcCR(){
+  var x1 = 110, x2 = 230, y = 146, R = 75;
+  return '<svg class="learn-svg lc-fig" viewBox="0 0 340 172" role="img" aria-label="Two CR arcs between the same start and end point with the same radius, both clockwise. R plus is the short arc, R minus the long arc.">'
+    + '<path d="M' + x1 + ' ' + y + ' H' + x2 + '" stroke="var(--text3)" stroke-width=".9" stroke-dasharray="3 4"/>'
+    + '<path d="M' + x1 + ' ' + y + ' A' + R + ' ' + R + ' 0 1 1 ' + x2 + ' ' + y + '" fill="none" stroke="var(--text2)" stroke-width="1.6"/>'
+    + '<path d="M' + x1 + ' ' + y + ' A' + R + ' ' + R + ' 0 0 1 ' + x2 + ' ' + y + '" fill="none" stroke="var(--accent)" stroke-width="2.4"/>'
+    + _learnFigArrow(170, y - 120, 'var(--text2)')
+    + _learnFigArrow(170, y - 30, 'var(--accent)')
+    + _learnFigDot(x1, y) + _learnFigDot(x2, y)
+    + _learnFigText(170, y - 130, 'R−', 'lc-fc', 'middle', 'var(--text2)')
+    + _learnFigText(170, y - 10, 'R+', 'lc-fc', 'middle', 'var(--accent)')
+    + _learnFigText(x1 - 9, y + 4, 'start', 'lc-fw', 'end')
+    + _learnFigText(x2 + 9, y + 4, 'end point', 'lc-fw')
+    + '</svg>';
+}
+
+var LEARN_BOOK_ICON = '<svg class="lc-book" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.2c2-.7 3.9-.5 5.5.6v9.4c-1.6-1.1-3.5-1.3-5.5-.6zM13.5 3.2c-2-.7-3.9-.5-5.5.6v9.4c1.6-1.1 3.5-1.3 5.5-.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+
+/* The official-manual links are their own block: part of the full card while
+   reading, and still visible on their own when practice collapses the card. */
+function _learnCardManualHtml(c, compact){
+  if(!c.refs || !c.refs.length) return '';
+  return '<section class="lc-sec lc-manual"><h3 class="lc-h">' + _lt('learn.cardManual', 'Official manual') + '</h3>'
+    + '<ul class="lc-refs">'
+    + c.refs.map(function(r){
+        var m = LEARN_MANUALS[r.doc];
+        if(!m) return '';
+        return '<li><a href="' + learnManualUrl(r) + '" target="_blank" rel="noopener noreferrer">'
+          + LEARN_BOOK_ICON
+          + '<span class="lc-ref-t">' + r.label + '</span>'
+          + '<span class="lc-ref-p">' + m.title + ' · ' + _lt('learn.cardPage', 'p.') + ' ' + r.page + ' ↗</span></a></li>';
+      }).join('') + '</ul>'
+    + (compact ? '' : '<p class="lc-note">' + _lt('learn.cardManualNote',
+        'Opens the HEIDENHAIN PDF and needs a connection. Page numbers refer to the 10/2023 edition, so they also work in your own copy.')
+      + '</p>')
+    + '</section>';
+}
+
+function _learnCardHtml(L, withoutManual){
+  var c = L.card;
+  function sec(title, inner){
+    return '<section class="lc-sec"><h3 class="lc-h">' + title + '</h3>' + inner + '</section>';
+  }
+  function list(items){
+    return '<ul class="lc-list">' + items.map(function(it){ return '<li>' + it + '</li>'; }).join('') + '</ul>';
+  }
+  var html = '<div class="lc">';
+  if(c.lead) html += '<p class="lc-lead">' + c.lead + '</p>';
+  if(c.syntax && c.syntax.length){
+    html += sec(_lt('learn.cardSyntax', 'Block format'), '<dl class="lc-syntax">'
+      + c.syntax.map(function(s){
+          return '<dt>' + s.code + '</dt><dd>' + s.text + (s.figure ? s.figure() : '') + '</dd>';
+        }).join('') + '</dl>');
+  }
+  if(c.example) html += sec(_lt('learn.cardExample', 'Example'), learnSnippet(c.example));
+  if(c.rules && c.rules.length) html += sec(_lt('learn.cardRules', 'Rules'), list(c.rules));
+  if(c.mistakes && c.mistakes.length) html += sec(_lt('learn.cardMistakes', 'Common mistakes'), list(c.mistakes));
+  if(!withoutManual) html += _learnCardManualHtml(c, false);
+  return html + '</div>';
+}
+
+function _learnStartFoot(L){
+  var doneN = learnProgress()[L.id] || 0;
+  return '<div class="lp-foot"><button class="lp-btn chk grow" onclick="learnStartTask('
+    + (doneN < L.tasks.length ? doneN : 0) + ')">'
+    + (doneN > 0 && doneN < L.tasks.length
+        ? _lt('learn.continuePractice', 'Continue practice') + ' (' + doneN + '/' + L.tasks.length + ') →'
+        : _lt('learn.startPractice', 'Start practice') + ' →')
+    + '</button></div>';
+}
+
 /* ── Rendering ───────────────────────────────────────────────────────
    One renderer for both layouts. The desktop panel and the mobile strip get
    the SAME practice markup; only the surrounding chrome differs. Anything that
@@ -1366,6 +1498,15 @@ function _learnResultsHtml(T){
    avoids one long reference wall and lets the learner return to the exact
    explanation or diagram they need. */
 function _learnTheoryHtml(L){
+  if(_learnCard(L)){
+    return '<details class="lp-theory"' + (LEARN.theoryOpen ? ' open' : '')
+      + ' ontoggle="LEARN.theoryOpen=this.open;">'
+      + '<summary class="lp-theory-sum">'
+      + '<span class="lp-theory-sum-copy"><span class="lp-theory-sum-title">'
+      + _lt('learn.reference', 'REFERENCE') + '</span><span class="lp-theory-sum-sub">'
+      + _lt('learn.reviewReference', 'Block format, rules and manual pages') + '</span></span>'
+      + '</summary><div class="lp-theory-body">' + _learnCardHtml(L, true) + '</div></details>';
+  }
   var dots = L.slides.map(function(_, i){
     return '<button type="button" class="' + (i === LEARN.slide ? 'on' : '') + '"'
       + ' onclick="LEARN.slide=' + i + ';LEARN.theoryOpen=true;learnRender();"'
@@ -1416,8 +1557,11 @@ function _learnPracticeHtml(L){
   body += _learnTheoryHtml(L);
   body += _learnResultsHtml(T);
 
+  // Revealed hints belong to the footer, directly above the Hint button that
+  // produced them, in both the desktop panel and the mobile strip.
+  var hintsHtml = '';
   if(shown > 0){
-    body += '<div class="lp-hints">' + T.hints.slice(0, shown).map(function(h, i){
+    hintsHtml = '<div class="lp-hints lp-hints-dock">' + T.hints.slice(0, shown).map(function(h, i){
       return '<div class="lp-hint-row"><span class="lp-hint-n">'
         + (i === nHints - 1 ? _lt('learn.answer', 'ANSWER') : _lt('learn.hint', 'HINT') + ' ' + (i + 1)) + '</span>'
         + '<div class="lp-hint-b">' + h + '</div></div>';
@@ -1430,8 +1574,11 @@ function _learnPracticeHtml(L){
             + _lt('learn.pressRun', 'Press <b>Run</b> and watch your program in 3D.')
           : ' ' + _lt('learn.readyNext', 'Ready for the next task.')) + '</span></div>';
   }
+  // The reference collapses during practice, but the official manual pages
+  // stay one click away below the task feedback.
+  if(_learnCard(L)) body += '<div class="lc lc-practice-refs">' + _learnCardManualHtml(L.card, true) + '</div>';
 
-  var foot = '<div class="lp-foot">'
+  var foot = hintsHtml + '<div class="lp-foot">'
     + (L.intro ? '' : '<button class="lp-btn lp-solve" onclick="learnSolve()" aria-label="Reveal solution" title="">&#8943;</button>')
     + '<button class="lp-btn" onclick="learnStartTask(' + LEARN.task + ')" title="'
     +   _lt('learn.resetTask', 'Reload the starter program') + '">' + _lt('learn.reset', 'Reset') + '</button>'
@@ -1512,6 +1659,15 @@ function learnRender(){
       document.body.classList.add('practice-on');
       if(typeof window._growCode === 'function') requestAnimationFrame(window._growCode);
     }
+    _learnLabelDiagrams(p, L);
+    _learnNotifyHost();
+    return;
+  }
+
+  /* ── reading mode, reference card: one page, practice always available ── */
+  if(_learnCard(L)){
+    p.innerHTML = head + '<div class="lp-body">' + _learnCardHtml(L) + '</div>' + _learnStartFoot(L);
+    clearMobileBar();
     _learnLabelDiagrams(p, L);
     _learnNotifyHost();
     return;

@@ -187,8 +187,8 @@ retain their original terms. This does not change the Android repository.
     answer, press Check.` instruction without a divider or separate strip.
     Answer-row Backspace/Delete may edit text but must never merge the outer
     highlighted boundaries into neighbouring program blocks. The Start Here
-    tutorial must exercise this real flow and target only visible UI: question
-    panel, highlighted answer row, Info Slides, Hint, then Check.
+    lesson explains this flow in its own slides and one real task; there is
+    no separate spotlight tour.
     A password-provided solution and every carried-forward starter must use the
     same NC block serialization as the editor. If the task instructs the user
     to press Run, its completed official program must also pass
