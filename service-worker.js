@@ -1,5 +1,5 @@
 // Bump this on every deploy that should invalidate old caches.
-const CACHE_VERSION = 'v119';
+const CACHE_VERSION = 'v120';
 const CACHE_NAME = `tnc-sim-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -58,6 +58,7 @@ const PRECACHE_URLS = [
   '/web/layout.js',
   '/web/panels.js',
   '/web/app.js',
+  '/web/ui-shell.js',
   '/web/whats-new.js',
   '/web/analytics.js',
   '/web/styles.css'

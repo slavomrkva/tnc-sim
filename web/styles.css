@@ -1020,3 +1020,417 @@ html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);
 /* Revealed hints dock directly above the footer that holds the Hint button. */
 .lp-hints.lp-hints-dock{margin:0;padding:9px 12px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;max-height:38vh;overflow-y:auto;}
 #learnMobileBar .lp-hints.lp-hints-dock{margin:8px -12px 0;padding:8px 12px 2px;border-top:1px solid var(--border);background:transparent;max-height:none;}
+
+/* ── UI shell (design experiment, web/ui-shell.js) ─────────────────────
+   Rarely used controls live in three menus (Help, Program, Settings). The
+   original buttons stay in the markup and are hidden only once the script has
+   mounted the menus (html.ui-shell), so a script failure leaves the old UI.
+   Colour has three meanings: accent = primary action or active state,
+   amber = Learn question/answer, red = errors and destructive actions. */
+html.ui-shell #langToggle,
+html.ui-shell #themeToggle,
+html.ui-shell #aboutBtn,
+html.ui-shell .header-badges .badge,
+html.ui-shell .ph-actions > #kpHelpBtn,
+html.ui-shell .ph-actions > #mCodesBtn,
+html.ui-shell .ph-actions > button[onclick="exportProgram()"],
+html.ui-shell .ph-actions > button[onclick="importProgram()"],
+html.ui-shell #_idleZoomOut,
+html.ui-shell #_idleZoomIn,
+html.ui-shell .toolbar > div:has(> [data-i18n="toolbar.quality"]),
+html.ui-shell footer > :not(.us-support){display:none !important;}
+
+/* The demo picker stays next to Undo/Redo, pushed to the right of the row. */
+html.ui-shell .ctx-row2 > span:has(+ #_idleDemo){font-size:11px !important;margin-left:auto;}
+html.ui-shell #_idleDemo{font-size:12px !important;padding:4px 6px !important;}
+@media(max-width:520px){
+  html.ui-shell .ctx-row2 > span:has(+ #_idleDemo){display:none !important;}
+  html.ui-shell #_idleDemo{flex:1 1 0;min-width:0;}
+  html.ui-shell #ctxPanel .ctx-row2{flex-wrap:nowrap;}
+  html.ui-shell #ctxPanel .ctx-row2 > .btn{padding:4px 7px !important;}
+}
+
+/* The footer is one quiet line: the way to report a bug or suggest something. */
+html.ui-shell footer{display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;padding:5px 16px;min-height:30px;box-sizing:border-box;}
+html.ui-shell.kbd-open footer{display:none;}
+.us-support{display:inline-flex;align-items:baseline;gap:6px;border:0;background:none;padding:2px 0;font-family:var(--sans);font-size:12px;line-height:1.4;color:var(--text3);cursor:pointer;text-align:right;}
+.us-support b{font-weight:500;color:var(--text);text-decoration:underline;text-decoration-color:var(--text3);text-underline-offset:3px;}
+.us-support:hover b{text-decoration-color:var(--text);}
+.us-support:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px;}
+.us-support .us-sup-short{display:none;}
+@media(max-width:520px){ .us-support .us-sup-long{display:none;} .us-support .us-sup-short{display:inline;} }
+
+.us-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;line-height:1.2;cursor:pointer;white-space:nowrap;}
+.us-ico{width:15px;height:15px;flex:none;}
+.us-caret{width:12px;height:12px;flex:none;margin-left:-2px;opacity:.75;}
+.us-head-btn{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);}
+.us-head-btn:hover,.us-head-btn[aria-expanded="true"]{background:var(--surface2);color:var(--text);border-color:var(--text3);}
+.us-btn:focus-visible,.us-item:focus-visible,.us-seg button:focus-visible,.us-step button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+html.ui-shell .header-badges{align-items:center;gap:6px;}
+html.ui-shell .ph-btn.us-btn[aria-expanded="true"]{color:var(--text);background:var(--surface2);}
+html.ui-shell .ph-btn.us-btn.us-active{background:var(--accent);border-color:var(--accent);color:#fff;}
+@media(max-width:640px){ .us-head-btn .us-lbl{display:none;} .us-head-btn{padding:7px 8px;} }
+
+.us-pop{position:fixed;z-index:9000;box-sizing:border-box;min-width:210px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow-y:auto;padding:5px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.35);font-family:var(--mono);font-size:12.5px;color:var(--text);}
+.us-item{display:block;box-sizing:border-box;width:100%;text-align:left;padding:7px 10px;border:0;border-radius:5px;background:none;color:var(--text);font:inherit;text-decoration:none;cursor:pointer;}
+.us-item:hover,.us-item:focus-visible{background:var(--surface2);}
+.us-item.us-current{color:var(--accent);font-weight:600;}
+.us-item.us-danger{color:#e5484d;}
+.us-sep{height:1px;margin:5px 4px;background:var(--border);}
+.us-head{padding:6px 10px 3px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);}
+.us-pop.us-settings{min-width:300px;padding:10px 14px;}
+.us-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 0;}
+.us-row-l{font-size:12px;color:var(--text2);}
+.us-seg,.us-step{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.us-seg button,.us-step button{font-family:var(--mono);font-size:12px;padding:5px 10px;border:0;background:transparent;color:var(--text3);cursor:pointer;}
+.us-seg button + button{border-left:1px solid var(--border);}
+.us-seg button.on{background:var(--surface2);color:var(--text);font-weight:600;}
+.us-seg button:hover,.us-step button:hover:not(:disabled){color:var(--text);background:var(--surface2);}
+.us-step button:disabled{opacity:.4;cursor:default;}
+.us-step-v{min-width:48px;text-align:center;font-size:12px;color:var(--text);border-left:1px solid var(--border);border-right:1px solid var(--border);padding:5px 0;}
+.us-pop #qualityGroup{border-radius:6px;background:transparent;}
+.us-pop #qualityGroup .btn-tog{font-size:12px;padding:5px 10px;height:auto;min-height:0;}
+html[data-theme="light"] .us-pop .btn-group .btn-tog{color:var(--text3);border-right-color:var(--border);}
+html[data-theme="light"] .us-pop .btn-group .btn-tog:hover,
+html[data-theme="light"] .us-pop .btn-group .btn-tog.active{background:var(--surface2);color:var(--text);}
+
+/* One primary action per panel: Run is solid accent, the rest are neutral. */
+html.ui-shell .btn-run{background:var(--accent);border-color:var(--accent);color:#fff;}
+html.ui-shell .btn-run:hover{background:var(--accent);border-color:var(--accent);color:#fff;filter:brightness(1.1);}
+html[data-theme="light"].ui-shell .btn-run,
+html[data-theme="light"].ui-shell .btn-run:hover{color:#062420;}
+html.ui-shell .btn-step,
+html.ui-shell .btn-stop,
+html.ui-shell .btn-reset{background:var(--surface);border-color:var(--border);color:var(--text2);}
+html.ui-shell .btn-step:hover,
+html.ui-shell .btn-stop:hover,
+html.ui-shell .btn-reset:hover{background:var(--surface2);border-color:var(--text3);color:var(--text);}
+html.ui-shell .speed-val{color:var(--text);}
+
+/* No control text below 12px. */
+html.ui-shell .panel-header{font-size:12px;}
+html.ui-shell .ph-btn{font-size:12px;padding:4px 10px;}
+html.ui-shell .learn-cta{font-size:12px !important;padding:4px 12px !important;}
+html.ui-shell #ctxPanel .ctx-row2 > .btn{font-size:12px !important;padding:4px 10px !important;}
+html.ui-shell #canvasTopButtons button{font-size:12px !important;padding:5px 10px !important;}
+html.ui-shell .tab{font-size:12px;}
+html.ui-shell .toolbar > div > span[data-i18n]{font-size:10.5px !important;}
+
+/* ── Visual pass (design experiment) ───────────────────────────────────
+   Goal: read as a tool, not as a template.
+   1. Type: a neutral UI sans for all chrome; mono only for NC words, code and
+      numbers. No display font.
+   2. Colour: neutral surfaces. Accent only for the primary action and the
+      active state; no tinted translucent fills with coloured borders.
+   3. Shape: one radius, flat fills, no glow. */
+html.ui-shell{
+  --sans:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --radius:6px;
+}
+
+/* 1. Type */
+html.ui-shell .btn,
+html.ui-shell .ph-btn,
+html.ui-shell .tab,
+html.ui-shell .us-btn,
+html.ui-shell .us-pop,
+html.ui-shell .us-seg button,
+html.ui-shell .us-step button,
+html.ui-shell .lp-btn,
+html.ui-shell .whats-new-btn,
+html.ui-shell .panel-header,
+html.ui-shell .status-bar,
+html.ui-shell .kp-sec-title,
+html.ui-shell .view-hint,
+html.ui-shell .mtab-bar button{font-family:var(--sans);letter-spacing:0;}
+html.ui-shell #canvasTopButtons button,
+html.ui-shell #_idleDemo,
+html.ui-shell .ctx-row2 > span:has(+ #_idleDemo),
+html.ui-shell .toolbar > div > span[data-i18n],
+html.ui-shell #staleSimWarning{font-family:var(--sans) !important;letter-spacing:0 !important;}
+html.ui-shell .btn,
+html.ui-shell .ph-btn,
+html.ui-shell .tab,
+html.ui-shell .us-btn{font-weight:500;}
+html.ui-shell .us-pop{font-size:13px;}
+html.ui-shell .us-item.us-current{font-weight:600;}
+/* Numbers and NC words stay monospaced. */
+html.ui-shell #posDisplay,
+html.ui-shell .speed-val,
+html.ui-shell .speed-btn,
+html.ui-shell .ph-blocks,
+html.ui-shell #progTitleName,
+html.ui-shell .us-step-v{font-family:var(--mono);}
+html.ui-shell .status-bar{font-size:12px;}
+html.ui-shell .status-bar #posDisplay{font-size:11.5px;letter-spacing:0;}
+html.ui-shell .speed-val{font-size:12px;}
+html.ui-shell .program-autosave-status{font-size:11px;font-family:var(--sans);}
+html.ui-shell .kp-sec-title{font-size:10.5px;font-weight:600;letter-spacing:.06em;margin:3px 0 5px;}
+html.ui-shell .key .kl{font-size:10.5px;}
+html.ui-shell .key.off .kl{font-size:11px;}
+html.ui-shell .key.appr-dep-key .kl{font-size:9px;}
+html.ui-shell .logo-text{font-weight:600;letter-spacing:-.01em;}
+html.ui-shell .logo-sub{color:var(--text3);}
+html.ui-shell header{padding:10px 16px;}
+
+/* 2. Colour: keys are neutral; only the modifier keys keep a coloured label. */
+html.ui-shell:not([data-theme="light"]) .key.off,
+html.ui-shell:not([data-theme="light"]) .key.prog,
+html.ui-shell:not([data-theme="light"]) .key.pi-key{background:var(--key-pale);border-color:rgba(157,163,176,.22);box-shadow:none;}
+html.ui-shell:not([data-theme="light"]) .key.prog{color:var(--text2);}
+html.ui-shell:not([data-theme="light"]) .key.prog:hover,
+html.ui-shell:not([data-theme="light"]) .key.pi-key:hover{background:var(--surface);border-color:rgba(157,163,176,.4);}
+html.ui-shell:not([data-theme="light"]) .key.prog:hover{color:var(--text);}
+html[data-theme="light"].ui-shell .keypad .key.prog{background:#d9dadd;color:#1c1f23;border-color:#b3b6ba;box-shadow:none;}
+html[data-theme="light"].ui-shell .keypad .key.prog:hover{background:#e9ebee;color:#101214;border-color:#9ea2a8;}
+html[data-theme="light"].ui-shell .keypad .key.pi-key{background:#d9dadd;color:#9a4a12;border-color:#b3b6ba;}
+html[data-theme="light"].ui-shell .keypad .key.pi-key:hover{background:#e9ebee;}
+
+/* Tabs: the active tab is marked by the underline, not by a tinted fill. */
+html.ui-shell .tab{font-size:12.5px;padding:9px 16px;border-bottom-width:2px;}
+html.ui-shell .tab.active{color:var(--text);background:transparent;border-bottom:2px solid var(--accent);}
+html.ui-shell .mtab-bar button{font-size:10.5px;font-weight:500;}
+html.ui-shell .mtab-bar button.on{background:transparent;font-weight:600;}
+html.ui-shell .mtab-bar button.on .mi svg{transform:none;}
+
+/* Learn panel sits beside the editor like any other panel. */
+html.ui-shell #learnPanel{border-right:1px solid var(--border);}
+
+/* Dark theme contrast: secondary text one step brighter, and syntax colours
+   that stay softer than the original neon but keep at least 8:1 on the editor. */
+html.ui-shell:not([data-theme="light"]){--text2:#d4d7da;--text3:#b0b5ba;}
+html.ui-shell:not([data-theme="light"]) .syn-comment{color:#86d39c;}
+html.ui-shell:not([data-theme="light"]) .syn-tool{color:#f0a268;}
+html.ui-shell:not([data-theme="light"]) .syn-lbl{color:#84b6f5;}
+html.ui-shell:not([data-theme="light"]) .syn-qvar{color:#c6adf5;}
+
+/* 3. Shape */
+html.ui-shell .btn-run,
+html.ui-shell .btn-step,
+html.ui-shell .btn-stop,
+html.ui-shell .btn-reset,
+html.ui-shell .ph-btn,
+html.ui-shell .key,
+html.ui-shell #canvasTopButtons button{border-radius:6px !important;}
+html.ui-shell #canvasTopButtons button{backdrop-filter:none !important;}
+html.ui-shell .whats-new-dot{box-shadow:none;}
+
+/* Step and Stop stay neutral buttons; only their icon carries the colour. */
+html.ui-shell .btn-step svg{color:var(--accent3);}
+html.ui-shell .btn-stop svg{color:#ff5d5d;}
+html.ui-shell .btn-step:hover{border-color:var(--accent3);}
+html.ui-shell .btn-stop:hover{border-color:#ff5d5d;}
+/* Desktop: the speed control sits on the same line and height as Run/Step/Stop/Reset. */
+@media(min-width:1025px) and (min-height:601px){
+  html.ui-shell .toolbar > div:has(> [data-i18n="toolbar.speed"]){flex-direction:row !important;align-items:center;gap:8px !important;}
+  html.ui-shell .toolbar .speed-ctrl{height:30px;margin-left:0;border-radius:6px;}
+  html.ui-shell .toolbar .speed-btn,
+  html.ui-shell .toolbar .speed-val{height:100%;display:flex;align-items:center;justify-content:center;}
+}
+
+/* Run follows Step and Stop: neutral button, coloured icon. Learn is a neutral
+   button too and carries the accent only in its label. */
+html.ui-shell .btn-run,
+html[data-theme="light"].ui-shell .btn-run{background:var(--surface);border-color:var(--border);color:var(--text2);filter:none;}
+html.ui-shell .btn-run:hover,
+html[data-theme="light"].ui-shell .btn-run:hover{background:var(--surface2);border-color:var(--accent);color:var(--text);filter:none;}
+html.ui-shell .btn-run svg{color:var(--accent);}
+html.ui-shell .learn-cta{background:transparent !important;border-color:var(--border) !important;color:var(--accent) !important;font-weight:600 !important;filter:none;}
+html.ui-shell .learn-cta:hover{background:var(--surface2) !important;border-color:var(--accent) !important;filter:none;}
+html[data-theme="light"].ui-shell .learn-cta{background:#d9dadd !important;border-color:#b3b6ba !important;color:#0b6f64 !important;}
+html[data-theme="light"].ui-shell .learn-cta:hover{background:#e9ebee !important;border-color:#0b6f64 !important;}
+
+/* Desktop: the simulation controls are the main row, the view tabs a quieter one. */
+@media(min-width:1025px) and (min-height:601px){
+  html.ui-shell .toolbar .btn-run,
+  html.ui-shell .toolbar .btn-step,
+  html.ui-shell .toolbar .btn-stop,
+  html.ui-shell .toolbar .btn-reset{height:36px;padding:0 15px;font-size:13px;gap:7px;}
+  html.ui-shell .toolbar .btn-run svg,
+  html.ui-shell .toolbar .btn-step svg,
+  html.ui-shell .toolbar .btn-stop svg{width:15px;height:15px;}
+  html.ui-shell .toolbar .speed-ctrl{height:36px;}
+  html.ui-shell .tab{font-size:12px;padding:6px 14px;}
+}
+
+/* ── Light theme: light chrome ─────────────────────────────────────────
+   The original light theme kept header, keypad, toolbars and status bar as
+   dark blocks around a white editor. Here those regions use light greys, so
+   the page has one tone and the editor is simply its brightest surface. */
+html[data-theme="light"].ui-shell header,
+html[data-theme="light"].ui-shell .toolbar,
+html[data-theme="light"].ui-shell .panel-header,
+html[data-theme="light"].ui-shell .view-tabs,
+html[data-theme="light"].ui-shell .status-bar,
+html[data-theme="light"].ui-shell .ctx-panel,
+html[data-theme="light"].ui-shell .keypad,
+html[data-theme="light"].ui-shell .mtab-bar,
+html[data-theme="light"].ui-shell #toolLegend,
+html[data-theme="light"].ui-shell #measureOverlay{
+  color:#1c1d1f;
+  --surface:#ffffff; --surface2:#e3e5e8; --key-pale:#ffffff;
+  --border:#a4a8ae;
+  --text:#111315; --text2:#2f3236; --text3:#50545a;
+}
+html[data-theme="light"].ui-shell header,
+html[data-theme="light"].ui-shell .view-tabs,
+html[data-theme="light"].ui-shell .status-bar,
+html[data-theme="light"].ui-shell .keypad,
+html[data-theme="light"].ui-shell .mtab-bar{background:#d3d6da !important;}
+html[data-theme="light"].ui-shell .panel-header,
+html[data-theme="light"].ui-shell .toolbar,
+html[data-theme="light"].ui-shell .ctx-panel{background:#c4c8cd !important;}
+html[data-theme="light"].ui-shell .ctx-panel{--bg:#ffffff;}
+html[data-theme="light"].ui-shell .logo-text{color:#1c1d1f;}
+html[data-theme="light"].ui-shell .logo-sub{color:#64676c;}
+
+/* Buttons and keys: white on the grey chrome. */
+html[data-theme="light"].ui-shell .btn,
+html[data-theme="light"].ui-shell .tool-act-btn,
+html[data-theme="light"].ui-shell .keypad .key,
+html[data-theme="light"].ui-shell .keypad .key.off,
+html[data-theme="light"].ui-shell .keypad .key.prog,
+html[data-theme="light"].ui-shell .keypad .key.pi-key,
+html[data-theme="light"].ui-shell .ctx-panel .btn,
+html[data-theme="light"].ui-shell .ph-btn{background:#ffffff;color:#15171a;border-color:#9a9ea5;box-shadow:0 1px 0 rgba(0,0,0,.10);}
+html[data-theme="light"].ui-shell .btn:hover,
+html[data-theme="light"].ui-shell .tool-act-btn:hover,
+html[data-theme="light"].ui-shell .keypad .key:hover,
+html[data-theme="light"].ui-shell .keypad .key.off:hover,
+html[data-theme="light"].ui-shell .keypad .key.prog:hover,
+html[data-theme="light"].ui-shell .keypad .key.pi-key:hover,
+html[data-theme="light"].ui-shell .ctx-panel .btn:hover:not(:disabled),
+html[data-theme="light"].ui-shell .ph-btn:hover{background:#f0f1f3;color:#000;border-color:#6f747b;}
+html[data-theme="light"].ui-shell .ctx-panel .btn:disabled{background:#d6d9dd;color:#8a8e94;border-color:#b6babf;box-shadow:none;}
+html[data-theme="light"].ui-shell .keypad .key.pi-key{color:#9a4a12;}
+html[data-theme="light"].ui-shell .keypad .key.on,
+html[data-theme="light"].ui-shell .keypad .key.pi{background:#14b8a6;color:#062420;border-color:transparent;}
+
+/* Simulation row */
+html[data-theme="light"].ui-shell .btn-run,
+html[data-theme="light"].ui-shell .btn-step,
+html[data-theme="light"].ui-shell .btn-stop,
+html[data-theme="light"].ui-shell .btn-reset{background:#ffffff;color:#15171a;border-color:#9a9ea5;box-shadow:0 1px 0 rgba(0,0,0,.10);}
+html[data-theme="light"].ui-shell .btn-run:hover,
+html[data-theme="light"].ui-shell .btn-step:hover,
+html[data-theme="light"].ui-shell .btn-stop:hover,
+html[data-theme="light"].ui-shell .btn-reset:hover{background:#f3f4f5;color:#101214;}
+html[data-theme="light"].ui-shell .btn-run svg{color:#0b7a6e;}
+html[data-theme="light"].ui-shell .btn-stop svg{color:#d93a3a;}
+html[data-theme="light"].ui-shell .btn-group,
+html[data-theme="light"].ui-shell .speed-ctrl{background:#ffffff;border-color:#9a9ea5;}
+html[data-theme="light"].ui-shell .btn-group .btn-tog{color:#4a4d51;border-right-color:#c3c5c9;}
+html[data-theme="light"].ui-shell .btn-group .btn-tog:hover,
+html[data-theme="light"].ui-shell .btn-group .btn-tog.active{background:#e8e9ea;color:#1c1d1f;}
+html[data-theme="light"].ui-shell .speed-btn{color:#4a4d51;}
+html[data-theme="light"].ui-shell .speed-btn:hover{background:#e8e9ea;color:#101214;}
+html[data-theme="light"].ui-shell .speed-val{color:#111315;border-color:#9a9ea5;}
+
+/* Tabs and the mobile bar */
+html[data-theme="light"].ui-shell .tab{background:transparent;color:#50545a;}
+html[data-theme="light"].ui-shell .tab:hover:not(.active){background:#c4c8cd;color:#111315;}
+html[data-theme="light"].ui-shell .tab.active{background:#eef0f2;color:#111315;font-weight:600;border-bottom-color:#0b7a6e;}
+html[data-theme="light"].ui-shell .mtab-bar button.on{color:#0b6f64;border-top-color:#0b6f64;}
+
+/* Learn keeps only its coloured label; small coloured texts get darker tones. */
+html[data-theme="light"].ui-shell .learn-cta{background:#ffffff !important;border-color:#9a9ea5 !important;color:#0a655b !important;}
+html[data-theme="light"].ui-shell .learn-cta:hover{background:#f3f4f5 !important;border-color:#0b6f64 !important;}
+html[data-theme="light"].ui-shell .program-autosave-status[data-state="saved"],
+html[data-theme="light"].ui-shell .program-autosave-status[data-state="restored"]{color:#1c7a50;}
+
+/* Floating controls over the 3D stage */
+html[data-theme="light"].ui-shell #pathToggle,
+html[data-theme="light"].ui-shell #stockToggle,
+html[data-theme="light"].ui-shell #measureBtn,
+html[data-theme="light"].ui-shell #refineBtnCanvas,
+html[data-theme="light"].ui-shell #toolLegend,
+html[data-theme="light"].ui-shell #measureOverlay{background:rgba(255,255,255,.94) !important;color:#15171a !important;border-color:#9a9ea5 !important;box-shadow:0 1px 4px rgba(0,0,0,.16);}
+
+/* Light theme, second pass: mid-grey chrome so panels, white controls and the
+   white editor are clearly distinct without going back to black blocks. */
+html[data-theme="light"].ui-shell header{background:#c9cdd2 !important;border-bottom-color:#a4a8ae;}
+html[data-theme="light"].ui-shell .logo-text{color:#111315;}
+html[data-theme="light"].ui-shell .logo-sub{color:#3d4146;}
+html[data-theme="light"].ui-shell .us-head-btn{background:#ffffff;border-color:#9a9ea5;color:#15171a;}
+html[data-theme="light"].ui-shell .line-nums{background:#dfe2e5;color:#50545a;border-right-color:#b6babf;}
+html[data-theme="light"].ui-shell footer{background:#d3d6da;border-top-color:#a4a8ae;}
+html[data-theme="light"].ui-shell .us-support{color:#3d4146;}
+html[data-theme="light"].ui-shell .us-support b{color:#111315;}
+html[data-theme="light"].ui-shell .editor-panel{border-right-color:#a4a8ae;}
+
+/* Light theme, third pass: slate chrome. Halfway between the original black
+   blocks and the all-light version: the chrome is a soft slate with light
+   text, the controls on it are pale, the editor stays white. */
+html[data-theme="light"].ui-shell header,
+html[data-theme="light"].ui-shell .toolbar,
+html[data-theme="light"].ui-shell .panel-header,
+html[data-theme="light"].ui-shell .view-tabs,
+html[data-theme="light"].ui-shell .status-bar,
+html[data-theme="light"].ui-shell .ctx-panel,
+html[data-theme="light"].ui-shell .keypad,
+html[data-theme="light"].ui-shell .mtab-bar,
+html[data-theme="light"].ui-shell footer{
+  color:#f2f3f5;
+  --surface:#646a72; --surface2:#646a72; --key-pale:#eef0f2;
+  --border:#737981;
+  --text:#f5f6f7; --text2:#e3e5e8; --text3:#c8ccd1;
+}
+html[data-theme="light"].ui-shell header,
+html[data-theme="light"].ui-shell .view-tabs,
+html[data-theme="light"].ui-shell .status-bar,
+html[data-theme="light"].ui-shell .keypad,
+html[data-theme="light"].ui-shell .mtab-bar,
+html[data-theme="light"].ui-shell footer{background:#4b5058 !important;border-color:#3f444b;}
+html[data-theme="light"].ui-shell .panel-header,
+html[data-theme="light"].ui-shell .toolbar,
+html[data-theme="light"].ui-shell .ctx-panel{background:#585e66 !important;border-color:#3f444b;}
+html[data-theme="light"].ui-shell .ctx-panel{--bg:#3f444b;}
+html[data-theme="light"].ui-shell .logo-text{color:#f5f6f7;}
+html[data-theme="light"].ui-shell .logo-sub{color:#c8ccd1;}
+html[data-theme="light"].ui-shell .us-support{color:#c8ccd1;}
+html[data-theme="light"].ui-shell .us-support b{color:#ffffff;}
+/* Pale controls on the slate */
+html[data-theme="light"].ui-shell .btn,
+html[data-theme="light"].ui-shell .keypad .key,
+html[data-theme="light"].ui-shell .keypad .key.off,
+html[data-theme="light"].ui-shell .keypad .key.prog,
+html[data-theme="light"].ui-shell .keypad .key.pi-key,
+html[data-theme="light"].ui-shell .ctx-panel .btn,
+html[data-theme="light"].ui-shell .ph-btn,
+html[data-theme="light"].ui-shell .us-head-btn,
+html[data-theme="light"].ui-shell .btn-run,
+html[data-theme="light"].ui-shell .btn-step,
+html[data-theme="light"].ui-shell .btn-stop,
+html[data-theme="light"].ui-shell .btn-reset{background:#eef0f2;color:#15171a;border-color:transparent;box-shadow:none;}
+html[data-theme="light"].ui-shell .btn:hover,
+html[data-theme="light"].ui-shell .keypad .key:hover,
+html[data-theme="light"].ui-shell .keypad .key.off:hover,
+html[data-theme="light"].ui-shell .keypad .key.prog:hover,
+html[data-theme="light"].ui-shell .keypad .key.pi-key:hover,
+html[data-theme="light"].ui-shell .ctx-panel .btn:hover:not(:disabled),
+html[data-theme="light"].ui-shell .ph-btn:hover,
+html[data-theme="light"].ui-shell .us-head-btn:hover,
+html[data-theme="light"].ui-shell .btn-run:hover,
+html[data-theme="light"].ui-shell .btn-step:hover,
+html[data-theme="light"].ui-shell .btn-stop:hover,
+html[data-theme="light"].ui-shell .btn-reset:hover{background:#ffffff;color:#000;border-color:transparent;}
+html[data-theme="light"].ui-shell .keypad .key.pi-key{color:#9a4a12;}
+html[data-theme="light"].ui-shell .keypad .key.on,
+html[data-theme="light"].ui-shell .keypad .key.pi{background:#14b8a6;color:#062420;}
+html[data-theme="light"].ui-shell .ctx-panel .btn:disabled{background:#6a7078;color:#aeb3b9;border-color:transparent;}
+html[data-theme="light"].ui-shell .learn-cta{background:#eef0f2 !important;border-color:transparent !important;color:#0a655b !important;}
+html[data-theme="light"].ui-shell .learn-cta:hover{background:#ffffff !important;border-color:transparent !important;}
+html[data-theme="light"].ui-shell #_idleDemo{background:#eef0f2 !important;color:#15171a !important;border-color:transparent !important;}
+html[data-theme="light"].ui-shell .speed-ctrl,
+html[data-theme="light"].ui-shell .btn-group{background:#eef0f2;border-color:transparent;}
+html[data-theme="light"].ui-shell .speed-val{color:#15171a;border-color:#c3c7cc;}
+html[data-theme="light"].ui-shell .speed-btn{color:#2f3236;}
+html[data-theme="light"].ui-shell .speed-btn:hover{background:#ffffff;color:#000;}
+/* Tabs and small coloured texts on the slate */
+html[data-theme="light"].ui-shell .tab{background:transparent;color:#c8ccd1;}
+html[data-theme="light"].ui-shell .tab:hover:not(.active){background:#585e66;color:#ffffff;}
+html[data-theme="light"].ui-shell .tab.active{background:rgba(255,255,255,.09);color:#ffffff;font-weight:600;border-bottom-color:#2dd4bf;}
+html[data-theme="light"].ui-shell .mtab-bar button.on{color:#5eead4;border-top-color:#2dd4bf;}
+html[data-theme="light"].ui-shell .program-autosave-status[data-state="saved"],
+html[data-theme="light"].ui-shell .program-autosave-status[data-state="restored"]{color:#8fe0b5;}
+html[data-theme="light"].ui-shell .editor-panel{border-right-color:#3f444b;}
