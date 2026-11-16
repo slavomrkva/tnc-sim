@@ -83,7 +83,9 @@ retain their original terms. This does not change the Android repository.
 7. **Offline contract:** core features must not depend on external runtime
    services.
 8. **Service worker:** register only outside Capacitor and never bundle it in
-   Android.
+   Android. It is network-first; a navigation stalled past the timeout serves
+   the cached page, and that page's subresources must then come from the same
+   cache so one page never mixes cached HTML with newer scripts.
 9. **Vendored Three.js:** update both vendor files, service-worker precache, and
    the deliberate Android copy together when upgrading.
 10. **Renderer resize:** `loop()` must keep calling `resizeToDisplay()`; window

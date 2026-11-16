@@ -1050,3 +1050,8 @@ History through v0.845 is preserved in
 - Promote audit-only playback and live/Refine material comparison into a CI-discovered test for the actual shipped demo catalogue and default tool table.
 - Assert completion, finite and continuous paths, zero collisions, material removal and byte-identical occupancy on equal grids. Rendering remains outside this numeric test.
 - Document coverage and boundaries in tests/README.md. No runtime, app-version or cache changes.
+
+## v0.951 — 2026-11-16 — security headers and stalled-network fallback
+- `_headers` adds nosniff, Referrer-Policy, six-month HSTS, a restrictive Permissions-Policy and a CSP limited to `frame-ancestors 'self'`, `base-uri 'self'` and `object-src 'none'`. No `script-src` yet: index.html still uses inline handlers. `/api/*` Worker responses are unaffected.
+- Service worker: a navigation unanswered for 4 s serves the cached page; that page's subresources then come from the same cache and the late network response is not stored, so cached HTML never mixes with newer scripts. Online behaviour stays network-first. Cache v119.
+- Extend `service-worker-cache.test.js` with stalled-connection, late-response and first-visit cases. Web only.
