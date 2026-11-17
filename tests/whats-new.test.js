@@ -17,7 +17,7 @@ const start = Date.parse(release.mergedAt);
 const windowMs = release.visibleDays * 24 * 60 * 60 * 1000;
 
 assert.strictEqual(release.visibleDays, 10, 'the announcement window is exactly 10 days');
-assert.strictEqual(release.mergedAt, '2026-09-24T09:52:25Z', 'announcement uses the actual GitHub merge time');
+assert.strictEqual(release.mergedAt, '2026-11-17T12:57:30Z', 'announcement uses the actual GitHub merge time');
 assert.ok(Number.isFinite(start), 'the production merge timestamp is valid');
 assert.strictEqual(context._whatsNewIsActive(start - 1, release.mergedAt, release.visibleDays), false,
   'the button stays hidden before the merge');

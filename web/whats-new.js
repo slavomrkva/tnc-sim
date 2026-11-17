@@ -3,7 +3,7 @@
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
   version: '1.000',
-  mergedAt: '2026-09-24T09:52:25Z',
+  mergedAt: '2026-11-17T12:57:30Z',
   visibleDays: 10,
   content: {
     en: {
