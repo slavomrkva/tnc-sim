@@ -10,9 +10,6 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
-## v1.001 — Learn preview
-- Correct the Y+ direction in the blank diagram and use muted practice highlights and a neutral manual panel.
-
 ## v1.000 — new Learn format and simpler interface
 - Learn lessons are reference cards: block format, example, rules, common
   mistakes and links to the matching pages of the official HEIDENHAIN manual,
@@ -22,6 +19,8 @@ in `NOTES.md`; this file is the short, human-readable history.
 - The Start here intro lesson is removed; the course has 15 lessons.
 - On a stalled connection the installed app now opens from its offline copy
   after a few seconds instead of waiting on the network.
+- Lesson diagrams show the Y+ direction correctly; practice highlights are
+  calmer and the manual panel is neutral.
 
 ## v0.950 — web fixes (version retained)
 - Recalculate compensated paths after tool-table edits or imports.

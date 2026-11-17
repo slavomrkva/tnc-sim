@@ -1061,6 +1061,4 @@ History through v0.845 is preserved in
 - Learn: every lesson L01–L23 has a reference `card` (EN in `core/data-tables.js`, DE in `web/i18n-lessons-de.js`) with verified manual pages; `LEARN_MANUALS_DE` added; intro lesson L00 removed; hints no longer point at slides.
 - UI: `web/ui-shell.js` menus (Help, Program, Settings), neutral visual style, slate light theme, calm Learn colours, logo as home link.
 - Texts: Help, tool-table and What's new copy corrected; lesson 11 renamed to Bore milling. `core/` changes still need the Android port; test suite not run for this entry.
-
-## v1.001 — 2026-11-16 — Learn preview on big-update
-- Correct the positive Y axis in the shared blank diagram. Use flat practice highlights and a neutral manual panel in both themes. Offline cache v121.
+- Learn polish (same release): correct the positive Y axis in the shared blank diagram; flat practice highlights and a neutral manual panel in both themes. Offline cache v121.

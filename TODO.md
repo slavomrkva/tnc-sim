@@ -13,7 +13,7 @@
   for all 15 lessons in English and German, `web/ui-shell.js` menus and visual
   pass, calm Learn colours, logo as home link, corrected Help/About/What's new
   copy. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
-  already say v1.000; `CACHE_VERSION` is `v120` (production has `v118`).
+  already say v1.000; `CACHE_VERSION` is `v121` (production has `v118`).
   Steps left before the push, in order:
   1. Done 2026-11-16: all 53 `tests/*.test.js` files and
      `tests/report-worker.test.mjs` pass (run one by one with `node`; there
