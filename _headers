@@ -1,2 +1,11 @@
 /.well-known/assetlinks.json
   Content-Type: application/json
+
+# Baseline hardening for every static asset. A script-src policy is deliberately
+# absent: index.html still relies on inline event handlers and inline scripts.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=15552000
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; object-src 'none'

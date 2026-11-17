@@ -11,13 +11,15 @@ modules from `core/` and `web/`; there is no build step.
    must be tracked in both repositories.
 3. For a user-visible change or deploy, read `RELEASE_NOTES.md` and the deploy
    flow in `NOTES.md`.
-4. Read `docs/history/` only when a current document links to the relevant
+4. Before changing a Learn lesson, read `docs/learn-lesson-guide.md`; lesson
+   L05 is the reference.
+5. Read `docs/history/` only when a current document links to the relevant
    topic. Historical files are context, not current instructions.
 
 ## Non-negotiables
 
 - Every push bumps `APP_VERSION` in `web/app.js` by `0.001`, adds a short entry
-  to `docs/history/changelog.md`, and stays in the `0.80x` series. Update
+  to `docs/history/changelog.md`; milestone jumps follow `NOTES.md`. Update
   `NOTES.md` only when a current contract changes.
 - `core/` is the reference for currently shared logic. Port a deliberate shared
   core change to Android's `www/core/`; do not overwrite either product wholesale.

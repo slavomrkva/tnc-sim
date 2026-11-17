@@ -6,6 +6,45 @@
 
 ## Open work
 
+- **Release handoff: version 1.000 (branch `big-update`, not pushed).**
+  Everything for this release is committed on the local branch `big-update` in
+  this checkout; `main` equals `origin/main` (web v0.950). Nothing was pushed.
+  Contents: security headers and service-worker timeout, Learn reference cards
+  for all 15 lessons in English and German, `web/ui-shell.js` menus and visual
+  pass, calm Learn colours, logo as home link, corrected Help/About/What's new
+  copy, all slide figures back on the cards in the owner's redrawn set, L11
+  named bore milling throughout, neutral grey running-line and lesson hover
+  marks. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
+  already say v1.000; `CACHE_VERSION` is `v121` (production has `v118`).
+  Steps left before the push, in order:
+  1. Done 2026-11-17 (rerun after the figure and text changes): all 53
+     `tests/*.test.js` files and `tests/report-worker.test.mjs` pass (run one by one with `node`; there
+     is no runner or package.json). One test needed updating
+     (`whats-new.test.js` asserted the old announcement items). The tests do
+     not cover the look of the ui-shell menus or the new colours.
+  2. Look at the app in both themes on desktop and a phone-sized viewport
+     (lesson list, one lesson end to end, the three menus, About, Help).
+  3. Done: the owner chose version `1.000`; it is set in `web/app.js`,
+     `web/whats-new.js`, `RELEASE_NOTES.md` and the changelog.
+  4. At release time set `mergedAt` in `web/whats-new.js` to the real merge
+     time and update the same timestamp asserted in `tests/whats-new.test.js`.
+  5. Merge `big-update` into `main` and push `main` only when the owner says
+     so (deploy flow: `NOTES.md`, "Versioning and deploy"); then tag
+     `web-v<APP_VERSION>`.
+  6. Port the deliberate `core/` changes to Android `www/core/`:
+     `data-tables.js` (cards with slide figures, L00 removed, lesson 11
+     bore-milling texts, hints),
+     `learn-tutorial.js` (card renderer, `LEARN_MANUALS_DE`, final note, all
+     redrawn `learnSvg*` figures; the Android CSS also needs the `--fig-*`
+     palette from `web/styles.css`),
+     `help-popups.js`, `tool-table.js`, `theme-toast.js` (About copy).
+  Not done and not blocking: merge the three stacked light-theme CSS layers,
+  make the ui-shell menus native markup, restyle dialogs, translate labels
+  inside lesson figures, have a German-speaking machinist read the German
+  cards. Commits here use
+  `git -c user.name=slavomrkva -c user.email=73587710+slavomrkva@users.noreply.github.com`
+  because no git identity is configured.
+
 - **Web audit 2026-10-12 / A01–A13 — implemented on review branch, awaiting
   acceptance.** First repair pass replaces Q-expression rewriting with one
   bounded evaluator, corrects tiny directed arcs and Cycle 209 reversals,

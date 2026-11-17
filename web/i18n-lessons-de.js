@@ -14,45 +14,34 @@
  */
 var LESSONS_DE = {
 
-'L00': {
-  title:'Los geht’s — deine erste Minute',
-  slides:[
-    { html:function(){ return ''
-      + '<p>Lies die <b>INFO-FOLIEN</b> mit den Pfeiltasten. Starte die Übung auf der letzten Folie. Während der Übung kannst du die Folien jederzeit wieder öffnen.'
-      + (typeof _isMTab==='function' && _isMTab() ? ' Auf Mobilgeräten findest du sie wieder im Bereich <b>Lernen</b>.' : '')
-      + '</p>'; } },
-    { html:function(){ return ''
-      + '<p>Das Fragefeld zeigt die <b>Aufgabe</b>. Schreibe nur in die hervorgehobene Antwortzeile. Jeder Druck auf Hinweis zeigt eine weitere Hilfestufe:</p>'
-      + '<div style="display:grid;gap:7px;margin:12px 0;font-family:var(--mono);font-size:11px;">'
-      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.06);"><b style="color:var(--accent);">&#128161; Hinweis 1</b><span>ein kleiner Anstoß</span></div>'
-      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(74,158,255,.10);"><b style="color:var(--accent);">&#128161; Hinweis 2</b><span>die Struktur</span></div>'
-      + '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--accent);border-radius:6px;background:rgba(74,158,255,.16);"><b style="color:var(--accent);">&#128161; Hinweis 3</b><span>die vollständige Lösung</span></div>'
-      + '</div>'; } },
-    { html:function(){ return ''
-      + '<p>Die Übung nutzt den echten Editor. Drücke danach die grüne Taste <b>Prüfen</b>. Die Anforderungen erscheinen grün oder rot; beim Bearbeiten werden sie wieder ausgeblendet.'
-      + (typeof _isMTab==='function' && _isMTab() ? ' Mit Lernen, Editor und 3D unten wechselst du zwischen Lektion, Antwort und Ergebnis.' : '')
-      + '</p>'; } }
-  ],
-  tasks:[
-    {
-      prompt:'Schreibe einen kurzen Kommentar in die hervorgehobene Zeile',
-      hints:[
-        'Ein Kommentar ist eine kurze Notiz für Menschen.',
-        'Schreibe deinen Text nach dem Semikolon in die hervorgehobene Zeile.',
-        'Zum Beispiel: <code>; Hallo</code>'
-      ],
-      checks:[
-        {label:'Kommentar enthält Text nach ;',
-         hint:'Schreibe ein Wort nach dem Semikolon in die hervorgehobene Zeile.'},
-        {label:'Programmgerüst weiterhin gültig',
-         hint:'Lass BEGIN PGM HELLO und END PGM HELLO unverändert.'}
-      ]
-    }
-  ]
-},
-
 'L01': {
   title:'Programmgerüst & BLK FORM (das Rohteil)',
+  card:{ lang:'de',
+    lead:'Ein Programm ist eine Liste von <b>Sätzen</b>, einer pro Zeile, zwischen BEGIN PGM und END PGM. <b>BLK FORM</b> beschreibt das Rohteil, damit die Steuerung es darstellen kann.',
+    syntax:[
+      { code:'BEGIN PGM name MM', text:'Erste Zeile: Programmname und Maßeinheit. Die Steuerung schreibt sie zusammen mit der passenden END-PGM-Zeile, wenn das Programm angelegt wird.' },
+      { code:'BLK FORM 0.1 Z X.. Y.. Z..', text:'Spindelachse und MIN-Punkt des Rohteils: das kleinste X, Y und Z.' },
+      { code:'BLK FORM 0.2 X.. Y.. Z..', text:'MAX-Punkt des Rohteils: das größte X, Y und Z.',
+        figure:function(){ return learnFigFrom(learnSvgBlank(100, 80, 20)); } },
+      { code:'; Text', text:'Ein Kommentar. Die Steuerung ignoriert alles nach dem Semikolon.' }
+    ],
+    example:'BEGIN PGM BLOCK MM\n; Rohteil 60 x 50 x 10\nBLK FORM 0.1 Z X+0 Y+0 Z-10\nBLK FORM 0.2 X+60 Y+50 Z+0\nEND PGM BLOCK MM',
+    rules:[
+      'Der Name nach <code>BEGIN PGM</code> und <code>END PGM</code> ist derselbe.',
+      'Liegt der Bezugspunkt auf der Oberseite, reicht das Rohteil von einem negativen Z bis <code>Z+0</code>. Liegt er auf der Unterseite, reicht es von <code>Z+0</code> bis zu einem positiven Z.',
+      'Beide <code>BLK FORM</code>-Zeilen gehören zusammen und stehen vor jeder Bearbeitung.'
+    ],
+    mistakes:[
+      'MIN- und MAX-Punkt vertauscht — jeder MIN-Wert muss kleiner sein als sein MAX-Wert, sonst gibt es kein Rohteil.',
+      'Positive Tiefe in <code>0.1</code>, obwohl <code>0.2</code> bei <code>Z+0</code> endet — das Rohteil müsste über seiner eigenen Oberseite hängen.',
+      'Achsbuchstabe nach <code>0.1</code> fehlt — die Steuerung weiß nicht, in welcher Achse die Spindel steht.'
+    ],
+    refs:[
+      { doc:'klartext', page:96, label:'Aufbau eines NC-Programms im HEIDENHAIN Klartext' },
+      { doc:'klartext', page:97, label:'Rohteil definieren: BLK FORM' },
+      { doc:'klartext', page:204, label:'Kommentare einfügen' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Ein Programm ist reiner Text, ein <b>Satz</b> pro Zeile. Es beginnt und endet immer mit demselben Namen; <code>MM</code> = Millimeter:</p>'
@@ -72,7 +61,7 @@ var LESSONS_DE = {
     {
       prompt:'Füge dem Programm einen Kommentar hinzu \u2014 z. B. beschreibe das Rohteil',
       hints:[
-        'Ein Kommentar ist eine Notiz für den Menschen; die Steuerung überspringt ihn. Welches Zeichen leitet ihn ein? Folie 1 zeigt es.',
+        'Ein Kommentar ist eine Notiz für den Menschen; die Steuerung überspringt ihn. Welches Zeichen leitet ihn ein? Die Referenz zeigt es.',
         'Setze eine eigene neue Zeile <b>über</b> die erste BLK-FORM-Zeile. Sie muss mit <code>;</code> beginnen \u2014 alles danach ist freier Text.',
         'Tippe genau das als neue Zeile vor <code>BLK FORM 0.1</code>:<br><code>; Rohteil 100 x 80 x 20</code>'
       ],
@@ -122,6 +111,32 @@ var LESSONS_DE = {
 
 'L02': {
   title:'Werkzeug & Spindel \u2014 TOOL CALL, S, F, M3/M8',
+  card:{ lang:'de',
+    lead:'<b>TOOL CALL</b> wechselt ein Werkzeug aus der Werkzeugtabelle ein und legt Drehzahl und Vorschub fest. <b>M-Funktionen</b> schalten danach Spindel und Kühlmittel.',
+    syntax:[
+      { code:'TOOL CALL n Z S.. F..', text:'Werkzeugnummer, Spindelachse, Spindeldrehzahl in U/min und Vorschub in mm/min.',
+        figure:function(){ return learnFigFrom(learnSvgTool()); } },
+      { code:'M3 / M5', text:'Spindel ein im Uhrzeigersinn / Spindel halt.' },
+      { code:'M8 / M9', text:'Kühlmittel ein / Kühlmittel aus.' }
+    ],
+    example:'TOOL CALL 2 Z S4000 F400\nM3\nM8\n; Bearbeitung\nM5\nM9',
+    rules:[
+      'Die Werkzeugnummer muss in der Werkzeugtabelle stehen. Länge und Radius kommen von dort, nicht aus dem Programm.',
+      'Der Vorschub aus <code>TOOL CALL</code> gilt, bis ein Satz ein anderes <code>F</code> programmiert.',
+      'Reihenfolge: Werkzeugaufruf, Spindel und Kühlmittel ein, Bearbeitung, Spindel und Kühlmittel aus.'
+    ],
+    mistakes:[
+      'Schnittbewegungen vor <code>M3</code> — das Werkzeug wird mit stehender Spindel ins Material gedrückt.',
+      '<code>S</code> und <code>F</code> verwechselt — ein Vorschub von 3000 mm/min bei 500 U/min überlastet das Werkzeug.',
+      'Nummer eines anderen Werkzeugs — die Steuerung rechnet jede Bewegung mit dessen Länge und Radius.'
+    ],
+    refs:[
+      { doc:'klartext', page:136, label:'Werkzeugdaten aufrufen' },
+      { doc:'klartext', page:131, label:'Spindeldrehzahl S' },
+      { doc:'klartext', page:130, label:'Vorschub F' },
+      { doc:'klartext', page:237, label:'Zusatzfunktionen für Programmlaufkontrolle, Spindel und Kühlmittel' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p><b>TOOL CALL</b> lädt ein Werkzeug aus der Werkzeugtabelle: Werkzeugnummer, Spindelachse <code>Z</code>, Spindeldrehzahl <code>S</code> in U/min und Standard-Vorschub <code>F</code> in mm/min:</p>'
@@ -139,7 +154,7 @@ var LESSONS_DE = {
     {
       prompt:'Rufe Werkzeug 1 (Schaftfräser D10) mit Spindel 3000 U/min und Vorschub 500 auf',
       hints:[
-        'Ein Werkzeug wird auf einer Zeile geladen, die mit <code>TOOL CALL</code> beginnt \u2014 Folie 1 zeigt die Form.',
+        'Ein Werkzeug wird auf einer Zeile geladen, die mit <code>TOOL CALL</code> beginnt \u2014 die Referenz zeigt die Form.',
         'Fülle <code>TOOL CALL 1 Z S… F…</code> aus: die Spindelachse ist Z, dann Drehzahl und Vorschub.',
         '<code>TOOL CALL 1 Z S3000 F500</code>'
       ],
@@ -151,7 +166,7 @@ var LESSONS_DE = {
     {
       prompt:'Schalte Spindel und Kühlmittel EIN, nach dem Werkzeug-Aufruf',
       hints:[
-        'Maschinenzustände schalten mit <b>M-Funktionen</b>, eine pro Zeile \u2014 siehe Folie 3.',
+        'Maschinenzustände schalten mit <b>M-Funktionen</b>, eine pro Zeile \u2014 siehe Referenz.',
         'Eine Zeile mit nur <code>M3</code> (Spindel ein), dann eine Zeile mit nur <code>M8</code> (Kühlmittel ein), unter dem TOOL CALL.',
         '<code>M3</code><br><code>M8</code>'
       ],
@@ -165,7 +180,7 @@ var LESSONS_DE = {
     {
       prompt:'Bereite den Bohrer D6.8 (Werkzeug 4) vor: Werkzeug-Aufruf mit S2500 F150, Spindel und Kühlmittel EIN, und beide am Ende AUS',
       hints:[
-        'Folge dem Rezept von Folie 3: Werkzeug laden, einschalten, bearbeiten, ausschalten.',
+        'Folge der üblichen Reihenfolge: Werkzeug laden, einschalten, bearbeiten, ausschalten.',
         '<code>TOOL CALL 4 Z S2500 F150</code>, dann <code>M3</code> und <code>M8</code>; lass die Bohr-Lücke; beende mit <code>M5</code>, dann <code>M9</code>.',
         '<code>TOOL CALL 4 Z S2500 F150</code><br><code>M3</code><br><code>M8</code><br>…<br><code>M5</code><br><code>M9</code>'
       ],
@@ -185,6 +200,29 @@ var LESSONS_DE = {
 
 'L03': {
   title:'Erste Bewegungen \u2014 L-Sätze, FMAX & sicheres Anfahren',
+  card:{ lang:'de',
+    lead:'Ein <b>L</b>-Satz fährt das Werkzeug auf einer Geraden zum programmierten Punkt. <b>FMAX</b> ist für das Positionieren im freien Raum, <b>F</b> für jede Bewegung im Material.',
+    syntax:[
+      { code:'L X.. Y.. Z.. FMAX', text:'Gerade im Eilgang. Nur zum Positionieren.',
+        figure:function(){ return learnFigFrom(learnSvgApproach()) + learnFigFrom(learnSvgSafeRetract()); } },
+      { code:'L Z.. F..', text:'Gerade mit dem angegebenen Vorschub in mm/min. Das ist eine Schnittbewegung.' }
+    ],
+    example:'L X+30 Y+25 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F200\nL X+70 F300\nL Z+50 FMAX',
+    rules:[
+      'Schreibe nur die Koordinaten, die sich ändern. Die anderen behalten ihren letzten Wert.',
+      '<code>FMAX</code> gilt nur in dem Satz, in dem es steht. Danach ist wieder das zuletzt mit Zahl programmierte <code>F</code> aktiv.',
+      'Sicheres Anfahren: im Eilgang hoch über das Teil, im Eilgang bis etwa 2 mm über die Oberfläche, dann mit Vorschub ins Material.'
+    ],
+    mistakes:[
+      '<code>FMAX</code> in einem Satz, der unter der Oberfläche endet — das Werkzeug trifft das Material im Eilgang.',
+      'X, Y und Z in einem Eilgangsatz nahe am Teil — das Werkzeug fährt schräg und kann ein Spannmittel oder das Rohteil kreuzen.',
+      'Kein Freifahren vor der nächsten Positionierung — das Werkzeug wird in der Tiefe durch das Teil gezogen.'
+    ],
+    refs:[
+      { doc:'klartext', page:165, label:'Gerade L' },
+      { doc:'klartext', page:130, label:'Vorschub F' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Ein <b>L</b>-Satz verfährt geradlinig zum Ziel. <code>FMAX</code> = Eilgang \u2014 nur zum Positionieren, <b>niemals zerspanen</b>. <code>F</code> = Vorschub zum Zerspanen:</p>'
@@ -248,6 +286,31 @@ var LESSONS_DE = {
 
 'L04': {
   title:'Erste Nut \u2014 Tiefe & inkremental IX/IY',
+  card:{ lang:'de',
+    lead:'Eine Vorschubbewegung unter der Oberfläche fräst eine Nut, so breit wie das Werkzeug. <b>Inkrementale</b> Koordinaten geben eine Strecke ab der aktuellen Position an statt eines Punkts aus der Zeichnung.',
+    syntax:[
+      { code:'L Z-.. F..', text:'Eintauchen auf die Schnitttiefe mit Vorschub. Z zählt ab dem Bezugspunkt, unter einer Oberseite bei Z+0 ist es also negativ.',
+        figure:function(){ return learnFigFrom(learnSvgSlotWidth()); } },
+      { code:'L X.. F..', text:'Absolute Bewegung: X ist eine Position, gemessen vom Bezugspunkt.' },
+      { code:'L IX.. IY..', text:'Inkrementale Bewegung: Der Wert ist die Strecke ab der Stelle, an der das Werkzeug gerade steht.',
+        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)); } }
+    ],
+    example:'L Z-2 F150\nL X+60 F300\nL IY+10\nL IX-25\nL Z-4 F150\nL IX+25 F300',
+    rules:[
+      'Das <code>I</code> gehört zu einer Koordinate. Ein Satz darf absolute und inkrementale Werte mischen.',
+      'Die Nut ist so breit wie der Werkzeugdurchmesser und liegt mittig auf der programmierten Bahn.',
+      'Eine tiefe Nut wird in mehreren Schnitten gefräst: Bahn abfahren, zustellen, Bahn erneut abfahren.'
+    ],
+    mistakes:[
+      '<code>IX+20</code> als Position gelesen — zwei solche Sätze fahren 40 mm, nicht auf X+20.',
+      'Vorzeichen des Inkrements vergessen — <code>IX-30</code> fährt zurück, <code>IX+30</code> fährt weiter.',
+      'Zustellen mit <code>FMAX</code> — das Werkzeug wird im Eilgang in den Nutgrund gedrückt.'
+    ],
+    refs:[
+      { doc:'klartext', page:94, label:'Absolute und inkrementale Werkstückpositionen' },
+      { doc:'klartext', page:165, label:'Gerade L' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Eine Vorschubbewegung unter der Oberfläche <b>zerspant</b>. Das Werkzeug D10 hinterlässt eine 10 mm breite Nut entlang der Bahnmittellinie:</p>'
@@ -318,6 +381,32 @@ var LESSONS_DE = {
 
 'L05': {
   title:'Kreisbögen \u2014 CC + C und CR',
+  card:{ lang:'de',
+    lead:'Ein Kreisbogen beginnt dort, wo der vorige Satz geendet hat. Du gibst entweder seinen <b>Mittelpunkt</b> an (CC, dann C) oder seinen <b>Radius</b> (CR).',
+    syntax:[
+      { code:'CC X.. Y..', text:'Legt den Kreismittelpunkt fest. Das Werkzeug bewegt sich nicht. Der Mittelpunkt gilt bis zum nächsten CC.' },
+      { code:'C X.. Y.. DR±', text:'Kreisbogen um das letzte CC zum Endpunkt. Start und Ende müssen gleich weit vom Mittelpunkt entfernt liegen.',
+        figure:function(){ return learnFigFrom(learnSvgArcCC()); } },
+      { code:'CR X.. Y.. R±.. DR±', text:'Kreisbogen zum Endpunkt mit gegebenem Radius. Kein CC nötig. Gleicher Start, gleiches Ende und gleicher Radius lassen noch zwei Bögen zu.',
+        figure:function(){ return learnFigFrom(learnSvgArcCRCompare()); } }
+    ],
+    example:'L X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-',
+    rules:[
+      '<code>DR-</code> dreht im Uhrzeigersinn, <code>DR+</code> gegen den Uhrzeigersinn, von oben gesehen.',
+      'Bei <code>CR</code> wählt das Vorzeichen von R den Bogen: <code>R+</code> ist der kurze (bis 180°), <code>R-</code> der lange.',
+      'Ein Vollkreis ist ein <code>C</code>-Satz, dessen Endpunkt gleich dem Startpunkt ist. <code>CR</code> kann einen Vollkreis nicht in einem Satz schließen.'
+    ],
+    mistakes:[
+      '<code>C</code> ohne <code>CC</code> davor — die Steuerung hat keinen Mittelpunkt, um den sie drehen kann.',
+      'Falsches <code>DR</code>-Vorzeichen — das Werkzeug nimmt den anderen Weg um den Kreis und schneidet, wo es nicht soll.',
+      '<code>CR</code>-Radius kleiner als der halbe Abstand zum Endpunkt — einen solchen Bogen gibt es nicht.'
+    ],
+    refs:[
+      { doc:'klartext', page:168, label:'Kreismittelpunkt CC' },
+      { doc:'klartext', page:169, label:'Kreisbahn C um Kreismittelpunkt CC' },
+      { doc:'klartext', page:171, label:'Kreisbahn CR mit festgelegtem Radius' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p><b>CC</b> setzt den Kreismittelpunkt; <b>C</b> zerspant dann entlang dieses Kreises zum Endpunkt. Richtung: <code>DR+</code> = gegen den Uhrzeigersinn, <code>DR-</code> = im Uhrzeigersinn:</p>'
@@ -387,6 +476,30 @@ var LESSONS_DE = {
 
 'L06': {
   title:'Ecken \u2014 RND-Rundung & CHF-Fase',
+  card:{ lang:'de',
+    lead:'<b>RND</b> rundet eine Ecke, <b>CHF</b> schneidet sie mit einer geraden Fase ab. Du programmierst die scharfe Ecke und setzt einen zusätzlichen Satz zwischen ihre beiden Bewegungen.',
+    syntax:[
+      { code:'RND R..', text:'Rundungsbogen mit Radius R. Er schließt tangential an beide benachbarten Konturelemente an.',
+        figure:function(){ return learnFigFrom(learnSvgCorner()) + learnFigFrom(learnSvgRndDetail()); } },
+      { code:'CHF ..', text:'Fase zwischen zwei Geraden. Der Wert ist die Länge, die von jeder Geraden abgeschnitten wird, gemessen ab der Ecke.',
+        figure:function(){ return learnFigFrom(learnSvgChfDetail()); } }
+    ],
+    example:'L X+60 F300\nRND R8\nL Y+50\nCHF 5\nL X+10',
+    rules:[
+      'Der Satz steht allein zwischen der Bewegung in die Ecke und der Bewegung aus ihr heraus.',
+      'Beide Nachbarsätze nennen weiterhin den scharfen Eckpunkt. Die Steuerung berechnet, wo Bogen oder Fase beginnen und enden.',
+      '<code>CHF</code> funktioniert nur zwischen zwei Geraden. <code>RND</code> funktioniert auch neben Kreisbögen.'
+    ],
+    mistakes:[
+      '<code>RND</code> oder <code>CHF</code> als letzter Kontursatz — ohne folgende Bewegung gibt es keine Ecke zum Bearbeiten.',
+      'Radius oder Fase länger als eine der beiden Geraden — sie passen nicht in die Ecke.',
+      'Eckkoordinaten zusätzlich von Hand gekürzt — die Ecke wird doppelt so weit abgeschnitten wie gewollt.'
+    ],
+    refs:[
+      { doc:'klartext', page:167, label:'Eckenrunden RND' },
+      { doc:'klartext', page:166, label:'Fase zwischen zwei Geraden einfügen' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + learnSvgCorner()
@@ -456,6 +569,30 @@ var LESSONS_DE = {
 
 'L07': {
   title:'Radiuskorrektur \u2014 RL / RR / R0',
+  card:{ lang:'de',
+    lead:'Ohne Korrektur fährt der <b>Werkzeugmittelpunkt</b> auf der programmierten Linie. Mit <b>RL</b> oder <b>RR</b> programmierst du die fertige Kontur und die Steuerung hält den Mittelpunkt um einen Werkzeugradius daneben.',
+    syntax:[
+      { code:'L X.. Y.. RL F..', text:'Werkzeug links von der Kontur, in Fahrtrichtung gesehen.',
+        figure:function(){ return learnFigFrom(learnSvgComp()) + learnFigFrom(learnSvgCompPath()); } },
+      { code:'L X.. Y.. RR F..', text:'Werkzeug rechts von der Kontur, in Fahrtrichtung gesehen.' },
+      { code:'L X.. Y.. R0', text:'Korrektur aus. Der Werkzeugmittelpunkt fährt wieder auf den programmierten Punkt.' }
+    ],
+    example:'L X-10 Y+30 R0 FMAX\nL X+0 RL F300\nL X+60\nL X+70 R0',
+    rules:[
+      'Der Radius kommt aus der Werkzeugtabelle. Das Programm enthält nur Zeichnungsmaße.',
+      'Schalte die Korrektur in einem Geradensatz außerhalb des Materials ein und wieder aus, nachdem das Werkzeug die Kontur verlassen hat.',
+      '<code>RL</code> und <code>RR</code> bleiben bis <code>R0</code> aktiv.'
+    ],
+    mistakes:[
+      '<code>RL</code> und <code>RR</code> vertauscht — das Werkzeug läuft auf der falschen Seite und schneidet einen vollen Durchmesser ins Teil.',
+      'Korrektur eingeschaltet, während das Werkzeug die Wand schon berührt — der seitliche Versatz hinterlässt eine Marke in der Kontur.',
+      '<code>R0</code> vergessen — die folgenden Positionierungen sind weiter um den Radius versetzt.'
+    ],
+    refs:[
+      { doc:'klartext', page:143, label:'Werkzeugradiuskorrektur' },
+      { doc:'klartext', page:134, label:'Werkzeugradius R' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + learnSvgComp()
@@ -517,6 +654,31 @@ var LESSONS_DE = {
 
 'L08': {
   title:'Bohren \u2014 CYCL DEF 200 + M99',
+  card:{ lang:'de',
+    lead:'Ein <b>Zyklus</b> ist ein fertiger Bearbeitungsablauf. Du definierst ihn einmal mit seinen Q-Parametern und rufst ihn dann an jeder Position auf, an der er laufen soll.',
+    syntax:[
+      { code:'CYCL DEF 200', text:'Definiert den Bohrzyklus. Die Definition allein bewegt das Werkzeug nicht.',
+        figure:function(){ return learnFigFrom(learnSvgPeckDrill()); } },
+      { code:'Q201=-..', text:'Bohrtiefe, gemessen ab der Oberfläche <code>Q203</code>. Negativ bedeutet ins Material.' },
+      { code:'Q202=+..', text:'Tiefe einer Zustellung. Der Bohrer fährt nach jeder Zustellung zurück, bis <code>Q201</code> erreicht ist.' },
+      { code:'L X.. Y.. FMAX M99', text:'Fährt auf die Position und führt dort den zuletzt definierten Zyklus einmal aus.' }
+    ],
+    example:'CYCL DEF 200\n  Q200=+2 ;Sicherheitsabstand\n  Q201=-12 ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q202=+4 ;Zustelltiefe\n  Q210=+0 ;Verweilzeit oben\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\n  Q211=+0 ;Verweilzeit unten\nL X+25 Y+20 FMAX M99',
+    rules:[
+      '<code>Q200</code> ist der Abstand über der Oberfläche, ab dem der Vorschub beginnt. <code>Q204</code> ist die Höhe, auf die das Werkzeug nach der Bohrung zurückfährt.',
+      '<code>M99</code> wirkt nur in seinem eigenen Satz. Jede Bohrung braucht ihren eigenen Satz mit <code>M99</code>.',
+      'Der Zyklus bleibt definiert bis zum nächsten <code>CYCL DEF</code>.'
+    ],
+    mistakes:[
+      '<code>Q201</code> ohne Minuszeichen — das Vorzeichen legt die Arbeitsrichtung fest, der Zyklus bohrt also nicht ins Teil.',
+      '<code>M99</code> vergessen — das Werkzeug fährt nur auf die Position und es wird nichts gebohrt.',
+      '<code>Q204</code> zu niedrig — auf dem Weg zur nächsten Bohrung kann das Werkzeug ein Spannmittel treffen.'
+    ],
+    refs:[
+      { doc:'cycles', page:78, label:'Zyklus 200 BOHREN' },
+      { doc:'cycles', page:52, label:'Zyklusaufruf mit M99/M89' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + learnSvgPeckDrill()
@@ -534,9 +696,9 @@ var LESSONS_DE = {
     {
       prompt:'Definiere Zyklus 200: Tiefe 10 mm, Zustellung 5 mm, Sicherheitsabstand 2 mm, Oberfläche bei Z+0',
       hints:[
-        'Ein <b>Zyklus</b> wird einmal definiert, dann an jeder Position ausgelöst. <code>CYCL DEF 200</code> ist Bohren; seine <code>Q</code>-Werte sind Tiefe, Zustellung, Abstand… (Folie).',
+        'Ein <b>Zyklus</b> wird einmal definiert, dann an jeder Position ausgelöst. <code>CYCL DEF 200</code> ist Bohren; seine <code>Q</code>-Werte sind Tiefe, Zustellung, Abstand… (siehe Beispiel in der Referenz).',
         'Die wichtigen: <code>Q201</code>=Tiefe -10, <code>Q202</code>=Zustellung 5, <code>Q200</code>=Abstand 2, <code>Q203</code>=Oberfläche 0.',
-        'Tippe den Satz <code>CYCL DEF 200</code> von der Folie, mit <code>Q201=-10</code>, <code>Q202=+5</code>, <code>Q200=+2</code>, <code>Q203=+0</code>.'
+        'Tippe den Satz <code>CYCL DEF 200</code> wie im Beispiel der Referenz, mit <code>Q201=-10</code>, <code>Q202=+5</code>, <code>Q200=+2</code>, <code>Q203=+0</code>.'
       ],
       checks:[
         {label:'CYCL DEF 200 definiert',
@@ -586,6 +748,34 @@ var LESSONS_DE = {
 
 'L09': {
   title:'Unterprogramme & eine erste Variable \u2014 LBL + Q',
+  card:{ lang:'de',
+    lead:'Ein <b>Unterprogramm</b> ist eine mit einem Label markierte Gruppe von Sätzen, die du von anderer Stelle erneut ausführen kannst. Ein <b>Q-Parameter</b> ist eine benannte Zahl, die du anstelle eines Werts schreibst.',
+    syntax:[
+      { code:'LBL 1', text:'Markiert den Anfang des Unterprogramms. Jede Nummer ab 1 ist möglich.',
+        figure:function(){ return learnFigFrom(learnSvgLblFlow()); } },
+      { code:'LBL 0', text:'Markiert das Ende eines Unterprogramms.' },
+      { code:'CALL LBL 1', text:'Führt die Sätze zwischen <code>LBL 1</code> und <code>LBL 0</code> aus und macht dann mit dem Satz nach dem Aufruf weiter.' },
+      { code:'Q1 = ..', text:'Speichert eine Zahl in Q1. Als <code>Q201=+Q1</code> oder <code>Z+Q1</code> geschrieben, steht der Parameter für diese Zahl.' }
+    ],
+    example:'Q1 = -5\nLBL 1\nCYCL DEF 200\n  Q200=+2 ;Sicherheitsabstand\n  Q201=+Q1 ;Tiefe aus Q1\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q202=+5 ;Zustelltiefe\n  Q210=+0 ;Verweilzeit oben\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\n  Q211=+0 ;Verweilzeit unten\nL X+25 Y+20 FMAX M99\nL X+55 Y+20 FMAX M99\nLBL 0\nQ1 = -12\nCALL LBL 1',
+    rules:[
+      'Ein Label im normalen Programmablauf läuft einmal dort, wo es steht. Jedes <code>CALL LBL</code> führt es erneut aus.',
+      '<code>LBL 0</code> beendet nur ein Unterprogramm. Es kann nicht aufgerufen werden.',
+      'Ein Q-Parameter braucht seinen Wert vor dem Satz, der ihn verwendet. Nimm für eigene Parameter Q1 bis Q99; die Zyklen verwenden die Nummern ab Q200.',
+      'Ein Zyklus übernimmt den Wert von Q1, wenn sein <code>CYCL DEF</code> abgearbeitet wird. Im Beispiel steht die Definition im Label, deshalb bohrt der Aufruf dieselben Bohrungen noch einmal mit der neuen Tiefe.'
+    ],
+    mistakes:[
+      '<code>LBL 0</code> vergessen — das Unterprogramm endet nie und der Aufruf kehrt an der falschen Stelle zurück.',
+      '<code>CALL LBL</code> mit einer Nummer, die nicht definiert ist — die Steuerung findet das Label nicht.',
+      '<code>Z-Q1</code> mit negativem Q1 — die beiden Vorzeichen heben sich auf und das Werkzeug fährt nach oben statt nach unten.'
+    ],
+    refs:[
+      { doc:'klartext', page:256, label:'Unterprogramme und Programmteil-Wiederholungen kennzeichnen' },
+      { doc:'klartext', page:257, label:'Unterprogramme' },
+      { doc:'klartext', page:285, label:'Teilefamilien — Q-Parameter statt Zahlenwerte' },
+      { doc:'klartext', page:281, label:'Q-Parameterarten' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Ein <b>Unterprogramm</b> ist ein benannter Codeblock: <code>LBL 1</code> öffnet ihn, <code>LBL 0</code> schließt ihn. Alles dazwischen ist der Rumpf:</p>'
@@ -657,6 +847,30 @@ var LESSONS_DE = {
 
 'L10': {
   title:'Polarkoordinaten \u2014 CC-Pol + LP',
+  card:{ lang:'de',
+    lead:'Polarkoordinaten geben einen Punkt durch <b>Abstand</b> und <b>Winkel</b> zu einem Pol an statt durch X und Y. Sie passen zu allem, was um einen Mittelpunkt bemaßt ist.',
+    syntax:[
+      { code:'CC X.. Y..', text:'Legt den Pol fest. Das Werkzeug bewegt sich nicht.' },
+      { code:'LP PR.. PA..', text:'Gerade zum Punkt mit Radius PR und Winkel PA, bezogen auf den Pol.',
+        figure:function(){ return learnFigFrom(learnSvgPolar()) + learnFigFrom(learnSvgBoltCircle()); } }
+    ],
+    example:'CC X+40 Y+30\nLP PR+20 PA+0 FMAX M99\nLP PA+90 FMAX M99\nLP PA+180 FMAX M99',
+    rules:[
+      'In der XY-Ebene zählt <code>PA</code> ab der X+-Achse. Positive Winkel drehen gegen den Uhrzeigersinn.',
+      'Der Pol gilt bis zum nächsten <code>CC</code>.',
+      '<code>PR</code> und <code>PA</code> behalten ihren letzten Wert. Schreibe nur den, der sich ändert.'
+    ],
+    mistakes:[
+      '<code>LP</code> ohne <code>CC</code> davor — es gibt keinen Pol, von dem aus gemessen wird.',
+      'Winkel im Uhrzeigersinn gezählt — der Punkt landet gespiegelt an der X-Achse.',
+      'Alter Pol noch aktiv für ein neues Muster — das ganze Muster wird um den falschen Mittelpunkt gebohrt.'
+    ],
+    refs:[
+      { doc:'klartext', page:178, label:'Bahnbewegungen — Polarkoordinaten' },
+      { doc:'klartext', page:179, label:'Polarkoordinatenursprung: Pol CC' },
+      { doc:'klartext', page:179, label:'Gerade LP' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Manche Muster sind von Natur aus rund. <b>CC</b> (<i>Kreismittelpunkt</i>) setzt den Pol; <b>LP</b> (<i>Gerade polar</i>) bewegt dann über <b>PR</b> (<i>Polarradius</i>) und <b>PA</b> (<i>Polarwinkel</i>):</p>'
@@ -725,15 +939,41 @@ var LESSONS_DE = {
 },
 
 'L11': {
-  title:'Runde Tasche \u2014 CYCL DEF 208 (Bohrfräsen)',
+  title:'Bohrfräsen \u2014 CYCL DEF 208',
+  card:{ lang:'de',
+    lead:'Zyklus <b>208</b> fräst eine runde Bohrung, die größer ist als das Werkzeug. Das Werkzeug taucht auf einer Schraubenlinie ein und weitet die Bohrung auf den programmierten Durchmesser.',
+    syntax:[
+      { code:'CYCL DEF 208', text:'Definiert das Bohrfräsen. Aufgerufen wird in der Bohrungsmitte, wie bei jedem Zyklus.',
+        figure:function(){ return learnFigFrom(learnSvgCycle208()); } },
+      { code:'Q335=+..', text:'Fertiger Bohrungsdurchmesser.' },
+      { code:'Q334=+..', text:'Wie weit das Werkzeug bei einer Umdrehung der Schraubenlinie nach unten fährt.' },
+      { code:'Q342=+..', text:'Durchmesser einer schon vorhandenen Bohrung. 0 bedeutet, der Zyklus beginnt im vollen Material.',
+        figure:function(){ return learnFigFrom(learnSvgCounterboreClear()); } }
+    ],
+    example:'CYCL DEF 208\n  Q200=+2 ;Sicherheitsabstand\n  Q201=-6 ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q334=+2 ;Zustelltiefe\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\n  Q335=+24 ;Soll-Durchmesser\n  Q342=+0 ;vorgebohrter Durchmesser\n  Q351=+1 ;Fräsart\n  Q370=+1 ;Bahnüberlappung\nL X+40 Y+30 FMAX M99',
+    rules:[
+      '<code>Q335</code> ist ein Durchmesser, kein Radius.',
+      '<code>Q351=+1</code> ist Gleichlauffräsen, <code>Q351=-1</code> Gegenlauffräsen.',
+      'Um die Bohrungsgröße zu ändern, ändere <code>Q335</code>. Die Bahn berechnet der Zyklus neu.'
+    ],
+    mistakes:[
+      'Radius in <code>Q335</code> eingetragen — die Bohrung wird halb so groß wie gewollt.',
+      'Zyklus am Rand statt in der Mitte aufgerufen — die ganze Bohrung ist um ihren Radius verschoben.',
+      '<code>Q334</code> zu groß für das Werkzeug — die Schraubenlinie ist zu steil und das Werkzeug wird überlastet.'
+    ],
+    refs:[
+      { doc:'cycles', page:106, label:'Zyklus 208 BOHRFRAESEN' },
+      { doc:'cycles', page:52, label:'Zyklusaufruf mit M99/M89' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Zyklus <b>208</b> fräst ein rundes Loch, das <b>größer als das Werkzeug</b> ist: es taucht helikal spiralförmig ab und weitet sich dann in Ringen auf den Ziel-Durchmesser <code>Q335</code>:</p>'
       + learnSvgCycle208()
       + '<p>Die Helix macht die erste Öffnung bis <code>Q201</code>. Am Grund weiten sich Schlichtringe nach außen, bis das Werkzeug D10 die geforderte Bohrung D30 erzeugt.</p>'; } },
     { html:function(){ return ''
-      + '<p><b>Q335</b> — Ziel-<b>Durchmesser</b> der Tasche<br><b>Q334</b> — Tiefe pro Helix-<b>Umdrehung</b><br><b>Q342</b> — <b>vorgebohrter</b> Lochdurchmesser (0 = voll)<br><b>Q351</b> — +1 Gleichlauf, -1 Gegenlauf<br><b>Q370</b> — Bahnüberlappungsfaktor × Werkzeugradius (0 = automatisch)</p>'
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-8   ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q334=+2   ;Zustellung pro Helix-Umdrehung\n  Q203=+0   ;Oberfläche Z\n  Q204=+30  ;2. Sicherheitsabstand\n  Q335=+30  ;Taschen-DURCHMESSER\n  Q342=+0   ;vorgeb. Durchmesser (0 = voll)\n  Q351=+1   ;+1 Gleichlauffräsen\n  Q370=+1   ;Bahnüberlappungsfaktor'); } },
+      + '<p><b>Q335</b> — Ziel-<b>Durchmesser</b> der Bohrung<br><b>Q334</b> — Tiefe pro Helix-<b>Umdrehung</b><br><b>Q342</b> — <b>vorgebohrter</b> Lochdurchmesser (0 = voll)<br><b>Q351</b> — +1 Gleichlauf, -1 Gegenlauf<br><b>Q370</b> — Bahnüberlappungsfaktor × Werkzeugradius (0 = automatisch)</p>'
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;Sicherheitsabstand\n  Q201=-8   ;Tiefe\n  Q206=+150 ;Vorschub Tiefenzustellung\n  Q334=+2   ;Zustellung pro Helix-Umdrehung\n  Q203=+0   ;Oberfläche Z\n  Q204=+30  ;2. Sicherheitsabstand\n  Q335=+30  ;Bohrungs-DURCHMESSER\n  Q342=+0   ;vorgeb. Durchmesser (0 = voll)\n  Q351=+1   ;+1 Gleichlauffräsen\n  Q370=+1   ;Bahnüberlappungsfaktor'); } },
     { html:function(){ return ''
       + '<p>Typische Anwendung: eine <b>Senkung</b> für einen Schraubenkopf in einem bestehenden \u00d86.6-Loch \u2014 der Kopf versinkt bündig:</p>'
       + learnSvgCounterboreClear()
@@ -742,16 +982,16 @@ var LESSONS_DE = {
   ],
   tasks:[
     {
-      prompt:'Definiere Zyklus 208 für eine runde Tasche: Durchmesser 30 mm, 8 mm tief, 2 mm pro Helix-Umdrehung, Sicherheitsabstand 2 mm, Oberfläche bei Z+0, Gleichlauffräsen',
+      prompt:'Definiere Zyklus 208 zum Bohrfräsen: Durchmesser 30 mm, 8 mm tief, 2 mm pro Helix-Umdrehung, Sicherheitsabstand 2 mm, Oberfläche bei Z+0, Gleichlauffräsen',
       hints:[
-        '<code>CYCL DEF 208</code> fräst eine runde Tasche durch helikales Abtauchen. Q-Werte setzen Durchmesser, Tiefe, Zustellung pro Umdrehung… (Folie).',
+        '<code>CYCL DEF 208</code> fräst eine runde Bohrung durch helikales Abtauchen. Q-Werte setzen Durchmesser, Tiefe, Zustellung pro Umdrehung… (siehe Beispiel in der Referenz).',
         'Beachte <code>Q201</code>=-8 Tiefe, <code>Q334</code>=2 pro Umdrehung, <code>Q335</code>=30 Durchmesser, <code>Q351</code>=+1 Gleichlauf und <code>Q370</code>=+1 Bahnüberlappung.',
-        'Tippe den Satz <code>CYCL DEF 208</code> von der Folie, mit <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> und <code>Q370=+1</code>.'
+        'Tippe den Satz <code>CYCL DEF 208</code> wie im Beispiel der Referenz, mit <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> und <code>Q370=+1</code>.'
       ],
       checks:[
         {label:'CYCL DEF 208 definiert',
          hint:'Beginne mit der Zeile: CYCL DEF 208'},
-        {label:'Taschen-Durchmesser Q335 = +30',
+        {label:'Bohrungsdurchmesser Q335 = +30',
          hint:'Q335 ist der DURCHMESSER, nicht der Radius.'},
         {label:'Tiefe Q201 = -8',
          hint:'Die Tiefe ist negativ: Q201=-8.'},
@@ -768,9 +1008,9 @@ var LESSONS_DE = {
       ]
     },
     {
-      prompt:'Fräse die Tasche: positioniere ins Zentrum X+50 Y+40 und rufe den Zyklus mit M99 auf',
+      prompt:'Fräse die Bohrung: positioniere ins Zentrum X+50 Y+40 und rufe den Zyklus mit M99 auf',
       hints:[
-        'Der Zyklus kennt die Taschenform \u2014 du bringst das Werkzeug nur ins Zentrum und löst es mit <code>M99</code> aus.',
+        'Der Zyklus kennt die Bohrungsform \u2014 du bringst das Werkzeug nur ins Zentrum und löst es mit <code>M99</code> aus.',
         'Eine Zeile.',
         '<code>L X+50 Y+40 FMAX M99</code>'
       ],
@@ -779,14 +1019,14 @@ var LESSONS_DE = {
          hint:'L X+50 Y+40 FMAX M99'},
         {label:'Werkzeug erreicht die D30-Wand (Mittenbahn bei R10)',
          hint:'Mit einem D10-Werkzeug kreist die Mitte bei R15\u22125 = 10 mm vom Zentrum.'},
-        {label:'Taschengrund bei Z-8',
+        {label:'Bohrungsgrund bei Z-8',
          hint:'Die Tiefe kommt aus Q201.'}
       ]
     },
     {
-      prompt:'Vergrößere die Tasche auf D40, indem du EINEN Parameter änderst, dann prüfe die neue Wand',
+      prompt:'Vergrößere die Bohrung auf D40, indem du EINEN Parameter änderst, dann prüfe die neue Wand',
       hints:[
-        'Der Taschendurchmesser ist ein einziger Parameter \u2014 ändere ihn und die Tasche wächst.',
+        'Der Bohrungsdurchmesser ist ein einziger Parameter \u2014 ändere ihn und die Bohrung wächst.',
         'Finde <code>Q335=+30</code> (den Ziel-Durchmesser) und mache +40 daraus.',
         '<code>Q335=+40</code>'
       ],
@@ -802,6 +1042,32 @@ var LESSONS_DE = {
 
 'L20': {
   title:'Präzisionsbohrung \u2014 zentrieren, bohren, reiben (Zyklus 201)',
+  card:{ lang:'de',
+    lead:'Eine genaue Bohrung entsteht in drei Schritten: <b>Zentrierbohrer</b>, <b>Bohrer</b>, <b>Reibahle</b>. Alle drei Werkzeuge fahren dieselben Positionen an, deshalb stehen die Positionen einmal in einem Unterprogramm.',
+    syntax:[
+      { code:'CYCL DEF 201', text:'Definiert das Reiben: mit Vorschub auf Tiefe, optional verweilen, mit Vorschub wieder heraus.',
+        figure:function(){ return learnFigFrom(learnSvgPrecisionChain()); } },
+      { code:'Q208=+..', text:'Vorschub für den Weg aus der Bohrung.' },
+      { code:'Q211=+..', text:'Verweilzeit am Grund, in Sekunden.' },
+      { code:'CALL LBL 1', text:'Fährt die Bohrpositionen erneut ab, mit dem Werkzeug und dem Zyklus, die jetzt aktiv sind.' }
+    ],
+    example:'CYCL DEF 201\n  Q200=+2 ;Sicherheitsabstand\n  Q201=-18 ;Tiefe\n  Q206=+80 ;Vorschub Tiefenzustellung\n  Q211=+0 ;Verweilzeit unten\n  Q208=+400 ;Vorschub Rückzug\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\nCALL LBL 1',
+    rules:[
+      'Jedes Werkzeug braucht vor dem Aufruf seiner Bohrungen ein eigenes <code>CYCL DEF</code>. <code>M99</code> führt immer den zuletzt definierten Zyklus aus.',
+      'Die gebohrte Bohrung ist etwas kleiner als die Reibahle. Die Reibahle nimmt nur dieses kleine Aufmaß ab.',
+      'Die Reibahle verlässt die Bohrung mit dem Vorschub <code>Q208</code>, nicht im Eilgang.'
+    ],
+    mistakes:[
+      'Neues Werkzeug, alter Zyklus — die Reibahle wird mit dem Entspanen des Bohrzyklus gefahren.',
+      'Reiben an einer Position, die nicht gebohrt wurde — die Reibahle kann nicht ins volle Material schneiden.',
+      'Positionen für jedes Werkzeug neu getippt — ein Tippfehler und die drei Werkzeuge treffen nicht mehr dieselbe Bohrung.'
+    ],
+    refs:[
+      { doc:'cycles', page:82, label:'Zyklus 201 REIBEN' },
+      { doc:'cycles', page:78, label:'Zyklus 200 BOHREN' },
+      { doc:'klartext', page:257, label:'Unterprogramme' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Ein Bohrer auf einer ebenen Fläche <b>verläuft</b> \u2014 eine präzise Bohrung (etwa \u00d87 H7) beginnt mit einem <b>Zentrierbohrer</b>, der eine kleine Vertiefung macht, dann der Bohrer, dann eine <b>Reibahle</b> für das Endmaß:</p>'
@@ -854,7 +1120,7 @@ var LESSONS_DE = {
       hints:[
         'Reiben ist <code>CYCL DEF 201</code>: wie Bohren, aber mit separatem <b>Rückzugsvorschub</b> (Q208) für eine saubere Bohrung. Dann die Bohrungen erneut nutzen.',
         'Setze <code>Q201</code>=-21, <code>Q206</code>=80 hinein, <code>Q208</code>=500 heraus, <code>Q200</code>=2; schließe mit <code>CALL LBL 1</code> ab.',
-        'Tippe den Satz <code>CYCL DEF 201</code> von der Folie (<code>Q201=-21</code>, <code>Q206=+80</code>, <code>Q208=+500</code>, <code>Q200=+2</code>), dann <code>CALL LBL 1</code>.'
+        'Tippe den Satz <code>CYCL DEF 201</code> wie im Beispiel der Referenz (<code>Q201=-21</code>, <code>Q206=+80</code>, <code>Q208=+500</code>, <code>Q200=+2</code>), dann <code>CALL LBL 1</code>.'
       ],
       checks:[
         {label:'Reibzyklus 201 nach T6 definiert',
@@ -880,6 +1146,31 @@ var LESSONS_DE = {
 
 'L21': {
   title:'Gewindebohren \u2014 CYCL DEF 209',
+  card:{ lang:'de',
+    lead:'Beim Gewindebohren sind Spindeldrehung und Vorschub über die <b>Steigung</b> gekoppelt: Eine Umdrehung bringt den Gewindebohrer eine Steigung tiefer. Zyklus <b>209</b> bricht außerdem den Span, indem er unterwegs zurückzieht.',
+    syntax:[
+      { code:'CYCL DEF 209', text:'Definiert Gewindebohren mit Spanbruch.',
+        figure:function(){ return learnFigFrom(learnSvgThreadCycle()); } },
+      { code:'Q239=+..', text:'Gewindesteigung in mm. Das Vorzeichen wählt Rechtsgewinde (+) oder Linksgewinde (−).' },
+      { code:'Q257=+..', text:'Tiefe, nach der der Span gebrochen wird.' },
+      { code:'Q256=+..', text:'Wie weit der Gewindebohrer zurückzieht, als Faktor der Steigung. 0 fährt ihn ganz aus der Bohrung.' }
+    ],
+    example:'CYCL DEF 209\n  Q200=+2 ;Sicherheitsabstand\n  Q201=-12 ;Gewindetiefe\n  Q239=+1 ;Gewindesteigung\n  Q203=+0 ;Koordinate Oberfläche\n  Q204=+30 ;2. Sicherheitsabstand\n  Q257=+4 ;Bohrtiefe Spanbruch\n  Q256=+0.5 ;Rückzug bei Spanbruch\n  Q336=+0 ;Winkel Spindel\n  Q403=+1 ;Faktor Drehzahl\nL X+25 Y+20 FMAX M99',
+    rules:[
+      'Der Vorschub ergibt sich aus Drehzahl und Steigung. Das <code>F</code> aus dem Werkzeugaufruf legt ihn nicht fest.',
+      'Das Kernloch wird zuerst gebohrt. Faustregel: Bohrerdurchmesser = Gewindedurchmesser − Steigung.',
+      'Das Kernloch muss tiefer sein als die Gewindetiefe <code>Q201</code>.'
+    ],
+    mistakes:[
+      '<code>Q239</code> passt nicht zum Gewindebohrer — das Gewinde reißt aus oder der Gewindebohrer bricht.',
+      'Gewindetiefe gleich der Bohrtiefe — der Gewindebohrer läuft auf den Bohrungsgrund.',
+      'Bohrzyklus noch definiert — <code>M99</code> führt den Bohrzyklus mit dem Gewindebohrer aus.'
+    ],
+    refs:[
+      { doc:'cycles', page:139, label:'Zyklus 209 GEW.-BOHREN SPANBR.' },
+      { doc:'cycles', page:52, label:'Zyklusaufruf mit M99/M89' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p><b>Gewindebohren</b> schneidet ein Gewinde: Spindel und Vorschub sind über die <b>Steigung</b> gekoppelt \u2014 eine Umdrehung = genau eine Steigung tiefer. Zyklus <b>209</b> bricht außerdem Späne durch Zurückfahren:</p>'
@@ -901,7 +1192,7 @@ var LESSONS_DE = {
       hints:[
         'Gewindebohren schneidet ein Gewinde \u2014 <code>CYCL DEF 209</code>. Die Spindel synchronisiert zur <b>Steigung</b>, also setzt die Steigung den Vorschub, nicht F.',
         'Kernwerte: <code>Q201</code>=-15 Gewindetiefe, <code>Q239</code>=1.25 Steigung, <code>Q257</code>=4 Spanbruch, <code>Q200</code>=2.',
-        'Tippe <code>CYCL DEF 209</code> und gib danach jeden Q-Parameter in einer eigenen Zeile in der Reihenfolge der Folie ein.'
+        'Tippe <code>CYCL DEF 209</code> und gib danach jeden Q-Parameter in einer eigenen Zeile in der Reihenfolge des Beispiels in der Referenz ein.'
       ],
       checks:[
         {label:'Gewindebohrzyklus 209 nach T7 definiert',
@@ -955,6 +1246,34 @@ var LESSONS_DE = {
 
 'L22': {
   title:'Anfasen \u2014 Senker & der DL/DR-Trick',
+  card:{ lang:'de',
+    lead:'Ein 90°-Senker bricht scharfe Kanten. <b>Deltawerte</b> im Werkzeugaufruf verschieben seine Länge (DL) und seinen Radius (DR) für diesen einen Aufruf, ohne die Werkzeugtabelle zu ändern.',
+    syntax:[
+      { code:'TOOL CALL 5 Z S.. F.. DL-2 DR+2', text:'Ruft den Senker mit einem Längen- und einem Radiusversatz auf.',
+        figure:function(){ return learnFigFrom(learnSvgChamfer()); } },
+      { code:'CYCL DEF 200 … Q203=+2', text:'Bohrung kleiner als der Senker: eintauchen wie ein Bohrer. Die um 2 angehobene Oberfläche hebt <code>DL-2</code> auf.',
+        figure:function(){ return learnFigFrom(learnSvgChamferMethods()); } },
+      { code:'CYCL DEF 208 … Q342=+..', text:'Bohrung größer als der Senker: den Rand umfräsen. <code>Q342</code> ist der Durchmesser der vorhandenen Bohrung.' },
+      { code:'L X.. Y.. RL', text:'Konturkante: die Kontur noch einmal mit Radiuskorrektur abfahren, 1 mm unter der Oberkante.' }
+    ],
+    example:'TOOL CALL 5 Z S15000 F500 DL-2 DR+2\nL X-10 Y+20 Z-1 FMAX R0\nL X+0 RL F500\nL X+60\nL X+70 R0',
+    rules:[
+      'Ein positiver Deltawert ist ein Aufmaß, ein negativer ein Untermaß.',
+      'Deltawerte aus <code>TOOL CALL</code> gelten bis zum nächsten Werkzeugaufruf.',
+      '<code>DL-2 DR+2</code> passt zu Werkzeug 5, wie es in diesem Simulator eingerichtet ist. Prüfe an der Maschine Werkzeugbezugspunkt und Vorzeichen, bevor du schneidest.'
+    ],
+    mistakes:[
+      '<code>DL</code> und <code>DR</code> weggelassen — die Fase bekommt eine andere Größe oder der Kegel verfehlt die Kante.',
+      '<code>Q203</code> bei +0 gelassen, zusammen mit <code>DL-2</code> — der Senker taucht 2 mm zu tief ein.',
+      'Eintauchen in eine Bohrung, die breiter ist als der Senker — der Kegel berührt den Rand nie.'
+    ],
+    refs:[
+      { doc:'klartext', page:134, label:'Deltawerte für Längen und Radien' },
+      { doc:'klartext', page:136, label:'Werkzeugdaten aufrufen' },
+      { doc:'klartext', page:143, label:'Werkzeugradiuskorrektur' },
+      { doc:'cycles', page:106, label:'Zyklus 208 BOHRFRAESEN' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Der <b>90\u00b0-Senker</b> (T5) bricht scharfe Kanten. Sein Bezugspunkt ist die <b>Spitze</b>, daher ist in der Tabelle R \u2248 0. Der Trick für eine 1 \u00d7 45\u00b0-Fase:</p>'
@@ -978,7 +1297,7 @@ var LESSONS_DE = {
     {
       prompt:'Entgrate die gebohrte Bohrung mit dem Senker: rufe T5 mit DL-2 DR+2 auf (beliebiger Vorschub/Drehzahl, z. B. S2000 F2000), dann einen Bohrzyklus CYCL DEF 200, der 4 mm ab der Spitze eintaucht \u2014 setze Q203=+2, damit die +2-Oberfläche das DL-2 aufhebt, und CALL LBL 1',
       hints:[
-        'Der 90\u00b0-Senker entgratet durch <b>Eintauchen</b> wie ein Bohrer. Die <code>DL/DR</code>-Deltas verschieben Spitze und Bahn, sodass der Kegel den Rand bei 1 mm trifft (Folie 2).',
+        'Der 90\u00b0-Senker entgratet durch <b>Eintauchen</b> wie ein Bohrer. Die <code>DL/DR</code>-Deltas verschieben Spitze und Bahn, sodass der Kegel den Rand bei 1 mm trifft.',
         'Rufe <code>TOOL CALL 5 Z S… F… DL-2 DR+2</code> auf, dann ein <code>CYCL DEF 200</code> mit <code>Q201=-4</code> und <code>Q203=+2</code> (die +2 hebt DL-2 auf), dann <code>CALL LBL 1</code>.',
         '<code>TOOL CALL 5 Z S2000 F2000 DL-2 DR+2</code><br>ein <code>CYCL DEF 200</code>-Satz mit <code>Q201=-4</code>, <code>Q203=+2</code><br><code>CALL LBL 1</code>'
       ],
@@ -1006,7 +1325,7 @@ var LESSONS_DE = {
     {
       prompt:'Entgrate die gefräste Bohrung (größer als das Werkzeug): rufe T5 mit DL-2 DR+2 auf (beliebiger Vorschub/Drehzahl, z. B. S15000 F500), dann schreibe CYCL DEF 208 für den Kantenbruch \u2014 Q201=-1 für eine 1-mm-Fase und Q342 = der gefräste Bohrungsdurchmesser \u2014 und CALL LBL 1',
       hints:[
-        'Wenn die Bohrung breiter als das Werkzeug ist, erreicht der Kegel sie durch Eintauchen nicht \u2014 fräse den Rand mit <code>CYCL DEF 208</code> und teile dem Zyklus mit <code>Q342</code> den bestehenden Bohrungsdurchmesser mit (Folie 2).',
+        'Wenn die Bohrung breiter als das Werkzeug ist, erreicht der Kegel sie durch Eintauchen nicht \u2014 fräse den Rand mit <code>CYCL DEF 208</code> und teile dem Zyklus mit <code>Q342</code> den bestehenden Bohrungsdurchmesser mit.',
         'Rufe <code>TOOL CALL 5 … DL-2 DR+2</code> auf, dann <code>CYCL DEF 208</code> mit <code>Q201=-1</code> und <code>Q342=+10</code> (der gefräste Durchmesser), dann <code>CALL LBL 1</code>.',
         '<code>TOOL CALL 5 Z S15000 F500 DL-2 DR+2</code><br>ein <code>CYCL DEF 208</code>-Satz mit <code>Q201=-1</code>, <code>Q342=+10</code>, <code>Q335=+10</code>, <code>Q351=+1</code>, <code>Q370=+1</code><br><code>CALL LBL 1</code>'
       ],
@@ -1034,7 +1353,7 @@ var LESSONS_DE = {
     {
       prompt:'Fase die gesamte Außenkontur mit T5 (beliebiger Vorschub/Drehzahl): fahre außerhalb des Rohteils bei R0 an, tauche auf Z-1 ein, behalte DL-2 DR+2 am Werkzeug-Aufruf, dann fahre die vier Wände des 50\u00d750-Blocks mit RL und hebe mit R0 beim Verlassen des Teils auf',
       hints:[
-        'Eine Kontur anfasen = dieselben Wände noch einmal mit dem Senker fahren, 1 mm unter der Oberkante, mit <code>RL</code> (Folie 3).',
+        'Eine Kontur anfasen = dieselben Wände noch einmal mit dem Senker fahren, 1 mm unter der Oberkante, mit <code>RL</code>.',
         'Vom Anfahren die Korrektur einschalten <code>L X+15 RL F500</code>, die vier Wände abfahren, dann <code>R0</code> nach dem Verlassen des Blocks aufheben.',
         '<code>L X+15 RL F500</code><br><code>L Y+65</code><br><code>L X+65</code><br><code>L Y+15</code><br><code>L X+10</code><br><code>L X+0 R0</code>'
       ],
@@ -1056,6 +1375,33 @@ var LESSONS_DE = {
 
 'L23': {
   title:'Parametrische Kontur \u2014 ein Profil, gefräst und dann gefast',
+  card:{ lang:'de',
+    lead:'Schreibe eine Kontur <b>einmal</b> in ein Unterprogramm und lass einen Q-Parameter ihre Tiefe bestimmen. Ein zweites Werkzeug wiederholt dann dieselbe Bahn mit einer einzigen geänderten Zahl.',
+    syntax:[
+      { code:'Q1 = ..', text:'Die Tiefe für den nächsten Durchlauf der Kontur.' },
+      { code:'L Z+Q1 ..', text:'Im Unterprogramm steht die Tiefe als Parameter, nicht als Zahl.' },
+      { code:'LBL 1 … LBL 0', text:'Die Kontur. Im Programmablauf geschrieben, läuft sie einmal an dieser Stelle.',
+        figure:function(){ return learnFigFrom(learnSvgPartProfile()); } },
+      { code:'CALL LBL 1', text:'Fährt dieselbe Kontur erneut ab, mit dem Werkzeug und dem Q1-Wert, die jetzt aktiv sind.',
+        figure:function(){ return learnFigFrom(learnSvgFinalPasses()); } }
+    ],
+    example:'Q1 = -2\nLBL 1\nL X+20 Y+30 Z+2 FMAX\nL Z+Q1 F150\nL X+60 F300\nL Z+2 FMAX\nLBL 0\nQ1 = -4\nCALL LBL 1',
+    rules:[
+      'Der Parameter wird gelesen, wenn der Satz läuft. Setze <code>Q1</code> vor dem Label oder dem Aufruf, der ihn verwendet.',
+      'Schaltet das Unterprogramm die Radiuskorrektur mit <code>RL</code> oder <code>RR</code> ein, schaltet es sie vor <code>LBL 0</code> mit <code>R0</code> wieder aus. Jeder Durchlauf beginnt und endet dann ohne Korrektur.',
+      'Z-Werte sind Positionen ab dem Bezugspunkt. Liegt die Rohteiloberseite nicht bei Z+0, ist die Tiefe nicht dieselbe Zahl wie der Abtrag.'
+    ],
+    mistakes:[
+      '<code>Q1</code> nach <code>CALL LBL</code> geändert — die Kontur ist schon mit der alten Tiefe gelaufen.',
+      'Kein <code>CALL LBL</code> für das zweite Werkzeug — das Label läuft nur einmal, dort wo es steht.',
+      'Kontur endet, wo sie begonnen hat — ohne kurze Überlappung bleibt am Startpunkt eine kleine Marke.'
+    ],
+    refs:[
+      { doc:'klartext', page:257, label:'Unterprogramme' },
+      { doc:'klartext', page:285, label:'Teilefamilien — Q-Parameter statt Zahlenwerte' },
+      { doc:'klartext', page:143, label:'Werkzeugradiuskorrektur' }
+    ]
+  },
   slides:[
     { html:function(){ return ''
       + '<p>Hier das Teil aus der <b>Zeichnung</b>: ein 90\u00d790-Profil mit einer <b>R15</b>-gerundeten Ecke und einer <b>15\u00d745\u00b0</b>-Fase. Das Rohteil ist 100\u00d7100 mit <b>5 mm Aufmaß</b> \u2014 Oberkante bei Z+5, Grund bei Z0:</p>'
@@ -1152,6 +1498,7 @@ var LESSONS_DE = {
     if (!d) return;
     if (d.title)  les.title  = d.title;
     if (d.slides) les.slides = d.slides;
+    if (d.card)   les.card   = d.card;
     if (d.tasks && les.tasks) {
       d.tasks.forEach(function(dt, i){
         var t = les.tasks[i];

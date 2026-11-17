@@ -17,7 +17,7 @@ const start = Date.parse(release.mergedAt);
 const windowMs = release.visibleDays * 24 * 60 * 60 * 1000;
 
 assert.strictEqual(release.visibleDays, 10, 'the announcement window is exactly 10 days');
-assert.strictEqual(release.mergedAt, '2026-09-24T09:52:25Z', 'announcement uses the actual GitHub merge time');
+assert.strictEqual(release.mergedAt, '2026-11-17T12:57:30Z', 'announcement uses the actual GitHub merge time');
 assert.ok(Number.isFinite(start), 'the production merge timestamp is valid');
 assert.strictEqual(context._whatsNewIsActive(start - 1, release.mergedAt, release.visibleDays), false,
   'the button stays hidden before the merge');
@@ -46,9 +46,9 @@ assert.match(css, /\.whats-new-btn\{[^}]*border:1px solid var\(--border\);[^}]*b
   'What’s New uses the standard neutral header treatment');
 assert.ok(release.content.en.items.length === 2 && release.content.de.items.length === 2,
   'English and German announcements each have two concise updates');
-assert.match(release.content.en.items[0], /href="\/examples\/"/);
-assert.match(release.content.de.items[0], /href="\/de\/examples\/"/);
-assert.match(release.content.en.items[1], /require your description/);
-assert.match(release.content.de.items[1], /Problembeschreibung/);
+assert.match(release.content.en.items[0], /reference cards[\s\S]*official HEIDENHAIN manual/);
+assert.match(release.content.de.items[0], /Referenzkarten[\s\S]*HEIDENHAIN-Handbuchs/);
+assert.match(release.content.en.items[1], /Help, Program and Settings menus/);
+assert.match(release.content.de.items[1], /Hilfe, Programm und Einstellungen/);
 
 console.log('What’s New release-window and popup contract passed');

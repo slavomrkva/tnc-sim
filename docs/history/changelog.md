@@ -1050,3 +1050,18 @@ History through v0.845 is preserved in
 - Promote audit-only playback and live/Refine material comparison into a CI-discovered test for the actual shipped demo catalogue and default tool table.
 - Assert completion, finite and continuous paths, zero collisions, material removal and byte-identical occupancy on equal grids. Rendering remains outside this numeric test.
 - Document coverage and boundaries in tests/README.md. No runtime, app-version or cache changes.
+
+## v0.951 — 2026-11-16 — security headers and stalled-network fallback
+- `_headers` adds nosniff, Referrer-Policy, six-month HSTS, a restrictive Permissions-Policy and a CSP limited to `frame-ancestors 'self'`, `base-uri 'self'` and `object-src 'none'`. No `script-src` yet: index.html still uses inline handlers. `/api/*` Worker responses are unaffected.
+- Service worker: a navigation unanswered for 4 s serves the cached page; that page's subresources then come from the same cache and the late network response is not stored, so cached HTML never mixes with newer scripts. Online behaviour stays network-first. Cache v119.
+- Extend `service-worker-cache.test.js` with stalled-connection, late-response and first-visit cases. Web only.
+
+## v1.000 — 2026-11-16 — Learn reference cards, UI shell, version 1.0
+- Owner decision: this release is version 1.000 (web was 0.950; 0.951 was never published on its own and its hardening ships in the same push). The About text no longer calls the app an early release.
+- Learn: every lesson L01–L23 has a reference `card` (EN in `core/data-tables.js`, DE in `web/i18n-lessons-de.js`) with verified manual pages; `LEARN_MANUALS_DE` added; intro lesson L00 removed; hints no longer point at slides.
+- UI: `web/ui-shell.js` menus (Help, Program, Settings), neutral visual style, slate light theme, calm Learn colours, logo as home link.
+- Texts: Help, tool-table and What's new copy corrected; lesson 11 renamed to Bore milling. `core/` changes still need the Android port; test suite not run for this entry.
+- Learn polish (same release): correct the positive Y axis in the shared blank diagram; flat practice highlights and a neutral manual panel in both themes. Offline cache v121.
+- Learn figures (same release): every card carries exactly its lesson's slide figures via `learnFigFrom()`; the card-only `learnFigArcC`/`learnFigArcCR` and the finished-part rule were removed from code and `docs/learn-lesson-guide.md`. All `learnSvg*` drawings replaced by the owner's redrawn set (`--fig-*` palette in `web/styles.css`); obsolete light-theme hex overrides dropped.
+- Texts (same release): L11 tasks, hints, labels and slide use the official name bore milling / Bohrfräsen; card rules in L11, L20 and L23 corrected (EN+DE). Starters, solutions and checks unchanged.
+- UI (same release): running-line gutter mark and lesson-list hover border use neutral grey instead of the Learn green. All 53 `tests/*.test.js` and `tests/report-worker.test.mjs` pass.

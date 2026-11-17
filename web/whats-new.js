@@ -2,28 +2,28 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '0.947',
-  mergedAt: '2026-09-24T09:52:25Z',
+  version: '1.000',
+  mergedAt: '2026-11-17T12:57:30Z',
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v0.947 · Updates',
+      meta: 'v1.000 · Updates',
       title: 'What’s new',
       close: 'Close',
       intro: '',
       items: [
-        'Fixed a reported bug. See the <a href="/examples/">program library</a>.',
-        'Bug reports now require your description of the problem.'
+        'Learn lessons are now reference cards with links to the matching pages of the official HEIDENHAIN manual.',
+        'Simpler interface: Help, Program and Settings menus and a calmer look in both themes.'
       ]
     },
     de: {
-      meta: 'v0.947 · Neuigkeiten',
+      meta: 'v1.000 · Neuigkeiten',
       title: 'Was ist neu?',
       close: 'Schließen',
       intro: '',
       items: [
-        'Gemeldeten Fehler behoben. Siehe <a href="/de/examples/">Programmbibliothek</a>.',
-        'Fehlermeldungen benötigen jetzt deine Problembeschreibung.'
+        'Die Lernlektionen sind jetzt Referenzkarten mit Links zu den passenden Seiten des offiziellen HEIDENHAIN-Handbuchs.',
+        'Einfachere Oberfläche: Menüs Hilfe, Programm und Einstellungen sowie ein ruhigeres Design in beiden Themes.'
       ]
     }
   }

@@ -10,6 +10,24 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.000 — new Learn format and simpler interface
+- Learn lessons are reference cards: block format, example, rules, common
+  mistakes and links to the matching pages of the official HEIDENHAIN manual,
+  in English and German.
+- Simpler interface: Help, Program and Settings menus, a calmer look in both
+  themes, and the logo returns to the start view.
+- The Start here intro lesson is removed; the course has 15 lessons.
+- On a stalled connection the installed app now opens from its offline copy
+  after a few seconds instead of waiting on the network.
+- Lesson diagrams show the Y+ direction correctly; practice highlights are
+  calmer and the manual panel is neutral.
+- Every lesson card shows all drawings from the earlier slides, redrawn in a
+  neutral palette with corrected labels.
+- Lesson 11 uses the official cycle name, bore milling, throughout; a few
+  card rules in lessons 11, 12 and 15 are worded more precisely.
+- The running program line and the hovered lesson are marked in neutral grey
+  instead of green.
+
 ## v0.950 — web fixes (version retained)
 - Recalculate compensated paths after tool-table edits or imports.
 - Discard obsolete Refine results after Reset, preparation or resumed playback.
