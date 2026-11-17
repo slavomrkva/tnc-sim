@@ -12,11 +12,13 @@
   Contents: security headers and service-worker timeout, Learn reference cards
   for all 15 lessons in English and German, `web/ui-shell.js` menus and visual
   pass, calm Learn colours, logo as home link, corrected Help/About/What's new
-  copy. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
+  copy, all slide figures back on the cards in the owner's redrawn set, L11
+  named bore milling throughout, neutral grey running-line and lesson hover
+  marks. `APP_VERSION`, `RELEASE_NOTES.md` and `docs/history/changelog.md`
   already say v1.000; `CACHE_VERSION` is `v121` (production has `v118`).
   Steps left before the push, in order:
-  1. Done 2026-11-16: all 53 `tests/*.test.js` files and
-     `tests/report-worker.test.mjs` pass (run one by one with `node`; there
+  1. Done 2026-11-17 (rerun after the figure and text changes): all 53
+     `tests/*.test.js` files and `tests/report-worker.test.mjs` pass (run one by one with `node`; there
      is no runner or package.json). One test needed updating
      (`whats-new.test.js` asserted the old announcement items). The tests do
      not cover the look of the ui-shell menus or the new colours.
@@ -30,8 +32,11 @@
      so (deploy flow: `NOTES.md`, "Versioning and deploy"); then tag
      `web-v<APP_VERSION>`.
   6. Port the deliberate `core/` changes to Android `www/core/`:
-     `data-tables.js` (cards, L00 removed, lesson 11 title, hints),
-     `learn-tutorial.js` (card renderer, `LEARN_MANUALS_DE`, final note),
+     `data-tables.js` (cards with slide figures, L00 removed, lesson 11
+     bore-milling texts, hints),
+     `learn-tutorial.js` (card renderer, `LEARN_MANUALS_DE`, final note, all
+     redrawn `learnSvg*` figures; the Android CSS also needs the `--fig-*`
+     palette from `web/styles.css`),
      `help-popups.js`, `tool-table.js`, `theme-toast.js` (About copy).
   Not done and not blocking: merge the three stacked light-theme CSS layers,
   make the ui-shell menus native markup, restyle dialogs, translate labels

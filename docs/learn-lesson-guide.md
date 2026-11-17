@@ -30,7 +30,7 @@ card:{
   lead:'One or two sentences. What the block is for and the one decision the learner makes.',
   syntax:[
     { code:'CC X.. Y..', text:'What this block does, in one or two sentences.' },
-    { code:'C X.. Y.. DR±', text:'...', figure:function(){ return learnFigArcC(); } }
+    { code:'C X.. Y.. DR±', text:'...', figure:function(){ return learnFigFrom(learnSvgArcCC()); } }
   ],
   example:'L X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-',
   rules:[ '...', '...' ],
@@ -64,9 +64,6 @@ Section order is fixed by the renderer; do not add, rename or reorder sections.
 - The same fact appears once. Do not repeat a rule in `syntax`, `rules` and
   `mistakes`.
 - The card must be readable in under two minutes. If it is longer, cut.
-- Never reveal the finished shape of the practice part, in text or figure.
-  Some lessons hide a surprise the learner discovers by pressing Run (L05 is
-  one). The card teaches the block; the practice reveals the part.
 
 ## 4. Official manual links
 
@@ -153,28 +150,15 @@ German card together. Verified German pages:
 
 ## 5. Figures
 
-A slide figure that already shows the idea with generic geometry can be reused
-in a card through `learnFigFrom(learnSvg<Name>())`; draw a new one only when no
-slide figure fits.
+The card carries exactly the figures of the lesson's slides, no fewer and no
+more. The principle is the same as in the slides; only the layout changed.
 
-A figure is optional. Add one only when a picture explains something the
-sentence cannot (a direction, a sign, a reference point). No decoration.
-
-- One idea per figure. Two ideas mean two figures on two `syntax` entries.
-- Generic geometry, never the lesson's own part or its coordinates.
-- Write a function `learnFig<Name>()` next to `learnFigArcC()` in
-  `core/learn-tutorial.js`, built from `_learnFigDot`, `_learnFigArrow` and
-  `_learnFigText`. Copy the structure of `learnFigArcC()`.
-- Inline SVG, `class="learn-svg lc-fig"`, `viewBox` about `0 0 340 176`,
-  `role="img"` and an `aria-label` that describes the figure in words.
-- Colours only through CSS variables: `var(--accent)` for the one thing the
-  figure is about, `var(--text)`, `var(--text2)`, `var(--text3)` for the rest.
-  No hex colours, gradients, shadows or fills on shapes.
-- Labels: `lc-fc` for NC words (`DR−`, `R+`, `CC`), `lc-fw` for plain words
-  (`start`, `end point`). Use the real minus sign `−` inside figures.
-- No label may overlap a line, a dot or another label. Check at panel width
-  (about 430 px) and on a phone.
-- Do not reuse the old `learnSvg*` slide drawings in a card.
+- Reuse each slide figure through `learnFigFrom(learnSvg<Name>(...))` with the
+  same arguments as in the slide, on the `syntax` entry it explains. Several
+  figures on one entry are joined with `+`.
+- Do not draw a new figure for a card and do not leave a slide figure out,
+  unless the owner asks for it.
+- Change the English and the German card together.
 
 ## 6. What must keep working
 

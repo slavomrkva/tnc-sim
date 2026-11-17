@@ -189,7 +189,8 @@ var LESSONS = [
   card:{
     lead:'<b>TOOL CALL</b> puts a tool from the tool table into the spindle and sets speed and feed. <b>M functions</b> then switch the spindle and the coolant.',
     syntax:[
-      { code:'TOOL CALL n Z S.. F..', text:'Tool number, spindle axis, spindle speed in rpm and feed rate in mm/min.' },
+      { code:'TOOL CALL n Z S.. F..', text:'Tool number, spindle axis, spindle speed in rpm and feed rate in mm/min.',
+        figure:function(){ return learnFigFrom(learnSvgTool()); } },
       { code:'M3 / M5', text:'Spindle on clockwise / spindle stop.' },
       { code:'M8 / M9', text:'Coolant on / coolant off.' }
     ],
@@ -283,7 +284,7 @@ var LESSONS = [
     lead:'An <b>L</b> block moves the tool in a straight line to the programmed point. <b>FMAX</b> is for positioning in free space, <b>F</b> for every move that touches material.',
     syntax:[
       { code:'L X.. Y.. Z.. FMAX', text:'Straight line at rapid traverse. For positioning only.',
-        figure:function(){ return learnFigFrom(learnSvgApproach()); } },
+        figure:function(){ return learnFigFrom(learnSvgApproach()) + learnFigFrom(learnSvgSafeRetract()); } },
       { code:'L Z.. F..', text:'Straight line at the given feed rate in mm/min. This is a cutting move.' }
     ],
     example:'L X+30 Y+25 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F200\nL X+70 F300\nL Z+50 FMAX',
@@ -373,9 +374,11 @@ var LESSONS = [
   card:{
     lead:'A feed move below the surface cuts a slot as wide as the tool. <b>Incremental</b> coordinates give a distance from the current position instead of a point on the drawing.',
     syntax:[
-      { code:'L Z-.. F..', text:'Plunge to the cutting depth at a feed rate. Z is measured from the datum, so below a top face at Z+0 it is negative.' },
+      { code:'L Z-.. F..', text:'Plunge to the cutting depth at a feed rate. Z is measured from the datum, so below a top face at Z+0 it is negative.',
+        figure:function(){ return learnFigFrom(learnSvgSlotWidth()); } },
       { code:'L X.. F..', text:'Absolute move: X is a position measured from the datum.' },
-      { code:'L IX.. IY..', text:'Incremental move: the value is the distance to travel from where the tool stands now.' }
+      { code:'L IX.. IY..', text:'Incremental move: the value is the distance to travel from where the tool stands now.',
+        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)); } }
     ],
     example:'L Z-2 F150\nL X+60 F300\nL IY+10\nL IX-25\nL Z-4 F150\nL IX+25 F300',
     rules:[
@@ -477,9 +480,9 @@ var LESSONS = [
     syntax:[
       { code:'CC X.. Y..', text:'Sets the circle centre. The tool does not move. The centre stays valid until the next CC.' },
       { code:'C X.. Y.. DR\u00b1', text:'Arc around the last CC to the end point. Start and end must lie at the same distance from the centre.',
-        figure:function(){ return learnFigArcC(); } },
+        figure:function(){ return learnFigFrom(learnSvgArcCC()); } },
       { code:'CR X.. Y.. R\u00b1.. DR\u00b1', text:'Arc to the end point with a given radius. No CC needed. The same start, end and radius still allow two arcs.',
-        figure:function(){ return learnFigArcCR(); } }
+        figure:function(){ return learnFigFrom(learnSvgArcCRCompare()); } }
     ],
     example:'L X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-',
     rules:[
@@ -576,8 +579,9 @@ var LESSONS = [
     lead:'<b>RND</b> rounds a corner, <b>CHF</b> cuts it off with a straight chamfer. You program the sharp corner and put one extra block between its two moves.',
     syntax:[
       { code:'RND R..', text:'Rounding arc with radius R. It joins both neighbouring contour elements tangentially.',
-        figure:function(){ return learnFigFrom(learnSvgCorner()); } },
-      { code:'CHF ..', text:'Chamfer between two straight lines. The value is the length cut off each line, measured from the corner.' }
+        figure:function(){ return learnFigFrom(learnSvgCorner()) + learnFigFrom(learnSvgRndDetail()); } },
+      { code:'CHF ..', text:'Chamfer between two straight lines. The value is the length cut off each line, measured from the corner.',
+        figure:function(){ return learnFigFrom(learnSvgChfDetail()); } }
     ],
     example:'L X+60 F300\nRND R8\nL Y+50\nCHF 5\nL X+10',
     rules:[
@@ -673,7 +677,7 @@ var LESSONS = [
     lead:'Without compensation the <b>tool centre</b> follows the programmed line. With <b>RL</b> or <b>RR</b> you program the finished contour and the control keeps the centre one tool radius beside it.',
     syntax:[
       { code:'L X.. Y.. RL F..', text:'Tool to the left of the contour, seen in the direction of travel.',
-        figure:function(){ return learnFigFrom(learnSvgComp()); } },
+        figure:function(){ return learnFigFrom(learnSvgComp()) + learnFigFrom(learnSvgCompPath()); } },
       { code:'L X.. Y.. RR F..', text:'Tool to the right of the contour, seen in the direction of travel.' },
       { code:'L X.. Y.. R0', text:'Compensation off. The tool centre moves to the programmed point again.' }
     ],
@@ -967,7 +971,7 @@ var LESSONS = [
     syntax:[
       { code:'CC X.. Y..', text:'Sets the pole. The tool does not move.' },
       { code:'LP PR.. PA..', text:'Straight line to the point at radius PR and angle PA from the pole.',
-        figure:function(){ return learnFigFrom(learnSvgPolar()); } }
+        figure:function(){ return learnFigFrom(learnSvgPolar()) + learnFigFrom(learnSvgBoltCircle()); } }
     ],
     example:'CC X+40 Y+30\nLP PR+20 PA+0 FMAX M99\nLP PA+90 FMAX M99\nLP PA+180 FMAX M99',
     rules:[
@@ -1067,11 +1071,12 @@ var LESSONS = [
         figure:function(){ return learnFigFrom(learnSvgCycle208()); } },
       { code:'Q335=+..', text:'Finished hole diameter.' },
       { code:'Q334=+..', text:'How far the tool goes down in one turn of the helix.' },
-      { code:'Q342=+..', text:'Diameter of a hole that already exists. 0 means the cycle starts in solid material.' }
+      { code:'Q342=+..', text:'Diameter of a hole that already exists. 0 means the cycle starts in solid material.',
+        figure:function(){ return learnFigFrom(learnSvgCounterboreClear()); } }
     ],
     example:'CYCL DEF 208\n  Q200=+2 ;set-up clearance\n  Q201=-6 ;depth\n  Q206=+150 ;plunge feed rate\n  Q334=+2 ;infeed per helix turn\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q335=+24 ;nominal diameter\n  Q342=+0 ;pre-drilled diameter\n  Q351=+1 ;milling mode\n  Q370=+1 ;path overlap factor\nL X+40 Y+30 FMAX M99',
     rules:[
-      '<code>Q335</code> is a diameter and must be larger than the tool diameter.',
+      '<code>Q335</code> is a diameter, not a radius.',
       '<code>Q351=+1</code> is climb milling, <code>Q351=-1</code> up-cut milling.',
       'To change the hole size, change <code>Q335</code>. The path is recalculated by the cycle.'
     ],
@@ -1091,8 +1096,8 @@ var LESSONS = [
       + learnSvgCycle208()
       + '<p>The helix makes the first opening down to <code>Q201</code>. At the floor, finishing rings expand outward until the D10 tool produces the requested D30 bore.</p>'; } },
     { html:function(){ return ''
-      + '<p><b>Q335</b> — target pocket <b>diameter</b><br><b>Q334</b> — depth per helix <b>turn</b><br><b>Q342</b> — <b>pre-drilled</b> hole diameter (0 = solid)<br><b>Q351</b> — +1 climb, -1 conventional</p>'
-      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;pocket DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling\n  Q370=+1   ;path overlap factor'); } },
+      + '<p><b>Q335</b> — target bore <b>diameter</b><br><b>Q334</b> — depth per helix <b>turn</b><br><b>Q342</b> — <b>pre-drilled</b> hole diameter (0 = solid)<br><b>Q351</b> — +1 climb, -1 conventional</p>'
+      + learnSnippet('CYCL DEF 208\n  Q200=+2   ;clearance\n  Q201=-8   ;depth\n  Q206=+150 ;plunge feed\n  Q334=+2   ;infeed per helix turn\n  Q203=+0   ;surface Z\n  Q204=+30  ;2nd clearance\n  Q335=+30  ;bore DIAMETER\n  Q342=+0   ;pre-drilled dia (0 = solid)\n  Q351=+1   ;+1 climb milling\n  Q370=+1   ;path overlap factor'); } },
     { html:function(){ return ''
       + '<p>Typical use: a <b>counterbore</b> for a screw head in an existing \u00d86.6 hole \u2014 the head sinks flush:</p>'
       + learnSvgCounterboreClear()
@@ -1101,9 +1106,9 @@ var LESSONS = [
   ],
   tasks:[
     {
-      prompt:'Define cycle 208 for a round pocket: diameter 30 mm, 8 mm deep, 2 mm per helix turn, clearance 2 mm, surface at Z+0, climb milling',
+      prompt:'Define cycle 208 for bore milling: diameter 30 mm, 8 mm deep, 2 mm per helix turn, clearance 2 mm, surface at Z+0, climb milling',
       hints:[
-        "<code>CYCL DEF 208</code> mills a round pocket by helixing down. Q values set diameter, depth, infeed per turn… (see the example in the reference).",
+        "<code>CYCL DEF 208</code> mills a round bore by helixing down. Q values set diameter, depth, infeed per turn… (see the example in the reference).",
         "Watch <code>Q201</code>=-8 depth, <code>Q334</code>=2 per turn, <code>Q335</code>=30 diameter, <code>Q351</code>=+1 climb.",
         "Type the <code>CYCL DEF 208</code> block as in the reference example, with <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> and <code>Q370=+1</code>."
       ],
@@ -1112,7 +1117,7 @@ var LESSONS = [
       checks:[
         {t:'cycle_def', num:208, label:'CYCL DEF 208 defined',
          hint:'Start with the line: CYCL DEF 208'},
-        {t:'cycle_param', num:208, q:'Q335', value:30, label:'Pocket diameter Q335 = +30',
+        {t:'cycle_param', num:208, q:'Q335', value:30, label:'Bore diameter Q335 = +30',
          hint:'Q335 is the DIAMETER, not the radius.'},
         {t:'cycle_param', num:208, q:'Q201', value:-8, label:'Depth Q201 = -8',
          hint:'Depth is negative: Q201=-8.'},
@@ -1129,9 +1134,9 @@ var LESSONS = [
       ]
     },
     {
-      prompt:'Mill the pocket: position to the centre X+50 Y+40 and call the cycle with M99',
+      prompt:'Mill the bore: position to the centre X+50 Y+40 and call the cycle with M99',
       hints:[
-        "The cycle knows the pocket shape — you just take the tool to the centre and fire it with <code>M99</code>.",
+        "The cycle knows the bore shape — you just take the tool to the centre and fire it with <code>M99</code>.",
         "One line.",
         "<code>L X+50 Y+40 FMAX M99</code>"
       ],
@@ -1142,14 +1147,14 @@ var LESSONS = [
          hint:'L X+50 Y+40 FMAX M99'},
         {t:'reach', cut:true, x:60, y:40, tol:0.8, label:'Tool reaches the D30 wall (centre path at R10)',
          hint:'With a D10 tool the centre circles at R15\u22125 = 10 mm from the middle.'},
-        {t:'min_z', z:-8, label:'Pocket floor at Z-8',
+        {t:'min_z', z:-8, label:'Bore floor at Z-8',
          hint:'The depth comes from Q201.'}
       ]
     },
     {
-      prompt:'Enlarge the pocket to D40 by changing ONE parameter, then check the new wall',
+      prompt:'Enlarge the bore to D40 by changing ONE parameter, then check the new wall',
       hints:[
-        "The pocket diameter is a single parameter — change it and the pocket grows.",
+        "The bore diameter is a single parameter — change it and the bore grows.",
         "Find <code>Q335=+30</code> (the nominal diameter) and make it +40.",
         "<code>Q335=+40</code>"
       ],
@@ -1169,14 +1174,15 @@ var LESSONS = [
   card:{
     lead:'A precise hole is made in three steps: <b>centre drill</b>, <b>drill</b>, <b>reamer</b>. All three tools go to the same positions, so the positions are written once in a subprogram.',
     syntax:[
-      { code:'CYCL DEF 201', text:'Defines reaming: feed in to the depth, optional dwell, feed out again.' },
+      { code:'CYCL DEF 201', text:'Defines reaming: feed in to the depth, optional dwell, feed out again.',
+        figure:function(){ return learnFigFrom(learnSvgPrecisionChain()); } },
       { code:'Q208=+..', text:'Feed rate for the way out of the hole.' },
       { code:'Q211=+..', text:'Dwell time at the bottom, in seconds.' },
       { code:'CALL LBL 1', text:'Runs the hole positions again with the tool and cycle that are active now.' }
     ],
     example:'CYCL DEF 201\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+80 ;plunge feed rate\n  Q211=+0 ;dwell at bottom\n  Q208=+400 ;retraction feed rate\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\nCALL LBL 1',
     rules:[
-      'After every tool change a new <code>CYCL DEF</code> is needed. <code>M99</code> always runs the cycle defined last.',
+      'Each tool needs its own <code>CYCL DEF</code> before its holes are called. <code>M99</code> always runs the cycle defined last.',
       'The drilled hole is slightly smaller than the reamer. The reamer removes only that small allowance.',
       'The reamer leaves the hole at the feed rate <code>Q208</code>, not at rapid traverse.'
     ],
@@ -1384,7 +1390,8 @@ var LESSONS = [
     syntax:[
       { code:'TOOL CALL 5 Z S.. F.. DL-2 DR+2', text:'Calls the countersink with a length offset and a radius offset.',
         figure:function(){ return learnFigFrom(learnSvgChamfer()); } },
-      { code:'CYCL DEF 200 … Q203=+2', text:'Hole smaller than the countersink: dip in like a drill. Raising the surface by 2 cancels <code>DL-2</code>.' },
+      { code:'CYCL DEF 200 … Q203=+2', text:'Hole smaller than the countersink: dip in like a drill. Raising the surface by 2 cancels <code>DL-2</code>.',
+        figure:function(){ return learnFigFrom(learnSvgChamferMethods()); } },
       { code:'CYCL DEF 208 … Q342=+..', text:'Hole larger than the countersink: mill around the rim. <code>Q342</code> is the diameter of the existing hole.' },
       { code:'L X.. Y.. RL', text:'Contour edge: run the contour once more with radius compensation, 1 mm below the top.' }
     ],
@@ -1517,13 +1524,15 @@ var LESSONS = [
     syntax:[
       { code:'Q1 = ..', text:'The depth for the next run of the contour.' },
       { code:'L Z+Q1 ..', text:'Inside the subprogram the depth is written as the parameter, not as a number.' },
-      { code:'LBL 1 … LBL 0', text:'The contour. Written in the program flow, it runs once at this place.' },
-      { code:'CALL LBL 1', text:'Runs the same contour again with the tool and the Q1 value that are active now.' }
+      { code:'LBL 1 … LBL 0', text:'The contour. Written in the program flow, it runs once at this place.',
+        figure:function(){ return learnFigFrom(learnSvgPartProfile()); } },
+      { code:'CALL LBL 1', text:'Runs the same contour again with the tool and the Q1 value that are active now.',
+        figure:function(){ return learnFigFrom(learnSvgFinalPasses()); } }
     ],
     example:'Q1 = -2\nLBL 1\nL X+20 Y+30 Z+2 FMAX\nL Z+Q1 F150\nL X+60 F300\nL Z+2 FMAX\nLBL 0\nQ1 = -4\nCALL LBL 1',
     rules:[
       'The parameter is read when the block runs. Set <code>Q1</code> before the label or the call that uses it.',
-      'The subprogram switches radius compensation on and off itself, so every run starts and ends with <code>R0</code>.',
+      'If the subprogram switches radius compensation on with <code>RL</code> or <code>RR</code>, it switches it off with <code>R0</code> before <code>LBL 0</code>. Every run then starts and ends without compensation.',
       'Z values are positions from the datum. If the top of the blank is not at Z+0, the depth is not the same number as the amount removed.'
     ],
     mistakes:[

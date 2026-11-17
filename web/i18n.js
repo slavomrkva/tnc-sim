@@ -89,8 +89,6 @@
       'learn.cardMistakes': 'Häufige Fehler',
       'learn.cardManual': 'Offizielles Handbuch',
       'learn.cardPage': 'S.',
-      'learn.figStart': 'Start',
-      'learn.figEnd': 'Endpunkt',
       'learn.cardManualNote': 'Öffnet das HEIDENHAIN-PDF und benötigt eine Verbindung. Die Seitenzahlen beziehen sich auf die Ausgabe 10/2023 und gelten daher auch für die eigene Kopie.',
       'learn.startHere': 'HIER STARTEN',
       'learn.complete': 'Lektionen abgeschlossen',

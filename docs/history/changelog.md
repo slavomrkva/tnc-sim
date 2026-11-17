@@ -1062,3 +1062,6 @@ History through v0.845 is preserved in
 - UI: `web/ui-shell.js` menus (Help, Program, Settings), neutral visual style, slate light theme, calm Learn colours, logo as home link.
 - Texts: Help, tool-table and What's new copy corrected; lesson 11 renamed to Bore milling. `core/` changes still need the Android port; test suite not run for this entry.
 - Learn polish (same release): correct the positive Y axis in the shared blank diagram; flat practice highlights and a neutral manual panel in both themes. Offline cache v121.
+- Learn figures (same release): every card carries exactly its lesson's slide figures via `learnFigFrom()`; the card-only `learnFigArcC`/`learnFigArcCR` and the finished-part rule were removed from code and `docs/learn-lesson-guide.md`. All `learnSvg*` drawings replaced by the owner's redrawn set (`--fig-*` palette in `web/styles.css`); obsolete light-theme hex overrides dropped.
+- Texts (same release): L11 tasks, hints, labels and slide use the official name bore milling / Bohrfräsen; card rules in L11, L20 and L23 corrected (EN+DE). Starters, solutions and checks unchanged.
+- UI (same release): running-line gutter mark and lesson-list hover border use neutral grey instead of the Learn green. All 53 `tests/*.test.js` and `tests/report-worker.test.mjs` pass.

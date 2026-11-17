@@ -358,7 +358,8 @@ html[data-theme="light"] footer .footer-play-icon{fill:rgba(243,136,59,.18);stro
 .line-nums .ln.err{color:#ff5d5d;font-weight:500;}
 .line-nums .ln.warn{color:#e8a23a;}
 .line-nums .ln.fixed{color:#e8a23a;font-weight:500;}
-.line-nums .ln.active{background:rgba(20,184,166,0.18);color:var(--accent);font-weight:600;border-left:2px solid var(--accent);}
+.line-nums .ln.active{background:rgba(226,232,238,0.16);color:#e8edf2;font-weight:600;border-left:2px solid #c8d0d8;}
+html[data-theme="light"] .line-nums .ln.active{background:rgba(71,85,105,0.12);color:#334155;border-left-color:#64748b;}
 .line-nums .ln.selected{border-left:2px solid var(--accent3);}
 @keyframes fixFlash{0%{background:rgba(232,162,58,0.5);}100%{background:transparent;}}
 .line-nums .ln.flash{animation:fixFlash 1.2s ease-out forwards;}
@@ -656,6 +657,9 @@ html[data-theme="light"] #learnPanel,html[data-theme="light"] #learnMobileBar{--
 .lp-body code{font-family:var(--mono);font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;}
 .learn-snippet{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--mono);font-size:13px;line-height:1.65;margin:0 0 11px;overflow-x:auto;white-space:pre;}
 .learn-svg{display:block;width:100%;margin:0 0 11px;}
+/* Learn figure palette: neutral steel for the part, amber + two blues for annotations. */
+.learn-svg{--fig-line:#93a1b0;--fig-fill:#93a1b0;--fig-a:#d6a460;--fig-b:#7fb0e0;--fig-c:#b9d3ee;}
+html[data-theme="light"] .learn-svg{--fig-line:#51626f;--fig-fill:#51626f;--fig-a:#8a5200;--fig-b:#1f5fa8;--fig-c:#4f86c6;}
 .learn-svg text[font-size="8.5"],.learn-svg text[font-size="9"],.learn-svg text[font-size="9.5"]{font-size:10.5px;}
 .learn-prog{display:flex;gap:5px;margin-bottom:12px;}
 .learn-prog button{height:24px;flex:1;border:0;background:transparent;display:block;cursor:pointer;padding:0;position:relative;}
@@ -700,10 +704,6 @@ html[data-theme="light"] .lp-btn.chk{background:#45b992;border-color:#27866d;col
 .lp-slides-nav .lp-slide-arrow{width:44px;min-width:44px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:22px;}
 .lp-slides-nav .lp-btn:hover:not(:disabled){background:var(--accent);color:#fff;}
 .lp-slides-nav .lp-btn:disabled{opacity:.35;cursor:default;}
-html[data-theme="light"] .learn-svg [fill="#f0a94a"]{fill:#945000;}
-html[data-theme="light"] .learn-svg [stroke="#f0a94a"]{stroke:#945000;}
-html[data-theme="light"] .learn-svg [fill="#5dcaa5"]{fill:#176b58;}
-html[data-theme="light"] .learn-svg [stroke="#5dcaa5"]{stroke:#176b58;}
 @media(pointer:coarse){ .lp-btn{min-height:40px;padding:8px 12px;} .learn-li{padding:13px 12px;} }
 @media(max-width:1024px), (max-height:600px){
   #learnPanel{width:100%;min-width:0;max-width:none;border-right:none;border-bottom:2px solid var(--accent);}
@@ -992,8 +992,6 @@ html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);
 /* Mistakes carry the only red on the card. */
 .lc-list.lc-x li::before{content:'\2715';color:#e5484d;font-size:11px;line-height:1.9;}
 .lc .lc-fig{display:block;box-sizing:border-box;margin:11px 0 0;max-width:400px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px;}
-.lc-fig .lc-fc{font-family:var(--mono);font-size:12.5px;font-weight:700;}
-.lc-fig .lc-fw{font-family:var(--sans);font-size:12px;}
 .lc .learn-snippet{margin-bottom:0;}
 .lc-sec.lc-manual{border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.055);padding:12px 13px 11px;}
 html[data-theme="light"] .lc-sec.lc-manual{background:rgba(0,0,0,.045);}
@@ -1463,6 +1461,7 @@ html.ui-shell .learn-li.lock:hover{border-color:var(--border);}
 html.ui-shell .learn-summary{background:none;border:0;padding:0 2px;margin-bottom:12px;}
 /* Lesson list: the number chip carries the Learn colour. */
 html.ui-shell .learn-li .li-num{background:var(--lp-pri);color:#fff;}
-html.ui-shell .learn-li:hover{border-color:var(--lp-pri);}
+html.ui-shell .learn-li:hover{border-color:#c8d0d8;}
+html[data-theme="light"].ui-shell .learn-li:hover{border-color:#64748b;}
 html.ui-shell .learn-li.lock .li-num{background:var(--surface2);}
 html.ui-shell .learn-summary b{color:var(--lp-ok);}

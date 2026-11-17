@@ -21,6 +21,12 @@ in `NOTES.md`; this file is the short, human-readable history.
   after a few seconds instead of waiting on the network.
 - Lesson diagrams show the Y+ direction correctly; practice highlights are
   calmer and the manual panel is neutral.
+- Every lesson card shows all drawings from the earlier slides, redrawn in a
+  neutral palette with corrected labels.
+- Lesson 11 uses the official cycle name, bore milling, throughout; a few
+  card rules in lessons 11, 12 and 15 are worded more precisely.
+- The running program line and the hovered lesson are marked in neutral grey
+  instead of green.
 
 ## v0.950 — web fixes (version retained)
 - Recalculate compensated paths after tool-table edits or imports.
