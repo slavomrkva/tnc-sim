@@ -132,14 +132,14 @@ var LESSONS = [
       answerPrefix:'; ',
       hints:[
         'A comment is a note for a human; the control skips it. Which character starts one? The reference shows it.',
-        'Put a new line of your own <b>above</b> the first BLK FORM line. It has to start with <code>;</code> \u2014 everything after that is free text.',
-        'Type exactly this as a new line before <code>BLK FORM 0.1</code>:<br><code>; blank 100 x 80 x 20</code>'
+        'The highlighted line already starts with <code>;</code> \u2014 type your note right after it. Everything after the semicolon is free text.',
+        'Complete the highlighted line so it reads:<br><code>; blank 100 x 80 x 20</code>'
       ],
       solRepl:['BLK FORM 0.1','; blank 100 x 80 x 20\nBLK FORM 0.1'],
       starter:'BEGIN PGM FIRST MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\n\nEND PGM FIRST MM',
       checks:[
         {t:'has_comment', label:'Program contains a comment (text after ;)',
-         hint:'Everything after a semicolon is a comment. Add a line like:  ; blank 100 x 80 x 20'},
+         hint:'Everything after a semicolon is a comment. Write your note after the ; in the highlighted line, e.g.  ; blank 100 x 80 x 20'},
         {t:'begin_end', label:'Program skeleton still valid',
          hint:'Keep BEGIN PGM / END PGM and both BLK FORM lines untouched.'},
         {t:'blk', dx:100, dy:80, dz:20, label:'Blank unchanged (100 \u00d7 80 \u00d7 20 mm)',
@@ -260,7 +260,7 @@ var LESSONS = [
       prompt:'Prepare the D6.8 drill (tool 4): tool call with S2500 F150, spindle and coolant ON, and both OFF at the end',
       hints:[
         "Follow the usual order: load the tool, switch things on, machine, switch them off.",
-        "<code>TOOL CALL 4 Z S2500 F150</code>, then <code>M3</code> and <code>M8</code>; leave the drilling gap; end with <code>M5</code> then <code>M9</code>.",
+        "<code>TOOL CALL 4 Z S2500 F150</code>, then <code>M3</code> and <code>M8</code>; finish with <code>M5</code>, then <code>M9</code>.",
         "<code>TOOL CALL 4 Z S2500 F150</code><br><code>M3</code><br><code>M8</code><br>…<br><code>M5</code><br><code>M9</code>"
       ],
       sol:'TOOL CALL 4 Z S2500 F150\nM3\nM8\n; ...drilling here...\nM5\nM9',
@@ -910,7 +910,7 @@ var LESSONS = [
       prompt:'Wrap the two drilling blocks into a subprogram: put LBL 1 above them and LBL 0 below them',
       hints:[
         "A <b>subprogram</b> is a labelled block you can reuse. <code>LBL 1</code> opens it, <code>LBL 0</code> closes it.",
-        "Put <code>LBL 1</code> on the line above the two drilling blocks and <code>LBL 0</code> on the line below them.",
+        "Put <code>LBL 1</code> on a line above the two drilling blocks and <code>LBL 0</code> on a line below them. Enter at the very start of the first highlighted line opens a line above it.",
         "<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>"
       ],
       starter:'BEGIN PGM SUB MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-5 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; wrap the two blocks below into LBL 1 ... LBL 0\n\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\n\nM5\nM9\nEND PGM SUB MM',
@@ -1109,7 +1109,7 @@ var LESSONS = [
       prompt:'Define cycle 208 for bore milling: diameter 30 mm, 8 mm deep, 2 mm per helix turn, clearance 2 mm, surface at Z+0, climb milling',
       hints:[
         "<code>CYCL DEF 208</code> mills a round bore by helixing down. Q values set diameter, depth, infeed per turn… (see the example in the reference).",
-        "Watch <code>Q201</code>=-8 depth, <code>Q334</code>=2 per turn, <code>Q335</code>=30 diameter, <code>Q351</code>=+1 climb.",
+        "Watch <code>Q201</code>=-8 depth, <code>Q334</code>=2 per turn, <code>Q335</code>=30 diameter, <code>Q351</code>=+1 climb, <code>Q370</code>=+1 path overlap.",
         "Type the <code>CYCL DEF 208</code> block as in the reference example, with <code>Q201=-8</code>, <code>Q334=+2</code>, <code>Q335=+30</code>, <code>Q351=+1</code> and <code>Q370=+1</code>."
       ],
       starter:'BEGIN PGM POCKET MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; define the cycle here\n\nM5\nM9\nEND PGM POCKET MM',
@@ -1368,10 +1368,10 @@ var LESSONS = [
       ]
     },
     {
-      prompt:'Tap both holes in one go instead: replace the single call with CALL LBL 1',
+      prompt:'Tap both holes in one go: instead of a single M99 call, run both stored positions with CALL LBL 1',
       hints:[
         "Both positions already live in <code>LBL 1</code> — reuse them instead of the single call.",
-        "Replace the single line with the label call.",
+        "One line calls the label.",
         "<code>CALL LBL 1</code>"
       ],
       starter:'BEGIN PGM TAP MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-18 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+8 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\nLBL 1\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\nLBL 0\nTOOL CALL 7 Z S200 F250\nCYCL DEF 209 ;Tapping with Chip Breaking\n  Q200=+2 ;Safety clearance [mm]\n  Q201=-15 ;Thread depth [mm]\n  Q239=+1.25 ;Thread pitch [mm/rev]\n  Q203=+0 ;Surface coordinate [mm]\n  Q204=+30 ;2nd safety clearance [mm]\n  Q257=+4 ;Depth per chip break [mm]\n  Q256=+0.5 ;Chip break retract [× pitch]\n  Q336=+0 ;Spindle angle [deg]\n  Q403=+1 ;Retraction factor [×]\n; >>> write here\n\nM5\nM9\nEND PGM TAP MM',
@@ -1518,7 +1518,7 @@ var LESSONS = [
   ]
 },
 {
-  id:'L23', title:'Parametric contour \u2014 one profile, milled then chamfered',
+  id:'L23', free:true, title:'Parametric contour \u2014 one profile, milled then chamfered',
   card:{
     lead:'Write a contour <b>once</b> in a subprogram and let a Q parameter set its depth. A second tool then repeats the same path with one changed number.',
     syntax:[
@@ -1585,7 +1585,7 @@ var LESSONS = [
         {t:'uses', re:/RND\s+R15\b/, label:'R15 rounded corner',
          hint:'RND R15 after L Y+95.'},
         {t:'uses', re:/CHF\s+15\b/, label:'15\u00d745\u00b0 chamfer',
-         hint:'CHF 15 between L Y+5 and L X+5.'},
+         hint:'CHF 15 between L Y+5 and L X-5.'},
         {t:'uses', re:/Z\+50[^\n]*\bR0\b/, label:'Comp cancelled on the retract (Z+50 R0)',
          hint:'L Z+50 FMAX R0 \u2014 keep comp on until the tool is clear, cancel on the retract.'},
         {t:'reach', cut:true, x:0, y:50, z:0, tol:0.9, label:'Left wall cut to the floor (tool centre X+0)',

@@ -689,6 +689,7 @@ html[data-theme="light"] .learn-svg{--fig-line:#51626f;--fig-fill:#51626f;--fig-
 .lp-check.bad .c-ic{color:#e24b4a;}
 .lp-check .c-hint{display:block;color:#f0a94a;font-size:12px;margin-top:3px;line-height:1.4;}
 .lp-success{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 13px;border-radius:7px;background:rgba(93,202,165,.14);border:1px solid rgba(93,202,165,.5);color:#5dcaa5;font-size:13.5px;font-weight:600;font-family:var(--sans);line-height:1.45;}
+.lp-success .lp-success-run{margin-top:8px;font-weight:600;}
 .lp-btn{font-family:var(--mono);font-size:12.5px;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;}
 .lp-btn:hover{border-color:var(--text3);color:var(--text);}
 .lp-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
@@ -808,10 +809,6 @@ html[data-theme="light"] .lp-btn.chk{background:#45b992;border-color:#27866d;col
      the keyboard is dismissed. Rides on the same visualViewport detection that
      hides the bottom tab bar, so no extra keyboard logic is needed. */
   html.kbd-open body[data-mtab="editor"] #learnMobileBar.on{display:none !important;}
-  /* reclaim vertical space during practice: hide the app header on mobile */
-  body.practice-on[data-mtab="editor"] > header{display:none;}
-  /* and hide the Learn/Help/Export/Import row during practice (not needed there) */
-  body.practice-on[data-mtab="editor"] .panel-header{display:none;}
 }
 
 
@@ -931,7 +928,6 @@ html[data-theme="light"] .lp-theory:not([open]){background:rgba(23,107,88,.075);
     border-right-color:rgba(var(--accent-rgb),.55);
   }
   body.learn-desktop-practice .panel-resize{display:none;}
-  body.learn-desktop-practice .editor-panel>.panel-header{display:none;}
   body.learn-desktop-practice .learn-answer-head{
     display:flex;
     min-height:96px;
@@ -1465,3 +1461,88 @@ html.ui-shell .learn-li:hover{border-color:#c8d0d8;}
 html[data-theme="light"].ui-shell .learn-li:hover{border-color:#64748b;}
 html.ui-shell .learn-li.lock .li-num{background:var(--surface2);}
 html.ui-shell .learn-summary b{color:var(--lp-ok);}
+
+/* Learn practice mode: the layout stays the same and every working control
+   stays active. Only controls that would replace the lesson program (editor
+   Reset/Clear/demo picker), delete buttons on locked rows and keys the task
+   does not use are dimmed (.learn-off). Body classes set by
+   core/learn-tutorial.js. */
+.learn-locked-line{opacity:.45;}
+.line-nums .ln.learn-locked{opacity:.45;}
+.learn-off{opacity:.3 !important;pointer-events:none !important;filter:grayscale(1);}
+
+/* Learn practice: the question and the answer lines use the light-theme
+   palette on white in both themes; the rest of the editor keeps its theme. */
+body.learn-practice .learn-answer-head,
+body.learn-practice .lp-task{
+  --bg:#f2f2f2; --surface:#ffffff; --surface2:#e8e9ea; --border:#cdced1;
+  --text:#1c1d1f; --text2:#4a4d51; --text3:#64676c;
+  --learn-question-bg:#ffffff;
+  --learn-answer-mark:#9b8052; --learn-answer-label:#65502f;
+  color:var(--text); color-scheme:light;
+}
+body.learn-practice #hlLayer .learn-answer-line{background:#ffffff;color:#1c1d1f;box-shadow:inset 3px 0 0 #9b8052;}
+body.learn-practice .line-nums .ln.learn-target{background:#ffffff;color:#65502f;}
+body.learn-practice textarea#code{caret-color:var(--accent);}
+body.learn-practice #hlLayer .learn-answer-line .syn-comment{color:#2f9e57;}
+body.learn-practice #hlLayer .learn-answer-line .syn-tool{color:#c2440a;}
+body.learn-practice #hlLayer .learn-answer-line .syn-lbl{color:#1a52a8;}
+body.learn-practice #hlLayer .learn-answer-line .syn-qvar{color:#1558d4;}
+body.learn-practice #hlLayer .learn-answer-line .syn-cycle{color:#8a5a12;}
+
+/* Learn practice: keys the task needs stand out from the dimmed rest. */
+body.learn-locked #keypad .key:not(.learn-off){
+  background:#9b8052 !important;color:#ffffff !important;
+  border:1px solid #9b8052 !important;box-shadow:none !important;font-weight:700;
+}
+body.learn-locked #keypad .key:not(.learn-off) *{color:#ffffff !important;stroke:currentColor;}
+body.learn-locked #keypad .key.learn-off{opacity:.22 !important;}
+/* Light theme: the editor itself is white, so the locked program turns light
+   grey and the white answer lines get a visible frame. */
+html[data-theme="light"] body.learn-locked .code-area-wrap{background:#eceef1 !important;}
+html[data-theme="light"] body.learn-locked .line-nums{background:#dfe2e6;}
+html[data-theme="light"] body.learn-practice #hlLayer .learn-answer-line{
+  box-shadow:inset 3px 0 0 #9b8052,inset 0 1px 0 #c3c8cf,inset 0 -1px 0 #c3c8cf;
+}
+html[data-theme="light"] body.learn-practice .line-nums .ln.learn-target{background:#ffffff;color:#65502f;}
+html[data-theme="light"] body.learn-practice .learn-answer-head,
+html[data-theme="light"] body.learn-practice .lp-task{
+  border:1px solid #b6bcc4;border-left:3px solid #9b8052;box-shadow:none;
+}
+
+/* What's new and the bug report follow the Learn card style: sans text,
+   neutral surfaces, one muted primary action, no glowing accents. */
+:root{--calm-pri:#1d7d72;--calm-pri-h:#238b7f;}
+html[data-theme="light"]{--calm-pri:#0f6f65;--calm-pri-h:#0b5d55;}
+.whats-new-card{background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.28);border-radius:10px;}
+.whats-new-eyebrow{color:var(--text3) !important;}
+.whats-new-head h2{font-family:var(--sans);font-weight:650;}
+.whats-new-body li{font-family:var(--sans) !important;font-size:13.5px !important;line-height:1.55 !important;color:var(--text) !important;}
+.whats-new-body li>span:first-child{color:var(--text3) !important;font-weight:600 !important;}
+.whats-new-body li a{color:var(--text) !important;}
+.whats-new-dot{background:var(--text3) !important;box-shadow:none !important;}
+#bugOverlay .help-modal{background:var(--surface);}
+#bugOverlay .help-modal h2{font-family:var(--sans) !important;font-weight:650;}
+#bugOverlay label,#bugOverlay .help-body{font-family:var(--sans);}
+.bug-choice-btn{font-family:var(--sans) !important;font-size:13px !important;background:var(--surface2) !important;color:var(--text2) !important;}
+.bug-choice-btn.on{border-color:var(--text3) !important;color:var(--text) !important;background:var(--bg) !important;font-weight:600;}
+#bugDesc{font-family:var(--sans) !important;font-size:13px !important;}
+#bugWarn{font-family:var(--sans) !important;font-size:12px !important;color:var(--text2) !important;
+  background:var(--surface2) !important;border:1px solid var(--border) !important;}
+#bugSendBtn{font-family:var(--sans) !important;font-size:13px !important;font-weight:600;
+  background:var(--calm-pri) !important;border-color:var(--calm-pri) !important;color:#fff !important;}
+#bugSendBtn:hover:not(:disabled){background:var(--calm-pri-h) !important;border-color:var(--calm-pri-h) !important;}
+#bugOverlay .help-body button[onclick^="closeBugReport"]{font-family:var(--sans) !important;font-size:13px !important;}
+#bugEmailBtn,#bugDownloadBtn{font-family:var(--sans) !important;font-size:13px !important;
+  border-color:var(--border) !important;background:var(--surface2) !important;color:var(--text) !important;}
+
+/* Light theme practice: pale-yellow answer rows and softer yellow task keys. */
+html[data-theme="light"] body.learn-practice #hlLayer .learn-answer-line{background:#fbf0d4;}
+html[data-theme="light"] body.learn-practice .line-nums .ln.learn-target{background:#fbf0d4;}
+html[data-theme="light"] body.learn-locked #keypad .key:not(.learn-off){
+  background:#e8cf96 !important;border-color:#d4b673 !important;color:#4a3814 !important;
+}
+html[data-theme="light"] body.learn-locked #keypad .key:not(.learn-off) *{color:#4a3814 !important;}
+/* Light theme practice: the question card is pale yellow like the answer rows. */
+html[data-theme="light"] body.learn-practice .learn-answer-head,
+html[data-theme="light"] body.learn-practice .lp-task{--learn-question-bg:#fbf0d4;background:#fbf0d4;}

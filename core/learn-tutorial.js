@@ -826,29 +826,31 @@ function _learnLineOffset(code, line){
 }
 
 /* Build both the starter and its visual answer range. Existing `; >>>` cues
-   become a short marker followed by enough blank blocks for the official
-   solution. A task that inserts at the first blank gap gets the same treatment.
+   become enough blank blocks for the official solution; the highlighted,
+   locked answer range replaces any in-program marker. A task that inserts at
+   the first blank gap gets the same treatment.
    Direct replacement tasks keep their source intact and highlight the blocks
    that should be edited. */
 function _learnStarterPlan(L, ti){
   var T = L.tasks[ti];
   var starter = T.starter || '';
   var count = _learnAnswerLineCount(T);
-  var cue = _learnTaskComment(L, ti);
   var code = starter;
   var start = -1;
   var mode = 'edit';
   var caretColumn = 0;
 
-  if(/^[ \t]*;[ \t]*>>>/m.test(starter)){
-    code = starter.replace(/^[ \t]*;[ \t]*>>>.*$(?:\n[ \t]*)*/m,
-      cue + '\n'.repeat(count + 1));
-    start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+  var markRe = /^[ \t]*;[ \t]*>>>.*$(?:\n[ \t]*)*/m;
+  var gapRe = /\n(?:[ \t]*\n)+/;
+  if(markRe.test(starter)){
+    var markAt = starter.search(markRe);
+    code = starter.replace(markRe, '\n'.repeat(count));
+    start = _learnLineIndexAt(starter, markAt);
     mode = 'insert';
-  } else if(T.sol !== undefined && /\n(?:[ \t]*\n)+/.test(starter)){
-    code = starter.replace(/\n(?:[ \t]*\n)+/,
-      '\n' + cue + '\n'.repeat(count + 1));
-    start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+  } else if(T.sol !== undefined && gapRe.test(starter)){
+    var gapAt = starter.search(gapRe);
+    code = starter.replace(gapRe, '\n'.repeat(count + 1));
+    start = _learnLineIndexAt(starter, gapAt) + 1;
     mode = 'insert';
   } else if(T.solRepl){
     var oldText = String(T.solRepl[0]);
@@ -866,9 +868,9 @@ function _learnStarterPlan(L, ti){
           start = _learnLineIndexAt(code, lineAt);
           caretColumn = prefix.length;
         } else {
-          code = starter.slice(0, lineAt) + cue + '\n'.repeat(count + 1)
+          code = starter.slice(0, lineAt) + '\n'.repeat(count)
             + starter.slice(lineAt);
-          start = _learnLineIndexAt(code, code.indexOf(cue)) + 1;
+          start = _learnLineIndexAt(code, lineAt);
         }
         mode = 'insert';
       } else {
@@ -888,10 +890,221 @@ function _learnStarterFor(L, ti){
 function learnAnswerLineRange(){
   if(typeof LEARN === 'undefined' || !LEARN || !LEARN.open
     || LEARN.lesson < 0 || LEARN.task < 0 || LEARN.answerStartLine < 0) return null;
+  if(LEARN.lock && typeof codeEl !== 'undefined' && codeEl){
+    var rows = String(codeEl.value).split('\n');
+    return {
+      start: LEARN.lock.prefix.length,
+      end: Math.max(LEARN.lock.prefix.length, rows.length - LEARN.lock.suffix.length - 1)
+    };
+  }
   return {
     start: LEARN.answerStartLine,
     end: LEARN.answerStartLine + Math.max(1, LEARN.answerLineCount || 1) - 1
   };
+}
+
+/* -- Practice lock ---------------------------------------------------
+   During a task only the answer lines are editable. The blocks before and
+   after the answer are captured when the task starts; any edit that would
+   change them is refused (native input) or rolled back (every other editor
+   path ends in updateLineNums(), which calls learnEnforceLock()). The answer
+   range therefore grows and shrinks with the learner's own lines. */
+function _learnLockActive(){
+  return !!(typeof LEARN !== 'undefined' && LEARN && LEARN.open
+    && LEARN.lesson >= 0 && LEARN.task >= 0 && LEARN.lock);
+}
+
+function _learnLockCapture(code, start, count){
+  if(start < 0){ LEARN.lock = null; return; }
+  var rows = String(code).split('\n');
+  LEARN.lock = {
+    prefix: rows.slice(0, start),
+    suffix: rows.slice(start + Math.max(1, count)),
+    good: String(code)
+  };
+}
+
+function _learnLockValid(code){
+  var lock = LEARN.lock;
+  var rows = String(code).split('\n');
+  if(rows.length < lock.prefix.length + lock.suffix.length + 1) return false;
+  for(var i = 0; i < lock.prefix.length; i++){ if(rows[i] !== lock.prefix[i]) return false; }
+  var off = rows.length - lock.suffix.length;
+  for(var j = 0; j < lock.suffix.length; j++){ if(rows[off + j] !== lock.suffix[j]) return false; }
+  return true;
+}
+
+function learnLineLocked(idx){
+  if(!_learnLockActive()) return false;
+  var r = learnAnswerLineRange();
+  return !r || idx < r.start || idx > r.end;
+}
+
+var _learnLockNoticeAt = 0;
+function _learnLockNotice(){
+  var now = Date.now();
+  if(now - _learnLockNoticeAt < 2500) return;
+  _learnLockNoticeAt = now;
+  if(typeof _toast === 'function')
+    _toast(_lt('learn.locked', 'In this task you only write in the highlighted lines.'));
+}
+
+/* Put the caret on the first empty answer line, or at the end of the answer. */
+function _learnAnswerCaret(){
+  var r = learnAnswerLineRange();
+  var rows = String(codeEl.value).split('\n');
+  var line = r.end;
+  for(var i = r.start; i <= r.end; i++){ if(!String(rows[i] || '').trim()){ line = i; break; } }
+  return _learnLineOffset(codeEl.value, line) + String(rows[line] || '').length;
+}
+
+function _learnSetCaret(pos){
+  if(typeof syncEditorSelection === 'function') syncEditorSelection(pos, pos);
+  else if(codeEl.setSelectionRange) codeEl.setSelectionRange(pos, pos);
+  if(typeof saveLastSel === 'function') saveLastSel();
+}
+
+/* A programming key or a click on a locked block moves the caret into the
+   answer, so whatever the learner inserts lands where it can be graded. */
+function learnLockCaret(){
+  if(!_learnLockActive()) return false;
+  var line = _learnLineIndexAt(codeEl.value, codeEl.selectionStart);
+  var endLine = _learnLineIndexAt(codeEl.value, codeEl.selectionEnd);
+  if(!learnLineLocked(line) && !learnLineLocked(endLine)) return false;
+  _learnSetCaret(_learnAnswerCaret());
+  return true;
+}
+
+function learnEnforceLock(){
+  if(!_learnLockActive() || typeof codeEl === 'undefined' || !codeEl) return true;
+  if(_learnLockValid(codeEl.value)){ LEARN.lock.good = codeEl.value; return true; }
+  codeEl.value = LEARN.lock.good;
+  _learnSetCaret(_learnAnswerCaret());
+  _learnLockNotice();
+  return false;
+}
+
+/* Enter during a locked task always opens a new line inside the answer.
+   At the very start of the first answer line it opens the line ABOVE (tasks
+   that wrap the highlighted blocks in LBL 1 ... LBL 0 need that). Otherwise
+   the normal editor rule is kept unless it would reuse or create a line in
+   the locked program; then a blank line is opened below the caret line. */
+function _learnOpenLineAt(pos, caret){
+  if(typeof _undoPush === 'function') _undoPush();
+  codeEl.value = codeEl.value.slice(0, pos) + '\n' + codeEl.value.slice(pos);
+  _learnSetCaret(caret);
+  if(typeof dirty !== 'undefined') dirty = true;
+  if(typeof updateLineNums === 'function') updateLineNums();
+  if(typeof runValidation === 'function') runValidation();
+  return true;
+}
+
+function learnLockEnter(){
+  if(!_learnLockActive()) return false;
+  var r = learnAnswerLineRange();
+  var v = codeEl.value, s = codeEl.selectionStart, e = codeEl.selectionEnd;
+  var rows = v.split('\n');
+  var line = _learnLineIndexAt(v, s);
+  if(learnLineLocked(line) || learnLineLocked(_learnLineIndexAt(v, e))){
+    learnLockCaret();
+    return true;
+  }
+  var lineStart = _learnLineOffset(v, line);
+  if(s === e && line === r.start && s === lineStart && String(rows[line] || '').trim())
+    return _learnOpenLineAt(s, s);
+  if(typeof planProgramBlockInsertion === 'function'){
+    var plan = planProgramBlockInsertion(v, s, e, '', 'enter');
+    var target = plan.changed ? plan.insertLine
+      : (plan.reason === 'reuse-placeholder' ? _learnLineIndexAt(v, plan.caret) : -1);
+    var maxLine = plan.changed ? r.end + 1 : r.end;
+    if(target >= r.start && target <= maxLine) return false;
+  }
+  var lineEnd = lineStart + String(rows[line] || '').length;
+  return _learnOpenLineAt(lineEnd, lineEnd + 1);
+}
+
+/* Keys the current task needs, derived from the official answer. The rest of
+   the keypad stays in place but is dimmed and inactive during practice. */
+function learnTaskKeys(T){
+  var keys = {};
+  if(!T) return keys;
+  var text = T.sol !== undefined ? String(T.sol) : '';
+  if(T.sol === undefined && T.solRepl){
+    // A replacement task needs keys only for the blocks it adds; editing an
+    // existing block (RR on L Y+0, a cycle value) is plain typing.
+    var oldRows = String(T.solRepl[0]).split('\n');
+    var newRows = String(T.solRepl[1]).split('\n');
+    text = newRows.length > oldRows.length
+      ? newRows.filter(function(r){ return oldRows.indexOf(r) < 0; }).join('\n') : '';
+  }
+  var inCycle = false;
+  text.split('\n').forEach(function(raw){
+    var l = raw.trim().toUpperCase();
+    if(!l || l.charAt(0) === ';') return;
+    if(/^CYCL DEF/.test(l)){ keys['CYCL DEF'] = 1; inCycle = true; return; }
+    var q = /^Q(\d+)\s*=/.exec(l);
+    if(q){ if(!inCycle && Number(q[1]) < 200) keys.Q = 1; return; }
+    inCycle = false;
+    if(/^LP\s/.test(l)) keys.P = 1;
+    else if(/^L\s/.test(l)){ keys.L = 1; if(/\bI[XYZ][+-]/.test(l)) keys.I = 1; }
+    else if(/^CC\s/.test(l)) keys.CC = 1;
+    else if(/^CR\s/.test(l)) keys.CR = 1;
+    else if(/^CT\s/.test(l)) keys.CT = 1;
+    else if(/^C\s/.test(l)) keys.C = 1;
+    else if(/^RND\b/.test(l)) keys.RND = 1;
+    else if(/^CHF\b/.test(l)) keys.CHF = 1;
+    else if(/^(APPR|DEP)\b/.test(l)) keys['APPR/DEP'] = 1;
+    else if(/^BLK FORM/.test(l)) keys['BLK FORM'] = 1;
+    else if(/^CYCL CALL/.test(l)) keys['CYCL CALL'] = 1;
+    else if(/^TOOL CALL/.test(l)) keys['TOOL CALL'] = 1;
+    else if(/^TOOL DEF/.test(l)) keys['TOOL DEF'] = 1;
+    else if(/^CALL LBL/.test(l)) keys['LBL CALL'] = 1;
+    else if(/^LBL\b/.test(l)) keys['LBL SET'] = 1;
+    else if(/^M\d/.test(l)) keys.M = 1;
+  });
+  return keys;
+}
+
+function _learnApplyKeypad(){
+  var pad = document.getElementById('keypad');
+  if(!pad || typeof ALL_KEYS === 'undefined' || !pad.querySelectorAll) return;
+  var active = _learnLockActive();
+  var need = learnTaskKeys(active ? LESSONS[LEARN.lesson].tasks[LEARN.task] : null);
+  var keysEls = pad.querySelectorAll('.key');
+  for(var i = 0; i < keysEls.length; i++){
+    var obj = ALL_KEYS[parseInt(keysEls[i].getAttribute('data-idx'), 10)];
+    var off = active && !need[obj ? obj.key : ''];
+    keysEls[i].classList.toggle('learn-off', off);
+    if(off) keysEls[i].setAttribute('aria-disabled', 'true');
+    else keysEls[i].removeAttribute('aria-disabled');
+  }
+}
+
+/* One line under the question: how much to write and where. */
+function learnAnswerHint(){
+  var FL = (typeof LEARN !== 'undefined' && LEARN && LEARN.lesson >= 0 && LEARN.task >= 0)
+    ? LESSONS[LEARN.lesson] : null;
+  if(FL && FL.free) return _lt('learn.freeWrite', 'Write your answer in the program yourself.');
+  if(!_learnLockActive()) return '';
+  // Count the lines the learner really writes: comment lines in the official
+  // answer (e.g. a "; ...drilling here..." placeholder) are not required.
+  var T = FL.tasks[LEARN.task];
+  var n = LEARN.answerLineCount || 1;
+  if(T.sol !== undefined){
+    n = String(T.sol).split('\n').filter(function(l){
+      l = l.trim(); return l && l.charAt(0) !== ';';
+    }).length || n;
+  }
+  if(LEARN.answerMode === 'edit' && T.solRepl){
+    var added = String(T.solRepl[1]).split('\n').length - String(T.solRepl[0]).split('\n').length;
+    if(added > 0)
+      return _lt('learn.addAround', 'Add {n} lines around the highlighted lines.').replace('{n}', added);
+  }
+  if(LEARN.answerMode === 'edit')
+    return n === 1 ? _lt('learn.editOne', 'Change the highlighted line.')
+      : _lt('learn.editMany', 'Change the highlighted lines.');
+  return n === 1 ? _lt('learn.writeOne', 'Write 1 line in the highlighted area.')
+    : _lt('learn.writeMany', 'Write {n} lines in the highlighted area.').replace('{n}', n);
 }
 
 function _learnSolvedCode(L, ti){
@@ -1142,6 +1355,7 @@ function closeLearn(){
 }
 
 function learnOpenLesson(i){
+  LEARN.lock = null;
   LEARN.lesson = i; LEARN.slide = 0; LEARN.task = -1;
   LEARN.lastResults = null; LEARN.hint = 0; LEARN.live = null; LEARN.view = 'lesson';
   learnRender();
@@ -1153,12 +1367,13 @@ function learnNav(d){
   learnRender();
 }
 
-function learnBackToList(){ LEARN.view = 'list'; LEARN.lesson = -1; learnRender(); }
+function learnBackToList(){ LEARN.lock = null; LEARN.view = 'list'; LEARN.lesson = -1; learnRender(); }
 
 function learnSolve(){
   var pw = prompt('Password:');
   if(pw !== '1234') return;
   var code = _learnSolvedCode(LESSONS[LEARN.lesson], LEARN.task);
+  LEARN.lock = null;
   codeEl.value = code;
   if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
   dirty = true; updateLineNums();
@@ -1192,6 +1407,14 @@ function learnStartTask(ti){
   codeEl.value = plan.code;
   LEARN.answerStartLine = plan.start;
   LEARN.answerLineCount = plan.count;
+  LEARN.answerMode = plan.mode;
+  // A free-practice lesson (the final one) has no highlighted range, no lock
+  // and no hints: the learner writes the program like on the control.
+  if(L.free) LEARN.answerStartLine = -1;
+  _learnLockCapture(plan.code, L.free ? -1 : plan.start, plan.count);
+  // Undo must never step back into the previous task's program.
+  if(typeof _undoStack !== 'undefined' && _undoStack) _undoStack.length = 0;
+  if(typeof _redoStack !== 'undefined' && _redoStack) _redoStack.length = 0;
   var caretAt = plan.start >= 0
     ? _learnLineOffset(codeEl.value, plan.start) + (plan.caretColumn || 0)
     : 0;
@@ -1260,6 +1483,7 @@ function _learnBindLive(){
 
 function learnFinishLesson(){
   _learnEndEditorInput();
+  LEARN.lock = null;
   // Keep LEARN.savedCode until Learn closes. The completed exercise may stay
   // visible inside Learn, but it must never replace the autosaved main program.
   LEARN.task = -1; LEARN.lastResults = null; LEARN.hint = 0; LEARN.live = null;
@@ -1272,8 +1496,22 @@ function learnFinishLesson(){
   if(_isMTab()) mtabSwitch('learn');
 }
 
+/* The last task's Check already stores the lesson as complete. The footer then
+   leads straight into the next lesson instead of back to the list. */
+function _learnNextLessonIndex(i){
+  for(var k = i + 1; k < LESSONS.length; k++){ if(!LESSONS[k].intro) return k; }
+  return -1;
+}
+
+function learnNextLesson(){
+  var next = _learnNextLessonIndex(LEARN.lesson);
+  learnFinishLesson();
+  if(next >= 0) learnOpenLesson(next);
+}
+
 function learnExit(){
   _learnEndEditorInput();
+  LEARN.lock = null;
   if(LEARN.savedCode !== null){
     codeEl.value = LEARN.savedCode; LEARN.savedCode = null;
     if(typeof syncEditorSelection==='function') syncEditorSelection(0,0);
@@ -1460,7 +1698,7 @@ function _learnResultsHtml(T){
     return '<div class="lp-check ' + (ok ? 'ok' : 'bad') + '">'
       + '<span class="c-ic">' + (ok ? '&#10003;' : '&#10007;') + '</span>'
       + '<span class="c-lb">' + ch.label
-      + (!ok && ch.hint ? '<span class="c-hint">&#128161; ' + ch.hint + '</span>' : '')
+      + (!ok && ch.hint && !(LESSONS[LEARN.lesson] && LESSONS[LEARN.lesson].free) ? '<span class="c-hint">&#128161; ' + ch.hint + '</span>' : '')
       + '</span></div>';
   }).join('');
   return '<div class="lp-results' + (done === T.checks.length ? ' all-ok' : '') + '">'
@@ -1515,7 +1753,7 @@ function _learnPracticeHtml(L){
   var res = LEARN.lastResults;
   var allOk = res && res.every(function(r){ return r.ok; });
   var lastTask = LEARN.task === L.tasks.length - 1;
-  var nHints = (T.hints && T.hints.length) || 0;
+  var nHints = L.free ? 0 : ((T.hints && T.hints.length) || 0);
   var shown  = Math.min(LEARN.hint || 0, nHints);
   var marked = /^[ \t]*;[ \t]*>>>/m.test(T.starter || '');
 
@@ -1524,9 +1762,10 @@ function _learnPracticeHtml(L){
     +   '<span class="lp-task-badge">' + _lt('learn.task', 'TASK') + ' ' + (LEARN.task + 1) + '/' + L.tasks.length + '</span>'
     + '</div>'
     + '<div class="lp-prompt" role="heading" aria-level="2">' + T.prompt + '</div>'
-    + '<div class="lp-where"><span class="lp-where-arrow" aria-hidden="true">&#8594;</span><span>' + (marked
-        ? _lt('learn.answerAtMark', 'Type directly below the marked <code>; &gt;&gt;&gt;</code> line in the highlighted editor.')
-        : _lt('learn.answerWhole', 'Write your answer in the highlighted editor.')) + '</span></div>'
+    + '<div class="lp-where"><span class="lp-where-arrow" aria-hidden="true">&#8594;</span><span>' + (learnAnswerHint()
+        || (marked
+          ? _lt('learn.answerAtMark', 'Type directly below the marked <code>; &gt;&gt;&gt;</code> line in the highlighted editor.')
+          : _lt('learn.answerWhole', 'Write your answer in the highlighted editor.'))) + '</span></div>'
     + '</div>';
 
   body += _learnTheoryHtml(L);
@@ -1545,8 +1784,9 @@ function _learnPracticeHtml(L){
   if(allOk){
     body += '<div class="lp-success">&#127881;<span>' + _lt('learn.passed', 'All goals met \u2014 well done!')
       + (lastTask
-          ? ' ' + _lt('learn.lessonDone', 'Lesson complete.') + '<br>&#9654; '
-            + _lt('learn.pressRun', 'Press <b>Run</b> and watch your program in 3D.')
+          ? ' ' + _lt('learn.lessonDone', 'Lesson complete.')
+            + '<br><button type="button" class="lp-btn lp-success-run" onclick="onRun()">&#9654; '
+            + _lt('learn.runNow', 'Run in 3D') + '</button>'
           : ' ' + _lt('learn.readyNext', 'Ready for the next task.')) + '</span></div>';
   }
   // The reference collapses during practice, but the official manual pages
@@ -1565,7 +1805,9 @@ function _learnPracticeHtml(L){
         : '')
     + (allOk
         ? (lastTask
-            ? '<button class="lp-btn pri grow" onclick="learnFinishLesson()">' + _lt('learn.finish', 'Finish lesson') + ' &#10003;</button>'
+            ? (_learnNextLessonIndex(LEARN.lesson) >= 0
+                ? '<button class="lp-btn pri grow" onclick="learnNextLesson()">' + _lt('learn.nextLesson', 'Next lesson') + ' &#8594;</button>'
+                : '<button class="lp-btn pri grow" onclick="learnFinishLesson()">' + _lt('learn.finish', 'Finish lesson') + ' &#10003;</button>')
             : '<button class="lp-btn pri grow" onclick="learnStartTask(' + (LEARN.task + 1) + ')">' + _lt('learn.next', 'Next') + ' &#8594;</button>')
         : '<button class="lp-btn chk grow" onclick="learnCheck()">' + _lt('learn.check', 'Check') + '</button>')
     + '</div>';
@@ -1685,6 +1927,13 @@ function learnRender(){
 /* Optional host chrome (the web editor's YOUR ANSWER band) is synchronized
    after core has finished rendering. Android has no hook and remains untouched. */
 function _learnNotifyHost(){
+  try {
+    if(typeof document !== 'undefined' && document.body)
+      document.body.classList.toggle('learn-practice', !!(LEARN.open && LEARN.lesson >= 0 && LEARN.task >= 0));
+    if(typeof document !== 'undefined' && document.body)
+      document.body.classList.toggle('learn-locked', _learnLockActive());
+    _learnApplyKeypad();
+  } catch(e){}
   try {
     if(typeof window !== 'undefined' && typeof window.learnHostUpdate === 'function'){
       window.learnHostUpdate();

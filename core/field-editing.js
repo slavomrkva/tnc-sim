@@ -111,6 +111,8 @@ function buildKeypad(){
     var i=parseInt(b.getAttribute('data-idx'),10);
     if(isNaN(i)) return;
     var obj=ALL_KEYS[i];
+    if(!kpHelpMode && b.classList.contains('learn-off')) return;
+    if(!kpHelpMode && typeof learnLockCaret==='function') learnLockCaret();
     if(kpHelpMode){
       var helpKey = obj.key || obj.code || '';
       if(obj.cyclPicker) helpKey='CYCL DEF';

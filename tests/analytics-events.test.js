@@ -37,7 +37,7 @@ const context = {
   VX_QUALITY: 1,
   curView: '3d',
   toolLibrary: [{T: 1, NAME: 'DEFAULT'}],
-  LESSONS: [{id: 'start'}, {id: 'contours'}],
+  LESSONS: [{id: 'start', tasks: [{}]}, {id: 'contours', tasks: [{}, {}, {}]}],
   LEARN: {open: false, lesson: -1, task: -1, hint: 0}
 };
 context.window = context;
@@ -53,7 +53,10 @@ context.toolSave = function(oldNum){
   if(oldNum === null) context.toolLibrary.push({T: 2, NAME: 'NEW'});
   else context.toolLibrary[0] = {T: 1, NAME: 'EDITED'};
 };
-context.learnOpenLesson = function(i){ context.LEARN.lesson = i; };
+context.learnOpenLesson = function(i){ context.LEARN.lesson = i; context.LEARN.task = -1; };
+context.learnStartTask = function(ti){ context.LEARN.task = ti; context.LEARN.lastResults = null; };
+context.learnCheck = function(){ context.LEARN.lastResults = [{ok: true}, {ok: context.failCheck ? false : true}]; };
+context.learnSolve = function(){ context.learnCheck(); };
 context.learnFinishLesson = function(){ context.LEARN.lesson = -1; };
 context.learnHint = function(){ context.LEARN.hint = Math.min(3, context.LEARN.hint + 1); };
 
@@ -123,20 +126,39 @@ assert.deepStrictEqual(
 );
 
 context.learnOpenLesson(1);
-context.LEARN.task = 2;
+context.learnStartTask(0);
+context.learnStartTask(0); // Reset reloads the same task
+context.failCheck = true;
+context.learnCheck();
+context.failCheck = false;
+context.learnCheck();
+context.learnCheck();
+context.learnStartTask(1);
+context.learnSolve();       // password shortcut is not tracked
+context.learnStartTask(2);
 context.learnHint();
+context.learnCheck();
+context.learnCheck();
 context.learnFinishLesson();
-assert.deepStrictEqual(events.find((e) => e.name === 'lesson_started').data, {
-  lesson_id: 'contours'
-});
-assert.deepStrictEqual(events.find((e) => e.name === 'lesson_hint_used').data, {
-  lesson_id: 'contours',
-  task: 3,
-  level: 1
-});
-assert.deepStrictEqual(events.find((e) => e.name === 'lesson_completed').data, {
-  lesson_id: 'contours'
-});
+const learnEvents = (name) => events.filter((e) => e.name === name).map((e) => e.data);
+assert.deepStrictEqual(learnEvents('lesson_started'), [{lesson_id: 'contours'}]);
+assert.deepStrictEqual(learnEvents('lesson_practice_started'), [{lesson_id: 'contours', task: 1}]);
+assert.deepStrictEqual(learnEvents('lesson_check_failed'), [{lesson_id: 'contours', task: 1}]);
+assert.deepStrictEqual(learnEvents('lesson_task_passed'), [
+  {lesson_id: 'contours', task: 1},
+  {lesson_id: 'contours', task: 3}
+]);
+assert.deepStrictEqual(learnEvents('lesson_hint_used'), [{lesson_id: 'contours', task: 3, level: 1}]);
+assert.deepStrictEqual(learnEvents('lesson_completed'), [{lesson_id: 'contours'}],
+  'completion fires once on the last passed task, without pressing Finish');
+
+// Reopening the lesson starts a new funnel.
+context.learnOpenLesson(1);
+context.learnStartTask(2);
+context.learnCheck();
+assert.strictEqual(learnEvents('lesson_started').length, 2);
+assert.strictEqual(learnEvents('lesson_practice_started').length, 2);
+assert.strictEqual(learnEvents('lesson_completed').length, 2);
 
 handlers['refine:click']();
 assert.deepStrictEqual(events.find((e) => e.name === 'simulation_refine_used').data, {

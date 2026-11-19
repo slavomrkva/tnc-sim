@@ -62,12 +62,12 @@ var LESSONS_DE = {
       prompt:'Füge dem Programm einen Kommentar hinzu \u2014 z. B. beschreibe das Rohteil',
       hints:[
         'Ein Kommentar ist eine Notiz für den Menschen; die Steuerung überspringt ihn. Welches Zeichen leitet ihn ein? Die Referenz zeigt es.',
-        'Setze eine eigene neue Zeile <b>über</b> die erste BLK-FORM-Zeile. Sie muss mit <code>;</code> beginnen \u2014 alles danach ist freier Text.',
-        'Tippe genau das als neue Zeile vor <code>BLK FORM 0.1</code>:<br><code>; Rohteil 100 x 80 x 20</code>'
+        'Die markierte Zeile beginnt bereits mit <code>;</code> \u2014 schreibe deine Notiz direkt dahinter. Alles nach dem Semikolon ist freier Text.',
+        'Vervollständige die markierte Zeile, sodass sie lautet:<br><code>; Rohteil 100 x 80 x 20</code>'
       ],
       checks:[
         {label:'Programm enthält einen Kommentar (Text nach ;)',
-         hint:'Alles nach einem Semikolon ist ein Kommentar. Füge eine Zeile hinzu wie:  ; Rohteil 100 x 80 x 20'},
+         hint:'Alles nach einem Semikolon ist ein Kommentar. Schreibe deine Notiz nach dem ; in der markierten Zeile, z. B.  ; Rohteil 100 x 80 x 20'},
         {label:'Programmgerüst weiterhin gültig',
          hint:'Lass BEGIN PGM / END PGM und beide BLK-FORM-Zeilen unangetastet.'},
         {label:'Rohteil unverändert (100 \u00d7 80 \u00d7 20 mm)',
@@ -181,7 +181,7 @@ var LESSONS_DE = {
       prompt:'Bereite den Bohrer D6.8 (Werkzeug 4) vor: Werkzeug-Aufruf mit S2500 F150, Spindel und Kühlmittel EIN, und beide am Ende AUS',
       hints:[
         'Folge der üblichen Reihenfolge: Werkzeug laden, einschalten, bearbeiten, ausschalten.',
-        '<code>TOOL CALL 4 Z S2500 F150</code>, dann <code>M3</code> und <code>M8</code>; lass die Bohr-Lücke; beende mit <code>M5</code>, dann <code>M9</code>.',
+        '<code>TOOL CALL 4 Z S2500 F150</code>, dann <code>M3</code> und <code>M8</code>; beende mit <code>M5</code>, dann <code>M9</code>.',
         '<code>TOOL CALL 4 Z S2500 F150</code><br><code>M3</code><br><code>M8</code><br>…<br><code>M5</code><br><code>M9</code>'
       ],
       checks:[
@@ -796,7 +796,7 @@ var LESSONS_DE = {
       prompt:'Fasse die beiden Bohrsätze in ein Unterprogramm: setze LBL 1 darüber und LBL 0 darunter',
       hints:[
         'Ein <b>Unterprogramm</b> ist ein benannter Block, den du wiederverwenden kannst. <code>LBL 1</code> öffnet ihn, <code>LBL 0</code> schließt ihn.',
-        'Setze <code>LBL 1</code> auf die Zeile über die beiden Bohrsätze und <code>LBL 0</code> auf die Zeile darunter.',
+        'Setze <code>LBL 1</code> auf eine Zeile über die beiden Bohrsätze und <code>LBL 0</code> auf eine Zeile darunter. Enter ganz am Anfang der ersten markierten Zeile öffnet eine Zeile darüber.',
         '<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>'
       ],
       checks:[
@@ -1230,10 +1230,10 @@ var LESSONS_DE = {
       ]
     },
     {
-      prompt:'Bohre stattdessen beide Gewinde auf einmal: ersetze den einzelnen Aufruf durch CALL LBL 1',
+      prompt:'Bohre beide Gewinde auf einmal: statt eines einzelnen M99-Aufrufs fährst du beide gespeicherten Positionen mit CALL LBL 1',
       hints:[
         'Beide Positionen liegen bereits in <code>LBL 1</code> \u2014 nutze sie erneut statt des einzelnen Aufrufs.',
-        'Ersetze die einzelne Zeile durch den Label-Aufruf.',
+        'Eine Zeile ruft das Label auf.',
         '<code>CALL LBL 1</code>'
       ],
       checks:[
@@ -1439,7 +1439,7 @@ var LESSONS_DE = {
         {label:'R15-gerundete Ecke',
          hint:'RND R15 nach L Y+95.'},
         {label:'15\u00d745\u00b0-Fase',
-         hint:'CHF 15 zwischen L Y+5 und L X+5.'},
+         hint:'CHF 15 zwischen L Y+5 und L X-5.'},
         {label:'Korrektur beim Rückzug aufgehoben (Z+50 R0)',
          hint:'L Z+50 FMAX R0 \u2014 Korrektur an lassen, bis das Werkzeug frei ist, beim Rückzug aufheben.'},
         {label:'Linke Wand bis zum Grund gefräst (Werkzeugmitte X+0)',

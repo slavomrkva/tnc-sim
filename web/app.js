@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '1.000';
+var APP_VERSION = '1.001';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -34,8 +34,9 @@ window.learnHostUpdate = function(){
   if(kicker) kicker.textContent = t('learn.question', 'QUESTION') + ' '
     + (LEARN.task + 1) + '/' + lesson.tasks.length;
   if(title) title.innerHTML = task ? task.prompt : '';
-  if(direction) direction.textContent = t('learn.answerThenCheck',
-    'After writing your answer, press Check.');
+  var answerHint = typeof learnAnswerHint === 'function' ? learnAnswerHint() : '';
+  if(direction) direction.textContent = (answerHint ? answerHint + ' ' : '')
+    + t('learn.answerThenCheck', 'After writing your answer, press Check.');
 };
 
 // ===== constants.js =====
@@ -1317,6 +1318,22 @@ if(codeEl){
       : (e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '');
     var isLogicalEnter = type === 'insertLineBreak' || type === 'insertParagraph'
       || (type === 'insertText' && (inserted.indexOf('\n') >= 0 || inserted.indexOf('\r') >= 0));
+    // Learn practice: only the answer lines accept native edits.
+    if(typeof learnLineLocked === 'function' && learnLineLocked(-1)){
+      var lockFrom = s, lockTo = en;
+      if(isDeletion && s === en){
+        if(type === 'deleteContentBackward') lockFrom = Math.max(0, s - 1);
+        else if(type === 'deleteContentForward') lockTo = Math.min(val.length, en + 1);
+      }
+      var lockA = val.slice(0, lockFrom).split('\n').length - 1;
+      var lockB = val.slice(0, lockTo).split('\n').length - 1;
+      if(learnLineLocked(lockA) || learnLineLocked(lockB)){
+        e.preventDefault();
+        _editorBeforeInput = null;
+        if(typeof learnEnforceLock === 'function') learnLockCaret();
+        return;
+      }
+    }
     if(isInsertion && isLogicalEnter){
       e.preventDefault();
       _editorBeforeInput = null;
@@ -1826,6 +1843,8 @@ codeEl.addEventListener('click', function(e){
   closeQPopup();
   if(FM.active) exitFieldMode(true);
   if(codeEl.selectionStart !== codeEl.selectionEnd) return;
+  // Learn practice: a locked block opens no editor; the caret goes to the answer.
+  if(typeof learnLockCaret === 'function' && learnLockCaret()) return;
   var pos=codeEl.selectionStart, val=codeEl.value;
   var ls=val.lastIndexOf('\n',pos-1)+1;
   var lineEnd = val.indexOf('\n',pos); if(lineEnd<0) lineEnd=val.length;

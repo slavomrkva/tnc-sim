@@ -410,6 +410,9 @@ function planProgramBlockInsertion(value,start,end,text,mode){
 
 function insertProgramBlock(text,position,selectionEnd,options){
   options=options||{};
+  if(typeof learnLockCaret === 'function' && learnLockCaret()){
+    position=codeEl.selectionStart; selectionEnd=codeEl.selectionEnd;
+  }
   var plan=planProgramBlockInsertion(codeEl.value,position,selectionEnd,text,options.mode||'command');
   if(plan.changed){
     _undoPush();
@@ -429,6 +432,7 @@ function insertProgramBlock(text,position,selectionEnd,options){
 
 function editorInsertBlankAfterActiveBlock(){
   if(!codeEl) return false;
+  if(typeof learnLockEnter === 'function' && learnLockEnter()) return true;
   var plan=insertProgramBlock('',codeEl.selectionStart,codeEl.selectionEnd,{mode:'enter'});
   return !!plan.changed;
 }
@@ -471,10 +475,13 @@ function updateHighlightOverlay(){
   var lines = codeEl.value.split('\n');
   var cycleState = {v:false};
   var answer = typeof learnAnswerLineRange === 'function' ? learnAnswerLineRange() : null;
+  var locked = typeof learnLineLocked === 'function' && answer && learnLineLocked(-1);
   var html = '';
   for(var i=0;i<lines.length;i++){
     var lineHtml = _synHighlightLine(lines[i], cycleState);
-    if(answer && i >= answer.start && i <= answer.end){
+    if(locked && (i < answer.start || i > answer.end)){
+      lineHtml = '<span class="learn-locked-line">' + lineHtml + '</span>';
+    } else if(answer && i >= answer.start && i <= answer.end){
       var edge = (i === answer.start ? ' learn-answer-first' : '')
         + (i === answer.end ? ' learn-answer-last' : '');
       lineHtml = '<span class="learn-answer-line' + edge + '">'
@@ -732,6 +739,7 @@ function syncScrollToLineNums(){
 }
 
 function deleteLineN(n,confirmed){
+  if(typeof learnLineLocked==='function' && learnLineLocked(n)) return;
   var lines=codeEl.value.split('\n');
   if(n<0||n>=lines.length) return;
   var model=analyzeProgramRows(lines);

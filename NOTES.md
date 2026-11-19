@@ -190,7 +190,10 @@ retain their original terms. This does not change the Android repository.
     The question surface ends with a small regular-weight `After writing your
     answer, press Check.` instruction without a divider or separate strip.
     Answer-row Backspace/Delete may edit text but must never merge the outer
-    highlighted boundaries into neighbouring program blocks. The Start Here
+    highlighted boundaries into neighbouring program blocks. During a task the
+    program outside the answer is locked (`LEARN.lock`, enforced in
+    `updateLineNums()`); every new editor path that changes code must end in
+    `updateLineNums()` or the lock cannot roll it back. The Start Here
     lesson explains this flow in its own slides and one real task; there is
     no separate spotlight tour.
     A password-provided solution and every carried-forward starter must use the

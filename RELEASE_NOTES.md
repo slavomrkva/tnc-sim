@@ -10,6 +10,24 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.001 — calmer lesson practice and finishing a lesson
+- In a lesson task you can only write in the highlighted answer lines; the
+  rest of the program is locked and dimmed.
+- Keys and controls the task does not need are dimmed and inactive, and the
+  task says how many lines to write.
+- The task question and the lines you write in have a white background,
+  also in the dark theme.
+- When the last task of a lesson passes, the lesson leads straight to the next
+  one with a Next lesson button instead of returning to the list.
+- The success message has its own Run in 3D button.
+- The keys a task needs are highlighted; the program no longer carries a
+  YOUR ANSWER comment line.
+- The final lesson is free practice: the whole editor and all controls are
+  available and there are no hints.
+- What's new and the bug report have a calmer look that matches the lessons.
+- Lesson tasks and hints were reviewed: clearer wording where the highlighted
+  answer lines changed how you write, and a few corrected hint details.
+
 ## v1.000 — new Learn format and simpler interface
 - Learn lessons are reference cards: block format, example, rules, common
   mistakes and links to the matching pages of the official HEIDENHAIN manual,

@@ -100,12 +100,8 @@ for(const lesson of context.LESSONS){
         assert.ok(!/;\s*>>>/.test(injected),
           `${lesson.id}.${i+1} avoids a marker that could be mistaken for the requested comment`);
       } else {
-        assert.ok(injected.includes('; >>> YOUR ANSWER — TASK ' + (i+1) + '/' + lesson.tasks.length),
-          `${lesson.id}.${i+1} carries a concise answer cue in the program`);
-        assert.ok(!/>>> write here/.test(injected),
-          `${lesson.id}.${i+1} replaced the placeholder marker`);
-        assert.strictEqual(injected.split('\n').filter(l => /;\s*>>>/.test(l)).length, 1,
-          `${lesson.id}.${i+1} uses one short marker line instead of duplicating the assignment`);
+        assert.ok(!/;\s*>>>/.test(injected),
+          `${lesson.id}.${i+1} the highlighted answer range replaces any marker line in the program`);
         assert.ok(injected.split('\n').slice(plan.start, plan.start + plan.count).every(line => line === ''),
           `${lesson.id}.${i+1} begins with visibly empty answer blocks`);
       }

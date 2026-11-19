@@ -24,6 +24,14 @@ function renderIdlePanel(){ var panel = document.getElementById('ctxPanel');
     + DEMO_PROGRAMS.map(function(d,i){ return '<option value="'+i+'"'+(i===_currentDemoIdx?' selected':'')+'>'+d.name+'</option>'; }).join('')
     +'</select>'
     +'</div>';
+  // Learn practice: editor Reset/Clear and demo programs stay in place,
+  // dimmed and inactive, so they cannot replace the lesson program.
+  if(typeof learnLineLocked === 'function' && learnLineLocked(-1)){
+    ['_idleReset','_idleClear','_idleDemo'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){ el.disabled=true; el.classList.add('learn-off'); }
+    });
+  }
   var bu=document.getElementById('_idleUndo');
   var br=document.getElementById('_idleRedo');
   var bs=document.getElementById('_idleReset');
@@ -40,6 +48,7 @@ function renderIdlePanel(){ var panel = document.getElementById('ctxPanel');
 }
 
 function updateLineNums(){
+  if(typeof learnEnforceLock==='function') learnEnforceLock();
   if(typeof window._growCode==='function') window._growCode();
   var lines = codeEl.value.split('\n');
   var model = analyzeProgramRows(lines);
@@ -62,8 +71,12 @@ function updateLineNums(){
     if(answer && i>=answer.start && i<=answer.end) cls+=' learn-target';
     var numLabel = blockNums[i]===null ? '' : blockNums[i];
     var rowBlock=model.rows[i]&&model.rows[i].blockIndex!==null ? model.blocks[model.rows[i].blockIndex] : null;
+    var lockedRow=typeof learnLineLocked==='function' && learnLineLocked(i);
+    if(lockedRow) cls+=' learn-locked';
     var deleteBtn=rowBlock
-      ? '<button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>' : '';
+      ? (lockedRow
+        ? '<button class="ln-del learn-off" disabled tabindex="-1" aria-hidden="true">&#10005;</button>'
+        : '<button class="ln-del" onclick="deleteLineN('+i+')" tabindex="-1">&#10005;</button>') : '';
     html += '<div class="'+cls+'">'+deleteBtn+numLabel+'</div>';
   }
   lineNums.innerHTML = '<div style="padding:10px 0 200px;">' + html + '</div>';

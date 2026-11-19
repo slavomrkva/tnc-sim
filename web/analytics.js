@@ -105,17 +105,57 @@
     return result;
   });
 
+  // Learn funnel: opened -> practice started -> each task passed -> completed.
+  // Events are deduplicated per lesson opening, so Reset, repeated Check clicks
+  // or re-rendering do not inflate the funnel. A lesson counts as completed as
+  // soon as its last task passes; the learner does not have to press a button.
+  var lessonSent = Object.create(null);
+  var solving = false;
+
+  function lessonOnce(key, name, data){
+    if(lessonSent[key]) return;
+    lessonSent[key] = true;
+    track(name, data);
+  }
+
   wrapGlobal('learnOpenLesson', function(original, args){
     var id = lessonId(args[0]);
     var result = original.apply(this, args);
+    lessonSent = Object.create(null);
     if(id) track('lesson_started', {lesson_id: id});
     return result;
   });
 
-  wrapGlobal('learnFinishLesson', function(original, args){
-    var id = window.LEARN ? lessonId(window.LEARN.lesson) : '';
+  wrapGlobal('learnStartTask', function(original, args){
     var result = original.apply(this, args);
-    if(id) track('lesson_completed', {lesson_id: id});
+    var id = window.LEARN ? lessonId(window.LEARN.lesson) : '';
+    if(id) lessonOnce('practice', 'lesson_practice_started', {lesson_id: id, task: Number(args[0]) + 1});
+    return result;
+  });
+
+  // The password-protected solution shortcut is an owner tool, not learning.
+  wrapGlobal('learnSolve', function(original, args){
+    solving = true;
+    try{ return original.apply(this, args); }
+    finally{ solving = false; }
+  });
+
+  wrapGlobal('learnCheck', function(original, args){
+    var result = original.apply(this, args);
+    var learn = window.LEARN;
+    var id = learn ? lessonId(learn.lesson) : '';
+    var res = learn && learn.lastResults;
+    if(!id || solving || !res || learn.task < 0) return result;
+    var task = learn.task + 1;
+    var passed = res.length > 0 && res.every(function(r){ return r && r.ok; });
+    if(!passed){
+      track('lesson_check_failed', {lesson_id: id, task: task});
+      return result;
+    }
+    lessonOnce('task:' + task, 'lesson_task_passed', {lesson_id: id, task: task});
+    var lesson = window.LESSONS && window.LESSONS[learn.lesson];
+    var total = lesson && lesson.tasks ? lesson.tasks.length : 0;
+    if(total && task === total) lessonOnce('completed', 'lesson_completed', {lesson_id: id});
     return result;
   });
 
