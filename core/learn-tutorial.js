@@ -177,26 +177,46 @@ function learnSvgThread(){
     + '</svg>';
 }
 
-function learnSvgTool(){
-  var T = 'font-family="monospace"', fl = '';
-  for(var y=72; y<=152; y+=16) fl += 'M153 '+y+' L187 '+(y-24)+' ';
-  return '<svg class="learn-svg" viewBox="0 0 340 158" role="img" aria-label="End mill geometry showing total length L, diameter D, tool datum, shank and the helical cutting flutes covered by LCUTS">'
-    + '<defs><clipPath id="lpToolClip"><rect x="153" y="62" width="34" height="66"/></clipPath></defs>'
-    + '<rect x="153" y="16" width="34" height="46" fill="rgba(139,147,161,.25)" stroke="var(--text3)"/>'
-    + '<rect x="153" y="62" width="34" height="66" fill="var(--fig-b)" fill-opacity=".14" stroke="var(--fig-b)" stroke-width="1.4"/>'
-    + '<path d="'+fl+'" clip-path="url(#lpToolClip)" fill="none" stroke="var(--fig-b)" stroke-width="1.8"/>'
-    + '<path d="M120 16 V128 M114 16 H126 M114 128 H126" fill="none" stroke="var(--fig-a)"/>'
-    + '<text x="108" y="76" text-anchor="end" '+T+' font-size="11" fill="var(--fig-a)">L = total</text>'
-    + '<path d="M198 62 V128 M194 62 H202 M194 128 H202" fill="none" stroke="var(--fig-b)"/>'
-    + '<text x="210" y="92" '+T+' font-size="10.5" fill="var(--fig-b)">flutes (LCUTS)</text>'
-    + '<text x="210" y="106" '+T+' font-size="10.5" fill="var(--text3)">helical edges</text>'
-    + '<text x="210" y="43" '+T+' font-size="10.5" fill="var(--text3)">shank</text>'
-    + '<circle cx="170" cy="128" r="3.5" fill="var(--fig-a)"/>'
-    + '<path d="M170 128 L104 143" fill="none" stroke="var(--fig-a)" stroke-width="0.8"/>'
-    + '<text x="100" y="147" text-anchor="end" '+T+' font-size="10.5" fill="var(--fig-a)">tool datum</text>'
-    + '<path d="M153 142 H187 M153 137 V147 M187 137 V147" fill="none" stroke="var(--fig-c)"/>'
-    + '<text x="196" y="146" '+T+' font-size="11" fill="var(--fig-c)">D = 2R</text>'
-    + '</svg>';
+function learnSvgToolCall(){
+  var T = 'font-family="monospace"';
+  var CW = 7.2, FS = 12, Y = 121;                  // char width at 12px monospace, code baseline
+  var toks = [
+    {t:'TOOL CALL', c:'var(--text)'},
+    {t:'2',      c:'var(--fig-a)', up:1, tier:0, anchor:'end',    l1:'tool number',   l2:'from tool table'},
+    {t:'Z',      c:'var(--fig-a)', up:0, tier:0, anchor:'end',    l1:'spindle axis',  l2:'tool along Z'},
+    {t:'S4000',  c:'var(--fig-b)', up:1, tier:1, anchor:'middle', l1:'spindle speed', l2:'rpm'},
+    {t:'F400',   c:'var(--fig-b)', up:0, tier:1, anchor:'middle', l1:'feed rate',     l2:'mm/min'},
+    {t:'DL+0.2', c:'var(--fig-c)', up:1, tier:0, anchor:'end',  l1:'delta length',  l2:'+0.2 mm longer'},
+    {t:'DR-0.1', c:'var(--fig-c)', up:0, tier:0, anchor:'end',  l1:'delta radius',  l2:'0.1 mm smaller'}
+  ];
+  var chars = 0; toks.forEach(function(k){ chars += k.t.length; });
+  var x = (340 - (chars + toks.length - 1) * CW) / 2, g = '', code = '';
+  toks.forEach(function(k){
+    var w = k.t.length * CW, cx = x + w / 2;
+    code += '<text x="'+cx.toFixed(1)+'" y="'+Y+'" text-anchor="middle" '+T+' font-size="'+FS+'" font-weight="700" fill="'+k.c+'">'+k.t+'</text>';
+    if(k.l1){
+      // underline the token, then a leader with an arrowhead pointing at it
+      var ty = k.up ? Y - 14 : Y + 6;             // token edge the arrow touches
+      g += '<path d="M'+(x+1).toFixed(1)+' '+(k.up?Y-13:Y+5)+' H'+(x+w-1).toFixed(1)+'" stroke="'+k.c+'" stroke-width="1.2"/>';
+      var ly = k.up ? (k.tier ? 20 : 60) : (k.tier ? 210 : 170);   // first label line
+      var lx = k.anchor === 'end' ? (k.t.length > 1 ? x + w : cx + 4) : (k.anchor === 'start' ? cx - 4 : cx);
+      var tip = k.up ? ty : ty, end = k.up ? ly + 19 : ly - 13;
+      g += '<path d="M'+cx.toFixed(1)+' '+end+' V'+(k.up ? tip - 5 : tip + 5)+'" stroke="'+k.c+'" stroke-width="1"/>'
+        + '<path d="M'+(cx-3.5).toFixed(1)+' '+(k.up ? tip-6 : tip+6)+' L'+cx.toFixed(1)+' '+tip+' L'+(cx+3.5).toFixed(1)+' '+(k.up ? tip-6 : tip+6)+' Z" fill="'+k.c+'"/>';
+      var a = 'text-anchor="'+k.anchor+'" '+T+' font-size="10.5"';
+      if(k.up){
+        g += '<text x="'+lx.toFixed(1)+'" y="'+ly+'" '+a+' font-weight="700" fill="'+k.c+'">'+k.l1+'</text>'
+          + '<text x="'+lx.toFixed(1)+'" y="'+(ly+13)+'" '+a+' fill="var(--text3)">'+k.l2+'</text>';
+      } else {
+        g += '<text x="'+lx.toFixed(1)+'" y="'+ly+'" '+a+' font-weight="700" fill="'+k.c+'">'+k.l1+'</text>'
+          + '<text x="'+lx.toFixed(1)+'" y="'+(ly+13)+'" '+a+' fill="var(--text3)">'+k.l2+'</text>';
+      }
+    }
+    x += w + CW;
+  });
+  return '<svg class="learn-svg" viewBox="0 0 340 232" role="img" aria-label="TOOL CALL 2 Z S4000 F400 DL+0.2 DR-0.1 with arrows: tool number, spindle axis, spindle speed in rpm, feed rate in mm/min, delta length and delta radius">'
+    + '<rect x="14" y="99" width="312" height="32" rx="6" fill="var(--fig-fill)" fill-opacity=".08" stroke="var(--fig-line)" stroke-opacity=".6"/>'
+    + code + g + '</svg>';
 }
 
 function learnSvgApproach(){

@@ -1097,3 +1097,12 @@ History through v0.845 is preserved in
   `tests/learn-lock-insert-sweep.test.js` (all locked insert tasks accept
   their solution through `insertProgramBlock()`). Offline
   cache v124.
+
+## v1.003 — 2026-11-19 — Lesson 2: annotated TOOL CALL figure
+- New `learnSvgToolCall()`: `TOOL CALL 2 Z S4000 F400 DL+0.2 DR-0.1` with
+  arrows and labels for tool number, spindle axis, speed, feed, DL and DR.
+  It replaces the end-mill figure `learnSvgTool()` (removed) on the L02 card
+  and on slide 2 (EN+DE). Card syntax is now `TOOL CALL n Z S.. F.. DL.. DR..`
+  with a sentence on the optional delta values; slide 2 text explains DL/DR
+  and that L and R come from the tool table. Figure labels stay English like
+  the other figures. Offline cache v125.

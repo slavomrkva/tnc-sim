@@ -46,6 +46,15 @@ for(const opening of svgOpenings){
   assert.match(opening, /aria-label="[^"]{20,}"/,
     `Learn diagram needs a meaningful source-level aria-label: ${opening}`);
 }
+const toolCallSvg = context.learnSvgToolCall();
+for(const token of ['TOOL CALL', '>2<', '>Z<', 'S4000', 'F400', 'DL+0.2', 'DR-0.1',
+  'tool number', 'spindle axis', 'spindle speed', 'feed rate', 'delta length', 'delta radius'])
+  assert.ok(toolCallSvg.includes(token), `Lesson 2 TOOL CALL diagram labels ${token}`);
+const l02 = context.LESSONS.find(lesson => lesson.id === 'L02');
+assert.match(l02.card.syntax[0].figure(), /TOOL CALL 2 Z S4000/,
+  'Lesson 2 card shows the annotated TOOL CALL block');
+assert.match(lessonsDeSource, /learnFigFrom\(learnSvgToolCall\(\)\)/,
+  'German Lesson 2 card uses the same annotated TOOL CALL figure');
 const profileSvg = context.learnSvgPartProfile();
 assert.match(profileSvg, /<circle cx="70" cy="250"[^>]*>[\s\S]*?<text x="62" y="263"[^>]*text-anchor="end"[^>]*>datum 0,0</,
   'Lesson 15 datum label sits below and to the left of its reference point without extending past the SVG edge');

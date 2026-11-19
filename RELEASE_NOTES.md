@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.003 — TOOL CALL figure in lesson 2
+- Lesson 2 shows a TOOL CALL block with arrows explaining the tool number,
+  spindle axis, speed, feed and the DL/DR delta values; the card text now
+  also explains DL and DR.
+
 ## v1.002 — BLK FORM insert in lesson 1
 - In lesson 1, tasks 2 and 3, Insert in the BLK FORM panel now writes both
   lines into the highlighted answer instead of doing nothing.

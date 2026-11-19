@@ -189,8 +189,8 @@ var LESSONS = [
   card:{
     lead:'<b>TOOL CALL</b> puts a tool from the tool table into the spindle and sets speed and feed. <b>M functions</b> then switch the spindle and the coolant.',
     syntax:[
-      { code:'TOOL CALL n Z S.. F..', text:'Tool number, spindle axis, spindle speed in rpm and feed rate in mm/min.',
-        figure:function(){ return learnFigFrom(learnSvgTool()); } },
+      { code:'TOOL CALL n Z S.. F.. DL.. DR..', text:'Tool number, spindle axis, spindle speed in rpm and feed rate in mm/min. The optional <code>DL</code> and <code>DR</code> shift the tool length and radius for this call only; the tool table stays unchanged.',
+        figure:function(){ return learnFigFrom(learnSvgToolCall()); } },
       { code:'M3 / M5', text:'Spindle on clockwise / spindle stop.' },
       { code:'M8 / M9', text:'Coolant on / coolant off.' }
     ],
@@ -218,8 +218,8 @@ var LESSONS = [
       + learnSnippet('TOOL CALL 1 Z S3000 F500')
       + '<p>Tool <code>1</code> is the D10 end mill \u2014 see the <b>Tools</b> tab.</p>'; } },
     { html:function(){ return ''
-      + learnSvgTool()
-      + '<p>The table stores what the control cannot guess: <b>L</b> so the programmed Z lands true, <b>R</b> for radius compensation, <b>LCUTS</b> = usable flute length.</p>'; } },
+      + learnSvgToolCall()
+      + '<p>Every word has a job. <b>DL</b> and <b>DR</b> are optional delta values: they change the tool length and radius for this call only. Length <b>L</b> and radius <b>R</b> themselves always come from the tool table.</p>'; } },
     { html:function(){ return ''
       + '<p><b>M functions</b> switch machine states:</p>'
       + learnSnippet('M3  ; spindle ON (clockwise)\nM8  ; coolant ON\n;   ...machining...\nM5  ; spindle OFF\nM9  ; coolant OFF')

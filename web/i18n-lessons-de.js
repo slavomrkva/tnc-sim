@@ -114,8 +114,8 @@ var LESSONS_DE = {
   card:{ lang:'de',
     lead:'<b>TOOL CALL</b> wechselt ein Werkzeug aus der Werkzeugtabelle ein und legt Drehzahl und Vorschub fest. <b>M-Funktionen</b> schalten danach Spindel und Kühlmittel.',
     syntax:[
-      { code:'TOOL CALL n Z S.. F..', text:'Werkzeugnummer, Spindelachse, Spindeldrehzahl in U/min und Vorschub in mm/min.',
-        figure:function(){ return learnFigFrom(learnSvgTool()); } },
+      { code:'TOOL CALL n Z S.. F.. DL.. DR..', text:'Werkzeugnummer, Spindelachse, Spindeldrehzahl in U/min und Vorschub in mm/min. Die optionalen Delta-Werte <code>DL</code> und <code>DR</code> verschieben Werkzeuglänge und -radius nur für diesen Aufruf; die Werkzeugtabelle bleibt unverändert.',
+        figure:function(){ return learnFigFrom(learnSvgToolCall()); } },
       { code:'M3 / M5', text:'Spindel ein im Uhrzeigersinn / Spindel halt.' },
       { code:'M8 / M9', text:'Kühlmittel ein / Kühlmittel aus.' }
     ],
@@ -143,8 +143,8 @@ var LESSONS_DE = {
       + learnSnippet('TOOL CALL 1 Z S3000 F500')
       + '<p>Werkzeug <code>1</code> ist der Schaftfräser D10 \u2014 siehe den Reiter <b>Werkzeuge</b>.</p>'; } },
     { html:function(){ return ''
-      + learnSvgTool()
-      + '<p>Die Tabelle speichert, was die Steuerung nicht erraten kann: <b>L</b>, damit das programmierte Z genau trifft, <b>R</b> für die Radiuskorrektur, <b>LCUTS</b> = nutzbare Schneidenlänge.</p>'; } },
+      + learnSvgToolCall()
+      + '<p>Jedes Wort hat seine Aufgabe. <b>DL</b> und <b>DR</b> sind optionale Delta-Werte: Sie ändern Werkzeuglänge und -radius nur für diesen Aufruf. Länge <b>L</b> und Radius <b>R</b> selbst kommen immer aus der Werkzeugtabelle.</p>'; } },
     { html:function(){ return ''
       + '<p><b>M-Funktionen</b> schalten Maschinenzustände:</p>'
       + learnSnippet('M3  ; Spindel EIN (im Uhrzeigersinn)\nM8  ; Kühlmittel EIN\n;   ...Bearbeitung...\nM5  ; Spindel AUS\nM9  ; Kühlmittel AUS')
