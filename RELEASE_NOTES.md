@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.004 — lesson 3 enters the blank from the side
+- In lesson 3 the blank starts at X+30, so the tool goes down beside it and
+  then cuts into the material from the side instead of plunging into it.
+
 ## v1.003 — TOOL CALL figure in lesson 2
 - Lesson 2 shows a TOOL CALL block with arrows explaining the tool number,
   spindle axis, speed, feed and the DL/DR delta values; the card text now

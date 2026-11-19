@@ -238,7 +238,7 @@ var LESSONS_DE = {
   ],
   tasks:[
     {
-      prompt:'Fahre im Eilgang auf X+20 Y+40 in sicherer Höhe Z+50',
+      prompt:'Fahre im Eilgang auf X+20 Y+40 in sicherer Höhe Z+50 — neben das Rohteil, das bei X+30 beginnt',
       hints:[
         'Eine gerade Bewegung ist ein <code>L</code>-Satz; <code>FMAX</code> macht sie zum Eilgang \u2014 schnelles Positionieren, kein Zerspanen.',
         'Eine Zeile: <code>L</code>, dann das Ziel <code>X.. Y.. Z..</code>, dann <code>FMAX</code>.',
@@ -250,26 +250,26 @@ var LESSONS_DE = {
       ]
     },
     {
-      prompt:'Fahre im Eilgang herunter auf Z+2, dann tauche mit Vorschub F200 auf Z-3 ein',
+      prompt:'Fahre im Eilgang herunter auf Z+2, dann mit Vorschub F200 neben dem Rohteil auf Z-3',
       hints:[
-        'Zwei Bewegungen: schnell bis knapp über das Teil, dann langsam mit Vorschub <b>hinein</b>. Eilgänge zerspanen nie.',
-        '<code>L Z+2 FMAX</code> schwebt 2 mm darüber; <code>L Z-3 F…</code> taucht unter die Oberfläche.',
+        'Zwei Bewegungen: schnell bis knapp über die Oberfläche, dann langsam mit Vorschub darunter. Das Werkzeug fährt <b>neben</b> dem Rohteil nach unten, nicht hinein.',
+        '<code>L Z+2 FMAX</code> schwebt 2 mm darüber; <code>L Z-3 F…</code> fährt neben dem Rohteil unter die Oberflächenhöhe.',
         '<code>L Z+2 FMAX</code><br><code>L Z-3 F200</code>'
       ],
       checks:[
         {label:'Eilgang stoppt bei Z+2 über der Oberfläche',
          hint:'L Z+2 FMAX \u2014 X und Y sind modal, kein Wiederholen nötig.'},
-        {label:'Vorschub-Eintauchen erreicht Z-3',
+        {label:'Vorschubbewegung nach unten erreicht Z-3',
          hint:'L Z-3 F200 \u2014 unter der Oberfläche immer mit F, nie FMAX.'},
         {label:'Keine Eilgangbewegung unter der Oberfläche',
          hint:'Die Bewegung unter Z+0 muss F200 nutzen, nicht FMAX.'}
       ]
     },
     {
-      prompt:'Zerspane mit Vorschub F300 auf X+80 (bleib bei Z-3), dann ziehe im Eilgang FMAX auf Z+50 zurück',
+      prompt:'Fräse mit Vorschub F300 ins Rohteil auf X+80 (bleib bei Z-3), dann ziehe im Eilgang FMAX auf Z+50 zurück',
       hints:[
-        'Eine echte Zerspanungsbewegung hat einen Vorschub und kein <code>FMAX</code>; dann frei springen mit einem Eilgang in Z.',
-        '<code>L X+80 F300</code> zerspant auf Tiefe hinüber; <code>L Z+50 FMAX</code> hebt schnell heraus.',
+        'Eine echte Zerspanungsbewegung hat einen Vorschub und kein <code>FMAX</code>; das Werkzeug fräst seitlich ins Rohteil. Dann frei springen mit einem Eilgang in Z.',
+        '<code>L X+80 F300</code> fräst seitlich auf Tiefe hinein; <code>L Z+50 FMAX</code> hebt schnell heraus.',
         '<code>L X+80 F300</code><br><code>L Z+50 FMAX</code>'
       ],
       checks:[

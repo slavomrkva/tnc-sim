@@ -1106,3 +1106,11 @@ History through v0.845 is preserved in
   with a sentence on the optional delta values; slide 2 text explains DL/DR
   and that L and R come from the tool table. Figure labels stay English like
   the other figures. Offline cache v125.
+
+## v1.004 — 2026-11-19 — Lesson 3: tool goes down beside the blank
+- L03 task starters use `BLK FORM 0.1 Z X+30 Y+0 Z-20` (blank 70 x 80 x 20)
+  so the D10 tool at X+20 descends beside the blank (edge 5 mm away) and
+  enters it from the side with `L X+80 F300`. Task 1-3 prompts, task 2/3
+  hints and one check label updated (EN+DE). Tasks, solutions and checks are
+  otherwise unchanged. Browser run of the full task 3 program: open slot from
+  the X+30 edge, no problems or collision warning. Offline cache v126.

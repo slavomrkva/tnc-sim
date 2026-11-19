@@ -318,46 +318,46 @@ var LESSONS = [
   ],
   tasks:[
     {
-      prompt:'Move rapid to X+20 Y+40 at safe height Z+50',
+      prompt:'Move rapid to X+20 Y+40 at safe height Z+50 — beside the blank, which starts at X+30',
       hints:[
         "A straight move is an <code>L</code> block; <code>FMAX</code> makes it a rapid — fast positioning, no cutting.",
         "One line: <code>L</code> then the target <code>X.. Y.. Z..</code> then <code>FMAX</code>.",
         "<code>L X+20 Y+40 Z+50 FMAX</code>"
       ],
       sol:'L X+20 Y+40 Z+50 FMAX',
-      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
+      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
         {t:'reach', rapid:true, x:20, y:40, z:50, label:'Rapid move ends at X+20 Y+40 Z+50',
          hint:'L X+20 Y+40 Z+50 FMAX'}
       ]
     },
     {
-      prompt:'Descend rapid to Z+2, then plunge with feed F200 to Z-3',
+      prompt:'Descend rapid to Z+2, then feed with F200 to Z-3 beside the blank',
       hints:[
-        "Two moves: drop fast to just above the part, then dip <b>into</b> it slowly with a feed. Rapids never cut.",
-        "<code>L Z+2 FMAX</code> hovers 2 mm up; <code>L Z-3 F…</code> feeds below the surface.",
+        "Two moves: drop fast to just above the surface, then go below it slowly with a feed. The tool goes down <b>beside</b> the blank, not into it.",
+        "<code>L Z+2 FMAX</code> hovers 2 mm up; <code>L Z-3 F…</code> feeds below the surface level next to the blank.",
         "<code>L Z+2 FMAX</code><br><code>L Z-3 F200</code>"
       ],
       sol:'L Z+2 FMAX\nL Z-3 F200',
-      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
+      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
         {t:'reach', rapid:true, x:20, y:40, z:2, label:'Rapid stops at Z+2 above the surface',
          hint:'L Z+2 FMAX \u2014 X and Y are modal, no need to repeat them.'},
-        {t:'reach', cut:true, x:20, y:40, z:-3, label:'Feed plunge reaches Z-3',
+        {t:'reach', cut:true, x:20, y:40, z:-3, label:'Feed move down reaches Z-3',
          hint:'L Z-3 F200 \u2014 below the surface always with F, never FMAX.'},
         {t:'no_rapid_below_top', label:'No rapid move below the surface',
          hint:'The move below Z+0 must use F200, not FMAX.'}
       ]
     },
     {
-      prompt:'Cut with feed F300 to X+80 (stay at Z-3), then retract FMAX to Z+50',
+      prompt:'Cut into the blank with feed F300 to X+80 (stay at Z-3), then retract FMAX to Z+50',
       hints:[
-        "A real cutting move has a feed and no <code>FMAX</code>; then jump clear with a rapid in Z.",
-        "<code>L X+80 F300</code> cuts across at depth; <code>L Z+50 FMAX</code> lifts out fast.",
+        "A real cutting move has a feed and no <code>FMAX</code>; the tool enters the blank from the side. Then jump clear with a rapid in Z.",
+        "<code>L X+80 F300</code> cuts in from the side at depth; <code>L Z+50 FMAX</code> lifts out fast.",
         "<code>L X+80 F300</code><br><code>L Z+50 FMAX</code>"
       ],
       sol:'L X+80 F300\nL Z+50 FMAX',
-      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
+      starter:'BEGIN PGM MOVES MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-3 F200\n; >>> write here\n\nM5\nM9\nEND PGM MOVES MM',
       checks:[
         {t:'reach', cut:true, x:80, y:40, z:-3, label:'Cut reaches X+80 at Z-3',
          hint:'L X+80 F300 \u2014 Z stays where it is.'},
