@@ -2,28 +2,28 @@
 // offline, so each announced release carries its explicit production merge
 // timestamp. Set `mergedAt` to the real production merge time when merged.
 var WHATS_NEW_RELEASE = {
-  version: '1.000',
-  mergedAt: '2026-11-17T12:57:30Z',
+  // The popup shows no version number; About is the single place for it.
+  mergedAt: '2026-11-19T15:50:00Z',
   visibleDays: 10,
   content: {
     en: {
-      meta: 'v1.000 · Updates',
+      meta: 'Updates',
       title: 'What’s new',
       close: 'Close',
       intro: '',
       items: [
-        'Learn lessons are now reference cards with links to the matching pages of the official HEIDENHAIN manual.',
-        'Simpler interface: Help, Program and Settings menus and a calmer look in both themes.'
+        'Lesson practice is calmer: you write only in the highlighted lines, and the keys the task needs are marked.',
+        'After the last task you go straight to the next lesson; the final lesson is free practice without hints.'
       ]
     },
     de: {
-      meta: 'v1.000 · Neuigkeiten',
+      meta: 'Neuigkeiten',
       title: 'Was ist neu?',
       close: 'Schließen',
       intro: '',
       items: [
-        'Die Lernlektionen sind jetzt Referenzkarten mit Links zu den passenden Seiten des offiziellen HEIDENHAIN-Handbuchs.',
-        'Einfachere Oberfläche: Menüs Hilfe, Programm und Einstellungen sowie ein ruhigeres Design in beiden Themes.'
+        'Ruhigeres Üben in den Lektionen: Du schreibst nur in die markierten Zeilen, und die Tasten der Aufgabe sind hervorgehoben.',
+        'Nach der letzten Aufgabe geht es direkt zur nächsten Lektion; die letzte Lektion ist freies Üben ohne Tipps.'
       ]
     }
   }
