@@ -41,7 +41,7 @@ assert.doesNotMatch(learnSource + read('index.html') + read('service-worker.js')
   'nothing loads or starts the removed spotlight tour');
 
 const svgOpenings = learnSource.match(/return '<svg class="learn-svg"[^\r\n]*/g) || [];
-assert.strictEqual(svgOpenings.length, 31, 'all Learn diagram factories are covered by the accessibility check');
+assert.strictEqual(svgOpenings.length, 30, 'all Learn diagram factories are covered by the accessibility check');
 for(const opening of svgOpenings){
   assert.match(opening, /aria-label="[^"]{20,}"/,
     `Learn diagram needs a meaningful source-level aria-label: ${opening}`);

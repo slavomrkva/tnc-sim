@@ -68,14 +68,28 @@ function learnSvgToolpath(code, labelIncr){
   try { p = parseProgram(code); } catch(e){ return ''; }
   if(!p || !p.sub || !p.sub.length) return '';
   var bx0=p.blkMin.x, by0=p.blkMin.y, bx1=p.blkMax.x, by1=p.blkMax.y, top=p.blkMax.z;
+  // Leading rapids only bring the tool from its home position: they are not
+  // drawn, the start dot sits where they end, and the view covers the blank plus every drawn point (a start beside the
+  // blank stays visible).
+  var lead = 0;
+  while(lead < p.sub.length - 1 && p.sub[lead].rapid) lead++;
+  var skipped = p.sub.slice(0, lead);
+  function isSkipped(s){ return skipped.indexOf(s) >= 0; }
+  var ex0=bx0, ey0=by0, ex1=bx1, ey1=by1;
+  p.sub.forEach(function(s){
+    if(isSkipped(s)) return;
+    [s.from, s.to].forEach(function(q){
+      ex0=Math.min(ex0,q.x); ex1=Math.max(ex1,q.x); ey0=Math.min(ey0,q.y); ey1=Math.max(ey1,q.y);
+    });
+  });
   var W=340, pad=20;
-  var sc=(W-2*pad)/((bx1-bx0)||1);
-  var H=Math.round((by1-by0)*sc)+2*pad;
-  function SX(v){ return (pad+(v-bx0)*sc).toFixed(1); }
-  function SY(v){ return (H-pad-(v-by0)*sc).toFixed(1); }
+  var sc=(W-2*pad)/((ex1-ex0)||1);
+  var H=Math.round((ey1-ey0)*sc)+2*pad;
+  function SX(v){ return (pad+(v-ex0)*sc).toFixed(1); }
+  function SY(v){ return (H-pad-(v-ey0)*sc).toFixed(1); }
   var segs='', labels='';
   p.sub.forEach(function(s){
-    if(s.len<1e-6) return;
+    if(isSkipped(s) || s.len<1e-6) return;
     if(Math.abs(s.to.x-s.from.x)<1e-6 && Math.abs(s.to.y-s.from.y)<1e-6){
       // pure Z move: mark plunges into material with a dot
       if(!s.rapid && s.to.z < top-1e-6) segs+='<circle cx="'+SX(s.to.x)+'" cy="'+SY(s.to.y)+'" r="3.4" fill="none" stroke="var(--fig-b)" stroke-width="1.6"/>';
@@ -99,7 +113,7 @@ function learnSvgToolpath(code, labelIncr){
       labels+='<text x="'+tx+'" y="'+ty+'" font-family="monospace" font-size="9.5" font-weight="600" fill="var(--fig-a)" text-anchor="'+anchor+'">'+lbl+'</text>';
     }
   });
-  var st=p.sub[0].from;
+  var st=lead ? skipped[lead-1].to : p.sub[0].from;
   return '<svg class="learn-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Top view of the programmed toolpath: dashed rapid moves, teal cutting moves and orange start point">'
     + '<rect x="'+SX(bx0)+'" y="'+SY(by1)+'" width="'+((bx1-bx0)*sc).toFixed(1)+'" height="'+((by1-by0)*sc).toFixed(1)+'" fill="var(--fig-fill)" fill-opacity=".06" stroke="var(--fig-line)"/>'
     + segs
@@ -321,23 +335,6 @@ function learnSvgSafeRetract(){
     + '<text x="160" y="157" font-family="monospace" font-size="11" fill="var(--fig-b)">4  cut X+20 → X+80</text>'
     + '<text x="252" y="62" font-family="monospace" font-size="11" fill="var(--fig-a)">5  FMAX up</text>'
     + '<text x="252" y="77" font-family="monospace" font-size="10.5" fill="var(--text3)">known clear</text><text x="252" y="91" font-family="monospace" font-size="10.5" fill="var(--text3)">path</text>'
-    + '</svg>';
-}
-
-function learnSvgSlotWidth(){
-  return '<svg class="learn-svg" viewBox="0 0 340 190" role="img" aria-label="Slot width and tool diameter showing the clearance available for milling">'
-    + '<rect x="25" y="28" width="290" height="132" fill="var(--fig-fill)" fill-opacity=".07" stroke="var(--fig-line)"/>'
-    + '<rect x="70" y="75" width="200" height="34" rx="17" fill="var(--fig-b)" fill-opacity=".20" stroke="var(--fig-b)" stroke-width="2"/>'
-    + '<line x1="70" y1="92" x2="270" y2="92" stroke="var(--text3)" stroke-width="1" stroke-dasharray="5 4"/>'
-    + '<circle cx="270" cy="92" r="17" fill="var(--fig-a)" fill-opacity=".10" stroke="var(--fig-a)" stroke-width="2"/>'
-    + '<circle cx="270" cy="92" r="3" fill="var(--fig-a)"/>'
-    + '<text x="74" y="68" font-family="monospace" font-size="11" fill="var(--fig-b)">swept slot</text>'
-    + '<text x="160" y="87" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--text3)">centre-line</text>'
-    + '<line x1="294" y1="75" x2="294" y2="109" stroke="var(--fig-a)"/>'
-    + '<line x1="288" y1="75" x2="300" y2="75" stroke="var(--fig-a)"/>'
-    + '<line x1="288" y1="109" x2="300" y2="109" stroke="var(--fig-a)"/>'
-    + '<text x="305" y="96" font-family="monospace" font-size="11" fill="var(--fig-a)">10</text>'
-    + '<text x="170" y="178" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--text3)">D10 cutter → 10 mm slot around centre-line</text>'
     + '</svg>';
 }
 

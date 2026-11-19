@@ -370,26 +370,24 @@ var LESSONS = [
   ]
 },
 {
-  id:'L04', title:'First slot \u2014 depth & incremental IX/IY',
+  id:'L04', title:'Incremental moves \u2014 IX / IY',
   card:{
-    lead:'A feed move below the surface cuts a slot as wide as the tool. <b>Incremental</b> coordinates give a distance from the current position instead of a point on the drawing.',
+    lead:'<b>Incremental</b> coordinates give a distance from the current position instead of a point on the drawing. The tool goes down beside the blank and cuts into it from the side, as in lesson 3, then moves on step by step with IX and IY.',
     syntax:[
-      { code:'L Z-.. F..', text:'Plunge to the cutting depth at a feed rate. Z is measured from the datum, so below a top face at Z+0 it is negative.',
-        figure:function(){ return learnFigFrom(learnSvgSlotWidth()); } },
-      { code:'L X.. F..', text:'Absolute move: X is a position measured from the datum.' },
-      { code:'L IX.. IY..', text:'Incremental move: the value is the distance to travel from where the tool stands now.',
-        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)); } }
+      { code:'L X.. Y.. F..', text:'Absolute move: X and Y are positions measured from the datum.' },
+      { code:'L IX.. IY.. F..', text:'Incremental move: the value is the distance to travel from where the tool stands now.',
+        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30\nEND PGM D MM', true)); } }
     ],
-    example:'L Z-2 F150\nL X+60 F300\nL IY+10\nL IX-25\nL Z-4 F150\nL IX+25 F300',
+    example:'L X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL Z+50 FMAX',
     rules:[
       'The <code>I</code> belongs to one coordinate. A block may mix absolute and incremental values.',
-      'The slot is as wide as the tool diameter and lies centred on the programmed path.',
-      'A deep slot is cut in several passes: run the path, step down, run it again.'
+      'An increment always counts from the end point of the previous block.',
+      'The cut is as wide as the tool. A slot of an exact width is milled in practice with the slot cycle (CYCL DEF 253) and a smaller tool; the simulator does not support that cycle yet.'
     ],
     mistakes:[
-      '<code>IX+20</code> read as a position — two such blocks move 40 mm, not to X+20.',
-      'Sign of the increment forgotten — <code>IX-30</code> moves back, <code>IX+30</code> moves further on.',
-      'Stepping down with <code>FMAX</code> — the tool is pushed into the slot floor at rapid traverse.'
+      '<code>IX+20</code> read as a position \u2014 two such blocks move 40 mm, not to X+20.',
+      'Sign of the increment forgotten \u2014 <code>IX-30</code> moves back, <code>IX+30</code> moves further on.',
+      'Wrong start point \u2014 every following incremental position shifts by the same error.'
     ],
     refs:[
       { doc:'klartext', page:91, label:'Absolute and incremental workpiece positions' },
@@ -398,31 +396,32 @@ var LESSONS = [
   },
   slides:[
     { html:function(){ return ''
-      + '<p>A feed move below the surface <b>cuts</b>. The D10 tool leaves a 10 mm wide slot along the path centre-line:</p>'
-      + learnSvgSlotWidth()
-      + learnSnippet('L Z-2 F150\nL X+80 F300'); } },
+      + '<p>As in lesson 3 the tool goes down <b>beside</b> the blank and cuts into it from the side with a feed:</p>'
+      + learnSnippet('L X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300'); } },
     { html:function(){ return ''
-      + '<p><b>Incremental</b> coordinates <code>IX/IY/IZ</code> move <b>relative to the current position</b> \u2014 ideal for steps and patterns:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)
-      + learnSnippet('L IX+20 F300\nL IY+15\nL IX+20'); } },
+      + '<p><b>Incremental</b> coordinates <code>IX/IY</code> move <b>relative to the current position</b> \u2014 each step counts from where the previous block ended:</p>'
+      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30\nEND PGM D MM', true)
+      + learnSnippet('L IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30'); } },
     { html:function(){ return ''
-      + '<p>Deeper slots are cut in <b>passes</b>: run the path, step down, run it back:</p>'
-      + learnSnippet('L Z-2 F150\nL X+80 F300\nL Z-4 F150\nL X+20 F300')
-      + '<p>Each pass takes 2 mm \u2014 gentler on the tool than one 4 mm cut.</p>'; } }
+      + '<p>The same path in absolute coordinates needs every end point worked out from the drawing:</p>'
+      + learnSnippet('L X+80 F300\nL Y+40\nL X+50\nL Y+20\nL X+80')
+      + '<p>Incremental steps are easier when the drawing gives distances between features rather than positions.</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Plunge to Z-2 with F150 and mill a straight slot to X+80 with F300',
+      prompt:'The tool stands at Z+2 beside the blank. Feed down to Z-2 with F150, then cut into the blank with the incremental move IX+60 and F300',
       hints:[
-        "Same rhythm: plunge to depth with a feed, then cut along the slot.",
-        "<code>L Z-2 F…</code> to reach depth, then <code>L X+80 F…</code> to mill.",
-        "<code>L Z-2 F150</code><br><code>L X+80 F300</code>"
+        "Down with a feed beside the blank, as in lesson 3. Then <code>IX</code> gives the distance to travel, not a position.",
+        "<code>L Z-2 F150</code>, then from X+20 a step of +60 in X ends at X+80: <code>L IX+60 F\u2026</code>",
+        "<code>L Z-2 F150</code><br><code>L IX+60 F300</code>"
       ],
-      sol:'L Z-2 F150\nL X+80 F300',
-      starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
+      sol:'L Z-2 F150\nL IX+60 F300',
+      starter:'BEGIN PGM INCR MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nL Z+50 FMAX\nM5\nM9\nEND PGM INCR MM',
       checks:[
-        {t:'reach', cut:true, x:80, y:40, z:-2, label:'Slot cut to X+80 at Z-2',
-         hint:'L Z-2 F150, then L X+80 F300.'},
+        {t:'uses', re:/\bIX\+60\b/, label:'Incremental IX+60 used',
+         hint:'L IX+60 F300 \u2014 the I prefix makes it a distance.'},
+        {t:'reach', cut:true, x:80, y:60, z:-2, label:'Cut ends at X+80 Y+60 at Z-2',
+         hint:'From X+20, IX+60 lands at X+80.'},
         {t:'no_rapid_below_top', label:'No rapid below the surface',
          hint:'Both moves below Z+0 need a feed.'},
         {t:'min_z', z:-2, label:'Depth is exactly 2 mm',
@@ -430,41 +429,43 @@ var LESSONS = [
       ]
     },
     {
-      prompt:'Continue with incremental moves: IY+20, then IX-30 (still at Z-2)',
+      prompt:'Continue with incremental moves: IY-20, then IX-30 (still at Z-2)',
       hints:[
-        "<code>IX</code>/<code>IY</code> are <b>relative</b> steps — from where you are now, not an absolute point.",
-        "<code>L IY+20 F300</code> steps +20 in Y; <code>L IX-30</code> then steps -30 in X (the feed carries over).",
-        "<code>L IY+20 F300</code><br><code>L IX-30</code>"
+        "<code>IX</code>/<code>IY</code> are <b>relative</b> steps \u2014 from where you are now, not an absolute point.",
+        "<code>L IY-20</code> steps -20 in Y; <code>L IX-30</code> then steps -30 in X. F300 stays active.",
+        "<code>L IY-20</code><br><code>L IX-30</code>"
       ],
-      sol:'L IY+20 F300\nL IX-30',
-      starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
+      sol:'L IY-20\nL IX-30',
+      starter:'BEGIN PGM INCR MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\n; >>> write here\n\nL Z+50 FMAX\nM5\nM9\nEND PGM INCR MM',
       checks:[
-        {t:'uses', re:/\bIY\+20\b/, label:'Incremental IY+20 used',
-         hint:'L IY+20 \u2014 the I prefix makes it relative.'},
+        {t:'uses', re:/\bIY-20\b/, label:'Incremental IY-20 used',
+         hint:'L IY-20 \u2014 the I prefix makes it relative.'},
         {t:'uses', re:/\bIX-30\b/, label:'Incremental IX-30 used',
          hint:'L IX-30 \u2014 negative increment moves back in X.'},
-        {t:'reach', cut:true, x:80, y:60, z:-2, label:'First step ends at X+80 Y+60',
-         hint:'From (80,40), IY+20 lands at (80,60).'},
-        {t:'reach', cut:true, x:50, y:60, z:-2, label:'Second step ends at X+50 Y+60',
-         hint:'From (80,60), IX-30 lands at (50,60).'}
+        {t:'reach', cut:true, x:80, y:40, z:-2, label:'First step ends at X+80 Y+40',
+         hint:'From (80,60), IY-20 lands at (80,40).'},
+        {t:'reach', cut:true, x:50, y:40, z:-2, label:'Second step ends at X+50 Y+40',
+         hint:'From (80,40), IX-30 lands at (50,40).'}
       ]
     },
     {
-      prompt:'Cut a second, deeper pass of the first slot at Z-4',
+      prompt:'Finish the path with IY-20, then IX+30',
       hints:[
-        "Go a little deeper, then cut back the other way — a second pass.",
-        "<code>L Z-4 F…</code> for the deeper pass, then <code>L X+20 F…</code> to mill back.",
-        "<code>L Z-4 F150</code><br><code>L X+20 F300</code>"
+        "A negative increment moves back: <code>IY-20</code> goes 20 mm towards Y\u2212.",
+        "From (50,40): <code>L IY-20</code> lands at Y+20, then <code>L IX+30</code> at X+80.",
+        "<code>L IY-20</code><br><code>L IX+30</code>"
       ],
-      sol:'L Z-4 F150\nL X+20 F300',
-      starter:'BEGIN PGM SLOT MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300\n; >>> write here\n\nM5\nM9\nEND PGM SLOT MM',
+      sol:'L IY-20\nL IX+30',
+      starter:'BEGIN PGM INCR MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\n; >>> write here\n\nL Z+50 FMAX\nM5\nM9\nEND PGM INCR MM',
       checks:[
-        {t:'min_z', z:-4, label:'Deepest point is Z-4',
-         hint:'Step down: L Z-4 F150.'},
-        {t:'reach', cut:true, x:20, y:40, z:-4, label:'Slot milled back to X+20 at Z-4',
-         hint:'After stepping down, mill back: L X+20 F300.'},
-        {t:'no_rapid_below_top', label:'No rapid below the surface',
-         hint:'The step from Z-2 to Z-4 needs a feed.'}
+        {t:'uses', re:/\bIY-20\b[\s\S]*\bIY-20\b/, label:'Second incremental IY-20 used',
+         hint:'L IY-20 \u2014 negative increment moves back in Y.'},
+        {t:'uses', re:/\bIX\+30\b/, label:'Incremental IX+30 used',
+         hint:'L IX+30 \u2014 the I prefix makes it relative.'},
+        {t:'reach', cut:true, x:50, y:20, z:-2, label:'Third step ends at X+50 Y+20',
+         hint:'From (50,40), IY-20 lands at (50,20).'},
+        {t:'reach', cut:true, x:80, y:20, z:-2, label:'Last step ends at X+80 Y+20',
+         hint:'From (50,20), IX+30 lands at (80,20).'}
       ]
     }
   ]

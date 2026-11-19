@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.005 — lesson 4 is about incremental moves
+- Lesson 4 now teaches incremental IX/IY steps: the tool enters the blank
+  from the side as in lesson 3 and then follows a path step by step. The
+  misleading slot-width explanation and the depth passes are gone.
+
 ## v1.004 — lesson 3 enters the blank from the side
 - In lesson 3 the blank starts at X+30, so the tool goes down beside it and
   then cuts into the material from the side instead of plunging into it.

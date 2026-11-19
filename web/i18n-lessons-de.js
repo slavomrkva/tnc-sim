@@ -285,26 +285,24 @@ var LESSONS_DE = {
 },
 
 'L04': {
-  title:'Erste Nut \u2014 Tiefe & inkremental IX/IY',
+  title:'Inkrementale Bewegungen \u2014 IX / IY',
   card:{ lang:'de',
-    lead:'Eine Vorschubbewegung unter der Oberfläche fräst eine Nut, so breit wie das Werkzeug. <b>Inkrementale</b> Koordinaten geben eine Strecke ab der aktuellen Position an statt eines Punkts aus der Zeichnung.',
+    lead:'<b>Inkrementale</b> Koordinaten geben eine Strecke ab der aktuellen Position an statt eines Punkts aus der Zeichnung. Das Werkzeug fährt neben dem Rohteil nach unten und fräst seitlich hinein wie in Lektion 3, dann geht es Schritt für Schritt mit IX und IY weiter.',
     syntax:[
-      { code:'L Z-.. F..', text:'Eintauchen auf die Schnitttiefe mit Vorschub. Z zählt ab dem Bezugspunkt, unter einer Oberseite bei Z+0 ist es also negativ.',
-        figure:function(){ return learnFigFrom(learnSvgSlotWidth()); } },
-      { code:'L X.. F..', text:'Absolute Bewegung: X ist eine Position, gemessen vom Bezugspunkt.' },
-      { code:'L IX.. IY..', text:'Inkrementale Bewegung: Der Wert ist die Strecke ab der Stelle, an der das Werkzeug gerade steht.',
-        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)); } }
+      { code:'L X.. Y.. F..', text:'Absolute Bewegung: X und Y sind Positionen, gemessen vom Bezugspunkt.' },
+      { code:'L IX.. IY.. F..', text:'Inkrementale Bewegung: Der Wert ist die Strecke ab der Stelle, an der das Werkzeug gerade steht.',
+        figure:function(){ return learnFigFrom(learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30\nEND PGM D MM', true)); } }
     ],
-    example:'L Z-2 F150\nL X+60 F300\nL IY+10\nL IX-25\nL Z-4 F150\nL IX+25 F300',
+    example:'L X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL Z+50 FMAX',
     rules:[
       'Das <code>I</code> gehört zu einer Koordinate. Ein Satz darf absolute und inkrementale Werte mischen.',
-      'Die Nut ist so breit wie der Werkzeugdurchmesser und liegt mittig auf der programmierten Bahn.',
-      'Eine tiefe Nut wird in mehreren Schnitten gefräst: Bahn abfahren, zustellen, Bahn erneut abfahren.'
+      'Ein Inkrement zählt immer ab dem Endpunkt des vorherigen Satzes.',
+      'Der Schnitt ist so breit wie das Werkzeug. Eine Nut mit genauer Breite fräst man in der Praxis mit dem Nutenzyklus (CYCL DEF 253) und einem kleineren Werkzeug; der Simulator unterstützt diesen Zyklus noch nicht.'
     ],
     mistakes:[
-      '<code>IX+20</code> als Position gelesen — zwei solche Sätze fahren 40 mm, nicht auf X+20.',
-      'Vorzeichen des Inkrements vergessen — <code>IX-30</code> fährt zurück, <code>IX+30</code> fährt weiter.',
-      'Zustellen mit <code>FMAX</code> — das Werkzeug wird im Eilgang in den Nutgrund gedrückt.'
+      '<code>IX+20</code> als Position gelesen \u2014 zwei solche Sätze fahren 40 mm, nicht auf X+20.',
+      'Vorzeichen des Inkrements vergessen \u2014 <code>IX-30</code> fährt zurück, <code>IX+30</code> fährt weiter.',
+      'Falscher Startpunkt \u2014 jede folgende inkrementale Position verschiebt sich um denselben Fehler.'
     ],
     refs:[
       { doc:'klartext', page:94, label:'Absolute und inkrementale Werkstückpositionen' },
@@ -313,29 +311,30 @@ var LESSONS_DE = {
   },
   slides:[
     { html:function(){ return ''
-      + '<p>Eine Vorschubbewegung unter der Oberfläche <b>zerspant</b>. Das Werkzeug D10 hinterlässt eine 10 mm breite Nut entlang der Bahnmittellinie:</p>'
-      + learnSvgSlotWidth()
-      + learnSnippet('L Z-2 F150\nL X+80 F300'); } },
+      + '<p>Wie in Lektion 3 fährt das Werkzeug <b>neben</b> dem Rohteil nach unten und fräst mit Vorschub seitlich hinein:</p>'
+      + learnSnippet('L X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+80 F300'); } },
     { html:function(){ return ''
-      + '<p><b>Inkrementale</b> Koordinaten <code>IX/IY/IZ</code> bewegen <b>relativ zur aktuellen Position</b> \u2014 ideal für Stufen und Muster:</p>'
-      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+20 F300\nL IY+15\nL IX+20\nL IY+15\nL IX+20\nEND PGM D MM', true)
-      + learnSnippet('L IX+20 F300\nL IY+15\nL IX+20'); } },
+      + '<p><b>Inkrementale</b> Koordinaten <code>IX/IY</code> bewegen <b>relativ zur aktuellen Position</b> \u2014 jeder Schritt zählt ab dem Ende des vorherigen Satzes:</p>'
+      + learnSvgToolpath('BEGIN PGM D MM\nBLK FORM 0.1 Z X+30 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nL X+20 Y+60 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30\nEND PGM D MM', true)
+      + learnSnippet('L IX+60 F300\nL IY-20\nL IX-30\nL IY-20\nL IX+30'); } },
     { html:function(){ return ''
-      + '<p>Tiefere Nuten werden in <b>Schnitten</b> zerspant: Bahn fahren, zustellen, zurückfahren:</p>'
-      + learnSnippet('L Z-2 F150\nL X+80 F300\nL Z-4 F150\nL X+20 F300')
-      + '<p>Jeder Schnitt nimmt 2 mm \u2014 schonender fürs Werkzeug als ein 4-mm-Schnitt.</p>'; } }
+      + '<p>Dieselbe Bahn in absoluten Koordinaten braucht jeden Endpunkt aus der Zeichnung berechnet:</p>'
+      + learnSnippet('L X+80 F300\nL Y+40\nL X+50\nL Y+20\nL X+80')
+      + '<p>Inkrementale Schritte sind einfacher, wenn die Zeichnung Abstände zwischen Elementen statt Positionen angibt.</p>'; } }
   ],
   tasks:[
     {
-      prompt:'Tauche auf Z-2 mit F150 ein und fräse eine gerade Nut auf X+80 mit F300',
+      prompt:'Das Werkzeug steht bei Z+2 neben dem Rohteil. Fahre mit F150 auf Z-2, dann fräse mit der inkrementalen Bewegung IX+60 und F300 ins Rohteil',
       hints:[
-        'Gleicher Rhythmus: mit Vorschub auf Tiefe eintauchen, dann entlang der Nut zerspanen.',
-        '<code>L Z-2 F…</code>, um die Tiefe zu erreichen, dann <code>L X+80 F…</code>, um zu fräsen.',
-        '<code>L Z-2 F150</code><br><code>L X+80 F300</code>'
+        'Mit Vorschub neben dem Rohteil nach unten, wie in Lektion 3. Dann gibt <code>IX</code> die Strecke an, keine Position.',
+        '<code>L Z-2 F150</code>, dann endet ab X+20 ein Schritt von +60 in X bei X+80: <code>L IX+60 F\u2026</code>',
+        '<code>L Z-2 F150</code><br><code>L IX+60 F300</code>'
       ],
       checks:[
-        {label:'Nut auf X+80 bei Z-2 gefräst',
-         hint:'L Z-2 F150, dann L X+80 F300.'},
+        {label:'Inkremental IX+60 verwendet',
+         hint:'L IX+60 F300 \u2014 das Präfix I macht es zu einer Strecke.'},
+        {label:'Schnitt endet bei X+80 Y+60 auf Z-2',
+         hint:'Ab X+20 landet IX+60 bei X+80.'},
         {label:'Kein Eilgang unter der Oberfläche',
          hint:'Beide Bewegungen unter Z+0 brauchen einen Vorschub.'},
         {label:'Tiefe ist genau 2 mm',
@@ -343,37 +342,39 @@ var LESSONS_DE = {
       ]
     },
     {
-      prompt:'Setze mit inkrementalen Bewegungen fort: IY+20, dann IX-30 (weiterhin bei Z-2)',
+      prompt:'Setze mit inkrementalen Bewegungen fort: IY-20, dann IX-30 (weiterhin bei Z-2)',
       hints:[
         '<code>IX</code>/<code>IY</code> sind <b>relative</b> Schritte \u2014 von der aktuellen Position, kein absoluter Punkt.',
-        '<code>L IY+20 F300</code> schrittet +20 in Y; <code>L IX-30</code> dann -30 in X (der Vorschub wird übernommen).',
-        '<code>L IY+20 F300</code><br><code>L IX-30</code>'
+        '<code>L IY-20</code> schrittet -20 in Y; <code>L IX-30</code> dann -30 in X. F300 bleibt aktiv.',
+        '<code>L IY-20</code><br><code>L IX-30</code>'
       ],
       checks:[
-        {label:'Inkremental IY+20 verwendet',
-         hint:'L IY+20 \u2014 das Präfix I macht es relativ.'},
+        {label:'Inkremental IY-20 verwendet',
+         hint:'L IY-20 \u2014 das Präfix I macht es relativ.'},
         {label:'Inkremental IX-30 verwendet',
          hint:'L IX-30 \u2014 negatives Inkrement fährt in X zurück.'},
-        {label:'Erster Schritt endet bei X+80 Y+60',
-         hint:'Von (80,40) landet IY+20 bei (80,60).'},
-        {label:'Zweiter Schritt endet bei X+50 Y+60',
-         hint:'Von (80,60) landet IX-30 bei (50,60).'}
+        {label:'Erster Schritt endet bei X+80 Y+40',
+         hint:'Von (80,60) landet IY-20 bei (80,40).'},
+        {label:'Zweiter Schritt endet bei X+50 Y+40',
+         hint:'Von (80,40) landet IX-30 bei (50,40).'}
       ]
     },
     {
-      prompt:'Zerspane einen zweiten, tieferen Schnitt der ersten Nut bei Z-4',
+      prompt:'Beende die Bahn mit IY-20, dann IX+30',
       hints:[
-        'Etwas tiefer gehen, dann in die andere Richtung zurückzerspanen \u2014 ein zweiter Schnitt.',
-        '<code>L Z-4 F…</code> für den tieferen Schnitt, dann <code>L X+20 F…</code>, um zurückzufräsen.',
-        '<code>L Z-4 F150</code><br><code>L X+20 F300</code>'
+        'Ein negatives Inkrement fährt zurück: <code>IY-20</code> fährt 20 mm Richtung Y\u2212.',
+        'Von (50,40): <code>L IY-20</code> landet bei Y+20, dann <code>L IX+30</code> bei X+80.',
+        '<code>L IY-20</code><br><code>L IX+30</code>'
       ],
       checks:[
-        {label:'Tiefster Punkt ist Z-4',
-         hint:'Zustellen: L Z-4 F150.'},
-        {label:'Nut zurückgefräst auf X+20 bei Z-4',
-         hint:'Nach dem Zustellen zurückfräsen: L X+20 F300.'},
-        {label:'Kein Eilgang unter der Oberfläche',
-         hint:'Der Schritt von Z-2 auf Z-4 braucht einen Vorschub.'}
+        {label:'Zweites inkrementales IY-20 verwendet',
+         hint:'L IY-20 \u2014 negatives Inkrement fährt in Y zurück.'},
+        {label:'Inkremental IX+30 verwendet',
+         hint:'L IX+30 \u2014 das Präfix I macht es relativ.'},
+        {label:'Dritter Schritt endet bei X+50 Y+20',
+         hint:'Von (50,40) landet IY-20 bei (50,20).'},
+        {label:'Letzter Schritt endet bei X+80 Y+20',
+         hint:'Von (50,20) landet IX+30 bei (80,20).'}
       ]
     }
   ]

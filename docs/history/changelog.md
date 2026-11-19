@@ -1114,3 +1114,17 @@ History through v0.845 is preserved in
   hints and one check label updated (EN+DE). Tasks, solutions and checks are
   otherwise unchanged. Browser run of the full task 3 program: open slot from
   the X+30 edge, no problems or collision warning. Offline cache v126.
+
+## v1.005 — 2026-11-20 — Lesson 4 rebuilt: incremental IX / IY
+- L04 is now "Incremental moves — IX / IY" (EN+DE): no slot wording, no
+  depth passes. Blank `X+30..X+100` as in L03; starters bring the tool to
+  X+20 Y+60 Z+2 beside the blank and end with `L Z+50 FMAX`. Tasks:
+  `L Z-2 F150` + `L IX+60 F300`; `L IY-20` + `L IX-30`; `L IY-20` + `L IX+30`
+  (non-crossing staircase path). Card rule notes that an exact-width slot is
+  milled with CYCL DEF 253 and a smaller tool, which the simulator does not
+  support yet. `learnSvgSlotWidth()` removed (diagram factories 30).
+- `learnSvgToolpath()` (used only by L04) skips the leading rapids from the
+  home position, puts the start dot where they end and sizes the view to the
+  blank plus every drawn point, so a start beside the blank is visible.
+- Browser run of the full program: open entry from the X+30 edge, staircase
+  groove, no problems. Offline cache v127.
