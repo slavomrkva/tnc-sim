@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.002 — BLK FORM insert in lesson 1
+- In lesson 1, tasks 2 and 3, Insert in the BLK FORM panel now writes both
+  lines into the highlighted answer instead of doing nothing.
+
 ## v1.001 — calmer lesson practice and finishing a lesson
 - In a lesson task you can only write in the highlighted answer lines; the
   rest of the program is locked and dimmed.

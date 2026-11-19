@@ -1084,3 +1084,16 @@ History through v0.845 is preserved in
 
 ## v1.001 follow-up — 2026-11-19 — What's new for the Learn update (owner: no version bump)
 - `web/whats-new.js` announces the Learn practice changes (EN+DE) with `mergedAt` 2026-11-19T15:50:00Z. The popup no longer shows a version number (About stays the single version display); `version` field removed. Test asserts no version in the popup header. Offline cache v123.
+
+## v1.002 — 2026-11-19 — BLK FORM Insert inside a locked Learn task
+- Fix C63: in L01 tasks 2 and 3 (no BLK FORM in the starter) the BLK FORM
+  panel's Insert targeted the end of BEGIN PGM, which the v1.001 practice lock
+  treats as locked prefix. `learnLockCaret()` checked only the textarea
+  selection, so the insert went through, `learnEnforceLock()` rolled it back
+  and only the "highlighted lines" toast remained. `learnLockCaret(start,end)`
+  now checks the explicit target and `insertProgramBlock()` passes it, so
+  panel insertions are redirected into the answer range.
+- New `tests/learn-lock-blk-insert.test.js` (fails without the fix) and
+  `tests/learn-lock-insert-sweep.test.js` (all locked insert tasks accept
+  their solution through `insertProgramBlock()`). Offline
+  cache v124.

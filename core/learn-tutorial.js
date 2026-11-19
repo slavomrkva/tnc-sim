@@ -966,10 +966,16 @@ function _learnSetCaret(pos){
 
 /* A programming key or a click on a locked block moves the caret into the
    answer, so whatever the learner inserts lands where it can be graded. */
-function learnLockCaret(){
+/* Optional start/end check an explicit insertion target instead of the
+   textarea selection: panels such as BLK FORM compute their own position
+   (e.g. right after BEGIN PGM), which can sit in the locked prefix even while
+   the caret is inside the answer. */
+function learnLockCaret(start, end){
   if(!_learnLockActive()) return false;
-  var line = _learnLineIndexAt(codeEl.value, codeEl.selectionStart);
-  var endLine = _learnLineIndexAt(codeEl.value, codeEl.selectionEnd);
+  if(start === undefined || start === null) start = codeEl.selectionStart;
+  if(end === undefined || end === null) end = start === codeEl.selectionStart ? codeEl.selectionEnd : start;
+  var line = _learnLineIndexAt(codeEl.value, start);
+  var endLine = _learnLineIndexAt(codeEl.value, end);
   if(!learnLineLocked(line) && !learnLineLocked(endLine)) return false;
   _learnSetCaret(_learnAnswerCaret());
   return true;

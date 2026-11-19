@@ -410,7 +410,7 @@ function planProgramBlockInsertion(value,start,end,text,mode){
 
 function insertProgramBlock(text,position,selectionEnd,options){
   options=options||{};
-  if(typeof learnLockCaret === 'function' && learnLockCaret()){
+  if(typeof learnLockCaret === 'function' && learnLockCaret(position,selectionEnd)){
     position=codeEl.selectionStart; selectionEnd=codeEl.selectionEnd;
   }
   var plan=planProgramBlockInsertion(codeEl.value,position,selectionEnd,text,options.mode||'command');

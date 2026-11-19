@@ -6,6 +6,16 @@
 
 ## Open work
 
+- **C63 — BLK FORM Insert did nothing in L01 tasks 2/3 (implemented,
+  awaiting acceptance).** Reported 2026-11-19 on mobile: after filling the
+  BLK FORM panel, Insert left the editor unchanged. Cause: the panel targets
+  the end of BEGIN PGM when no BLK FORM exists; that is locked prefix in
+  practice, and `learnLockCaret()` checked only the textarea selection, so the
+  insert was rolled back by `learnEnforceLock()`. Attempt 1 (v1.002):
+  `insertProgramBlock()` passes its target to `learnLockCaret(start,end)`,
+  which redirects it into the answer range. Regression
+  `tests/learn-lock-blk-insert.test.js`. Pending: owner check on a phone.
+
 - **Release handoff: version 1.000 (branch `big-update`, not pushed).**
   Everything for this release is committed on the local branch `big-update` in
   this checkout; `main` equals `origin/main` (web v0.950). Nothing was pushed.
