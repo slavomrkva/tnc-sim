@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.006 — lesson 5 enters the blank from the side
+- In lesson 5 the tool goes down in front of the blank and cuts in from the
+  side before milling the arcs.
+
 ## v1.005 — lesson 4 is about incremental moves
 - Lesson 4 now teaches incremental IX/IY steps: the tool enters the blank
   from the side as in lesson 3 and then follows a path step by step. The

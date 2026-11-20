@@ -526,7 +526,7 @@ var LESSONS = [
         "<code>CC X+35 Y+45</code><br><code>C X+50 Y+45 DR-</code>"
       ],
       sol:'CC X+35 Y+45\nC X+50 Y+45 DR-',
-      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\n; write the arc below (keep the lines above!)\n\nM5\nM9\nEND PGM ARCS MM',
+      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL Y+10 F300\nL X+20 Y+45\n; write the arc below (keep the lines above!)\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
         {t:'uses', re:/CC\s+X\+35\s+Y\+45/, label:'Centre set: CC X+35 Y+45',
          hint:'CC only sets the centre \u2014 it does not move the tool.'},
@@ -544,7 +544,7 @@ var LESSONS = [
         "<code>CR X+80 Y+45 R+15 DR-</code>"
       ],
       sol:'CR X+80 Y+45 R+15 DR-',
-      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
+      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL Y+10 F300\nL X+20 Y+45\nCC X+35 Y+45\nC X+50 Y+45 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
         {t:'uses', re:/\bCR\b/, label:'CR block used (radius arc, no centre)',
          hint:'CR X+80 Y+45 R+15 DR-'},
@@ -562,7 +562,7 @@ var LESSONS = [
         "<code>L X+50 Y+10</code><br><code>L Z+50 FMAX</code>"
       ],
       sol:'L X+50 Y+10\nL Z+50 FMAX',
-      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y+10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+20 Y+45 F300\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
+      starter:'BEGIN PGM ARCS MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+50 Y-10 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL Y+10 F300\nL X+20 Y+45\nCC X+35 Y+45\nC X+50 Y+45 DR-\nCR X+80 Y+45 R+15 DR-\n; >>> write here\n\nM5\nM9\nEND PGM ARCS MM',
       checks:[
         {t:'sequence', items:[/CR\s+X\+80\s+Y\+45[^\n]*/, /L\s+X\+50\s+Y\+10(?:\s|$)/], label:'Shape closed after the arcs at X+50 Y+10',
          hint:'L X+50 Y+10 \u2014 a plain straight block.'},

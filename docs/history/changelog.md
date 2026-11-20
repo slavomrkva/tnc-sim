@@ -1128,3 +1128,10 @@ History through v0.845 is preserved in
   blank plus every drawn point, so a start beside the blank is visible.
 - Browser run of the full program: open entry from the X+30 edge, staircase
   groove, no problems. Offline cache v127.
+
+## v1.006 — 2026-11-20 — Lesson 5: tool goes down beside the blank
+- L05 starters bring the tool to X+50 Y-10 (5 mm in front of the blank edge
+  Y+0 with D10), feed down to Z-2 there and enter with `L Y+10 F300` before
+  `L X+20 Y+45`. Arcs, tasks, solutions and checks unchanged. Browser run of
+  the full program: entry from the Y+0 edge, closed shape, no problems.
+  Offline cache v128.
