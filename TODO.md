@@ -18,8 +18,9 @@
   of the highlighted `L Y+0 F300` showed the phone's text keyboard and only
   part of the screen; tapping F300 worked. Cause: free space after a command
   only placed the caret in the editable textarea. Attempt 1 (v1.007): on
-  `isMobile()` the tap opens the block's field editor. Pending: owner check
-  on a phone.
+  `isMobile()` the tap opens the block's field editor. Attempt 2 (v1.009):
+  Enter in that mobile editor commits and opens an empty row below the block,
+  restoring tap-end + Enter + key. Pending: owner check on a phone.
 
 - **C63 — BLK FORM Insert did nothing in L01 tasks 2/3 (implemented,
   awaiting acceptance).** Reported 2026-11-19 on mobile: after filling the

@@ -241,7 +241,8 @@ retain their original terms. This does not change the Android repository.
     end so Enter inserts the next block. On mobile (`isMobile()`) a tap in
     that free space of a guided block opens its field editor instead, because
     a bare caret would raise the full text keyboard; keypad insertion still
-    targets that row. Known shared M
+    targets that row, and Enter in that mobile editor commits it and opens an
+    empty row below the block (caret there, text keyboard closed). Known shared M
     functions retain their simulator state effects: M0 and M6 pause with their
     own message, while M2 and M30 finish without requiring another Run. Other valid standard or
     machine-specific numbers are preserved and accepted with a warning that

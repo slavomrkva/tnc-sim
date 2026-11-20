@@ -1161,3 +1161,14 @@ History through v0.845 is preserved in
   compares with the official solution. Browser check (touch phone profile):
   LBL SET on the empty rows gives LBL 1 / blocks / LBL 0, no lock rollback.
   Offline cache v130.
+
+## v1.009 — 2026-11-20 — Mobile Enter in the field editor opens a new row
+- C64 follow-up: after v1.007 a mobile tap after a block opened its field
+  editor, but Enter there did nothing (the document Enter handler ignores the
+  hidden `#mobileInput`), so tap-end + Enter no longer created a row. A
+  `keydown` Enter on `#mobileInput` now commits via `exitFieldMode()`, calls
+  `editorInsertBlankAfterActiveBlock()` (Learn lock aware) and blurs the
+  textarea, leaving the caret on the empty row without the text keyboard.
+  Browser checks (touch phone profile): tap end + Enter + L fills the new row;
+  before END PGM it opens the row above END; in L07 task 1 the new row joins
+  the answer range without a lock notice. NOTES rule #22 updated. Cache v131.

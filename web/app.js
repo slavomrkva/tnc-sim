@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '1.008';
+var APP_VERSION = '1.009';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1715,6 +1715,19 @@ if(mobileInput){
     mobileInput.value = MI_SENTINEL;
     lastMobileVal = MI_SENTINEL;
   }
+
+  // Mobile Enter in a guided block editor behaves like desktop Enter after a
+  // block: commit the fields, open an empty row below the block and park the
+  // caret there without the text keyboard, so the next key fills that row.
+  mobileInput.addEventListener('keydown', function(e){
+    if(!e || e.key!=='Enter' || e.isComposing) return;
+    if(!FM.active || _qpPanelOpen()) return;
+    e.preventDefault();
+    exitFieldMode();
+    if(typeof editorInsertBlankAfterActiveBlock==='function') editorInsertBlankAfterActiveBlock();
+    saveLastSel();
+    try{ codeEl.blur(); }catch(e2){}
+  });
 
   mobileInput.addEventListener('beforeinput', function(e){
     if(!e || (e.data!=='-' && e.data!=='+')) return;

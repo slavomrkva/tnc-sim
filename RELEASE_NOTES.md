@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.009 — Enter adds a line on a phone
+- On a phone, Enter in the parameter panel saves the block and opens an
+  empty line below it, ready for the next key.
+
 ## v1.008 — lesson 9 subprogram task
 - Lesson 9, task 1 now has empty highlighted lines above and below the two
   drilling blocks, so LBL 1 and LBL 0 can be added with the keys, also on a
