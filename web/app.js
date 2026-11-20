@@ -2,7 +2,7 @@
 
 // ---- Version: single source of truth (see NOTES.md "Versioning") ----
 // Feeds the header badge, the About popup, and the bug-report info.
-var APP_VERSION = '1.006';
+var APP_VERSION = '1.007';
 (function(){
   var b = document.getElementById('verBadge');
   if(b) b.textContent = 'v' + APP_VERSION + ' · 3D';
@@ -1934,6 +1934,14 @@ codeEl.addEventListener('click', function(e){
     ? (tapMetrics ? tapMetrics.past : posInLine>=trimmedEnd)
     : (hitPosInLine>=commandEnd && hitPosInLine<ci);
   if(_tapPastCommand){
+    // Mobile: a caret alone would hand the editable textarea to the phone's full
+    // text keyboard. Open the guided editor of the tapped block instead (same
+    // as tapping its last parameter); keypad insertion still targets this row.
+    if(isMobile()){
+      try{ codeEl.setSelectionRange(ls+commandEnd, ls+commandEnd); }catch(e){}
+      var _pastInfo=getCaretLine();
+      if(_pastInfo){ saveLastSel(); enterFieldModeOnLine(_pastInfo); return; }
+    }
     var _afterCommandCaret=ci<0 ? lineEnd : ls+hitPosInLine;
     try{ codeEl.setSelectionRange(_afterCommandCaret,_afterCommandCaret); }catch(e){}
     saveLastSel();

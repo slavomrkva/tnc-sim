@@ -6,6 +6,14 @@
 
 ## Open work
 
+- **C64 — Mobile tap after a block raised the text keyboard (implemented,
+  awaiting acceptance).** Reported 2026-11-20 in L07 task 1: tapping the end
+  of the highlighted `L Y+0 F300` showed the phone's text keyboard and only
+  part of the screen; tapping F300 worked. Cause: free space after a command
+  only placed the caret in the editable textarea. Attempt 1 (v1.007): on
+  `isMobile()` the tap opens the block's field editor. Pending: owner check
+  on a phone.
+
 - **C63 — BLK FORM Insert did nothing in L01 tasks 2/3 (implemented,
   awaiting acceptance).** Reported 2026-11-19 on mobile: after filling the
   BLK FORM panel, Insert left the editor unchanged. Cause: the panel targets

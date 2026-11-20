@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.007 — tapping after a block on a phone
+- On a phone, tapping after the end of a program block opens its parameter
+  panel instead of the full text keyboard.
+
 ## v1.006 — lesson 5 enters the blank from the side
 - In lesson 5 the tool goes down in front of the blank and cuts in from the
   side before milling the arcs.

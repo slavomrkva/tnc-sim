@@ -1135,3 +1135,14 @@ History through v0.845 is preserved in
   `L X+20 Y+45`. Arcs, tasks, solutions and checks unchanged. Browser run of
   the full program: entry from the Y+0 edge, closed shape, no problems.
   Offline cache v128.
+
+## v1.007 — 2026-11-20 — Mobile: tap after a block opens its field editor
+- C64: on mobile web, a tap in the free space after an L/C/CR/… block only
+  placed the caret in the editable textarea, so the phone raised its full
+  text keyboard and hid most of the screen (seen in L07 task 1 when adding
+  RR). `web/app.js` now opens the guided field editor of that block on
+  `isMobile()` (same field as tapping its last parameter). Desktop keeps the
+  caret (rule #22, updated). Browser check with a touch phone profile: tap
+  after `L Y+0 F300` opens the F field with the decimal keypad; pressing L
+  afterwards still inserts the new block after that row; desktop unchanged.
+  Offline cache v129.
