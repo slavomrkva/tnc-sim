@@ -622,7 +622,7 @@ var LESSONS = [
         "<code>RND R10</code>"
       ],
       sol:'RND R10',
-      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
+      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X-10 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
       checks:[
         {t:'uses', re:/RND\s+R10\b/, label:'RND R10 on its own block',
          hint:'Write RND R10 on the empty line between L X+70 and L Y+60.'},
@@ -640,7 +640,7 @@ var LESSONS = [
         "<code>CHF 8</code>"
       ],
       sol:'CHF 8',
-      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
+      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X-10 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\nL X+70 F300\n; >>> write here\n\nL Y+60\nM5\nM9\nEND PGM CORNER MM',
       checks:[
         {t:'uses', re:/CHF\s+8\b/, label:'CHF 8 on its own block',
          hint:'CHF 8 between the two straight moves.'},
@@ -658,7 +658,7 @@ var LESSONS = [
         "<code>L X+70 F300</code><br><code>RND R10</code><br><code>L Y+60</code><br><code>CHF 8</code><br><code>L X+20</code>"
       ],
       sol:'L X+70 F300\nRND R10\nL Y+60\nCHF 8\nL X+20',
-      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\n; >>> write here\n\nM5\nM9\nEND PGM CORNER MM',
+      starter:'BEGIN PGM CORNER MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X-10 Y+20 Z+50 FMAX\nL Z+2 FMAX\nL Z-2 F150\n; >>> write here\n\nM5\nM9\nEND PGM CORNER MM',
       checks:[
         {t:'uses', re:/RND\s+R10\b/, label:'First corner rounded with RND R10',
          hint:'L X+70 F300, then RND R10, then L Y+60.'},
@@ -903,7 +903,7 @@ var LESSONS = [
       + '<p>Change a hole position once \u2014 every call uses the new one.</p>'; } },
     { html:function(){ return ''
       + '<p>A <b>Q variable</b> stores a number you can reuse. Define it, then write it instead of the value:</p>'
-      + learnSnippet('Q1 = -6           ; slot depth\n...\nL Z+Q1 F150       ; plunge to Q1 = -6\nL X+80 F300')
+      + learnSnippet('Q1 = -6           ; cutting depth\n...\nL Z+Q1 F150       ; down to Q1 = -6\nL X+80 F300')
       + '<p>One edit at the top changes the whole program \u2014 the start of parametric programming.</p>'; } }
   ],
   tasks:[
@@ -944,21 +944,21 @@ var LESSONS = [
       ]
     },
     {
-      prompt:'Define a variable Q1 = -6 and use it as the slot depth: plunge with L Z+Q1 F150, then mill to X+80 with F300',
+      prompt:'Define a variable Q1 = -6 and use it as the cutting depth: go down beside the blank with L Z+Q1 F150, then mill into it to X+80 with F300',
       hints:[
         "A <b>Q parameter</b> is a variable: set it once, then write <code>Q1</code> wherever that number goes.",
-        "Define <code>Q1 = -6</code>, plunge with <code>L Z+Q1 F…</code>, then mill <code>L X+80 F…</code>.",
+        "Define <code>Q1 = -6</code>, go down with <code>L Z+Q1 F…</code> beside the blank, then mill <code>L X+80 F…</code>.",
         "<code>Q1 = -6</code><br><code>L Z+Q1 F150</code><br><code>L X+80 F300</code>"
       ],
-      starter:'BEGIN PGM QVAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X+20 Y+40 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM QVAR MM',
+      starter:'BEGIN PGM QVAR MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 1 Z S3000 F500\nM3\nM8\nL X-10 Y+40 Z+50 FMAX\nL Z+2 FMAX\n; >>> write here\n\nM5\nM9\nEND PGM QVAR MM',
       sol:'Q1 = -6\nL Z+Q1 F150\nL X+80 F300',
       checks:[
         {t:'uses', re:/Q1\s*=\s*-6\b/, label:'Variable defined: Q1 = -6',
          hint:'One block: Q1 = -6 (before it is used).'},
         {t:'uses', re:/Z\+?Q1\b/, label:'Depth written as Z+Q1, not as a number',
          hint:'L Z+Q1 F150 \u2014 the control substitutes -6.'},
-        {t:'reach', cut:true, x:80, y:40, z:-6, label:'Slot milled at depth 6 mm',
-         hint:'After the plunge: L X+80 F300.'},
+        {t:'reach', cut:true, x:80, y:40, z:-6, label:'Milled to X+80 at depth 6 mm',
+         hint:'After going down: L X+80 F300.'},
         {t:'min_z', z:-6, label:'Deepest point is exactly Q1 = -6',
          hint:'Check the sign: Q1 = -6, used as Z+Q1.'}
       ]

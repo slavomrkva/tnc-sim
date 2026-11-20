@@ -1172,3 +1172,13 @@ History through v0.845 is preserved in
   Browser checks (touch phone profile): tap end + Enter + L fills the new row;
   before END PGM it opens the row above END; in L07 task 1 the new row joins
   the answer range without a lock notice. NOTES rule #22 updated. Cache v131.
+
+## v1.010 — 2026-11-20 — L06 and L09: end mill no longer plunges into the blank
+- Scan of all 15 lessons (every task's official program, parsed in the
+  browser): a vertical feed below the surface with the tool over the blank,
+  excluding drilling cycles, remained only in L06 tasks 1-3 and L09 task 3.
+  Both now start at X-10 (5 mm beside the blank edge with D10), go down there
+  and enter from the side with the first X move. L09 task 3 wording no longer
+  says slot/plunge (EN+DE); check label updated. Checks and solutions are
+  otherwise unchanged. Browser runs: no problems, no collision warning; the
+  re-scan reports only drilling/tapping/countersinking cycles. Cache v132.

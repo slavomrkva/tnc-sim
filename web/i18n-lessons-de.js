@@ -789,7 +789,7 @@ var LESSONS_DE = {
       + '<p>Ändere eine Bohrposition einmal \u2014 jeder Aufruf nutzt die neue.</p>'; } },
     { html:function(){ return ''
       + '<p>Eine <b>Q-Variable</b> speichert eine Zahl, die du wiederverwenden kannst. Definiere sie, dann schreibe sie statt des Werts:</p>'
-      + learnSnippet('Q1 = -6           ; Nuttiefe\n...\nL Z+Q1 F150       ; eintauchen auf Q1 = -6\nL X+80 F300')
+      + learnSnippet('Q1 = -6           ; Frästiefe\n...\nL Z+Q1 F150       ; nach unten auf Q1 = -6\nL X+80 F300')
       + '<p>Eine Änderung oben ändert das ganze Programm \u2014 der Beginn der parametrischen Programmierung.</p>'; } }
   ],
   tasks:[
@@ -826,10 +826,10 @@ var LESSONS_DE = {
       ]
     },
     {
-      prompt:'Definiere eine Variable Q1 = -6 und nutze sie als Nuttiefe: tauche mit L Z+Q1 F150 ein, dann fräse auf X+80 mit F300',
+      prompt:'Definiere eine Variable Q1 = -6 und nutze sie als Frästiefe: fahre mit L Z+Q1 F150 neben dem Rohteil nach unten, dann fräse mit F300 hinein auf X+80',
       hints:[
         'Ein <b>Q-Parameter</b> ist eine Variable: einmal setzen, dann <code>Q1</code> schreiben, wo diese Zahl hingehört.',
-        'Definiere <code>Q1 = -6</code>, tauche mit <code>L Z+Q1 F…</code> ein, dann fräse <code>L X+80 F…</code>.',
+        'Definiere <code>Q1 = -6</code>, fahre mit <code>L Z+Q1 F…</code> neben dem Rohteil nach unten, dann fräse <code>L X+80 F…</code>.',
         '<code>Q1 = -6</code><br><code>L Z+Q1 F150</code><br><code>L X+80 F300</code>'
       ],
       checks:[
@@ -837,8 +837,8 @@ var LESSONS_DE = {
          hint:'Ein Satz: Q1 = -6 (bevor sie verwendet wird).'},
         {label:'Tiefe als Z+Q1 geschrieben, nicht als Zahl',
          hint:'L Z+Q1 F150 \u2014 die Steuerung setzt -6 ein.'},
-        {label:'Nut auf 6 mm Tiefe gefräst',
-         hint:'Nach dem Eintauchen: L X+80 F300.'},
+        {label:'Auf 6 mm Tiefe bis X+80 gefräst',
+         hint:'Nach der Bewegung nach unten: L X+80 F300.'},
         {label:'Tiefster Punkt ist genau Q1 = -6',
          hint:'Prüfe das Vorzeichen: Q1 = -6, genutzt als Z+Q1.'}
       ]

@@ -10,6 +10,10 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.010 — no more straight plunges in the lessons
+- In lessons 6 and 9 the end mill now goes down beside the blank and cuts
+  in from the side, like in lessons 3 to 5.
+
 ## v1.009 — Enter adds a line on a phone
 - On a phone, Enter in the parameter panel saves the block and opens an
   empty line below it, ready for the next key.
