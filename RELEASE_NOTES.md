@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.008 — lesson 9 subprogram task
+- Lesson 9, task 1 now has empty highlighted lines above and below the two
+  drilling blocks, so LBL 1 and LBL 0 can be added with the keys, also on a
+  phone.
+
 ## v1.007 — tapping after a block on a phone
 - On a phone, tapping after the end of a program block opens its parameter
   panel instead of the full text keyboard.

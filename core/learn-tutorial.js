@@ -893,6 +893,20 @@ function _learnStarterPlan(L, ti){
       } else {
         start = _learnLineIndexAt(starter, at);
         count = oldLines;
+        // Blocks the answer adds around the highlighted ones (LBL 1 above,
+        // LBL 0 below) get their own empty answer rows: the keypad inserts
+        // after the caret row and could otherwise only reach the locked rows.
+        var wrapAt = replacement.indexOf(oldText);
+        if(newLines > oldLines && wrapAt >= 0){
+          var before = replacement.slice(0, wrapAt).split('\n').length - 1;
+          var after = replacement.slice(wrapAt + oldText.length).split('\n').length - 1;
+          var lineStart = starter.lastIndexOf('\n', at - 1) + 1;
+          var blockEnd = at + oldText.length;
+          code = starter.slice(0, lineStart) + '\n'.repeat(before)
+            + starter.slice(lineStart, blockEnd) + '\n'.repeat(after)
+            + starter.slice(blockEnd);
+          count = before + oldLines + after;
+        }
       }
     }
   }
@@ -1121,7 +1135,7 @@ function learnAnswerHint(){
   if(LEARN.answerMode === 'edit' && T.solRepl){
     var added = String(T.solRepl[1]).split('\n').length - String(T.solRepl[0]).split('\n').length;
     if(added > 0)
-      return _lt('learn.addAround', 'Add {n} lines around the highlighted lines.').replace('{n}', added);
+      return _lt('learn.addAround', 'Write {n} lines in the empty highlighted lines.').replace('{n}', added);
   }
   if(LEARN.answerMode === 'edit')
     return n === 1 ? _lt('learn.editOne', 'Change the highlighted line.')
@@ -1138,6 +1152,11 @@ function _learnSolvedCode(L, ti){
     var lines = code.split('\n');
     lines.splice.apply(lines, [plan.start, plan.count].concat(String(T.sol).split('\n')));
     return lines.join('\n');
+  }
+  if(T.solRepl && plan.mode === 'edit' && plan.start >= 0){
+    var rows = code.split('\n');
+    rows.splice.apply(rows, [plan.start, plan.count].concat(String(T.solRepl[1]).split('\n')));
+    return rows.join('\n');
   }
   if(T.solRepl) return code.replace(T.solRepl[0], T.solRepl[1]);
   if(T.sol !== undefined) return code.replace('\n\n', '\n' + T.sol + '\n');

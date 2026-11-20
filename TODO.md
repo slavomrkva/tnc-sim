@@ -6,6 +6,13 @@
 
 ## Open work
 
+- **C65 — L09 task 1 could not add LBL 1 / LBL 0 (implemented, awaiting
+  acceptance).** Reported 2026-11-20 on a phone: only the two drilling blocks
+  were editable, no new rows could be added. Cause: the wrap task's answer
+  range held only the existing blocks and the keypad inserts after the caret
+  row. Attempt 1 (v1.008): empty answer rows reserved above/below; sweep test
+  extended. Pending: owner check on a phone.
+
 - **C64 — Mobile tap after a block raised the text keyboard (implemented,
   awaiting acceptance).** Reported 2026-11-20 in L07 task 1: tapping the end
   of the highlighted `L Y+0 F300` showed the phone's text keyboard and only

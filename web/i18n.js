@@ -72,7 +72,7 @@
       'learn.writeMany': 'Schreibe {n} Zeilen in den markierten Bereich.',
       'learn.editOne': '\u00c4ndere die markierte Zeile.',
       'learn.freeWrite': 'Schreibe deine Antwort selbst ins Programm.',
-      'learn.addAround': 'F\u00fcge {n} Zeilen um die markierten Zeilen hinzu.',
+      'learn.addAround': 'Schreibe {n} Zeilen in die leeren markierten Zeilen.',
       'learn.editMany': '\u00c4ndere die markierten Zeilen.',
       'learn.resetTask': 'Startprogramm neu laden',
       'learn.check': 'Pr\u00fcfen',

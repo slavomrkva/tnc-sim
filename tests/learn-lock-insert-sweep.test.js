@@ -58,4 +58,33 @@ ctx.LESSONS.forEach((lesson, li) => lesson.tasks.forEach((task, ti) => {
   assert.ok(ctx._learnLockValid(codeEl.value), id + ': locked lines are unchanged');
 }));
 assert.ok(checked >= 40, 'sweep covers the locked insert tasks (' + checked + ')');
-console.log('learn-lock-insert-sweep: ' + checked + ' locked tasks accept keypad inserts');
+
+/* Edit tasks that add blocks around the highlighted ones (L09: LBL 1 above,
+   LBL 0 below) reserve empty answer rows; each added block must be insertable
+   there through the keypad path, and the result must equal the official one. */
+let wrapped = 0;
+ctx.LESSONS.forEach((lesson, li) => lesson.tasks.forEach((task, ti) => {
+  if(!task.solRepl) return;
+  const plan = ctx._learnStarterPlan(lesson, ti);
+  const oldN = task.solRepl[0].split('\n').length;
+  if(plan.mode !== 'edit' || plan.start < 0 || plan.count <= oldN) return;
+  wrapped++;
+  codeEl.value = plan.code;
+  Object.assign(LEARN, {open:true, lesson:li, task:ti, answerStartLine:plan.start, answerLineCount:plan.count, answerMode:'edit'});
+  vm.runInContext('_learnLockCapture(codeEl.value, LEARN.answerStartLine, LEARN.answerLineCount)', ctx);
+  const want = task.solRepl[1].split('\n');
+  rollbacks = 0;
+  want.forEach((line, i) => {
+    const row = plan.start + i;
+    if(codeEl.value.split('\n')[row] !== '') return;
+    const at = ctx._learnLineOffset(codeEl.value, row);
+    ctx.syncEditorSelection(at, at);
+    ctx.insertProgramBlock(line, at, at, {mode:'command'});
+  });
+  const id = lesson.id + ' task ' + (ti + 1);
+  assert.strictEqual(rollbacks, 0, id + ': no added block is rolled back by the practice lock');
+  assert.strictEqual(codeEl.value, ctx._learnSolvedCode(lesson, ti), id + ': keypad result equals the official solution');
+  assert.ok(ctx._learnLockValid(codeEl.value), id + ': locked lines are unchanged');
+}));
+assert.ok(wrapped >= 1, 'sweep covers the edit tasks that add blocks around the highlighted ones');
+console.log('learn-lock-insert-sweep: ' + checked + ' insert tasks and ' + wrapped + ' wrap task(s) accept keypad inserts');

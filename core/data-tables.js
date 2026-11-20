@@ -911,7 +911,7 @@ var LESSONS = [
       prompt:'Wrap the two drilling blocks into a subprogram: put LBL 1 above them and LBL 0 below them',
       hints:[
         "A <b>subprogram</b> is a labelled block you can reuse. <code>LBL 1</code> opens it, <code>LBL 0</code> closes it.",
-        "Put <code>LBL 1</code> on a line above the two drilling blocks and <code>LBL 0</code> on a line below them. Enter at the very start of the first highlighted line opens a line above it.",
+        "Write <code>LBL 1</code> in the empty highlighted line above the two drilling blocks and <code>LBL 0</code> in the empty one below them.",
         "<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>"
       ],
       starter:'BEGIN PGM SUB MM\nBLK FORM 0.1 Z X+0 Y+0 Z-20\nBLK FORM 0.2 X+100 Y+80 Z+0\nTOOL CALL 4 Z S2500 F150\nM3\nM8\nCYCL DEF 200\n  Q200=+2 ;set-up clearance\n  Q201=-5 ;depth\n  Q206=+150 ;plunge feed rate\n  Q202=+5 ;plunging depth\n  Q210=+0 ;dwell at top\n  Q203=+0 ;surface coordinate\n  Q204=+30 ;2nd set-up clearance\n  Q211=+0 ;dwell at bottom\n; wrap the two blocks below into LBL 1 ... LBL 0\n\nL X+30 Y+30 FMAX M99\nL X+70 Y+30 FMAX M99\n\nM5\nM9\nEND PGM SUB MM',

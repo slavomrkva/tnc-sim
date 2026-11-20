@@ -1146,3 +1146,18 @@ History through v0.845 is preserved in
   after `L Y+0 F300` opens the F field with the decimal keypad; pressing L
   afterwards still inserts the new block after that row; desktop unchanged.
   Offline cache v129.
+
+## v1.008 — 2026-11-20 — L09 task 1: empty answer rows for LBL 1 / LBL 0
+- C65: the wrap task (LBL 1 above, LBL 0 below the two drilling blocks) only
+  highlighted the two existing blocks. The keypad inserts after the caret row,
+  so LBL 1 could not go above them and LBL 0 below hit the locked rows; on a
+  phone (no Enter) the task could not be finished. `_learnStarterPlan()` now
+  reserves one empty answer row per block the official replacement adds
+  before/after the highlighted ones; `_learnSolvedCode()` splices the answer
+  range. Task hint and the "add lines" answer hint updated (EN+DE).
+- Scan of all lessons: L09 task 1 is the only edit task that adds blocks; all
+  41 insert tasks were already covered. `learn-lock-insert-sweep` now also
+  inserts each added block of such tasks through `insertProgramBlock()` and
+  compares with the official solution. Browser check (touch phone profile):
+  LBL SET on the empty rows gives LBL 1 / blocks / LBL 0, no lock rollback.
+  Offline cache v130.

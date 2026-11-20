@@ -797,7 +797,7 @@ var LESSONS_DE = {
       prompt:'Fasse die beiden Bohrsätze in ein Unterprogramm: setze LBL 1 darüber und LBL 0 darunter',
       hints:[
         'Ein <b>Unterprogramm</b> ist ein benannter Block, den du wiederverwenden kannst. <code>LBL 1</code> öffnet ihn, <code>LBL 0</code> schließt ihn.',
-        'Setze <code>LBL 1</code> auf eine Zeile über die beiden Bohrsätze und <code>LBL 0</code> auf eine Zeile darunter. Enter ganz am Anfang der ersten markierten Zeile öffnet eine Zeile darüber.',
+        'Schreibe <code>LBL 1</code> in die leere markierte Zeile über den beiden Bohrsätzen und <code>LBL 0</code> in die leere darunter.',
         '<code>LBL 1</code><br><code>L X+30 Y+30 FMAX M99</code><br><code>L X+70 Y+30 FMAX M99</code><br><code>LBL 0</code>'
       ],
       checks:[
