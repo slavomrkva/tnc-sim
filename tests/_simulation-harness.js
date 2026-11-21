@@ -9,7 +9,7 @@ const tools=vm.runInNewContext('['+app.slice(start,app.indexOf('\n];',start))+']
 function context(code){
  const c={console,window:{},TOOL_R:5,DEFAULT_FEED:100,probs:[],TOOL_TYPES:['MILL','DRILL','COUNTERSINK'],toolLibrary:structuredClone(tools),pFloat:v=>parseFloat(String(v).replace(',','.'))||0,
   document:{getElementById:()=>null},codeEl:{value:code},THREE_OK:false,VX:null,VX_QUALITY:1,scene:{add(){},remove(){}},blockEdges:null,blockMesh:null,currentToolNum:1,pendingToolNum:0,atcAnim:null,toolGroup:null,toolPos:{},
-  activeSrcLine:-1,subIndex:0,subProgress:0,mode:'running',RAPID_MMS:100,VISUAL_GAIN:1,SPEEDS:[1],speedIdx:0,stepTargetBlock:-1,
+  activeSrcLine:-1,subIndex:0,subProgress:0,mode:'running',RAPID_MMS:20000/60,VISUAL_GAIN:1,SPEEDS:[1],speedIdx:0,stepTargetBlock:-1,
   updateStatus(){},updatePos(){},updateSimInfoPanel(){},updateToolLegend(){},calcToolTimes(){},triggerRefine(){},highlightActiveLine(){},draw2dFull(){},startATC(){}};
  vm.createContext(c);
  for(const f of ['core/tool-table.js','core/parser-engine.js','core/voxel-cutting.js'])vm.runInContext(read(f),c,{filename:f});

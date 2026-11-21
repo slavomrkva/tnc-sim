@@ -62,6 +62,42 @@ const line = (x0, len, extra) => Object.assign({
   assert.ok(frames >= 6 && frames <= 7, `1 s dwell at 10x takes ~6 frames, took ${frames}`);
 }
 
+// When the frame work budget runs out the device cannot keep up: the unused
+// time is dropped, never carried into a later catch-up jump.
+{
+  const c = context('');
+  c.SPEEDS = [500]; c.speedIdx = 0; c.VISUAL_GAIN = 1;
+  c.sub = Array.from({ length: 2000 }, (_, i) => line(i * 0.1, 0.1));
+  c.prog = { totalBlocks: 1, start: { x: 0, y: 0, z: 0 } };
+  c.subIndex = 0; c.subProgress = 0; c.mode = 'running';
+  let clock = 0; c._advanceNow = () => (clock += 5); // each check costs 5 ms
+  c.advance(FRAME);
+  assert.ok(c.subIndex > 0 && c.subIndex < c.sub.length, 'budget stops the frame early');
+  assert.strictEqual(c._advanceCarry, 0, 'no carry after an exhausted budget');
+}
+
+// Stop and a speed change clear leftover real-time carry.
+{
+  const fs = require('fs'), path = require('path');
+  const src = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+  assert.match(src('core/sim-controls.js'), /function onStop\(\)\{\s*if\(typeof _advanceCarry!=='undefined'\) _advanceCarry = 0;/);
+  assert.match(src('core/editor-core.js'), /function changeSpeed\(d\)\{[\s\S]*?_advanceCarry = 0;[\s\S]*?\n\}/);
+}
+
+// The tool change follows the speed buttons: ~1.5 s at 1x, at least 0.15 s.
+{
+  for (const [speed, expected] of [[1, 0.065], [10, 0.65], [100, 0.1 / 0.15]]) {
+    const c = context('');
+    c.SPEEDS = [speed]; c.speedIdx = 0; c.VISUAL_GAIN = 1;
+    const pos = { x: 0, y: 0, z: 0, set(x, y, z) { this.x = x; this.y = y; this.z = z; } };
+    c.toolGroup = { position: pos }; c.buildToolMesh = () => {};
+    c.atcAnim = { t: 0, toT: 1, inGroup: null, outX: 0, outY: 0, outZ: 0, cornerX: 0, cornerY: 0, cornerZ: 0, endX: 0, endY: 0, endZ: 0 };
+    c.updateATC(0.1);
+    const t = c.atcAnim ? c.atcAnim.t : 1;
+    assert.ok(Math.abs(t - Math.min(1, expected)) < 1e-9, `ATC progress at ${speed}x: ${t}`);
+  }
+}
+
 // 1x is machine time: no hidden gain, FMAX equals the estimate's 20000 mm/min,
 // and the app starts at 1x.
 {

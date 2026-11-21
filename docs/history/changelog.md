@@ -1215,3 +1215,10 @@ History through v0.845 is preserved in
   150 -> 20000/60, the same FMAX as `calcEstTime()` (measured: 100 mm at
   F600 = 10.0 s, 300 mm FMAX = 0.9 s). Start speed stays 1x. Frame `dt` bound
   0.1 -> 0.25 s in `loop()` and `loop2d` so slow frames keep the ratio.
+- Review follow-up: `_advanceCarry` (real seconds) is cleared by `onStop()`
+  and `changeSpeed()`; it is now kept only for a held cycle retract. When
+  the 12 ms frame budget runs out the unused time is dropped, so a CPU-bound
+  run slows evenly instead of catching up 0.25 s (25 s at 100x) in one frame.
+  `updateATC()` uses `simTimeScale()`; harness `RAPID_MMS` = 20000/60;
+  pacing test covers the budget drop, carry reset and ATC scaling. Note:
+  `calcEstTime()` excludes the ~1.5 s ATC animation per tool change at 1x.

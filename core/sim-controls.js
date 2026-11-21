@@ -153,6 +153,7 @@ function setQuality(q){
 }
 
 function onStop(){
+  if(typeof _advanceCarry!=='undefined') _advanceCarry = 0; // no leftover frame time after a stop
   if(mode==='running'||mode==='stepping'){
     mode='idle';
     updateStatus('Stopped', false);

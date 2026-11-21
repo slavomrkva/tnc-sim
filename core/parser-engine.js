@@ -3907,7 +3907,7 @@ function updateATC(dt){
   if(!atcAnim || !toolGroup) return;
   // The change takes about 1.5 s at 1x and scales with the speed buttons like
   // the rest of the program; 0.15 s keeps it visible at the highest speeds.
-  var _atcScale = (typeof speedIdx!=='undefined' && typeof SPEEDS!=='undefined') ? SPEEDS[speedIdx] : 1;
+  var _atcScale = (typeof simTimeScale==='function') ? simTimeScale() : 1;
   var spd = Math.min(0.65 * _atcScale, 1/0.15);
   atcAnim.t = Math.min(1, atcAnim.t + dt * spd);
   var t  = atcAnim.t;

@@ -86,6 +86,8 @@ function formatSignedNum(val){
 
 function changeSpeed(d){
   speedIdx = Math.max(0, Math.min(SPEEDS.length-1, speedIdx+d));
+  // Leftover frame time is real time; replaying it at the new speed would jump.
+  if(typeof _advanceCarry!=='undefined') _advanceCarry = 0;
   speedValEl.textContent = SPEEDS[speedIdx].toFixed(SPEEDS[speedIdx]<1?2:1) + '\u00D7';
 }
 

@@ -347,9 +347,9 @@ function segSpeed(sm){
   return base * simTimeScale();
 }
 
-// Playback time that one frame could not use (a held cycle retract, or the
-// per-frame work budget ran out) carries into the next frame instead of being
-// dropped, so a frame boundary never slows the program down.
+// Playback time that one frame could not use because a short cycle retract was
+// held at its midpoint carries into the next frame, so holding never slows the
+// program down. The carry is real time: Stop and a speed change clear it.
 var ADVANCE_CARRY_MAX = 0.25;      // s of real time, bounds catch-up after a stall
 var ADVANCE_FRAME_BUDGET_MS = 12;  // segment work per frame before yielding
 var _advanceCarry = 0;
@@ -453,10 +453,11 @@ function advance(dt){
           break;
         }
       }
-      // Yield to the renderer only when this frame's work budget is spent;
-      // the unused time is played in the next frame.
+      // Yield to the renderer only when this frame's work budget is spent.
+      // The device cannot keep up then, so the unused time is dropped: playback
+      // slows evenly instead of catching up later in one jump (at 100x a
+      // carried 0.25 s would be 25 s of program in a single frame).
       if(_advanceNow() - frameStart > ADVANCE_FRAME_BUDGET_MS){
-        _advanceCarry = Math.min(ADVANCE_CARRY_MAX, remaining);
         break;
       }
     }
