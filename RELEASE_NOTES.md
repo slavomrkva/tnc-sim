@@ -10,6 +10,11 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.012 — smooth playback speed
+- The speed buttons now play the whole program evenly: milling, short arcs,
+  drilling retracts, dwell and the tool change all keep the chosen ratio,
+  without jumps or slow stretches.
+
 ## v1.011 — simulator fixes
 - After a cycle called with M99, the tool now moves to the next hole at the
   clearance height instead of dropping down between holes.

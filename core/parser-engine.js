@@ -3896,6 +3896,7 @@ function resetState(){
     if(firstTool !== currentToolNum){ currentToolNum=firstTool; var _ft=getToolByNum(firstTool); TOOL_R=_ft ? Math.max(0.1,_ft.R+((inferToolType(_ft)==='MILL')?(_ft.DR||0):0)) : 5; if(toolGroup) buildToolMesh(); }
   }
   atcAnim = null;
+  if(typeof _advanceCarry!=='undefined') _advanceCarry = 0; // a new run starts on time
   if(atcArm) atcArm.visible=false;
   if(pendingToolGroup) pendingToolGroup.visible=false;
   pendingToolNum = 0;
@@ -3904,7 +3905,10 @@ function resetState(){
 
 function updateATC(dt){
   if(!atcAnim || !toolGroup) return;
-  var spd = 0.65;
+  // The change takes about 1.5 s at 1x and scales with the speed buttons like
+  // the rest of the program; 0.15 s keeps it visible at the highest speeds.
+  var _atcScale = (typeof speedIdx!=='undefined' && typeof SPEEDS!=='undefined') ? SPEEDS[speedIdx] : 1;
+  var spd = Math.min(0.65 * _atcScale, 1/0.15);
   atcAnim.t = Math.min(1, atcAnim.t + dt * spd);
   var t  = atcAnim.t;
   var ig = atcAnim.inGroup;

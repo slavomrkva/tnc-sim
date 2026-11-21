@@ -337,10 +337,23 @@ function placeTool(){
   if(THREE_OK && toolGroup && !atcAnim){ toolGroup.position.set(toolPos.x, toolPos.y, toolPos.z); }
 }
 
+// One time scale for everything that plays back: feed and rapid motion, dwell
+// and the tool change. The speed buttons then keep every part of the program
+// in the same ratio to machine time.
+function simTimeScale(){ return VISUAL_GAIN * SPEEDS[speedIdx]; }
+
 function segSpeed(sm){
   var base = sm.rapid ? RAPID_MMS : Math.max(sm.feed,1)/60;
-  return base * VISUAL_GAIN * SPEEDS[speedIdx];
+  return base * simTimeScale();
 }
+
+// Playback time that one frame could not use (a held cycle retract, or the
+// per-frame work budget ran out) carries into the next frame instead of being
+// dropped, so a frame boundary never slows the program down.
+var ADVANCE_CARRY_MAX = 0.25;      // s of real time, bounds catch-up after a stall
+var ADVANCE_FRAME_BUDGET_MS = 12;  // segment work per frame before yielding
+var _advanceCarry = 0;
+function _advanceNow(){ return (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now(); }
 
 function shouldHoldVisibleSegment(sm, progress, remaining, segTime){
   return !!(sm && sm.ensureVisible && progress===0 && segTime>0 && remaining>=segTime);
@@ -394,20 +407,24 @@ function vxCollides(tx, ty, tz, toolR, toolShape){
 }
 
 function advance(dt){
-  if(atcAnim) return; // wait for ATC animation to finish
-  var remaining = dt;
+  if(atcAnim){ _advanceCarry = 0; return; } // wait for ATC animation to finish
+  var remaining = dt + _advanceCarry;
+  _advanceCarry = 0;
+  var frameStart = _advanceNow();
   var guard = 0;
-  while(remaining > 0 && subIndex < sub.length && guard < 500){
+  while(remaining > 0 && subIndex < sub.length && guard < 200000){
     guard++;
     var sm = sub[subIndex];
     var spd = segSpeed(sm);
-    var segTime = sm.dwellSeconds>0 ? sm.dwellSeconds / SPEEDS[speedIdx] : sm.len / spd;
+    var segTime = sm.dwellSeconds>0 ? sm.dwellSeconds / simTimeScale() : sm.len / spd;
     var tLeft = (1 - subProgress) * segTime;
     // A short cycle retract can otherwise start and finish between two render
     // frames and look like a teleport. Show its midpoint once, while retaining
     // the real FMAX/feed metadata and leaving ordinary short arc segments fast.
+    // The rest of the frame's time is carried, not lost.
     if(shouldHoldVisibleSegment(sm, subProgress, remaining, segTime)){
       subProgress = 0.5;
+      _advanceCarry = Math.min(ADVANCE_CARRY_MAX, remaining - 0.5*segTime);
       remaining = 0;
       break;
     }
@@ -436,8 +453,12 @@ function advance(dt){
           break;
         }
       }
-      // After any visible segment, yield to renderer
-      if(!sm.isMseg && sm.len > 0.5){ break; }
+      // Yield to the renderer only when this frame's work budget is spent;
+      // the unused time is played in the next frame.
+      if(_advanceNow() - frameStart > ADVANCE_FRAME_BUDGET_MS){
+        _advanceCarry = Math.min(ADVANCE_CARRY_MAX, remaining);
+        break;
+      }
     }
   }
   // compute tool position

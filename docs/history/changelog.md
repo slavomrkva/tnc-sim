@@ -1199,3 +1199,15 @@ History through v0.845 is preserved in
   visible). New `tests/gemini-audit-2026-11.test.js`; `tests/_tool-esc.js`
   gives single-module tests the real helper. All 56 Node test files pass.
   Web only; Android `www/core/` port pending. Cache v133.
+
+## v1.012 — 2026-11-21 — Even playback at every speed
+- `advance()` broke the frame after every completed segment longer than
+  0.5 mm and dropped the rest of the frame time, so at higher speeds the pace
+  depended on segment length (600 x 1 mm took 600 frames instead of 36 at
+  100x). It now yields only when a 12 ms per-frame work budget is spent, and
+  unused time carries into the next frame (`_advanceCarry`, capped at
+  0.25 s, reset on prepare). A held cycle retract also carries its unused
+  time. Dwell uses the same `simTimeScale()` as motion. The ATC animation
+  scales with the speed buttons (about 1.5 s at 1x, at least 0.15 s); before
+  it always took about 1.5 s. New `tests/playback-pacing.test.js`; all 57
+  Node test files pass. Cache v134.
