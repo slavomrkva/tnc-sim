@@ -93,7 +93,7 @@ function loop(){
   // (live window-drag frames, editor/3D splitter drag, tab/orientation change).
   var resized = (typeof resizeToDisplay==='function') && resizeToDisplay();
   var dt = clock.getDelta();
-  if(dt > 0.1) dt = 0.1;
+  if(dt > 0.25) dt = 0.25; // keeps machine-time ratio down to 4 fps; a longer stall (hidden tab) is not caught up
   var isActive = (mode==='running' || mode==='stepping' || atcAnim || (VX && VX.dirty));
   // Throttle idle rendering to ~20fps to save GPU (but always paint a resync frame)
   if(!isActive && !resized && controls && !controls._changed){

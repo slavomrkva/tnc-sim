@@ -62,4 +62,17 @@ const line = (x0, len, extra) => Object.assign({
   assert.ok(frames >= 6 && frames <= 7, `1 s dwell at 10x takes ~6 frames, took ${frames}`);
 }
 
+// 1x is machine time: no hidden gain, FMAX equals the estimate's 20000 mm/min,
+// and the app starts at 1x.
+{
+  const fs = require('fs'), path = require('path');
+  const app = fs.readFileSync(path.join(__dirname, '..', 'web', 'app.js'), 'utf8');
+  const val = name => require('vm').runInNewContext(app.match(new RegExp('var ' + name + ' = ([^;]+);'))[1]);
+  assert.strictEqual(val('VISUAL_GAIN'), 1, 'no hidden speed-up');
+  assert.ok(Math.abs(val('RAPID_MMS') * 60 - 20000) < 1e-9, 'FMAX playback = 20000 mm/min');
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'core', 'tool-table.js'), 'utf8'),
+    /var RAPID_FEED = 20000;/, 'time estimate uses the same FMAX');
+  assert.strictEqual(val('SPEEDS')[val('speedIdx')], 1, 'starts at 1x');
+}
+
 console.log('playback-pacing: all assertions passed');

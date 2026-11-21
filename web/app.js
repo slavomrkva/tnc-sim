@@ -962,7 +962,7 @@ var BUILDERS = {
 // Format signed numeric value: normalize comma, extract sign, return proper format
 
 var SPEEDS = [0.25,0.5,1,2,5,10,20,50,100,500];
-var speedIdx = 2;
+var speedIdx = 2; // 1x at start = machine time
 
 // ---------- parser ----------
 // produces { blkMin, blkMax, sub:[ {from,to,rapid,feed,blockIndex,srcLine} ], totalBlocks }
@@ -2068,8 +2068,9 @@ var MC_TRI_TABLE = new Int32Array([- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1, 
 var THREE_OK = (typeof THREE !== 'undefined');
 var glContextLost = false;
 var TOOL_COLOR = 0xe8530a;
-var RAPID_MMS = 150;        // visual rapid speed mm/s at 1x (fast but visible)
-var VISUAL_GAIN = 3;        // overall liveliness factor
+// 1x plays the program in machine time, matching the time estimate.
+var RAPID_MMS = 20000/60;   // FMAX in mm/s: the same 20000 mm/min as calcEstTime()
+var VISUAL_GAIN = 1;        // no hidden speed-up: the speed buttons are the only factor
 
 
 // Uncut stock (workpiece) colour — darker in light theme so it stands out
@@ -2287,7 +2288,7 @@ if(THREE_OK){
   (function loop2d(){
     requestAnimationFrame(loop2d);
     var now = performance.now();
-    var dt = Math.min((now - (loop2d._last || now)) / 1000, 0.1);
+    var dt = Math.min((now - (loop2d._last || now)) / 1000, 0.25); // same bound as loop()
     loop2d._last = now;
     if(mode==='running' || mode==='stepping'){
       advance(dt);

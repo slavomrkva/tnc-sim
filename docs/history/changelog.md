@@ -1211,3 +1211,7 @@ History through v0.845 is preserved in
   scales with the speed buttons (about 1.5 s at 1x, at least 0.15 s); before
   it always took about 1.5 s. New `tests/playback-pacing.test.js`; all 57
   Node test files pass. Cache v134.
+- Owner decision: 1x is machine time. `VISUAL_GAIN` 3 -> 1 and `RAPID_MMS`
+  150 -> 20000/60, the same FMAX as `calcEstTime()` (measured: 100 mm at
+  F600 = 10.0 s, 300 mm FMAX = 0.9 s). Start speed stays 1x. Frame `dt` bound
+  0.1 -> 0.25 s in `loop()` and `loop2d` so slow frames keep the ratio.

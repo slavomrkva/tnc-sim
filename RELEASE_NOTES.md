@@ -14,6 +14,8 @@ in `NOTES.md`; this file is the short, human-readable history.
 - The speed buttons now play the whole program evenly: milling, short arcs,
   drilling retracts, dwell and the tool change all keep the chosen ratio,
   without jumps or slow stretches.
+- 1× is now real machine time and matches the time estimate. Before, 1×
+  played three times faster than the machine.
 
 ## v1.011 — simulator fixes
 - After a cycle called with M99, the tool now moves to the next hole at the

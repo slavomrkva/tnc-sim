@@ -619,7 +619,7 @@ function calcToolTimes(subArr){
 }
 
 function calcEstTime(subArr){
-  // RAPID_MMS is visual speed — use a realistic rapid of 10000 mm/min for time estimate
+  // Playback uses the same rapid (web RAPID_MMS = 20000/60), so 1x matches this estimate.
   var RAPID_FEED = 20000; // mm/min
   var totalSec = 0;
   for(var i=0;i<subArr.length;i++){
