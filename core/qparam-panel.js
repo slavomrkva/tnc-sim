@@ -19,9 +19,9 @@ function openQPopup(lineIdx){
   var panel = document.getElementById('ctxPanel');
   var fmaxBtn = isFauto ? '<button class="fbar-fmax" onclick="qPanelSetVal(\'FAUTO\')">FAUTO</button>' : '';
   var qRefBtn = '<button class="fbar-fmax" onclick="qPanelInsertQ()" title="Insert Q parameter reference">Q</button>';
-  panel.innerHTML = '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+(label||qkey)+'</span><button style="margin-left:auto;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 8px;" onclick="closeQPopup()">✕</button></div>'
+  panel.innerHTML = '<div class="ctx-row1"><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">'+toolEsc(label||qkey)+'</span><button style="margin-left:auto;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--text3);cursor:pointer;padding:2px 8px;" onclick="closeQPopup()">✕</button></div>'
     + '<div class="ctx-row2">'
-    + '<input id="qPanelInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="characters" value="'+qval+'"'
+    + '<input id="qPanelInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="characters" value="'+toolEsc(qval)+'"'
     + ' style="font-family:var(--mono);font-size:14px;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:5px;color:var(--text);padding:3px 10px;width:90px;outline:none;text-align:right;">'
     + qRefBtn
     + fmaxBtn

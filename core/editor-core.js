@@ -549,7 +549,7 @@ function renderProblems(){
     var rowCls = isFixed ? 'problem fixed' : ('problem '+p.sev);
     var fixBtn = (!isFixed && p.fix && problemIndex>=0) ? '<button class="problem-fix" onclick="event.stopPropagation();applyFix('+problemIndex+')">Fix</button>' : '';
     var explainBtn = ''; // Explain disabled (AI removed)
-    html+='<div class="'+rowCls+'" onclick="gotoLine('+p.line+')"><span class="pl">B'+problemBlockNumber(p.line)+'</span><span class="pi">'+(isFixed?'\u2714':(p.sev==='err'?'\u2716':'\u26A0'))+'</span><span>'+p.msg+'</span>'+fixBtn+explainBtn+'</div>';
+    html+='<div class="'+rowCls+'" onclick="gotoLine('+p.line+')"><span class="pl">B'+problemBlockNumber(p.line)+'</span><span class="pi">'+(isFixed?'\u2714':(p.sev==='err'?'\u2716':'\u26A0'))+'</span><span>'+toolEsc(p.msg)+'</span>'+fixBtn+explainBtn+'</div>';
   }
   list.style.display = problemsOpen?'block':'none';
   list.innerHTML=html;
@@ -834,7 +834,7 @@ function _showExportFallback(text, filename){
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.85);display:flex;flex-direction:column;padding:16px;gap:10px;';
   ov.innerHTML =
-    '<div style="color:#fff;font-family:var(--mono),monospace;font-size:13px;">'+filename+' — select all and copy, or use Share</div>'
+    '<div style="color:#fff;font-family:var(--mono),monospace;font-size:13px;">'+toolEsc(filename)+' — select all and copy, or use Share</div>'
     + '<textarea readonly style="flex:1;width:100%;font-family:monospace;font-size:12px;background:#111;color:#eee;border:1px solid #444;border-radius:6px;padding:8px;"></textarea>'
     + '<div style="display:flex;gap:8px;">'
     + '<button id="_expShare" style="flex:1;padding:10px;border:0;border-radius:6px;background:#4a9eff;color:#fff;font-size:14px;">Share</button>'

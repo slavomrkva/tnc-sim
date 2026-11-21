@@ -25,7 +25,7 @@ function updateSimInfoPanel(){
   // Tool number: from segment or fallback to currentToolNum
   var tNum = (sm && sm.toolNum) ? sm.toolNum : currentToolNum;
   var t = getToolByNum(tNum);
-  var tName = t ? 'T'+t.T+(t.NAME?' '+t.NAME:'') : 'T'+tNum;
+  var tName = toolEsc(t ? 'T'+t.T+(t.NAME?' '+t.NAME:'') : 'T'+tNum); // NAME may come from an imported .tnt
 
   // spindleOn / spindleS: walk backward from current position to find last state
   // During ATC: scan backward past all new-tool segments to find pre-change state

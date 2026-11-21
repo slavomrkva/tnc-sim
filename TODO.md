@@ -6,6 +6,23 @@
 
 ## Open work
 
+- **External audit 2026-11-21 — confirmed parser/XSS findings (implemented,
+  awaiting acceptance; web only, Android port pending).** An external
+  (Gemini) audit listed ~124 findings; these were reproduced in Node and fixed:
+  PAR-5 an L block with M99 was batched, so the next block started from the
+  parse-time Z and teleported the tool 45 mm between holes (the batch now
+  flushes after a cycle call); PAR-2 an inside arc equal to the tool radius
+  collapses to a point that `_rcHasLoop` reported as a loop; PAR-4 a standalone
+  M3/M8/... segment split an RL/RR run and the rest was rejected (it is now
+  lifted out and reinserted by block index); PAR-13 a zero-length RL
+  activation was dropped with its `rcActivation`; PAR-1 a Q value such as
+  3e-15 was substituted with an exponent and read as 3.06 mm; PAR-6 parser RND
+  regex rejected `R+5`; PAR-24 inline `Q206=0.5` read as 0; SEC-1 program text,
+  comments, file and tool names went into `innerHTML` unescaped (now
+  `toolEsc`). Not reproduced: PAR-7, PAR-20. Regression:
+  `tests/gemini-audit-2026-11.test.js`; all 56 Node test files pass. The other
+  audit findings (editor, CSS, Learn, service worker) are not yet verified.
+
 - **C65 — L09 task 1 could not add LBL 1 / LBL 0 (implemented, awaiting
   acceptance).** Reported 2026-11-20 on a phone: only the two drilling blocks
   were editable, no new rows could be added. Cause: the wrap task's answer

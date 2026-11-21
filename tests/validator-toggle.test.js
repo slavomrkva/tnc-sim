@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const toolEsc = require('./_tool-esc.js');
 
 const root = path.join(__dirname, '..');
 const editorSource = fs.readFileSync(path.join(root, 'core', 'editor-core.js'), 'utf8');
@@ -70,6 +71,7 @@ const context = {
   clearTimeout(id){ clearedTimers.push(id); }
 };
 
+context.toolEsc = toolEsc;
 vm.createContext(context);
 vm.runInContext(editorSource, context, {filename:'editor-core.js'});
 context.updateLineNums=()=>{};

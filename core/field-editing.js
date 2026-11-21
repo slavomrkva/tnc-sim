@@ -412,7 +412,7 @@ function renderFbar(){
   if(f.type==='tool'){
     var _curT = String(f.val||1);
     var _curTool = getToolByNum(parseInt(_curT));
-    var _curLabel = _curTool ? 'T'+_curTool.T+' — '+_curTool.NAME : 'T'+_curT;
+    var _curLabel = toolEsc(_curTool ? 'T'+_curTool.T+' — '+_curTool.NAME : 'T'+_curT);
     html+='<button onclick="openToolPicker()" style="font-family:var(--mono);font-size:13px;flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--accent3);border-radius:6px;color:var(--text);cursor:pointer;text-align:left;">'+_curLabel+' ▾</button>';
   } else if(f.type==='dr'){
     html+='<div class="fbar-dr"><button class="fbar-drbtn'+(f.val==='+'?' sel':'')+'" onclick="setFieldVal(\'+\')">DR+</button><button class="fbar-drbtn'+(f.val==='-'?' sel':'')+'" onclick="setFieldVal(\'-\')">DR-</button></div>';
@@ -422,7 +422,7 @@ function renderFbar(){
   } else {
     html+='<span class="fbar-pfx">'+(f.lbl||f.p||'')+'</span>';
     if(isMobile()){
-      html+='<span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':f.val)+'</span>';
+      html+='<span class="fbar-val" id="fbarVal" onclick="focusMobileInput()" style="'+(f.val===null?'color:var(--text3)':'')+'">'+(f.val===null?'\u2014':toolEsc(f.val))+'</span>';
     } else {
       html+='<input class="fbar-val" id="fbarVal" type="text" value="'+_fieldPanelAttr(f.val)+'" placeholder="\u2014"'
         +' aria-label="'+_fieldPanelAttr(f.prompt||f.p||'Value')+'" autocomplete="off" spellcheck="false"'

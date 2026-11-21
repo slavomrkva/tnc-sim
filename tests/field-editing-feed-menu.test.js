@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const toolEsc = require('./_tool-esc.js');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'core', 'field-editing.js'), 'utf8');
 
@@ -21,6 +22,7 @@ function render(isMobile){
       fields: [{ type: 'feed', p: 'F', lbl: 'F', val: '100', opt: true }]
     }
   };
+  context.toolEsc = toolEsc;
   vm.createContext(context);
   vm.runInContext(source, context);
   context.renderFbar();

@@ -4,6 +4,7 @@ const fs=require('fs');
 const vm=require('vm');
 const path=require('path');
 const H=require('./_cycle-harness');
+const toolEsc=require('./_tool-esc.js');
 const root=path.resolve(__dirname,'..');
 const source=file=>fs.readFileSync(path.join(root,file),'utf8');
 const near=(a,b,tol=1e-9)=>assert.ok(Math.abs(a-b)<=tol,`${a} != ${b}`);
@@ -125,7 +126,7 @@ for(const [on,dir,text] of [[true,-1,'M4 ●'],[true,1,'M3 ●'],[false,0,'M5 �
  const el={style:{}};
  const c={document:{getElementById:()=>el},mode:'running',prog:{},subIndex:0,
   sub:[{toolNum:1,spindleOn:on,spindleDir:dir,spindleS:200,coolantOn:false,feed:100}],
-  currentToolNum:1,getToolByNum:()=>({T:1}),atcAnim:null,currentLBL:null};
+  currentToolNum:1,getToolByNum:()=>({T:1}),atcAnim:null,currentLBL:null,toolEsc};
  vm.createContext(c);vm.runInContext(source('core/sim-controls.js'),c);c.updateSimInfoPanel();assert.ok(el.innerHTML.includes(text));
 }
 console.log('web-audit-2026: numerical, budget, collision, pause and status regressions passed');

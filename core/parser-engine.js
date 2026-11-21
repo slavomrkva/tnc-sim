@@ -204,12 +204,19 @@ function resolveQLineExpr(line, qVars){
     var v = qVars[parseInt(n)];
     if(v === undefined) return m;
     var num = parseFloat(v);
-    if(sign === '+' || sign === ''){
-      return (num >= 0 ? '+' : '') + num;
-    } else {
-      return ((-num) >= 0 ? '+' : '') + (-num);
-    }
+    if(sign === '-') num = -num;
+    var text = qNumberText(num);
+    return (text.charAt(0) === '-' ? '' : '+') + text;
   });
+}
+
+// Plain decimal text for a substituted Q value. String(3.06e-15) would leave
+// an exponent in the NC block, which the coordinate regexes cut at "e" and
+// read as 3.06 mm. Nine decimals is far below any machine resolution.
+function qNumberText(num){
+  if(!isFinite(num)) return String(num);
+  var s = num.toFixed(9).replace(/\.?0+$/,'');
+  return (s === '-0') ? '0' : s;
 }
 
 // Cycle Q-parameter access that respects an explicit zero (NOTES rule #2).
@@ -1237,7 +1244,7 @@ function validateProgram(code, liveEdit){
       var _qd=u.match(/Q200\s*=\s*([+-]?[\d.]+)/); if(_qd&&parseFloat(_qd[1])<0) probs.push({line:srcI,sev:'warn',msg:'Q200 (safety clearance) must be >= 0'});
       var _qd2=u.match(/Q201\s*=\s*([+-]?[\d.]+)/); if(_qd2&&parseFloat(_qd2[1])>0) probs.push({line:srcI,sev:'err',msg:'Q201 depth must be negative (below surface) — the cycle will not cut'});
       var _qd3=u.match(/Q335\s*=\s*([+-]?[\d.]+)/); if(_qd3&&parseFloat(_qd3[1])<=0) probs.push({line:srcI,sev:'err',msg:'Q335 bore diameter must be greater than 0'});
-      var _qd4=u.match(/Q206\s*=\s*(\d+)/); if(_qd4&&parseFloat(_qd4[1])===0) probs.push({line:srcI,sev:'err',msg:'Q206 feed rate may not be 0'});
+      var _qd4=u.match(/Q206\s*=\s*\+?(\d*\.?\d+)/); if(_qd4&&parseFloat(_qd4[1])===0) probs.push({line:srcI,sev:'err',msg:'Q206 feed rate may not be 0'});
       hasCycleDef=!!_supportedCycle; lastCycleLine=srcI; activeCycleDef=!!_supportedCycle;
       valCycleQ={}; valCycleQSeen={}; valCycleLine=srcI; valCycleNum=_cnum?parseInt(_cnum[1]):0; valInCycle=true;
       var _inlineQRe=/Q(\d+)\s*=\s*(.*?)(?=\s+Q\d+\s*=|$)/ig, _inlineQm;
@@ -1506,7 +1513,10 @@ function parseProgramBounded(code){
     }
     var dx=to.x-from.x, dy=to.y-from.y, dz=to.z-from.z;
     var len = Math.sqrt(dx*dx+dy*dy+dz*dz);
-    if(len > 1e-6){
+    // An RL/RR activation block may be programmed at the current position.
+    // Keep it as a zero-length marker: radius compensation replaces it with
+    // the real approach to the first offset point.
+    if(len > 1e-6 || (rcActivation && (rc==='RL'||rc==='RR'))){
       appendSegment({from:from, to:{x:to.x,y:to.y,z:to.z}, rapid:rapid, feed:feed, spindleS:spindleS, spindleOn:spindleOn, spindleDir:spindleDir, threadHand:activeThreadHand, coolantOn:coolantOn, len:len, blockIndex:blockIndex, srcLine:srcLine, rc:rc||'', toolNum:toolNum, pendingDef:pendingDefTool, safeRetract:!!safeRetract, ensureVisible:!!ensureVisible, rcActivation:!!rcActivation, rcGeom:rcGeom||null, dlPgm:curDLpgm, drPgm:curDRpgm});
     }
     pos = {x:to.x,y:to.y,z:to.z};
@@ -2773,13 +2783,17 @@ function parseProgramBounded(code){
       _pendingL.coolantAfter=coolantOn;
       endPositioningFeed(_lFeedState);
       pos = {x:target.x,y:target.y,z:target.z}; // track pos for incremental coords
+      // A cycle call moves the tool (e.g. to Q204). Run it now so the next
+      // block starts from the real post-cycle position; a deferred batch would
+      // start it from the parse-time Z and teleport the tool between holes.
+      if(hasM99) flushPending();
       if(_mCodesL.some(function(m){ return /^(?:M0|M2|M6|M30)$/.test(m); })){
         flushPending();
         if(finishMControlBlock(_mCodesL,srcLineI)) break;
       }
     }
     else if(line.indexOf('RND')===0){
-      var rm=line.match(/R(\d+\.?\d*)/);
+      var rm=line.match(/(?:^|\s)R\+?(\d+\.?\d*)/); // RND R5, RND R+5 and a resolved RND RQ1
       var _rndFeedM=line.match(/\bF\+?(\d+\.?\d*)/);
       var _rndLocalFeed=/\bFMAX\b/.test(line)?9999:(/\bFAUTO\b/.test(line)?toolCallFeed:(_rndFeedM?parseFloat(_rndFeedM[1]):null));
       if(rm && pendingMoves.length>0) pendingMoves[pendingMoves.length-1].modifier={type:'RND',r:parseFloat(rm[1]),line:srcLineI,feed:_rndLocalFeed,rapid:_rndLocalFeed==null?null:/\bFMAX\b/.test(line)};
@@ -3031,6 +3045,10 @@ function _rcReport(parseProblems,line,msg,incomplete){
   console.warn('Line '+((line||0)+1)+': '+msg);
 }
 function _rcHasLoop(pieces){
+  // An inside arc whose radius equals the tool radius collapses to a single
+  // point that joins its neighbours. It adds no path, so its neighbours are
+  // adjacent and their shared point is not a loop.
+  pieces=pieces.filter(function(p){ return p.type!=='point'; });
   for(var i=0;i<pieces.length;i++) for(var j=i+1;j<pieces.length;j++){
     if(j===i+1) continue;
     // The first and last elements are the approach/departure boundary of the
@@ -3224,12 +3242,36 @@ function applyRadiusCompAnalytic(sub,parseProblems){
   var i=0;
   while(i<sub.length){
     if(sub[i].rc!=='RL'&&sub[i].rc!=='RR'){ i++; continue; }
-    var side=sub[i].rc,j=i;
-    while(j<sub.length&&sub[j].rc===side) j++;
+    var side=sub[i].rc,j=i,held=[];
+    while(j<sub.length){
+      if(sub[j].rc===side){ j++; continue; }
+      // A standalone M3/M8/... block between two compensated contour blocks
+      // is a zero-length state event, not the end of RL/RR. Lift it out of the
+      // run for the offset calculation and put it back afterwards.
+      if(_rcIsHeldMEvent(sub[j])){
+        var k=j; while(k<sub.length&&_rcIsHeldMEvent(sub[k])) k++;
+        if(k<sub.length&&sub[k].rc===side){ held=held.concat(sub.splice(j,k-j)); continue; }
+      }
+      break;
+    }
     var prev=i>0?sub[i-1]:null,next=j<sub.length?sub[j]:null;
-    var newLen=_offsetRunAnalytic(sub,i,j-1,side,prev,next,parseProblems);
-    i+=newLen||0;
+    var newLen=_offsetRunAnalytic(sub,i,j-1,side,prev,next,parseProblems)||0;
+    if(held.length) newLen+=_rcReinsertMEvents(sub,i,newLen,held);
+    i+=newLen;
   }
+}
+function _rcIsHeldMEvent(s){ return !!(s&&s.isMseg&&!s.stop&&!s.cycleEvent); }
+function _rcReinsertMEvents(sub,start,len,held){
+  for(var h=0;h<held.length;h++){
+    var ev=held[h],at=start;
+    // The event was appended after every segment of its block index, so it
+    // goes back after the last offset segment whose index is not greater.
+    for(var s=start;s<start+len;s++) if(sub[s].blockIndex<=ev.blockIndex) at=s+1;
+    var anchor=at>start?sub[at-1].to:(sub[at]?sub[at].from:ev.from);
+    ev.from=_rcPoint(anchor); ev.to=_rcPoint(anchor);
+    sub.splice(at,0,ev); len++;
+  }
+  return held.length;
 }
 
 function _offsetRunAnalytic(sub,a,b,side,prevSeg,nextSeg,parseProblems){

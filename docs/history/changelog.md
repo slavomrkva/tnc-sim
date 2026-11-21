@@ -1182,3 +1182,20 @@ History through v0.845 is preserved in
   says slot/plunge (EN+DE); check label updated. Checks and solutions are
   otherwise unchanged. Browser runs: no problems, no collision warning; the
   re-scan reports only drilling/tapping/countersinking cycles. Cache v132.
+
+## v1.011 — 2026-11-21 — Confirmed findings of the external audit
+- An external (Gemini) audit of tncsim.org was checked against the code; the
+  reproducible parser and HTML-injection findings are fixed. Parser: an `L`
+  block with M99/M89 now flushes the pending batch, so the next block starts
+  from the real post-cycle position (no 45 mm Z drop between holes); an inside
+  arc/RND equal to the tool radius (offset point) is ignored by the loop check;
+  standalone M3/M5/M7/M8/M9/M13/M14 events inside an RL/RR run are lifted out
+  and reinserted by block index instead of splitting the run; a zero-length
+  RL/RR activation is kept as a marker; substituted Q values are written as
+  plain decimals (`qNumberText`, no exponent); parser RND accepts `R+5`; the
+  inline Q206 zero check reads decimals. UI: Problems messages, Q-popup
+  comment/value, export-fallback filename, sim info, tool legend and field
+  panel use `toolEsc` before `innerHTML` (this also makes `<no.>` hints
+  visible). New `tests/gemini-audit-2026-11.test.js`; `tests/_tool-esc.js`
+  gives single-module tests the real helper. All 56 Node test files pass.
+  Web only; Android `www/core/` port pending. Cache v133.

@@ -10,6 +10,15 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.011 — simulator fixes
+- After a cycle called with M99, the tool now moves to the next hole at the
+  clearance height instead of dropping down between holes.
+- Radius compensation (RL/RR) now accepts an inside rounding equal to the
+  tool radius, an M8/M9 between contour blocks, and RL programmed at the
+  current position.
+- `RND R+5`, a Q value such as `50*COS(90)` and an inline `Q206=0.5` now work.
+- Text from a program or tool file is shown as plain text in the editor panels.
+
 ## v1.010 — no more straight plunges in the lessons
 - In lessons 6 and 9 the end mill now goes down beside the blank and cuts
   in from the side, like in lessons 3 to 5.

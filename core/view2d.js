@@ -115,7 +115,7 @@ function updateToolLegend(){
   used.forEach(function(tn){
     var t = getToolByNum(tn);
     var hex = '#'+('000000'+getToolColor3(tn).toString(16)).slice(-6);
-    var name = t ? t.NAME : 'T'+tn;
+    var name = toolEsc(t ? t.NAME : 'T'+tn); // NAME may come from an imported .tnt
     html += '<div style="display:flex;align-items:center;gap:7px;margin:3px 0;">'
       +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+hex+';flex-shrink:0;"></span>'
       +'<span style="color:var(--text3);">T'+tn+'</span>'
