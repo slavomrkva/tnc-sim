@@ -3782,17 +3782,27 @@ function isCurrentRefine(job){
     !(typeof dirty!=='undefined' && dirty);
 }
 
-// Opt-in timing for phone tests (?perf=1); normal users never see it.
-function _refinePerfNote(job,where){
-  if(typeof location==='undefined' || !/[?&]perf=1(&|$)/.test(location.search||'')) return '';
-  return ' [Refine '+((Date.now()-job.started)/1000).toFixed(1)+' s, '+where+']';
+// ?perf=1 replaces the text with the timing (for phone tests): both together do
+// not fit a phone's one-line status bar.
+function _refineDoneText(job,where){
+  if(typeof location!=='undefined' && /[?&]perf=1(&|$)/.test(location.search||''))
+    return 'Refined in '+((Date.now()-job.started)/1000).toFixed(1)+' s ('+where+')';
+  return 'Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps';
 }
 
 // The synchronous fallback freezes the page, so say so and let it paint first.
 function _fallbackRefine(data, job){
   _showRefineIndicator('Refining without worker\u2026');
-  if(typeof setTimeout==='function') setTimeout(function(){ _runRefineMainThread(data, job); }, 50);
+  if(typeof setTimeout==='function') setTimeout(function(){ if(!_refineIsStale(job)) _runRefineMainThread(data, job); }, 50);
   else _runRefineMainThread(data, job);
+}
+
+// True when the job can no longer be applied. If it is still the active one (the
+// program was edited meanwhile), release the indicator and the button as well.
+function _refineIsStale(job){
+  if(isCurrentRefine(job)) return false;
+  if(_refineJob===job) cancelRefine();
+  return true;
 }
 
 function triggerRefine(){
@@ -3853,7 +3863,7 @@ function triggerRefine(){
     var _w = new Worker(_wu);
     URL.revokeObjectURL(_wu);
     _w.onmessage = function(e){
-      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
+      if(_refineIsStale(job) || _refineWorker!==_w) return;
       var msg = e.data;
       if(msg.type==='progress'){
         updateStatus('\u2699\ufe0f Refining\u2026 '+msg.pct+'%', false);
@@ -3866,11 +3876,11 @@ function triggerRefine(){
         var btn2=document.getElementById('refineBtnCanvas');
         if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
         _hideRefineIndicator();
-        updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps'+_refinePerfNote(job,'worker'), false);
+        updateStatus(_refineDoneText(job,'worker'), false);
       }
     };
     _w.onerror = function(err){
-      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
+      if(_refineIsStale(job) || _refineWorker!==_w) return;
       _w.terminate();
       // Worker blocked (sandbox) — fall back to main thread
       _refineWorker=null;
@@ -4184,7 +4194,7 @@ function _programRows(){
 }
 
 function getLblAtLine(srcLine){
-  if(!codeEl || !(srcLine>=0)) return null;
+  if(!codeEl || typeof srcLine!=='number' || !(srcLine>=0)) return null;
   var c = _programRows();
   return srcLine<c.lbl.length ? c.lbl[srcLine] : c.last;
 }

@@ -189,7 +189,7 @@ function _runRefineMainThread(d, job){
       var btn2=document.getElementById('refineBtnCanvas');
       if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
       _hideRefineIndicator();
-      updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps'+_refinePerfNote(job,'main thread'), false);
+      updateStatus(_refineDoneText(job,'main thread'), false);
     }
   } catch(err){
     if(!isCurrentRefine(job)) return;

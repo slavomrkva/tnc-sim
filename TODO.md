@@ -12,7 +12,8 @@
   desktop Chrome is as fast as Firefox, but Chrome with its optimizing JIT off
   is about 12x slower, which would match (Chrome Site settings > JavaScript
   optimization). Attempt 1 (v1.013): lossless speed-up of Refine, live cutting,
-  meshing and path uploads; see the changelog. Android port pending.
+  meshing and path uploads; see the changelog. Owner reports the simulation
+  runs well on the phone (2026-11-22, branch link). Android port pending.
 
 - **External audit 2026-11-21 — confirmed parser/XSS findings (implemented,
   awaiting acceptance; web only, Android port pending).** An external

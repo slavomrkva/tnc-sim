@@ -89,5 +89,6 @@ assert.deepStrictEqual({...attr.updateRange},{offset:0,count:6},'restart uploads
 const p=vm.createContext({console,codeEl:{value:'L X+0\nLBL 1\nL X+1\nLBL 0\nCALL LBL 1 REP 2\nL X+2'}});
 vm.runInContext(read('core/parser-engine.js'),p);
 assert.deepStrictEqual([0,1,2,3,4,5,99,-1].map(i=>p.getLblAtLine(i)),[null,'1','1',null,'1',null,null,null]);
+assert.deepStrictEqual([null,undefined,''].map(i=>p.getLblAtLine(i)),[null,null,null]);
 p.codeEl.value='LBL 7\nL X+1';assert.strictEqual(p.getLblAtLine(1),'7');
 console.log('voxel-fast-path: worker, cut, mesh and collision output unchanged; partial uploads and row cache verified');

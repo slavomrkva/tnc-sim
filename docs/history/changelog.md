@@ -1241,3 +1241,15 @@ History through v0.845 is preserved in
   v1.012 hashes. Refine, 100x100x30 default quality, desktop: Chrome 4.1 -> 0.6 s,
   Firefox 4.6 -> 0.7 s, Chrome without optimizing JIT 56 -> 4.9 s. Voxel
   resolution and budgets are unchanged. Not yet checked on a phone.
+
+## v1.014 — 2026-11-22 — Refine timing fits the phone status bar (test branch)
+
+- `?perf=1` shows `Refined in 2.1 s (worker)` instead of appending the time to
+  the normal text, which a 360 px wide status bar cut off.
+- Old/new comparison with a fixed clock: 11 programs x 2 qualities identical in
+  stock, colors, collisions, status text, LBL and the run after a reset. Partial
+  path uploads: 0 differing pixels against a full upload after run, path off/on,
+  stop, reset, second run and a quality change.
+- Editing the program while Refine ran left its indicator and button busy; a
+  stale job now releases them (worker progress/done/error and the fallback,
+  whose new 50 ms delay had the same gap). `getLblAtLine()` accepts only numbers.
