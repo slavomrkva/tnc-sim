@@ -165,7 +165,7 @@ function _hideRefineIndicator(){
 
 function _runRefineMainThread(d, job){
   if(!isCurrentRefine(job)) return;
-  // Execute REFINE_WORKER_CODE logic directly on main thread (chunked via setTimeout)
+  // Execute REFINE_WORKER_CODE logic synchronously on the main thread.
   updateStatus('\u2699\ufe0f Refining (main thread)\u2026', false);
   // Inject a fake self.postMessage so we can reuse worker code
   var _results = null;
@@ -180,20 +180,16 @@ function _runRefineMainThread(d, job){
       }
     };
     // Execute worker code with fake self
-    var _workerFn = new Function('self', REFINE_WORKER_CODE + '\nself.onmessage({data:'+JSON.stringify(null)+'});');
-    // Can't JSON.stringify ArrayBuffer — run differently
-    // Build a direct execution context
-    var _ctx = {};
     var _code = REFINE_WORKER_CODE.replace(/\bself\.postMessage\b/g,'_fakeself.postMessage').replace(/\bself\.onmessage\s*=/,'_fakeself.onmessage=');
     eval(_code);
     if(_fakeself.onmessage) _fakeself.onmessage({data: d});
     if(_results && isCurrentRefine(job)){
-      _applyRefinedMesh(Array.from(new Float32Array(_results.verts)), Array.from(new Float32Array(_results.norms)), Array.from(new Int32Array(_results.colors)));
+      _applyRefinedMesh(new Float32Array(_results.verts), new Float32Array(_results.norms), new Int32Array(_results.colors));
       _refineJob=null;
       var btn2=document.getElementById('refineBtnCanvas');
       if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
       _hideRefineIndicator();
-      updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps', false);
+      updateStatus(_refineDoneText(job,'main thread'), false);
     }
   } catch(err){
     if(!isCurrentRefine(job)) return;
@@ -206,26 +202,25 @@ function _runRefineMainThread(d, job){
   }
 }
 
+// vertsArr/normsArr are the worker's typed arrays and are used as they are; its
+// normals are already the flat face normals of this non-indexed mesh.
 function _applyRefinedMesh(vertsArr, normsArr, triColors){
   if(!THREE_OK || !scene) return;
   if(VX && VX.mesh){ scene.remove(VX.mesh); vxDisposeObject(VX.mesh,true); }
   var geo = new THREE.BufferGeometry();
-  var vf = new Float32Array(vertsArr);
-  geo.setAttribute('position', new THREE.BufferAttribute(vf, 3));
-  geo.setAttribute('normal',   new THREE.BufferAttribute(new Float32Array(normsArr), 3));
+  geo.setAttribute('position', new THREE.BufferAttribute(vertsArr, 3));
+  geo.setAttribute('normal',   new THREE.BufferAttribute(normsArr, 3));
   // color each triangle from triColors (toolNum per triangle, 0=uncut)
-  var colors = [];
-  for(var ti=0; ti<(triColors?triColors.length:0); ti++){
-    var toolNum = triColors[ti];
-    var _s0=_stockRGB(); var r=_s0[0], g=_s0[1], b=_s0[2];
-    if(toolNum>0 && toolNum<255){
-      var tc = TOOL_CUT_COLORS[(toolNum-1)%TOOL_CUT_COLORS.length];
-      r=tc[0]; g=tc[1]; b=tc[2];
-    }
-    colors.push(r,g,b, r,g,b, r,g,b);
+  var nTri = triColors ? triColors.length : 0, stock = _stockRGB();
+  var colors = new Float32Array(nTri*9);
+  for(var ti=0, o=0; ti<nTri; ti++, o+=9){
+    var toolNum = triColors[ti], rgb = stock;
+    if(toolNum>0 && toolNum<255) rgb = TOOL_CUT_COLORS[(toolNum-1)%TOOL_CUT_COLORS.length];
+    colors[o]=colors[o+3]=colors[o+6]=rgb[0];
+    colors[o+1]=colors[o+4]=colors[o+7]=rgb[1];
+    colors[o+2]=colors[o+5]=colors[o+8]=rgb[2];
   }
-  geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
-  geo.computeVertexNormals();
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   var mat = new THREE.MeshLambertMaterial({vertexColors:true, side:THREE.DoubleSide});
   var mesh = new THREE.Mesh(geo, mat);
   mesh.frustumCulled = false;

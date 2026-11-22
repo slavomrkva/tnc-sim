@@ -10,6 +10,15 @@ in `NOTES.md`; this file is the short, human-readable history.
 
 ---
 
+## v1.014 — Refine indicator
+- Editing the program while Refine runs no longer leaves the Refine indicator
+  spinning.
+
+## v1.013 — faster Refine and smoother simulation
+- Refine finishes several times faster and no longer freezes the page at the
+  end. The simulation stutters less, mainly on phones. Detail and accuracy are
+  unchanged.
+
 ## v1.012 — smooth playback speed
 - The speed buttons now play the whole program evenly: milling, short arcs,
   drilling retracts, dwell and the tool change all keep the chosen ratio,

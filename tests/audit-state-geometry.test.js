@@ -57,6 +57,23 @@ for(const action of ['reset','prepare','run','step','replace-refine']){
  c.Worker=class{constructor(){throw Error('blocked');}};c.triggerRefine();
  assert.notStrictEqual(c.VX.mesh,before,'valid main-thread fallback applies');
 }
+// An edit while Refine runs makes the job stale: its next callback must release
+// the indicator and the button instead of leaving them busy.
+for(const path of ['progress','done','error','fallback']){
+ const {c,workers}=refineContext();let hidden=0,timer=null;
+ c._hideRefineIndicator=()=>hidden++;c._showRefineIndicator=()=>{};
+ if(path==='fallback'){
+  c.setTimeout=fn=>{timer=fn;};c.Worker=class{constructor(){throw Error('blocked');}};c.triggerRefine();hidden=0;
+ }
+ const mesh=c.VX.mesh;c.dirty=true;
+ if(path==='progress')workers[0].onmessage({data:{type:'progress',pct:60}});
+ if(path==='done')workers[0].onmessage(done);
+ if(path==='error')workers[0].onerror(new Error('late'));
+ if(path==='fallback')timer();
+ assert.ok(c._refineJob===null,path+' releases the stale job');
+ assert.ok(hidden>0,path+' hides the indicator');
+ assert.ok(c._refineWorker===null&&c.VX.mesh===mesh,path+' keeps the live mesh');
+}
 // Actual vendored Three geometry, with independent analytic corner samples.
 for(const [R,R2,DR,DR2] of [[5,2,0,0],[5,2,0,1],[5,2,1,-.5],[4,4,0,0],[4,4,1,1]]){
  const c=context(code);vm.runInContext(read('vendor/three.min.js'),c);

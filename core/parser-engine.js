@@ -3782,10 +3782,33 @@ function isCurrentRefine(job){
     !(typeof dirty!=='undefined' && dirty);
 }
 
+// ?perf=1 replaces the text with the timing (for phone tests): both together do
+// not fit a phone's one-line status bar.
+function _refineDoneText(job,where){
+  if(typeof location!=='undefined' && /[?&]perf=1(&|$)/.test(location.search||''))
+    return 'Refined in '+((Date.now()-job.started)/1000).toFixed(1)+' s ('+where+')';
+  return 'Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps';
+}
+
+// The synchronous fallback freezes the page, so say so and let it paint first.
+function _fallbackRefine(data, job){
+  _showRefineIndicator('Refining without worker\u2026');
+  if(typeof setTimeout==='function') setTimeout(function(){ if(!_refineIsStale(job)) _runRefineMainThread(data, job); }, 50);
+  else _runRefineMainThread(data, job);
+}
+
+// True when the job can no longer be applied. If it is still the active one (the
+// program was edited meanwhile), release the indicator and the button as well.
+function _refineIsStale(job){
+  if(isCurrentRefine(job)) return false;
+  if(_refineJob===job) cancelRefine();
+  return true;
+}
+
 function triggerRefine(){
   if(!VX || !prog) return;
   cancelRefine();
-  var job={prog:prog,vx:VX,index:subIndex,progress:subProgress};
+  var job={prog:prog,vx:VX,index:subIndex,progress:subProgress,started:Date.now()};
   _refineJob=job;
   var btn = document.getElementById('refineBtnCanvas');
   if(btn){ btn.disabled=true; btn.textContent='\u29d7 Refining\u2026'; }
@@ -3840,7 +3863,7 @@ function triggerRefine(){
     var _w = new Worker(_wu);
     URL.revokeObjectURL(_wu);
     _w.onmessage = function(e){
-      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
+      if(_refineIsStale(job) || _refineWorker!==_w) return;
       var msg = e.data;
       if(msg.type==='progress'){
         updateStatus('\u2699\ufe0f Refining\u2026 '+msg.pct+'%', false);
@@ -3849,19 +3872,19 @@ function triggerRefine(){
         _w.terminate();
         _refineWorker=null;
         _refineJob=null;
-        _applyRefinedMesh(Array.from(new Float32Array(msg.verts)), Array.from(new Float32Array(msg.norms)), Array.from(new Int32Array(msg.colors)));
+        _applyRefinedMesh(new Float32Array(msg.verts), new Float32Array(msg.norms), new Int32Array(msg.colors));
         var btn2=document.getElementById('refineBtnCanvas');
         if(btn2){ btn2.disabled=false; btn2.textContent='\u2713 Refined'; }
         _hideRefineIndicator();
-        updateStatus('Precise mesh ready \u2014 '+prog.totalBlocks+' simulation steps', false);
+        updateStatus(_refineDoneText(job,'worker'), false);
       }
     };
     _w.onerror = function(err){
-      if(!isCurrentRefine(job) || _refineWorker!==_w) return;
+      if(_refineIsStale(job) || _refineWorker!==_w) return;
       _w.terminate();
       // Worker blocked (sandbox) — fall back to main thread
       _refineWorker=null;
-      _runRefineMainThread(_refineData, job);
+      _fallbackRefine(_refineData, job);
     };
     _refineWorker = _w;
     _w.postMessage(_refineData, []);
@@ -3871,7 +3894,7 @@ function triggerRefine(){
   }
   if(!_workerOk){
     if(_refineWorker){ _refineWorker.terminate(); _refineWorker=null; }
-    _runRefineMainThread(_refineData, job);
+    _fallbackRefine(_refineData, job);
   }
 }
 
@@ -4148,20 +4171,30 @@ function commitSeg(sm){
   }
 }
 
-function getLblAtLine(srcLine){
-  if(!codeEl) return null;
-  var lines = codeEl.value.split('\n');
-  // Expanded CALL LBL body blocks deliberately point at the CALL line so the
-  // editor highlights the instruction that started the subprogram. That line
-  // is outside the LBL body, therefore recover its explicit target first.
-  var source=(lines[srcLine]||'').trim().replace(/;.*$/,'').trim().toUpperCase();
-  var call=source.match(/^CALL\s+LBL\s+(\d+)/);
-  if(call) return call[1];
-  var activeLbl = null;
-  for(var i=0; i<=Math.min(srcLine, lines.length-1); i++){
-    var u = lines[i].trim().replace(/;.*$/,'').trim().toUpperCase();
-    if(/^LBL\s+0/.test(u)){ activeLbl = null; }
-    else if(/^LBL\s+(\d+)/.test(u)){ var m=u.match(/^LBL\s+(\d+)/); if(m) activeLbl=m[1]; }
+// Program rows and their active labels, rebuilt only when the text changes:
+// playback asks for both every frame.
+var _rowsCache = {src:null, rows:[], lbl:[], last:null};
+function _programRows(){
+  var src = codeEl.value;
+  if(_rowsCache.src!==src){
+    var rows = src.split('\n'), lbl = [], active = null;
+    for(var i=0;i<rows.length;i++){
+      var u = rows[i].trim().replace(/;.*$/,'').trim().toUpperCase();
+      // Expanded CALL LBL body blocks deliberately point at the CALL line so the
+      // editor highlights the instruction that started the subprogram. That line
+      // is outside the LBL body, therefore recover its explicit target first.
+      var call = u.match(/^CALL\s+LBL\s+(\d+)/);
+      if(/^LBL\s+0/.test(u)) active = null;
+      else { var m = u.match(/^LBL\s+(\d+)/); if(m) active = m[1]; }
+      lbl.push(call ? call[1] : active);
+    }
+    _rowsCache = {src:src, rows:rows, lbl:lbl, last:active};
   }
-  return activeLbl;
+  return _rowsCache;
+}
+
+function getLblAtLine(srcLine){
+  if(!codeEl || typeof srcLine!=='number' || !(srcLine>=0)) return null;
+  var c = _programRows();
+  return srcLine<c.lbl.length ? c.lbl[srcLine] : c.last;
 }

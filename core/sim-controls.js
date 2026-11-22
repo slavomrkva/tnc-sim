@@ -71,7 +71,8 @@ function updateSimInfoPanel(){
   var coStr = coOn ? '<span style="color:#4a9eff;">M8 ●</span>' : '<span style="color:var(--text3);">M9 ○</span>';
   lines.push(spStr+'  '+coStr);
   lines.push('<span style="color:var(--text3);">LBL '+(currentLBL !== null ? currentLBL : '—')+'</span>');
-  el.innerHTML = lines.join('<br>');
+  var html = lines.join('<br>');
+  if(el._simHtml!==html){ el.innerHTML = html; el._simHtml = html; }
   el.style.display = '';
 }
 
