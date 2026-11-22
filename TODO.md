@@ -6,6 +6,14 @@
 
 ## Open work
 
+- **C66 — Mobile Chrome: choppy simulation and slow Refine (implemented on
+  `perf/mobile-chrome-refine`, awaiting owner's phone check).** Firefox on the
+  same phone is much faster. Cause of the browser difference is not confirmed:
+  desktop Chrome is as fast as Firefox, but Chrome with its optimizing JIT off
+  is about 12x slower, which would match (Chrome Site settings > JavaScript
+  optimization). Attempt 1 (v1.013): lossless speed-up of Refine, live cutting,
+  meshing and path uploads; see the changelog. Android port pending.
+
 - **External audit 2026-11-21 — confirmed parser/XSS findings (implemented,
   awaiting acceptance; web only, Android port pending).** An external
   (Gemini) audit listed ~124 findings; these were reproduced in Node and fixed:

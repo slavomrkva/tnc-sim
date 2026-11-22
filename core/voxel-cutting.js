@@ -44,7 +44,17 @@ function vxToolRadiusAtHeight(toolR, toolShape, dz2){
 // voxel-cutting -- web test branch: incremental chunk meshing (not yet ported to Android).
 
 var VX_CHUNK_CELLS = 32;
-var VX_EDGE_CORNERS = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+var VX_EDGE_A = new Uint8Array([0,1,2,3,4,5,6,7,0,1,2,3]);
+var VX_EDGE_B = new Uint8Array([1,2,3,0,5,6,7,4,4,5,6,7]);
+var _vxTriCount = null;
+var _vxCells = new Uint32Array(4096), _vxCases = new Uint8Array(4096);
+
+function vxTriangleCounts(){
+  if(_vxTriCount) return _vxTriCount;
+  _vxTriCount=new Uint8Array(256);
+  for(var c=0;c<256;c++) for(var t=0;t<15;t+=3){ if(MC_TRI_TABLE[c*16+t]<0) break; _vxTriCount[c]++; }
+  return _vxTriCount;
+}
 
 function mControlPauseCode(segment){
   var code=segment && (segment.stopCode || (segment.stop ? 'M0' : ''));
@@ -100,6 +110,7 @@ function vxInit(prog){
 
 function vxReset(){
   if(!VX||!prog) return;
+  VX.top=null; // full stock again: column tops restart from the top layer
   var cylVxR = VX.blkCyl || null;
   var min=prog.blkMin;
   for(var iz=0;iz<VX.nz;iz++) for(var iy=0;iy<VX.ny;iy++) for(var ix=0;ix<VX.nx;ix++){
@@ -120,6 +131,17 @@ function vxReset(){
   if(blockEdges) blockEdges.visible=true;
   if(typeof applyStockVisibility==='function') applyStockVisibility();
 }
+
+// Highest possibly-solid layer per XY column. Cutting only ever clears voxels,
+// so layers above it are known air and need no further visits; the result is
+// identical to scanning every layer up to the top of the stock.
+function vxColumnTops(){
+  if(!VX.top) VX.top=new Int32Array(VX.nx*VX.ny).fill(VX.nz-1);
+  return VX.top;
+}
+
+// Per-layer scratch buffers shared by every cut step.
+var _vxLayerR2=new Float64Array(0), _vxLayerColor=new Uint8Array(0);
 
 function vxCut(tx,ty,tz,toolR,toolShape){
   // toolShape: null=cylinder, {type:'ball',r2:R2} or {type:'cone',angle:deg,mode:'drill'|'countersink',lcuts:..}
@@ -150,30 +172,38 @@ function vxCut(tx,ty,tz,toolR,toolShape){
   var _lcutsZ = toolShape ? (toolShape.lcuts||toolR*999) : toolR*999;
   var changed=false;
   var changedIxMin=VX.nx, changedIxMax=-1, changedIyMin=VX.ny, changedIyMax=-1;
-  for(var iz=izMin;iz<=izMax;iz++){
-    var pz=VX.oz+iz*VX.dz;
-    if(pz < tz - VX.dz*0.5) continue;
+  var grid=VX.grid, cut=VX.cut, nx=VX.nx, nxy=VX.nx*VX.ny, tops=vxColumnTops();
+  if(_vxLayerR2.length<VX.nz){ _vxLayerR2=new Float64Array(VX.nz); _vxLayerColor=new Uint8Array(VX.nz); }
+  var layerR2=_vxLayerR2, layerColor=_vxLayerColor, toolColor=currentToolNum||1;
+  for(var lz=izMin;lz<=izMax;lz++){
+    var pz=VX.oz+lz*VX.dz;
+    if(pz < tz - VX.dz*0.5){ layerR2[lz]=-1; continue; }
     var dz2 = pz - tz;
     var effR = vxToolRadiusAtHeight(toolR, toolShape, dz2);
-    var r2=effR*effR;
-    for(var iy=iyMin;iy<=iyMax;iy++){
-      var py=VX.oy+iy*VX.dy;
-      for(var ix=ixMin;ix<=ixMax;ix++){
-        var px=VX.ox+ix*VX.dx;
-        var ddx=px-tx,ddy=py-ty;
-        if(ddx*ddx+ddy*ddy<=r2){
-          var gi=iz*VX.ny*VX.nx+iy*VX.nx+ix;
-          if(VX.grid[gi]){
-            VX.grid[gi]=0;
-            VX.cut[gi]=(dz2<=_lcutsZ)?currentToolNum||1:255;
-            changed=true;
-            if(ix<changedIxMin) changedIxMin=ix;
-            if(ix>changedIxMax) changedIxMax=ix;
-            if(iy<changedIyMin) changedIyMin=iy;
-            if(iy>changedIyMax) changedIyMax=iy;
-          }
+    layerR2[lz]=effR*effR;
+    layerColor[lz]=(dz2<=_lcutsZ)?toolColor:255;
+  }
+  for(var iy=iyMin;iy<=iyMax;iy++){
+    var ddy=VX.oy+iy*VX.dy-ty, ddy2=ddy*ddy;
+    for(var ix=ixMin;ix<=ixMax;ix++){
+      var col=iy*nx+ix, top=tops[col];
+      if(top<izMin) continue;
+      var ddx=VX.ox+ix*VX.dx-tx, dist2=ddx*ddx+ddy2, hit=false;
+      for(var iz=izMin, gi=izMin*nxy+col;iz<=top;iz++, gi+=nxy){
+        if(dist2<=layerR2[iz] && grid[gi]){
+          grid[gi]=0;
+          cut[gi]=layerColor[iz];
+          hit=true;
         }
       }
+      if(!hit) continue;
+      while(top>=0 && !grid[top*nxy+col]) top--;
+      tops[col]=top;
+      changed=true;
+      if(ix<changedIxMin) changedIxMin=ix;
+      if(ix>changedIxMax) changedIxMax=ix;
+      if(iy<changedIyMin) changedIyMin=iy;
+      if(iy>changedIyMax) changedIyMax=iy;
     }
   }
   if(changed){
@@ -199,94 +229,88 @@ function vxMarkDirtyBounds(ixMin,ixMax,iyMin,iyMax){
 }
 
 function vxBuildGeometryRange(cellX0,cellX1,cellY0,cellY1){
-  var nx=VX.nx,ny=VX.ny,nz=VX.nz;
-  var verts=[],normals=[],colors=[];
+  var nx=VX.nx,ny=VX.ny,nz=VX.nz,nxy=nx*ny;
+  var grid=VX.grid,cut=VX.cut,triCount=vxTriangleCounts();
+  var cells=_vxCells,cases=_vxCases,nCells=0,nTri=0,n,e,ti;
 
-  function vInterp(iso,p1x,p1y,p1z,v1,p2x,p2y,p2z,v2,out){
-    if(Math.abs(v1-v2)<1e-6){out[0]=p1x;out[1]=p1y;out[2]=p1z;return;}
-    var t=(iso-v1)/(v2-v1);
-    out[0]=p1x+t*(p2x-p1x);
-    out[1]=p1y+t*(p2y-p1y);
-    out[2]=p1z+t*(p2z-p1z);
-  }
-
-  var iso=0.5;
-  var ep=new Array(12);
-  for(var ei2=0;ei2<12;ei2++) ep[ei2]=[0,0,0];
-  var values=new Uint8Array(8);
-  var cornerX=new Float64Array(8), cornerY=new Float64Array(8), cornerZ=new Float64Array(8);
-  var stockColor=_stockRGB();
-
-  function val(ix,iy,iz){
-    if(ix<0||ix>=nx||iy<0||iy>=ny||iz<0||iz>=nz) return 0;
-    return VX.grid[iz*ny*nx+iy*nx+ix];
-  }
-
+  // Step 1: find the surface cells and the exact number of triangles.
   for(var iz=0;iz<nz-1;iz++){
     for(var iy=cellY0;iy<cellY1;iy++){
-      for(var ix=cellX0;ix<cellX1;ix++){
-        var x0=VX.ox+ix*VX.dx, y0=VX.oy+iy*VX.dy, z0=VX.oz+iz*VX.dz;
-        var x1=x0+VX.dx, y1=y0+VX.dy, z1=z0+VX.dz;
-        values[0]=val(ix,iy,iz); values[1]=val(ix+1,iy,iz);
-        values[2]=val(ix+1,iy+1,iz); values[3]=val(ix,iy+1,iz);
-        values[4]=val(ix,iy,iz+1); values[5]=val(ix+1,iy,iz+1);
-        values[6]=val(ix+1,iy+1,iz+1); values[7]=val(ix,iy+1,iz+1);
-        var ci=0;
-        if(values[0]>iso)ci|=1; if(values[1]>iso)ci|=2; if(values[2]>iso)ci|=4; if(values[3]>iso)ci|=8;
-        if(values[4]>iso)ci|=16;if(values[5]>iso)ci|=32;if(values[6]>iso)ci|=64;if(values[7]>iso)ci|=128;
+      var o=iz*nxy+iy*nx+cellX0;
+      // Bits of the shared face carry over from one cell to the next along X.
+      var left=grid[o]|(grid[o+nx]<<3)|(grid[o+nxy]<<4)|(grid[o+nxy+nx]<<7);
+      for(var ix=cellX0;ix<cellX1;ix++,o++){
+        var right=(grid[o+1]<<1)|(grid[o+1+nx]<<2)|(grid[o+1+nxy]<<5)|(grid[o+1+nxy+nx]<<6);
+        var ci=left|right;
+        left=((right&0x22)>>1)|((right&0x44)<<1);
         if(ci===0||ci===255) continue;
-        var et=MC_EDGE_TABLE[ci];
-        cornerX[0]=x0;cornerY[0]=y0;cornerZ[0]=z0;
-        cornerX[1]=x1;cornerY[1]=y0;cornerZ[1]=z0;
-        cornerX[2]=x1;cornerY[2]=y1;cornerZ[2]=z0;
-        cornerX[3]=x0;cornerY[3]=y1;cornerZ[3]=z0;
-        cornerX[4]=x0;cornerY[4]=y0;cornerZ[4]=z1;
-        cornerX[5]=x1;cornerY[5]=y0;cornerZ[5]=z1;
-        cornerX[6]=x1;cornerY[6]=y1;cornerZ[6]=z1;
-        cornerX[7]=x0;cornerY[7]=y1;cornerZ[7]=z1;
-        for(var e=0;e<12;e++){
-          if(et&(1<<e)){
-            var ea=VX_EDGE_CORNERS[e][0],eb=VX_EDGE_CORNERS[e][1];
-            vInterp(iso,cornerX[ea],cornerY[ea],cornerZ[ea],values[ea],cornerX[eb],cornerY[eb],cornerZ[eb],values[eb],ep[e]);
-          }
+        if(nCells===cells.length){
+          _vxCells=new Uint32Array(nCells*2); _vxCells.set(cells); cells=_vxCells;
+          _vxCases=new Uint8Array(nCells*2); _vxCases.set(cases); cases=_vxCases;
         }
-        var triBase=ci*16;
-        for(var ti=0;ti<15;ti+=3){
-          if(MC_TRI_TABLE[triBase+ti]<0) break;
-          var pa=ep[MC_TRI_TABLE[triBase+ti]],pb=ep[MC_TRI_TABLE[triBase+ti+1]],pc=ep[MC_TRI_TABLE[triBase+ti+2]];
-          // compute normal
-          var ax=pb[0]-pa[0],ay=pb[1]-pa[1],az=pb[2]-pa[2];
-          var bx=pc[0]-pa[0],by=pc[1]-pa[1],bz=pc[2]-pa[2];
-          var nx2=ay*bz-az*by,ny2=az*bx-ax*bz,nz2=ax*by-ay*bx;
-          var nl=Math.sqrt(nx2*nx2+ny2*ny2+nz2*nz2)||1;
-          nx2/=nl;ny2/=nl;nz2/=nl;
-          verts.push(pa[0],pa[1],pa[2],pb[0],pb[1],pb[2],pc[0],pc[1],pc[2]);
-          normals.push(nx2,ny2,nz2,nx2,ny2,nz2,nx2,ny2,nz2);
-          var centerX=(pa[0]+pb[0]+pc[0])/3;
-          var centerY=(pa[1]+pb[1]+pc[1])/3;
-          var centerZ=(pa[2]+pb[2]+pc[2])/3;
-          var cutX=Math.round((centerX-VX.ox)/VX.dx);
-          var cutY=Math.round((centerY-VX.oy)/VX.dy);
-          var cutZ=Math.round((centerZ-VX.oz)/VX.dz);
-          var isCut=0;
-          if(cutX>=0&&cutX<VX.nx&&cutY>=0&&cutY<VX.ny&&cutZ>=0&&cutZ<VX.nz){
-            isCut=VX.cut[cutZ*VX.ny*VX.nx+cutY*VX.nx+cutX];
-          }
-          var r=stockColor[0],g=stockColor[1],b=stockColor[2];
-          if(isCut>0 && isCut<255){
-            var tc=TOOL_CUT_COLORS[(isCut-1)%TOOL_CUT_COLORS.length];
-            r=tc[0];g=tc[1];b=tc[2];
-          }
-          colors.push(r,g,b,r,g,b,r,g,b);
-        }
+        cells[nCells]=o; cases[nCells++]=ci;
+        nTri+=triCount[ci];
       }
     }
   }
 
+  // Step 2: emit the triangles into exactly sized arrays.
+  var verts=new Float32Array(nTri*9),normals=new Float32Array(nTri*9),colors=new Float32Array(nTri*9);
+  var iso=0.5,v=0;
+  var cornerX=new Float64Array(8),cornerY=new Float64Array(8),cornerZ=new Float64Array(8);
+  var epX=new Float64Array(12),epY=new Float64Array(12),epZ=new Float64Array(12);
+  var stockColor=_stockRGB();
+  for(n=0;n<nCells;n++){
+    var cell=cells[n],ci2=cases[n];
+    var cz=Math.floor(cell/nxy),rest=cell-cz*nxy,cy=Math.floor(rest/nx),cx=rest-cy*nx;
+    var x0=VX.ox+cx*VX.dx,y0=VX.oy+cy*VX.dy,z0=VX.oz+cz*VX.dz;
+    var x1=x0+VX.dx,y1=y0+VX.dy,z1=z0+VX.dz;
+    cornerX[0]=x0;cornerX[1]=x1;cornerX[2]=x1;cornerX[3]=x0;cornerX[4]=x0;cornerX[5]=x1;cornerX[6]=x1;cornerX[7]=x0;
+    cornerY[0]=y0;cornerY[1]=y0;cornerY[2]=y1;cornerY[3]=y1;cornerY[4]=y0;cornerY[5]=y0;cornerY[6]=y1;cornerY[7]=y1;
+    cornerZ[0]=z0;cornerZ[1]=z0;cornerZ[2]=z0;cornerZ[3]=z0;cornerZ[4]=z1;cornerZ[5]=z1;cornerZ[6]=z1;cornerZ[7]=z1;
+    var et=MC_EDGE_TABLE[ci2];
+    for(e=0;e<12;e++){
+      if(et&(1<<e)){
+        // A crossed edge joins a 0 and a 1 corner, so the crossing is at iso.
+        var ea=VX_EDGE_A[e],eb=VX_EDGE_B[e];
+        epX[e]=cornerX[ea]+iso*(cornerX[eb]-cornerX[ea]);
+        epY[e]=cornerY[ea]+iso*(cornerY[eb]-cornerY[ea]);
+        epZ[e]=cornerZ[ea]+iso*(cornerZ[eb]-cornerZ[ea]);
+      }
+    }
+    var triBase=ci2*16,tEnd=triBase+triCount[ci2]*3;
+    for(ti=triBase;ti<tEnd;ti+=3){
+      var ta=MC_TRI_TABLE[ti],tb=MC_TRI_TABLE[ti+1],tc=MC_TRI_TABLE[ti+2];
+      var pax=epX[ta],pay=epY[ta],paz=epZ[ta],pbx=epX[tb],pby=epY[tb],pbz=epZ[tb],pcx=epX[tc],pcy=epY[tc],pcz=epZ[tc];
+      // compute normal
+      var ax=pbx-pax,ay=pby-pay,az=pbz-paz;
+      var bx=pcx-pax,by=pcy-pay,bz=pcz-paz;
+      var nx2=ay*bz-az*by,ny2=az*bx-ax*bz,nz2=ax*by-ay*bx;
+      var nl=Math.sqrt(nx2*nx2+ny2*ny2+nz2*nz2)||1;
+      nx2/=nl;ny2/=nl;nz2/=nl;
+      var cutX=Math.round(((pax+pbx+pcx)/3-VX.ox)/VX.dx);
+      var cutY=Math.round(((pay+pby+pcy)/3-VX.oy)/VX.dy);
+      var cutZ=Math.round(((paz+pbz+pcz)/3-VX.oz)/VX.dz);
+      var isCut=0;
+      if(cutX>=0&&cutX<nx&&cutY>=0&&cutY<ny&&cutZ>=0&&cutZ<nz) isCut=cut[cutZ*nxy+cutY*nx+cutX];
+      var rgb=(isCut>0&&isCut<255)?TOOL_CUT_COLORS[(isCut-1)%TOOL_CUT_COLORS.length]:stockColor;
+      verts[v]=pax;verts[v+1]=pay;verts[v+2]=paz;
+      verts[v+3]=pbx;verts[v+4]=pby;verts[v+5]=pbz;
+      verts[v+6]=pcx;verts[v+7]=pcy;verts[v+8]=pcz;
+      normals[v]=normals[v+3]=normals[v+6]=nx2;
+      normals[v+1]=normals[v+4]=normals[v+7]=ny2;
+      normals[v+2]=normals[v+5]=normals[v+8]=nz2;
+      colors[v]=colors[v+3]=colors[v+6]=rgb[0];
+      colors[v+1]=colors[v+4]=colors[v+7]=rgb[1];
+      colors[v+2]=colors[v+5]=colors[v+8]=rgb[2];
+      v+=9;
+    }
+  }
+
   var geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(verts),3));
-  geo.setAttribute('normal',new THREE.BufferAttribute(new Float32Array(normals),3));
-  geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(colors),3));
+  geo.setAttribute('position',new THREE.BufferAttribute(verts,3));
+  geo.setAttribute('normal',new THREE.BufferAttribute(normals,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(colors,3));
   return geo;
 }
 
@@ -387,19 +411,19 @@ function vxCollides(tx, ty, tz, toolR, toolShape){
   var iyMax=Math.min(VX.ny-1,Math.ceil((ty+maxR-VX.oy)/VX.dy));
   var izMin=Math.max(0,Math.floor((tz-VX.oz)/VX.dz));
   var izMax=VX.nz-1;
-  for(var iz=izMin;iz<=izMax;iz++){
-    var pz=VX.oz+iz*VX.dz;
-    if(pz<tz) continue;
-    var radius=vxToolRadiusAtHeight(toolR,toolShape,pz-tz);
-    var r2=radius*radius;
-    for(var iy=iyMin;iy<=iyMax;iy++){
-      var py=VX.oy+iy*VX.dy;
-      for(var ix=ixMin;ix<=ixMax;ix++){
-        var px=VX.ox+ix*VX.dx;
-        var ddx=px-tx, ddy=py-ty;
-        if(ddx*ddx+ddy*ddy<=r2){
-          if(VX.grid[iz*VX.ny*VX.nx+iy*VX.nx+ix]) return true;
-        }
+  var tops=vxColumnTops(), nxy=VX.nx*VX.ny;
+  for(var iy=iyMin;iy<=iyMax;iy++){
+    var ddy=VX.oy+iy*VX.dy-ty;
+    for(var ix=ixMin;ix<=ixMax;ix++){
+      var col=iy*VX.nx+ix, top=tops[col];
+      if(top<izMin) continue; // only air left above the tool tip in this column
+      var ddx=VX.ox+ix*VX.dx-tx, dist2=ddx*ddx+ddy*ddy;
+      for(var iz=izMin;iz<=top;iz++){
+        if(!VX.grid[iz*nxy+col]) continue;
+        var pz=VX.oz+iz*VX.dz;
+        if(pz<tz) continue;
+        var radius=vxToolRadiusAtHeight(toolR,toolShape,pz-tz);
+        if(dist2<=radius*radius) return true;
       }
     }
   }
@@ -501,7 +525,7 @@ function advance(dt){
   updatePos();
   if(subIndex < sub.length){
     var _sm = sub[subIndex];
-    var src = codeEl.value.split('\n')[_sm.srcLine] || '';
+    var src = _programRows().rows[_sm.srcLine] || '';
     var bi = _sm.blockIndex;
     updateStatus('Step '+bi+'/'+prog.totalBlocks+':  '+src.trim(), mode==='running'||mode==='stepping');
     currentFeed = (_sm.rapid || _sm.isMseg) ? 0 : (_sm.feed || 0);

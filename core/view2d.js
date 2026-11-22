@@ -88,8 +88,9 @@ function togglePaths(){
 
 function updateStatus(msg, running){
   if(window._collisionActive && msg!=='Ready — press Run') return;
-  statusMsg.textContent = msg;
-  statusDot.className = 'status-dot' + (running?' run':'');
+  if(statusMsg.textContent!==msg) statusMsg.textContent = msg;
+  var dotClass = 'status-dot' + (running?' run':'');
+  if(statusDot.className!==dotClass) statusDot.className = dotClass;
 }
 
 function updatePos(){

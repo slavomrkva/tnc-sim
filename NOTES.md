@@ -97,6 +97,8 @@ retain their original terms. This does not change the Android repository.
     `BUG_HISTORY.md` in the same change. Mirror cross-repo bugs.
 12. **Chunked Marching Cubes:** dirty bounds require the one-cell XY dependency
     halo; Measure raycasting stays recursive while the live mesh is a group.
+    `VX.top` is an upper bound of the solid layers per column: anything that
+    refills stock must set `VX.top=null`.
 13. **Cycle feeds and visibility:** cycle `FAUTO` uses the active `TOOL CALL`
    feed. The official `AUTO` spelling is equivalent only for Q206 in supported
    Cycles 200, 201 and 208; reject it on non-feed Q parameters. Positioning

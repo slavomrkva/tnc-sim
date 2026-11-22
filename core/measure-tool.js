@@ -9,7 +9,7 @@ function makeBuf(maxSeg, color, opacity){
   var mat = new THREE.LineBasicMaterial({color:color, transparent:opacity<1, opacity:opacity});
   var seg = new THREE.LineSegments(geo, mat);
   seg.frustumCulled = false;
-  return {arr:arr, geo:geo, seg:seg, count:0, cap:cap};
+  return {arr:arr, geo:geo, seg:seg, count:0, cap:cap, clean:0};
 }
 
 function bufAppend(buf, a, b){
@@ -30,11 +30,23 @@ function bufRefresh(buf, partialA, partialB){
       draw = buf.count+6;
     }
   }
-  buf.geo.attributes.position.needsUpdate = true;
   buf.geo.setDrawRange(0, draw/3);
+  // Upload only the part that changed since the last refresh. A range still
+  // waiting for the renderer (which resets its count to -1) is extended.
+  var start = buf.clean;
+  if(draw<=start) return;
+  var pos = buf.geo.attributes.position, range = pos.updateRange, end = draw;
+  if(range.count>=0){
+    start = Math.min(start, range.offset);
+    end = Math.max(end, range.offset+range.count);
+  }
+  range.offset = start;
+  range.count = end-start;
+  pos.needsUpdate = true;
+  buf.clean = buf.count; // the partial segment is rewritten by the next refresh
 }
 
-function bufClear(buf){ buf.count=0; buf.geo.setDrawRange(0,0); buf.geo.attributes.position.needsUpdate=true; }
+function bufClear(buf){ buf.count=0; buf.clean=0; buf.geo.setDrawRange(0,0); } // nothing drawn, nothing to upload
 
 function toggleMeasure(){
   measureMode = !measureMode;

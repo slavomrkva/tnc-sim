@@ -1222,3 +1222,22 @@ History through v0.845 is preserved in
   `updateATC()` uses `simTimeScale()`; harness `RAPID_MMS` = 20000/60;
   pacing test covers the budget drop, carry reset and ATC scaling. Note:
   `calcEstTime()` excludes the ~1.5 s ATC animation per tool change at 1x.
+
+## v1.013 — 2026-11-22 — Refine and live cutting speed (test branch, mobile Chrome)
+
+- Cutting keeps the highest possibly-solid layer per XY column (`colTop` in the
+  Refine worker, `VX.top` live) instead of rescanning every layer to the top of
+  the stock. Limiting the scan to LCUTS was rejected: the shank above LCUTS
+  removes stock too (marked 255), so it changes the result.
+- Worker and live Marching Cubes find the surface cells first and then fill
+  exactly sized typed arrays; no per-cell objects or multi-million-entry arrays.
+- Worker arrays go straight into the BufferAttributes; no `Array.from` round
+  trip and no second normal computation. The main-thread fallback now announces
+  itself before it blocks the page.
+- Toolpath buffers upload only the changed range; program rows and LBL are
+  cached; HUD and status text are written only when they change.
+- `?perf=1` adds the Refine time and where it ran to the status line.
+- `tests/voxel-fast-path.test.js` pins worker, cut, mesh and collision output to
+  v1.012 hashes. Refine, 100x100x30 default quality, desktop: Chrome 4.1 -> 0.6 s,
+  Firefox 4.6 -> 0.7 s, Chrome without optimizing JIT 56 -> 4.9 s. Voxel
+  resolution and budgets are unchanged. Not yet checked on a phone.
